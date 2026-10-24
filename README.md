@@ -46,11 +46,17 @@ date,description,amount,currency,reference
 2026-10-22,Cloud Tools,-29.00,USD,DEMO-IMPORT-002
 ```
 
-Select the payment account and amount-sign convention, map the columns, and inspect the preview before committing. Dates must be `YYYY-MM-DD`. Date, description, and amount are required; currency defaults to the account currency. This release imports expense outflows only. Remove income and transfers from the file. Limits: 2 MB and 2,000 transactions per file.
+Select the payment account and amount-sign convention, map the columns, and inspect the preview before committing. Select the matching date format; `YYYY-MM-DD` is the default. Date, description, and amount are required; currency defaults to the account currency. This release imports expense outflows only. Remove income and transfers from the file. Limits: 2 MB and 2,000 transactions per file.
 
 Each accepted payment creates one draft. Attach its receipt to that existing draft. Imported payment amount, date, currency, and account are locked during review to keep the evidence consistent.
 
 Repeats are skipped using business + account + provider reference. Without a reference, the key includes date, normalized description, amount, currency, and account. Amount alone is never sufficient. Conflicting details under an existing reference are rejected. Truly separate transactions with identical fields need distinct provider references; fallback matching cannot distinguish them. Imports create drafts, never posted entries.
+
+## Migration and export
+
+Use **Import CSV → Expense history** for paid-expense CSVs exported from QuickBooks, Zoho Books, or another system. The importer offers explicit date formats, vendor/category/purpose mapping, source evidence, preview totals, and repeat-import checks. Records remain drafts until reviewed. This does not migrate complete books or connect to those services.
+
+Use **Export** to download current posted expenses or the full journal history, filtered by business, date, and currency. See [Expense history import and CSV export](docs/migration.md) for preparation requirements and limitations.
 
 ## Data and demo boundaries
 

@@ -42,6 +42,19 @@ export interface ImportedTransaction extends Scoped {
   fingerprint: string;
   draftId: string;
 }
+export type ImportProvider = "csv" | "quickbooks" | "zoho";
+// Embedded source evidence is preserved when the draft is edited or corrected.
+export interface ImportedExpenseSource extends Scoped {
+  provider: ImportProvider;
+  reference: string;
+  fingerprint: string;
+  date: string;
+  amountMinor: number;
+  currency: Currency;
+  vendor: string;
+  category: string;
+  filename: string;
+}
 export interface ExpenseDraft extends Scoped {
   vendor: string;
   date: string;
@@ -53,6 +66,7 @@ export interface ExpenseDraft extends Scoped {
   purpose: string;
   documentIds: string[];
   paymentId?: string;
+  importSource?: ImportedExpenseSource;
   status: "draft" | "posted" | "corrected";
   journalId?: string;
   correctionOf?: string;

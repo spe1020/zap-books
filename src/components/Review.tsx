@@ -302,6 +302,40 @@ export function Review({
               />
             </label>
           )}
+          {draft.importSource && (
+            <div className="payment-evidence">
+              <FileText size={18} />
+              <div>
+                <strong>Imported expense history</strong>
+                <p>
+                  {draft.importSource.provider === "quickbooks"
+                    ? "QuickBooks"
+                    : draft.importSource.provider === "zoho"
+                      ? "Zoho Books"
+                      : "CSV"}{" "}
+                  · {draft.importSource.reference || "No source reference"}
+                </p>
+                <p>
+                  {draft.importSource.vendor} ·{" "}
+                  {money(
+                    draft.importSource.amountMinor,
+                    draft.importSource.currency,
+                  )}{" "}
+                  · {draft.importSource.date}
+                </p>
+                {draft.importSource.category && (
+                  <small>
+                    Original category: {draft.importSource.category}
+                  </small>
+                )}
+                <p className="small">
+                  Source: {draft.importSource.filename || "CSV file"}. This
+                  preserves the original accounting record; it is not bank
+                  payment evidence.
+                </p>
+              </div>
+            </div>
+          )}
           {payment && (
             <div className="payment-evidence">
               <Link2 size={18} />

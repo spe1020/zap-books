@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowDownToLine,
+  Download,
   ArrowLeftRight,
   ArrowRight,
   ArrowUpRight,
@@ -55,6 +56,7 @@ import {
 import { Review } from "./components/Review";
 import type { Mutation } from "./components/Review";
 import { ImportDialog } from "./components/Import";
+import { ExportDialog } from "./components/Export";
 import { Settings } from "./components/Settings";
 type View = "overview" | "inbox" | "transactions" | "settings";
 const nav = [
@@ -79,6 +81,7 @@ export default function App() {
     [toast, setToast] = useState("");
   const [review, setReview] = useState<ExpenseDraft | null>(null);
   const [importing, setImporting] = useState(false),
+    [exporting, setExporting] = useState(false),
     [assistant, setAssistant] = useState(false),
     [mobileNav, setMobileNav] = useState(false);
   const [answer, setAnswer] = useState("");
@@ -146,6 +149,7 @@ export default function App() {
     }
     setReview(null);
     setImporting(false);
+    setExporting(false);
     setAssistant(false);
     setAnswer("");
     setError("");
@@ -339,6 +343,13 @@ export default function App() {
                 <div className="heading-actions">
                   <button
                     className="button secondary"
+                    onClick={() => setExporting(true)}
+                  >
+                    <Download size={17} />
+                    Export
+                  </button>
+                  <button
+                    className="button secondary"
                     onClick={() => setImporting(true)}
                   >
                     <ArrowDownToLine size={17} />
@@ -435,6 +446,9 @@ export default function App() {
             onClose={() => setImporting(false)}
             busy={busy}
           />
+        )}
+        {exporting && (
+          <ExportDialog b={b} onClose={() => setExporting(false)} />
         )}
         {toast && (
           <div className="toast" role="status">

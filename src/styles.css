@@ -2667,3 +2667,34 @@ summary {
     overscroll-behavior-x: contain;
   }
 }
+
+.export-description {
+  margin: 14px 0 20px;
+}
+.import-options {
+  margin-bottom: 20px;
+}
+.import-warning {
+  display: block;
+  max-width: 250px;
+  min-width: 150px;
+  font-size: 10px;
+  color: #5c6d52;
+  margin-top: 5px;
+}
+.heading-actions {
+  flex-wrap: wrap;
+}
+@media (min-width: 950px) {
+  .mapping-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .heading-actions {
+    gap: 7px;
+  }
+  .heading-actions .button {
+    padding: 10px 11px;
+  }
+}

@@ -64,6 +64,8 @@ export function missingDetails(b: BusinessData, d: ExpenseDraft): string[] {
   const errors: string[] = [];
   if (d.businessId !== b.profile.id)
     errors.push("Expense belongs to another business.");
+  if (d.importSource && d.importSource.businessId !== b.profile.id)
+    errors.push("Import source belongs to another business.");
   if (!d.vendor.trim()) errors.push("Vendor is required.");
   if (!validDate(d.date)) errors.push("A valid expense date is required.");
   if (!d.description.trim()) errors.push("Description is required.");
@@ -215,6 +217,14 @@ export function saveDraft(
   draft: ExpenseDraft,
 ): BusinessData {
   const b = structuredClone(business);
+  const prior = b.drafts.find((x) => x.id === draft.id);
+  if (draft.importSource && draft.importSource.businessId !== b.profile.id)
+    throw new Error("Import source belongs to another business.");
+  if (
+    prior?.importSource &&
+    JSON.stringify(prior.importSource) !== JSON.stringify(draft.importSource)
+  )
+    throw new Error("Imported source evidence cannot be changed.");
   if (
     draft.businessId !== b.profile.id ||
     draft.status !== "draft" ||
@@ -247,7 +257,11 @@ export function saveDraft(
     index === -1 ? "expense.created" : "expense.updated",
     draft.id,
     index === -1 ? "Expense draft created" : "Expense draft updated",
-    [...draft.documentIds, ...(draft.paymentId ? [draft.paymentId] : [])],
+    [
+      ...draft.documentIds,
+      ...(draft.paymentId ? [draft.paymentId] : []),
+      ...(draft.importSource ? [draft.importSource.id] : []),
+    ],
   );
   return b;
 }
@@ -269,6 +283,17 @@ export function approve(
     throw new Error("Duplicate posting prevented.");
   const errors = validation(b, d);
   if (errors.length) throw new Error(errors.join(" "));
+  if (
+    d.importSource &&
+    b.drafts.some(
+      (x) =>
+        x.id !== d.id &&
+        x.id !== d.correctionOf &&
+        x.status === "posted" &&
+        x.importSource?.fingerprint === d.importSource?.fingerprint,
+    )
+  )
+    throw new Error("This imported source already has a posted expense.");
   if (
     d.paymentId &&
     b.drafts.some(
@@ -318,7 +343,11 @@ export function approve(
     "expense.approved",
     d.id,
     "Reviewed and approved. No payment initiated.",
-    [...d.documentIds, ...(d.paymentId ? [d.paymentId] : [])],
+    [
+      ...d.documentIds,
+      ...(d.paymentId ? [d.paymentId] : []),
+      ...(d.importSource ? [d.importSource.id] : []),
+    ],
   );
   event(b, "expense.posted", d.id, "Balanced journal entry recorded", [
     journal.id,
@@ -346,6 +375,13 @@ export function correct(
     throw new Error("Invalid replacement.");
   if (original.paymentId !== replacement.paymentId)
     throw new Error("Preserve the payment link when correcting an expense.");
+  if (
+    JSON.stringify(original.importSource) !==
+    JSON.stringify(replacement.importSource)
+  )
+    throw new Error(
+      "Preserve import source evidence when correcting an expense.",
+    );
   const prior = b.journals.find((x) => x.id === original.journalId)!;
   const reversal: JournalEntry = {
     ...prior,
