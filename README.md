@@ -36,6 +36,24 @@ The built files are in `dist/`. Preview uses a different port, which means a sep
 
 The seeded inbox also contains an incomplete expense, a receipt already matched to an imported payment, and a possible duplicate. Transactions include an account transfer and a corrected expense. Examples use the month when the workspace is first seeded; select that month in Overview if testing later.
 
+### Upload a demo receipt
+
+Use the fictional [Paper & Pine receipt (PDF)](docs/samples/demo-receipt.pdf) or [the same receipt as a PNG](docs/samples/demo-receipt.png). The printable [HTML source](docs/samples/demo-receipt.html) is also included. After pulling the repository, these files are in `docs/samples/`.
+
+In **Northstar Studio → New expense**, attach either the PDF or PNG and enter:
+
+| Field             | Value                                     |
+| ----------------- | ----------------------------------------- |
+| Vendor            | Paper & Pine                              |
+| Date              | 2026-10-24                                |
+| Description       | Notebooks, pens, and presentation folders |
+| Amount / currency | 42.50 / USD                               |
+| Category          | Office & supplies                         |
+| Payment account   | Business card                             |
+| Business purpose  | Stationery for client project planning    |
+
+The receipt totals $40.00 of items plus $2.50 of sample sales tax. Enter the full **$42.50** as the expense amount; this prototype does not split tax into a separate ledger account. Save the draft, reopen it to check the attachment, then approve it. October 2026 USD spending should increase by $42.50. Use one format per test expense; the PDF and PNG represent the same fictional purchase. Receipt fields are entered manually until local OCR/AI is connected.
+
 ## Import payments from CSV
 
 Choose **Import CSV** and download the sample, or use your own CSV:
