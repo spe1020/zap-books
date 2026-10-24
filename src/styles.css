@@ -2698,3 +2698,7 @@ summary {
     padding: 10px 11px;
   }
 }
+
+.payment-lock-note {
+  margin: -7px 0 17px;
+}

@@ -48,7 +48,7 @@ date,description,amount,currency,reference
 
 Select the payment account and amount-sign convention, map the columns, and inspect the preview before committing. Select the matching date format; `YYYY-MM-DD` is the default. Date, description, and amount are required; currency defaults to the account currency. This release imports expense outflows only. Remove income and transfers from the file. Limits: 2 MB and 2,000 transactions per file.
 
-Each accepted payment creates one draft. Attach its receipt to that existing draft. Imported payment amount, date, currency, and account are locked during review to keep the evidence consistent.
+Each accepted payment creates one draft. Attach its receipt to that existing draft. Imported bank/card payment amount, date, currency, and account stay locked during review and corrections to keep the evidence consistent. Category and descriptive fields can be corrected. Manual expenses and **Expense history** imports allow amount corrections through a reversal and replacement. Adjusting or unmatching a bank payment is not supported in this prototype.
 
 Repeats are skipped using business + account + provider reference. Without a reference, the key includes date, normalized description, amount, currency, and account. Amount alone is never sufficient. Conflicting details under an existing reference are rejected. Truly separate transactions with identical fields need distinct provider references; fallback matching cannot distinguish them. Imports create drafts, never posted entries.
 

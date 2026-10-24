@@ -86,6 +86,19 @@ test("mapped expense history becomes a reviewable draft and re-import skips the 
   await page.getByRole("button", { name: "Approve & post" }).click();
   await page.getByRole("button", { name: "Overview", exact: true }).click();
   await expect(page.locator(".principal .stat-value")).toHaveText("$4,657.49");
+  await page.getByRole("button", { name: "Transactions", exact: true }).click();
+  await page
+    .getByRole("button", { name: "View Maple Supply", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Correct expense" }).click();
+  await expect(page.getByLabel("Amount", { exact: true })).toBeEnabled();
+  await page.getByLabel("Amount", { exact: true }).fill("40.00");
+  await page
+    .getByLabel("Reason for correction")
+    .fill("Updated historical expense total");
+  await page.getByRole("button", { name: "Post correction" }).click();
+  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,654.99");
   await openImport();
   await expect(page.getByText("0 new · 1 repeated · 0 invalid")).toBeVisible();
   await expect(

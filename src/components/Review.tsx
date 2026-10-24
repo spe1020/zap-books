@@ -349,7 +349,9 @@ export function Review({
                   {payment.date} · {payment.reference || "Imported transaction"}
                 </small>
                 <p className="small">
-                  This receipt belongs to the existing payment draft.
+                  This expense is linked to the original bank/card payment. Its
+                  amount, date, currency, and account stay aligned with that
+                  payment when you correct other details.
                 </p>
               </div>
             </div>
@@ -450,6 +452,7 @@ export function Review({
                 inputMode="decimal"
                 value={amount}
                 disabled={!!payment || readOnly}
+                aria-describedby={payment ? "payment-amount-help" : undefined}
                 onChange={(e) => {
                   setAmount(e.target.value);
                   try {
@@ -461,6 +464,16 @@ export function Review({
                 placeholder="0.00"
               />
             </label>
+            {payment && (
+              <p
+                id="payment-amount-help"
+                className="small muted payment-lock-note"
+              >
+                Amount comes from the linked bank/card payment and cannot be
+                changed here. You can correct the category and descriptive
+                details while preserving that payment.
+              </p>
+            )}
             <label>
               Category
               <select

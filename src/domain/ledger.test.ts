@@ -223,6 +223,16 @@ describe("CSV payments and evidence", () => {
     expect(validation(b, { ...d, amountMinor: d.amountMinor + 1 })).toContain(
       "Expense must match its imported payment amount, date, currency, and account.",
     );
+    expect(() =>
+      correct(
+        posted,
+        d.id,
+        { ...d, id: id(), amountMinor: d.amountMinor + 1 },
+        "Changed receipt total",
+      ),
+    ).toThrow("Expense must match its imported payment");
+    expect(posted.payments).toEqual(b.payments);
+    expect(posted.drafts.find((x) => x.id === d.id)?.status).toBe("posted");
   });
 });
 

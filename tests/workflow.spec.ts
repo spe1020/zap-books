@@ -329,3 +329,56 @@ test("inbox, review, transactions, settings, and import pass accessibility check
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await audit();
 });
+
+test("bank-linked corrections explain locked amounts and preserve payment evidence", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: /Expense inbox/ }).click();
+  await page
+    .getByRole("button", { name: "Review Notion", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Approve & post" }).click();
+  await page.getByRole("button", { name: "Transactions", exact: true }).click();
+  await page.getByRole("button", { name: "View Notion", exact: true }).click();
+  await page.getByRole("button", { name: "Correct expense" }).click();
+  await expect(page.getByLabel("Amount", { exact: true })).toBeDisabled();
+  await expect(
+    page.getByLabel("Amount", { exact: true }),
+  ).toHaveAccessibleDescription(
+    /Amount comes from the linked bank\/card payment/,
+  );
+  await expect(page.getByLabel("Date", { exact: true })).toBeDisabled();
+  await expect(
+    page.getByRole("combobox", { name: "Currency", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("combobox", { name: "Payment account", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByLabel("Description", { exact: true })
+    .fill("Corrected project description");
+  await page
+    .getByLabel("Reason for correction")
+    .fill("Clarify the project this expense supported");
+  const scan = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+    .analyze();
+  expect(
+    scan.violations.map((v) => ({
+      id: v.id,
+      targets: v.nodes.map((n) => n.target),
+    })),
+  ).toEqual([]);
+  await page.getByRole("button", { name: "Post correction" }).click();
+  await page.getByLabel("Search transactions").fill("Notion");
+  await expect(page.locator("tbody tr")).toHaveCount(2);
+  await page
+    .locator("tbody tr")
+    .filter({ hasText: "Posted" })
+    .getByRole("button", { name: "View Notion", exact: true })
+    .click();
+  await expect(page.locator(".payment-evidence")).toContainText("$180.00");
+  await expect(page.getByLabel("Description", { exact: true })).toHaveValue(
+    "Corrected project description",
+  );
+});
