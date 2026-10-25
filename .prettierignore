@@ -4,3 +4,5 @@ test-results
 playwright-report
 package-lock.json
 *.tsbuildinfo
+fixtures/parity
+target
