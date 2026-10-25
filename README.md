@@ -104,6 +104,21 @@ npm run test:e2e
 
 Set `CHROMIUM_PATH` if you want to use a different Chromium executable. Tests start Vite automatically when needed and use isolated browser contexts. They cover posting and totals, attachment persistence, import/re-import, corrections, business switching, explicit rules, errors and empty reports, deliberate reset, stale-tab conflicts, keyboard focus, mobile layout, and automated accessibility checks. These checks are not a complete manual accessibility certification or cross-browser support matrix.
 
+## Rust ledger core
+
+`crates/ledger-core` ports the TypeScript accounting rules into a library; the browser application still uses TypeScript. Install Rust through rustup, which reads the pinned toolchain in `rust-toolchain.toml`, then run:
+
+```bash
+cargo fmt --check
+cargo clippy --all-targets --locked -- -D warnings
+cargo test --locked
+npm run parity:fixtures
+```
+
+The parity fixtures compare both implementations, including rejected imports and duplicate postings. Commit regenerated fixtures with any shared behavior change. See [Parity notes](PARITY_NOTES.md) for deliberate differences.
+
+Rust journal construction requires `JournalEntry::new(&business, unchecked)`. Load saved JSON through `BusinessData` or `Workspace` so journals are checked against their business, accounts, categories, and currency. Context-free journal deserialization and conversion are intentionally unavailable. Valid stored JSON keeps the same shape; invalid journals fail loading instead of entering reports.
+
 ## Code boundaries and next milestone
 
 See [Architecture and backend handoff](docs/architecture.md) for the domain model, storage/AI/transport interfaces, event contract, and recommended next milestone: **one authoritative accounting service, encrypted document storage, and an existing private Nostr relay with enforced authentication and business authorization**.

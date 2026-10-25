@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc b32f1d1dee1ddb655d6c77c1c3995469092ae40c1e78a82adc3359f31d65c357 # shrinks to ops = [Save(Spec { amount: 1, currency: Gbp, day: 1, category: 0, vendor: "a" }, false)]

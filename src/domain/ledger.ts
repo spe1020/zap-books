@@ -283,12 +283,13 @@ export function approve(
     throw new Error("Duplicate posting prevented.");
   const errors = validation(b, d);
   if (errors.length) throw new Error(errors.join(" "));
+  // A real correction has already reversed and marked its original corrected.
+  // Naming an expense in correctionOf cannot exempt a still-posted record.
   if (
     d.importSource &&
     b.drafts.some(
       (x) =>
         x.id !== d.id &&
-        x.id !== d.correctionOf &&
         x.status === "posted" &&
         x.importSource?.fingerprint === d.importSource?.fingerprint,
     )
@@ -298,10 +299,7 @@ export function approve(
     d.paymentId &&
     b.drafts.some(
       (x) =>
-        x.id !== d.id &&
-        x.id !== d.correctionOf &&
-        x.status === "posted" &&
-        x.paymentId === d.paymentId,
+        x.id !== d.id && x.status === "posted" && x.paymentId === d.paymentId,
     )
   )
     throw new Error("This payment is already linked to a posted expense.");
