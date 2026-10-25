@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [business-finance-mvp]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # rust-toolchain.toml pins the version; rustup installs it on first use.
+      - name: Install Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: npm ci
+
+      - name: cargo fmt --check
+        run: cargo fmt --check
+
+      - name: cargo clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: cargo test
+        run: cargo test
+
+      - name: npm test
+        run: npm test
+
+      - name: npm run build
+        run: npm run build
+
+      - name: Parity fixtures match the TypeScript
+        run: |
+          npm run parity:fixtures
+          if [ -n "$(git status --porcelain -- fixtures/parity)" ]; then
+            echo "::error::fixtures/parity is out of date. Run 'npm run parity:fixtures' and commit the result."
+            git status --short -- fixtures/parity
+            git diff --stat -- fixtures/parity
+            exit 1
+          fi
