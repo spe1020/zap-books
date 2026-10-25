@@ -1,0 +1,542 @@
+[
+ {
+  "name": "parseMoney \"0.29\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "0.29"
+  },
+  "output": 29
+ },
+ {
+  "name": "parseMoney \"100.01\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "100.01"
+  },
+  "output": 10001
+ },
+ {
+  "name": "parseMoney \"-4.05\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "-4.05"
+  },
+  "output": -405
+ },
+ {
+  "name": "parseMoney \"1.001\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "1.001"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"NaN\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "NaN"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"1e4\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "1e4"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"9007199254740992\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "9007199254740992"
+  },
+  "error": "Amount is too large."
+ },
+ {
+  "name": "parseMoney \"\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": ""
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"42\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "42"
+  },
+  "output": 4200
+ },
+ {
+  "name": "parseMoney \"42.5\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "42.5"
+  },
+  "output": 4250
+ },
+ {
+  "name": "parseMoney \"42.50\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "42.50"
+  },
+  "output": 4250
+ },
+ {
+  "name": "parseMoney \" 42.50 \"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": " 42.50 "
+  },
+  "output": 4250
+ },
+ {
+  "name": "parseMoney \" ﻿7.25　\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": " ﻿7.25　"
+  },
+  "output": 725
+ },
+ {
+  "name": "parseMoney \"7.25\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "7.25"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"-0\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "-0"
+  },
+  "output": 0
+ },
+ {
+  "name": "parseMoney \"-0.00\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "-0.00"
+  },
+  "output": 0
+ },
+ {
+  "name": "parseMoney \"0.00\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "0.00"
+  },
+  "output": 0
+ },
+ {
+  "name": "parseMoney \"00012.30\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "00012.30"
+  },
+  "output": 1230
+ },
+ {
+  "name": "parseMoney \"1,234.56\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "1,234.56"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"+1\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "+1"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \".5\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": ".5"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"5.\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "5."
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"--1\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "--1"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"1.2.3\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "1.2.3"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"１２\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "１２"
+  },
+  "error": "Use an amount with up to two decimal places, such as 42.50."
+ },
+ {
+  "name": "parseMoney \"90071992547409.91\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "90071992547409.91"
+  },
+  "output": 9007199254740991
+ },
+ {
+  "name": "parseMoney \"90071992547409.92\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "90071992547409.92"
+  },
+  "error": "Amount is too large."
+ },
+ {
+  "name": "parseMoney \"-90071992547409.91\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "-90071992547409.91"
+  },
+  "output": -9007199254740991
+ },
+ {
+  "name": "parseMoney \"-90071992547409.92\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "-90071992547409.92"
+  },
+  "error": "Amount is too large."
+ },
+ {
+  "name": "parseMoney \"90071992547409\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "90071992547409"
+  },
+  "output": 9007199254740900
+ },
+ {
+  "name": "parseMoney \"90071992547410\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "90071992547410"
+  },
+  "error": "Amount is too large."
+ },
+ {
+  "name": "parseMoney \"9007199254740991\"",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "9007199254740991"
+  },
+  "error": "Amount is too large."
+ },
+ {
+  "name": "parseMoney 400 digits",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "error": "Amount is too large."
+ },
+ {
+  "name": "parseMoney 400 leading zeros",
+  "call": "parseMoney",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "input": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001.25"
+  },
+  "output": 125
+ },
+ {
+  "name": "amountInput 0",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 0
+  },
+  "output": "0.00"
+ },
+ {
+  "name": "amountInput 1",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 1
+  },
+  "output": "0.01"
+ },
+ {
+  "name": "amountInput -1",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": -1
+  },
+  "output": "-0.01"
+ },
+ {
+  "name": "amountInput 5",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 5
+  },
+  "output": "0.05"
+ },
+ {
+  "name": "amountInput 99",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 99
+  },
+  "output": "0.99"
+ },
+ {
+  "name": "amountInput 100",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 100
+  },
+  "output": "1.00"
+ },
+ {
+  "name": "amountInput 10001",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 10001
+  },
+  "output": "100.01"
+ },
+ {
+  "name": "amountInput -405",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": -405
+  },
+  "output": "-4.05"
+ },
+ {
+  "name": "amountInput 123456",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 123456
+  },
+  "output": "1234.56"
+ },
+ {
+  "name": "amountInput 9007199254740991",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": 9007199254740991
+  },
+  "output": "90071992547409.91"
+ },
+ {
+  "name": "amountInput -9007199254740991",
+  "call": "amountInput",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "n": -9007199254740991
+  },
+  "output": "-90071992547409.91"
+ }
+]
