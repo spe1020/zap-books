@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { seedWorkspace } from "./seed";
 import {
   amountInput,
@@ -10,8 +10,10 @@ import {
   currentPeriod,
   duplicates,
   id,
+  now,
   parseMoney,
   saveDraft,
+  today,
   totals,
   validation,
 } from "./ledger";
@@ -325,4 +327,25 @@ test("rows previewed for another business cannot be committed", () => {
     "Import rows were previewed for a different business or account. Preview the file again.",
   );
   expect(northstar).toEqual(before);
+});
+
+test("today and the current period use the local date; timestamps stay UTC", () => {
+  const tz = process.env.TZ;
+  process.env.TZ = "America/New_York";
+  vi.useFakeTimers({ toFake: ["Date"] });
+  try {
+    vi.setSystemTime(new Date("2026-10-15T02:00:00.000Z"));
+    expect(today()).toBe("2026-10-14");
+    expect(blankDraft(fresh()).date).toBe("2026-10-14");
+    expect(now()).toBe("2026-10-15T02:00:00.000Z");
+    vi.setSystemTime(new Date("2026-11-01T01:30:00.000Z"));
+    expect(today()).toBe("2026-10-31");
+    expect(currentPeriod()).toBe("2026-10");
+    process.env.TZ = "Pacific/Kiritimati";
+    expect(today()).toBe("2026-11-01");
+  } finally {
+    vi.useRealTimers();
+    if (tz === undefined) delete process.env.TZ;
+    else process.env.TZ = tz;
+  }
 });

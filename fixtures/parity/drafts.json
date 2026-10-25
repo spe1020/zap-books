@@ -4,7 +4,8 @@
   "call": "blankDraft",
   "env": {
    "nextId": 206,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -33,7 +34,8 @@
   "call": "blankDraft",
   "env": {
    "nextId": 207,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -62,7 +64,8 @@
   "call": "blankDraft",
   "env": {
    "nextId": 208,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1494,7 +1497,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 210,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -2972,7 +2976,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 214,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -4445,7 +4450,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 217,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -5918,7 +5924,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 219,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -7384,7 +7391,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 222,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -7417,7 +7425,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 222,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -7450,7 +7459,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 222,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -7482,7 +7492,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 222,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -7514,7 +7525,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 223,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -7557,7 +7569,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 223,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -9045,7 +9058,8 @@
   "call": "event",
   "env": {
    "nextId": 225,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -10490,5 +10504,98 @@
     }
    ]
   }
+ },
+ {
+  "name": "blankDraft: evening before in New York",
+  "call": "blankDraft",
+  "env": {
+   "nextId": 594,
+   "now": "2026-10-15T02:00:00.000Z",
+   "today": "2026-10-14"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   }
+  },
+  "output": {
+   "id": "id-0594",
+   "businessId": "northstar",
+   "vendor": "",
+   "date": "2026-10-14",
+   "description": "",
+   "amountMinor": 0,
+   "currency": "USD",
+   "categoryId": "",
+   "accountId": "northstar-checking",
+   "purpose": "",
+   "documentIds": [],
+   "status": "draft",
+   "duplicateReason": "",
+   "createdAt": "2026-10-15T02:00:00.000Z"
+  }
+ },
+ {
+  "name": "currentPeriod: evening before in New York",
+  "call": "currentPeriod",
+  "env": {
+   "nextId": 595,
+   "now": "2026-10-15T02:00:00.000Z",
+   "today": "2026-10-14"
+  },
+  "input": {},
+  "output": "2026-10"
+ },
+ {
+  "name": "blankDraft: last evening of October in New York",
+  "call": "blankDraft",
+  "env": {
+   "nextId": 595,
+   "now": "2026-11-01T01:30:00.000Z",
+   "today": "2026-10-31"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   }
+  },
+  "output": {
+   "id": "id-0595",
+   "businessId": "northstar",
+   "vendor": "",
+   "date": "2026-10-31",
+   "description": "",
+   "amountMinor": 0,
+   "currency": "USD",
+   "categoryId": "",
+   "accountId": "northstar-checking",
+   "purpose": "",
+   "documentIds": [],
+   "status": "draft",
+   "duplicateReason": "",
+   "createdAt": "2026-11-01T01:30:00.000Z"
+  }
+ },
+ {
+  "name": "currentPeriod: last evening of October in New York",
+  "call": "currentPeriod",
+  "env": {
+   "nextId": 596,
+   "now": "2026-11-01T01:30:00.000Z",
+   "today": "2026-10-31"
+  },
+  "input": {},
+  "output": "2026-10"
+ },
+ {
+  "name": "currentPeriod: frozen clock",
+  "call": "currentPeriod",
+  "env": {
+   "nextId": 596,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {},
+  "output": "2026-10"
  }
 ]

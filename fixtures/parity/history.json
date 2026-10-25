@@ -4,7 +4,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 386,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -90,7 +91,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 387,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1623,7 +1625,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 393,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1669,7 +1672,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 393,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1712,7 +1716,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 393,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1742,7 +1747,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 393,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1785,7 +1791,8 @@
   "call": "saveDraft",
   "env": {
    "nextId": 393,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -3344,7 +3351,8 @@
   "call": "approve",
   "env": {
    "nextId": 396,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6469,7 +6477,8 @@
   "call": "correct",
   "env": {
    "nextId": 403,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -9889,7 +9898,8 @@
   "call": "correct",
   "env": {
    "nextId": 415,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -11529,7 +11539,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 415,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -13393,7 +13404,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 416,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -16997,7 +17009,8 @@
   "call": "approve",
   "env": {
    "nextId": 420,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -18848,7 +18861,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 420,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -18933,7 +18947,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 421,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -20467,7 +20482,8 @@
   "call": "approve",
   "env": {
    "nextId": 427,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -21967,7 +21983,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 427,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -22051,7 +22068,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 428,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -22175,7 +22193,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 430,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -22300,7 +22319,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 432,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -22381,7 +22401,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 432,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -22531,7 +22552,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 435,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -22612,7 +22634,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 436,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -24147,7 +24170,8 @@
   "call": "previewImport",
   "env": {
    "nextId": 442,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -24474,7 +24498,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 448,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {

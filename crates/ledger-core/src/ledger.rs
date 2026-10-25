@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, HashMap};
 use serde::Serialize;
 
 use crate::date::valid_date;
-use crate::env::{today, Env};
+use crate::env::Env;
 use crate::error::{LedgerError, Result};
 use crate::js;
 use crate::money::{Currency, Minor};
@@ -209,11 +209,17 @@ pub(crate) fn push_event(
     b.audits.push(audit);
 }
 
+/// `currentPeriod`: the `YYYY-MM` of [`Env::today`].
+pub fn current_period(env: &impl Env) -> String {
+    let today = env.today();
+    today.get(..7).unwrap_or(&today).to_string()
+}
+
 /// `blankDraft`: an empty draft dated today, paid from the first bank account
 /// in the business currency.
 pub fn blank_draft(b: &BusinessData, env: &mut impl Env) -> ExpenseDraft {
     let id = env.new_id();
-    let date = today(env);
+    let date = env.today();
     let account_id = b
         .accounts
         .iter()

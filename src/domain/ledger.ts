@@ -12,7 +12,12 @@ import type {
 import { currencies } from "./types";
 export const id = () => crypto.randomUUID();
 export const now = () => new Date().toISOString();
-export const today = () => new Date().toISOString().slice(0, 10);
+/** The user's local calendar date as `YYYY-MM-DD`. Timestamps stay UTC. */
+export function today() {
+  const d = new Date();
+  const pad = (n: number, width = 2) => String(n).padStart(width, "0");
+  return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 export const currentPeriod = () => today().slice(0, 7);
 export function money(value: number, currency: Currency) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(

@@ -1,8 +1,8 @@
 /**
  * Records the behavior of src/domain as JSON fixtures for the Rust port in
  * crates/ledger-core. Every fixture runs a real TypeScript function with
- * sequential ids and a frozen clock, then stores the call, its input, and its
- * output or error message. crates/ledger-core/tests/parity.rs replays each
+ * sequential ids, a frozen clock and a fixed time zone (America/New_York),
+ * then stores the call, its input, and its output or error message. crates/ledger-core/tests/parity.rs replays each
  * one and requires identical JSON.
  *
  * Run with `npm run parity:fixtures`. CI regenerates the fixtures and fails if
@@ -22,6 +22,7 @@ import * as X from "../src/domain/export";
 import { seedWorkspace } from "../src/domain/seed";
 
 const NOW = "2026-10-15T12:00:00.000Z";
+const TZ = "America/New_York";
 const OUT = new URL("../fixtures/parity/", import.meta.url);
 const MAX = Number.MAX_SAFE_INTEGER;
 let nextId = 1;
@@ -30,7 +31,7 @@ type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 interface Fixture {
   name: string;
   call: string;
-  env: { nextId: number; now: string };
+  env: { nextId: number; now: string; today: string };
   input: Record<string, Json>;
   output?: Json;
   error?: string;
@@ -40,6 +41,36 @@ const areas = new Map<string, Fixture[]>();
 const stateNames = new Map<string, string>();
 const stateFiles = new Map<string, Json>();
 const json = <T>(value: T): T => JSON.parse(JSON.stringify(value));
+
+/**
+ * The environment a call runs in. `today` is the local date in `TZ`, worked
+ * out independently of `L.today()` so the fixtures check it.
+ */
+function env() {
+  const at = new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(at);
+  const part = (type: string) => parts.find((p) => p.type === type)!.value;
+  return {
+    nextId,
+    now: at.toISOString(),
+    today: `${part("year")}-${part("month")}-${part("day")}`,
+  };
+}
+
+/** Runs `fn` with the clock at `instant`, then puts it back at `NOW`. */
+function at<T>(instant: string, fn: () => T): T {
+  vi.setSystemTime(new Date(instant));
+  try {
+    return fn();
+  } finally {
+    vi.setSystemTime(new Date(NOW));
+  }
+}
 
 /** Stores `value` once under `states/` so fixtures can refer to it by name. */
 function state<T>(name: string, value: T): T {
@@ -87,7 +118,7 @@ function record(
   const fixture: Fixture = {
     name,
     call,
-    env: { nextId, now: NOW },
+    env: env(),
     input: stored,
   };
   try {
@@ -1581,6 +1612,33 @@ function integrity(ns: BusinessData, fw: BusinessData) {
   }
 }
 
+/**
+ * W8: the local date differs from the UTC date. Recorded last so the ids
+ * these calls take cannot shift any other fixture.
+ */
+function clock(ns: BusinessData) {
+  const instants = [
+    ["2026-10-15T02:00:00.000Z", "evening before in New York"],
+    ["2026-11-01T01:30:00.000Z", "last evening of October in New York"],
+  ];
+  for (const [instant, label] of instants)
+    at(instant, () => {
+      record(
+        "drafts",
+        `blankDraft: ${label}`,
+        "blankDraft",
+        { business: ns },
+        (i) => L.blankDraft(i.business),
+      );
+      record("drafts", `currentPeriod: ${label}`, "currentPeriod", {}, () =>
+        L.currentPeriod(),
+      );
+    });
+  record("drafts", "currentPeriod: frozen clock", "currentPeriod", {}, () =>
+    L.currentPeriod(),
+  );
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -1588,16 +1646,15 @@ test("generate parity fixtures", () => {
         typeof crypto.randomUUID
       >,
   );
+  if (Intl.DateTimeFormat().resolvedOptions().timeZone !== TZ)
+    throw new Error(`Run with TZ=${TZ} (npm run parity:fixtures).`);
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(NOW));
   try {
     const workspace = seedWorkspace();
     for (const b of workspace.businesses)
       for (const d of b.documents) delete (d as Partial<SourceDocument>).blob;
-    stateFiles.set(
-      "seed",
-      json({ env: { nextId, now: NOW }, workspace }) as Json,
-    );
+    stateFiles.set("seed", json({ env: env(), workspace }) as Json);
     const ns = state("northstar", workspace.businesses[0]);
     const fw = state("fieldwork", workspace.businesses[1]);
     money();
@@ -1612,6 +1669,7 @@ test("generate parity fixtures", () => {
     history(ns, fw);
     exports(ns, fw, withEur);
     integrity(ns, fw);
+    clock(ns);
     write();
   } finally {
     vi.useRealTimers();

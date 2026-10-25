@@ -4,7 +4,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -148,7 +149,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -292,7 +294,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -351,7 +354,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -392,7 +396,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -502,7 +507,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -595,7 +601,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -705,7 +712,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -746,7 +754,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -2846,7 +2855,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -3194,7 +3204,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -3542,7 +3553,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -3618,7 +3630,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -3659,7 +3672,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -3939,7 +3953,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -4083,7 +4098,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -4363,7 +4379,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -4404,7 +4421,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6725,7 +6743,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6745,7 +6764,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6765,7 +6785,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6785,7 +6806,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6844,7 +6866,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -8391,7 +8414,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -9938,7 +9962,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -11485,7 +11510,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -13032,7 +13058,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -14579,7 +14606,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -16126,7 +16154,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -17673,7 +17702,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -19220,7 +19250,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -20767,7 +20798,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -22314,7 +22346,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -23861,7 +23894,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -25612,7 +25646,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -27363,7 +27398,8 @@
   "call": "exportRecords",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -29114,7 +29150,8 @@
   "call": "encodeCSV",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "rows": []
@@ -29126,7 +29163,8 @@
   "call": "encodeCSV",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "rows": [
@@ -29143,7 +29181,8 @@
   "call": "encodeCSV",
   "env": {
    "nextId": 478,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "rows": [

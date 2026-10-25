@@ -4,7 +4,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 485,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -36,7 +37,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 485,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -68,7 +70,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 485,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1585,7 +1588,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 485,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -4589,7 +4593,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 485,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -4621,7 +4626,8 @@
   "call": "approve",
   "env": {
    "nextId": 496,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6268,7 +6274,8 @@
   "call": "correct",
   "env": {
    "nextId": 496,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -9655,7 +9662,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 514,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -9687,7 +9695,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 514,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -9719,7 +9728,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 514,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -11236,7 +11246,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 514,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -14240,7 +14251,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 514,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -14272,7 +14284,8 @@
   "call": "approve",
   "env": {
    "nextId": 525,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -15919,7 +15932,8 @@
   "call": "correct",
   "env": {
    "nextId": 525,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -19306,7 +19320,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 543,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -19354,7 +19369,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 543,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -19402,7 +19418,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 543,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -20935,7 +20952,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 543,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -23955,7 +23973,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 543,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -24003,7 +24022,8 @@
   "call": "approve",
   "env": {
    "nextId": 554,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -25662,7 +25682,8 @@
   "call": "correct",
   "env": {
    "nextId": 554,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -29073,7 +29094,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 572,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -29121,7 +29143,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 572,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -29169,7 +29192,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 572,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -30702,7 +30726,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 572,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -33722,7 +33747,8 @@
   "call": "commitImport",
   "env": {
    "nextId": 572,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -33770,7 +33796,8 @@
   "call": "approve",
   "env": {
    "nextId": 583,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -35429,7 +35456,8 @@
   "call": "correct",
   "env": {
    "nextId": 583,
-   "now": "2026-10-15T12:00:00.000Z"
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {

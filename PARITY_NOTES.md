@@ -6,8 +6,8 @@ right until Seth decides otherwise.
 
 Parity is enforced by `fixtures/parity/`, recorded from the real TypeScript
 functions by `scripts/gen-parity-fixtures.test.ts` (sequential ids, clock
-frozen at `2026-10-15T12:00:00.000Z`) and replayed by
-`crates/ledger-core/tests/parity.rs`. Regenerate with
+frozen at `2026-10-15T12:00:00.000Z`, time zone `America/New_York`) and
+replayed by `crates/ledger-core/tests/parity.rs`. Regenerate with
 `npm run parity:fixtures`; CI fails if the committed fixtures drift.
 
 This file has two lists:
@@ -158,6 +158,11 @@ the Rust follow, so both languages still agree on every fixture.
   comma and an opening quote, so `a, "b"` parses to `["a", "b"]`; any other
   text before a quote is still "Malformed CSV quote." Fix 3 of
   `fix/domain-scoping-and-import`.
+- **W8.** `today()` is the user's local date (from `getFullYear`,
+  `getMonth`, `getDate`), so `blankDraft` and `currentPeriod` follow it, while
+  `now()` timestamps stay UTC. Rust takes the date from the new required
+  `Env::today`; fixtures are recorded with `TZ=America/New_York` and store
+  `today` beside `now`. Fix 4 of `fix/domain-scoping-and-import`.
 
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
@@ -188,14 +193,6 @@ guaranteed to have come from an import.
 
 Fixtures: `drafts/saveDraft: import source added to existing draft`,
 `history/saveDraft: import source removed`.
-
-#### W8. "Today" is the UTC date
-
-`src/domain/ledger.ts:15` takes `today()` from `toISOString()`, so
-`blankDraft` dates an expense created in the evening in the Americas
-tomorrow. Rust's `Env::now` has the same ISO-8601 UTC contract, so it matches.
-
-Fixtures: `drafts/blankDraft: *`.
 
 #### W9. Lenient amount and date text
 

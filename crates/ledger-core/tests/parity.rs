@@ -16,6 +16,7 @@ use serde_json::{Map, Value};
 struct FixtureEnv {
     next_id: u64,
     now: String,
+    today: String,
 }
 
 #[derive(Deserialize)]
@@ -151,6 +152,7 @@ fn run(call: &str, a: &Args, env: &mut SequentialEnv) -> std::result::Result<Val
         "duplicates" => ok(duplicates(&business(), &a.get("draft"))),
         "assertBalanced" => out(assert_balanced(&business(), &a.get("entry"))),
         "blankDraft" => ok(blank_draft(&business(), env)),
+        "currentPeriod" => ok(current_period(env)),
         "saveDraft" => out(save_draft(&business(), &a.get("draft"), env)),
         "event" => ok(event(
             &business(),
@@ -250,7 +252,7 @@ fn rust_matches_every_typescript_fixture() {
                 Value::Object(map) => map,
                 _ => unreachable!(),
             };
-            let mut env = SequentialEnv::new(f.env.next_id, f.env.now);
+            let mut env = SequentialEnv::new(f.env.next_id, f.env.now, f.env.today);
             let got = run(&f.call, &Args(input), &mut env);
             let problem = match (&got, &f.output, &f.error) {
                 (Err(got), _, Some(want)) if got == want => None,
