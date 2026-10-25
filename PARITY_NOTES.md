@@ -1,0 +1,237 @@
+# Parity notes: `ledger-core` vs `src/domain`
+
+`crates/ledger-core` is a behavior-preserving port of `src/domain/`. The
+TypeScript is the specification: where the two disagree, the TypeScript is
+right until Seth decides otherwise.
+
+Parity is enforced by `fixtures/parity/`, recorded from the real TypeScript
+functions by `scripts/gen-parity-fixtures.test.ts` (sequential ids, clock
+frozen at `2026-10-15T12:00:00.000Z`) and replayed by
+`crates/ledger-core/tests/parity.rs`. Regenerate with
+`npm run parity:fixtures`; CI fails if the committed fixtures drift.
+
+This file has two lists:
+
+- **D: deliberate differences.** Places where Rust cannot or should not copy
+  the TypeScript exactly. None of them is reachable from data the TypeScript
+  itself writes. Each is pinned by a test in
+  `crates/ledger-core/tests/divergences.rs` or by the type system.
+- **W: TypeScript behavior that may be wrong.** Ported exactly as written,
+  pinned by a parity fixture, and left for Seth to decide on.
+
+Fixtures are cited as `area/name`: the file `fixtures/parity/<area>.json` and
+the fixture's `name` (`*` matches any text).
+
+## D: Deliberate differences
+
+### D1. Crashes become `LedgerError::Internal`
+
+Where the TypeScript uses a non-null assertion (`!`) or reads a property of
+`undefined`, it would throw a `TypeError`. Library code here must not panic,
+so these return `LedgerError::Internal(..)` instead. The fixture generator
+refuses to record `TypeError`s, so no fixture covers these paths.
+
+| Site                                         | TypeScript                                             | Rust                                                                                                                   |
+| -------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/ledger.ts:308` (`approve`)       | `b.categories.find((x) => x.id === d.categoryId)!`     | `Internal("approved expense has no category")`. Unreachable: `validation` has already required the category.           |
+| `src/domain/ledger.ts:385` (`correct`)       | `b.journals.find((x) => x.id === original.journalId)!` | `Internal("posted expense has no journal")`. Reached only by corrupt data (a posted expense whose journal is missing). |
+| `src/domain/import.ts:177` (`previewImport`) | `rows[0].indexOf(...)` with `rows = []`                | `Internal("import has no header row")`. `parseCSV` never returns fewer than two rows.                                  |
+| `src/domain/import.ts:413` (`commitImport`)  | `draft.paymentId!`                                     | No error path: the payment id is created in the same branch, so the type system guarantees it.                         |
+
+Tests: `d1_correct_without_a_journal_is_an_internal_error`,
+`d1_preview_without_a_header_is_an_internal_error`.
+
+### D2. Range and enum checks happen when JSON is read
+
+`Minor` is always within `±MAX_MINOR` (`Number.MAX_SAFE_INTEGER`) and
+`Currency` is always `USD`, `EUR`, or `GBP`. JSON with a non-integer amount, an
+amount outside the safe range, or an unsupported currency fails to
+deserialize. The TypeScript would instead accept it and later report a
+message. The affected checks are always true in Rust:
+
+- `src/domain/ledger.ts:72`: "Amount must be greater than zero in whole minor
+  units." still fires for `<= 0`, but never for non-integers.
+- `src/domain/ledger.ts:74`: "Choose a supported currency." is unreachable.
+- `src/domain/ledger.ts:125` and `:143`: the currency and safe-integer parts
+  of "Invalid journal context." / "Invalid journal amounts." are unreachable.
+  The `>= 0` part is still checked.
+- `src/domain/import.ts:362`: the `Number.isSafeInteger` part of "Invalid
+  import row." is unreachable.
+- `src/domain/ledger.ts:31` and `:45` (`parseMoney`, `sum`) and
+  `src/domain/import.ts:291` (combined import amount) are ported as explicit
+  range checks against `MAX_MINOR`, with the same messages.
+
+Test: `d2_unrepresentable_values_are_rejected_at_deserialization`.
+
+### D3. Stored journals are checked when loaded
+
+The brief asks that an unbalanced or mixed-currency `JournalEntry` be
+impossible to build except through a function returning `Result`.
+`JournalEntry::new(&business, entry)` runs every `assertBalanced` check.
+Deserializing a `JournalEntry` re-runs the checks that need no business
+context: valid date, at least two lines, non-negative one-sided amounts, and
+equal non-zero totals, with the same messages. Account and currency
+consistency need the business, so they are checked by `JournalEntry::new` and
+`assert_balanced`, not on load. The TypeScript loads any stored journal.
+
+Test: `d3_unbalanced_stored_journals_do_not_deserialize`.
+
+### D4. Import sources compare by value, not `JSON.stringify`
+
+`src/domain/ledger.ts:225` (`saveDraft`) and `:379` (`correct`) compare
+`JSON.stringify(a) !== JSON.stringify(b)`, which depends on key order and on
+unknown extra keys. Rust compares the structs field by field. The results
+agree for every source the TypeScript creates. They differ only for a source
+whose keys were reordered, for example by a storage layer that sorts keys,
+which the TypeScript would wrongly treat as "changed".
+
+Test: `d4_import_source_comparison_ignores_key_order`.
+
+### D5. `localeCompare` sorts by UTF-16 code unit
+
+`src/domain/export.ts:76` and `:123-124` sort with `localeCompare` (ICU
+collation). Rust compares UTF-16 code units. The two agree for the values
+sorted there: ISO dates, ISO timestamps, and ids made of lower-case ASCII
+letters, digits, and `-` (UUIDs, seeded ids such as `northstar-checking`, and
+`id-0001`-style test ids). They can disagree for ids with upper-case or
+non-ASCII characters. Implementing ICU collation would need a dependency
+outside the allowed list.
+
+Covered by every `export` fixture, which sorts generated and seeded ids.
+
+### D6. No negative zero
+
+`parseMoney("-0")` returns `-0` in JavaScript (`src/domain/ledger.ts:32`).
+Rust has no negative zero, so it returns `0`. Both serialize as `0` and format
+as `0.00`, and every comparison in the domain treats them the same.
+
+Test: `d6_negative_zero_is_zero`. Fixtures: `money/parseMoney "-0"` and
+`import/previewImport: negative zero`.
+
+### D7. Receipt bytes and unknown fields are not carried
+
+`SourceDocument` has no `blob` (`src/domain/types.ts:30`): file bytes belong
+to a storage adapter. Unknown JSON keys on any record are dropped on read.
+Neither affects domain behavior.
+
+### D8. Unicode case-mapping tables
+
+`toLowerCase`/`toUpperCase` (vendor and category matching, header mapping,
+currency codes, export filenames) use V8's ICU tables. Rust's
+`to_lowercase`/`to_uppercase` use the Unicode tables built into the Rust
+standard library. Both apply full Unicode case mapping, including the Greek
+final sigma, but the Unicode versions can differ, so a code point added in a
+newer Unicode release could map differently. JavaScript whitespace (`trim`,
+`\s`) and `\d` are reproduced exactly in `src/js.rs`.
+
+## W: TypeScript behavior that may be wrong (kept, pinned)
+
+### W1. `approve` looks up the category without the business
+
+`src/domain/ledger.ts:308` finds the posting category by id alone, though
+`validation` (`:76-78`) requires one in the expense's business. If another
+business's category with the same id comes first in `categories`, posting
+debits the other business's expense account and fails with "Invalid journal
+account or currency."
+
+Fixture: `approve/category found by id in another business first`.
+
+### W2. Import evidence can be added later, but never changed or removed
+
+`src/domain/ledger.ts:223-227` blocks changes only when the stored draft
+already has an `importSource`. A draft created without one can gain one
+through `saveDraft`. Removing one is blocked ("Imported source evidence cannot
+be changed."). This may be intended; it means import evidence is not
+guaranteed to have come from an import.
+
+Fixtures: `drafts/saveDraft: import source added to existing draft`,
+`history/saveDraft: import source removed`.
+
+### W3. `commitImport` trusts payment rows from any business
+
+`src/domain/import.ts:343-404` checks import-source rows against the business
+(`Invalid import source.`) but not payment rows. Rows previewed for another
+business are committed under the selected account, while their fingerprints
+still carry the other business and account ids. Re-importing the same file
+for the right account would then not be detected as a duplicate.
+
+Fixture: `import/commitImport: payment rows previewed for another business`.
+
+### W4. `totals` and `categoryTotals` do not filter by business
+
+`src/domain/ledger.ts:406-443` sums every journal in `b.journals`, while
+`exportRecords` filters by `b.profile.id`. With well-formed data each business
+holds only its own journals, so this matters only if data is ever mixed.
+
+Fixtures: `totals/totals: mixed businesses`,
+`totals/categoryTotals: mixed businesses`.
+
+### W5. `duplicates` matches drafts from other businesses
+
+`src/domain/ledger.ts:50-62` does not compare `businessId`, so a foreign draft
+with the same vendor, date, amount, and currency asks for a duplicate reason.
+Same caveat as W4.
+
+Fixture: `validation/duplicates: drafts from another business`.
+
+### W6. `parseCSV` trims whitespace inside quoted cells
+
+`src/domain/import.ts:77` and `:92` trim every cell after unquoting, so
+`" y "` becomes `y`. RFC 4180 keeps whitespace inside quotes.
+
+Fixture: `csv/parseCSV: cells trimmed, quoted whitespace too`.
+
+### W7. `parseCSV` rejects whitespace before an opening quote
+
+`src/domain/import.ts:74` throws "Malformed CSV quote." for `a, "b"` because
+the cell already holds a space. Many exporters write a space after the comma.
+
+Fixture: `csv/parseCSV: space before quote`.
+
+### W8. "Today" is the UTC date
+
+`src/domain/ledger.ts:15` takes `today()` from `toISOString()`, so
+`blankDraft` dates an expense created in the evening in the Americas
+tomorrow. Rust's `Env::now` has the same ISO-8601 UTC contract, so it matches.
+
+Fixtures: `drafts/blankDraft: *`.
+
+### W9. Lenient amount and date text
+
+`parseMoney` (`src/domain/ledger.ts:24`) accepts leading zeros (`00012.30`)
+and `-0`. `validDate` (`:36-42`) accepts year `0000`.
+
+Fixtures: `money/parseMoney "00012.30"`, `money/parseMoney "-0"`,
+`date/validDate "0000-01-01"`, `date/validDate "0000-02-29"`.
+
+### W10. Empty strings count as absent
+
+`commitImport` treats `error: ""` as no error (`src/domain/import.ts:334`), and
+`missingDetails` treats `paymentId: ""` as no payment (`src/domain/ledger.ts:99`).
+`correct` compares `paymentId` strictly (`:376`), so `""` and absent differ
+there.
+
+Fixtures: `import/commitImport: empty error string is not an error`,
+`validation/*: empty payment id is ignored`.
+
+### W11. One overflowing import row fails every later row
+
+`src/domain/import.ts:289-293` keeps adding to `combinedAmount` after it
+leaves the safe range, so every later valid row also reports "Combined import
+amount exceeds the supported range." The Rust accumulator (an `i128`) is
+written to give the same result.
+
+Fixture: `import/previewImport: combined amount exceeds the safe range`.
+
+## Not ported
+
+- `money()` display formatting (uses `Intl`; a UI concern).
+- `seed.ts`. Rust tests load the seed recorded by the fixture generator
+  (`fixtures/parity/states/seed.json`).
+- `src/adapters/`, and the adapter-facing interfaces in `types.ts`
+  (`AIProposal`, `AIAdapter`, `BusinessRepository`, `ReceiptStorage`,
+  `LedgerCommands`, `LedgerQueries`, `EventTransport`).
+- The ported test
+  `business_separation_rejects_foreign_drafts_accounts_evidence_and_journal_context`
+  keeps the domain assertions only; its `demoAI` and `MockTransport`
+  assertions test adapters.
