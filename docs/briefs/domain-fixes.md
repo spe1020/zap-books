@@ -2,7 +2,7 @@
 
 **For:** Claude Code
 **Repo:** `spe1020/zap-books`
-**Start from:** `business-finance-mvp` *after* PR #1 (`rust/ledger-core`) is merged. Pull first.
+**Start from:** `business-finance-mvp` _after_ PR #1 (`rust/ledger-core`) is merged. Pull first.
 **Branch name:** `fix/domain-scoping-and-import`
 
 ## Goal
@@ -88,7 +88,7 @@ No new error messages. The fixtures `approve/category found by id in another bus
 
 ## Commit 5: W2, import evidence can only come from an import
 
-**Problem:** `saveDraft` blocks *changing* or *removing* an `importSource`, but lets a draft *gain* one, either as a new draft or an existing draft that had none. So "this came from an import" isn't guaranteed.
+**Problem:** `saveDraft` blocks _changing_ or _removing_ an `importSource`, but lets a draft _gain_ one, either as a new draft or an existing draft that had none. So "this came from an import" isn't guaranteed.
 
 **Fix:**
 
