@@ -102,7 +102,10 @@ export function parseCSV(text: string): string[][] {
         }
       } else cell += c;
     } else if (c === '"') {
-      if (cell || closed) throw new Error("Malformed CSV quote.");
+      // Whitespace before an opening quote (`a, "b"`) is dropped; any other
+      // text before it is an error.
+      if (cell.trim() || closed) throw new Error("Malformed CSV quote.");
+      cell = "";
       quoted = true;
     } else if (c === "," || c === "\n" || c === "\r") {
       row.push(cell.trim());

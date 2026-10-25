@@ -154,11 +154,27 @@ the Rust follow, so both languages still agree on every fixture.
   `categoryTotals` names categories from this business only; `duplicates`
   only matches drafts in the same business. Fix 2 of
   `fix/domain-scoping-and-import`.
+- **W7.** `parseCSV` drops whitespace (as `.trim()` defines it) between a
+  comma and an opening quote, so `a, "b"` parses to `["a", "b"]`; any other
+  text before a quote is still "Malformed CSV quote." Fix 3 of
+  `fix/domain-scoping-and-import`.
 
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
 original and marks it corrected, then posts the replacement; merely naming an
 existing expense as a correction cannot authorize a second posting.
+
+### Kept on purpose
+
+#### W6. `parseCSV` trims whitespace inside quoted cells
+
+`src/domain/import.ts` trims every cell after unquoting, so `" y "` becomes
+`y`, although RFC 4180 keeps whitespace inside quotes. Kept deliberately: the
+importer should never store a description or vendor with stray spaces, and
+changing it would alter fingerprints for files people may already have
+imported.
+
+Fixture: `csv/parseCSV: cells trimmed, quoted whitespace too`.
 
 ### Open
 
@@ -172,20 +188,6 @@ guaranteed to have come from an import.
 
 Fixtures: `drafts/saveDraft: import source added to existing draft`,
 `history/saveDraft: import source removed`.
-
-#### W6. `parseCSV` trims whitespace inside quoted cells
-
-`src/domain/import.ts:77` and `:92` trim every cell after unquoting, so
-`" y "` becomes `y`. RFC 4180 keeps whitespace inside quotes.
-
-Fixture: `csv/parseCSV: cells trimmed, quoted whitespace too`.
-
-#### W7. `parseCSV` rejects whitespace before an opening quote
-
-`src/domain/import.ts:74` throws "Malformed CSV quote." for `a, "b"` because
-the cell already holds a space. Many exporters write a space after the comma.
-
-Fixture: `csv/parseCSV: space before quote`.
 
 #### W8. "Today" is the UTC date
 

@@ -814,6 +814,10 @@ function csv() {
   parse("unterminated quote", 'a,b\n"unterminated');
   parse("quote inside unquoted cell", 'a,b\nx"y",z');
   parse("space before quote", 'a,b\n "x",z');
+  parse("space after comma before quote", 'a,b\nx, "y"');
+  parse("JS whitespace before quote", 'a,b\n\t\u00a0\ufeff"x, y",z');
+  parse("text and space before quote", 'a,b\nx,y "z"');
+  parse("whitespace between two quoted values", 'a,b\n"x" "y",z');
   parse("text after closing quote", 'a,b\n"x"y,z');
   parse("header only", "a,b\n");
   parse("empty", "");

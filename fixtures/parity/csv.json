@@ -266,6 +266,81 @@
   "input": {
    "text": "a,b\n \"x\",z"
   },
+  "output": [
+   [
+    "a",
+    "b"
+   ],
+   [
+    "x",
+    "z"
+   ]
+  ]
+ },
+ {
+  "name": "parseCSV: space after comma before quote",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 352,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "text": "a,b\nx, \"y\""
+  },
+  "output": [
+   [
+    "a",
+    "b"
+   ],
+   [
+    "x",
+    "y"
+   ]
+  ]
+ },
+ {
+  "name": "parseCSV: JS whitespace before quote",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 352,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "text": "a,b\n\t ﻿\"x, y\",z"
+  },
+  "output": [
+   [
+    "a",
+    "b"
+   ],
+   [
+    "x, y",
+    "z"
+   ]
+  ]
+ },
+ {
+  "name": "parseCSV: text and space before quote",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 352,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "text": "a,b\nx,y \"z\""
+  },
+  "error": "Malformed CSV quote."
+ },
+ {
+  "name": "parseCSV: whitespace between two quoted values",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 352,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "text": "a,b\n\"x\" \"y\",z"
+  },
   "error": "Malformed CSV quote."
  },
  {

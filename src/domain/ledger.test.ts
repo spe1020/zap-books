@@ -209,6 +209,14 @@ describe("CSV payments and evidence", () => {
     expect(rePreview.every((r) => r.duplicate)).toBe(true);
     expect(() => parseCSV('a,b\n"unterminated')).toThrow();
   });
+  test("whitespace before an opening quote is allowed, other text is not", () => {
+    expect(parseCSV('h1,h2\na, "b"')).toEqual([
+      ["h1", "h2"],
+      ["a", "b"],
+    ]);
+    expect(parseCSV('h1,h2\na,\t\u00a0"b, c"')[1]).toEqual(["a", "b, c"]);
+    expect(() => parseCSV('h1,h2\na,x "b"')).toThrow("Malformed CSV quote.");
+  });
   test("malformed dates, income, mismatched currencies and conflicting references are rejected", () => {
     const b = fresh();
     const header = ["date", "description", "amount", "currency", "reference"];

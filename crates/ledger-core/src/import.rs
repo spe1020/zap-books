@@ -202,9 +202,12 @@ pub fn parse_csv(text: &str) -> Result<Vec<Vec<String>>> {
                 cell.push(c);
             }
         } else if c == '"' {
-            if !cell.is_empty() || closed {
+            // Whitespace before an opening quote (`a, "b"`) is dropped; any
+            // other text before it is an error.
+            if js::has_text(&cell) || closed {
                 return Err(LedgerError::MalformedQuote);
             }
+            cell.clear();
             quoted = true;
         } else if c == ',' || c == '\n' || c == '\r' {
             row.push(js::trim(&cell).to_string());
