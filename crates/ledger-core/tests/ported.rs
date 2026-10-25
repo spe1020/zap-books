@@ -7,32 +7,10 @@
 //! generator (`fixtures/parity/states/seed.json`, sequential ids, clock frozen
 //! at 2026-10-15). `currentPeriod()` is therefore `2026-10`.
 
-use std::path::Path;
+mod common;
 
+use common::{fresh, minor, seed, PERIOD};
 use ledger_core::*;
-use serde_json::Value;
-
-const PERIOD: &str = "2026-10";
-
-fn seed() -> (Vec<BusinessData>, SequentialEnv) {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/parity/states/seed.json");
-    let value: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
-    let workspace: Workspace = serde_json::from_value(value["workspace"].clone()).unwrap();
-    let env = SequentialEnv::new(
-        value["env"]["nextId"].as_u64().unwrap(),
-        value["env"]["now"].as_str().unwrap(),
-    );
-    (workspace.businesses, env)
-}
-
-fn fresh() -> (BusinessData, SequentialEnv) {
-    let (mut businesses, env) = seed();
-    (businesses.remove(0), env)
-}
-
-fn minor(n: i64) -> Minor {
-    Minor::new(n).unwrap()
-}
 
 fn usd(b: &BusinessData) -> i64 {
     totals(b, PERIOD).unwrap()[&Currency::Usd].get()
