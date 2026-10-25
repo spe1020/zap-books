@@ -95,7 +95,9 @@ pub enum LedgerError {
     DescriptionRequired,
     #[error("Currency must match the selected account.")]
     ImportCurrency,
-    #[error("Only paid expense rows are supported; remove bills, income, transfers, and subtotal rows.")]
+    #[error(
+        "Only paid expense rows are supported; remove bills, income, transfers, and subtotal rows."
+    )]
     UnsupportedTransactionType,
     #[error("This is not an expense outflow under the selected sign convention.")]
     NotAnOutflow,

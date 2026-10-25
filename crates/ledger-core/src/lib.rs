@@ -14,6 +14,7 @@
 mod date;
 mod env;
 mod error;
+mod import;
 mod js;
 mod ledger;
 mod money;
@@ -22,6 +23,10 @@ mod types;
 pub use date::{normalize_import_date, valid_date, DateFormat};
 pub use env::{Env, SequentialEnv};
 pub use error::{LedgerError, Result};
+pub use import::{
+    commit_import, guess_mapping, parse_csv, preview_import, CsvMapping, ImportKind, ImportOptions,
+    ImportRow, PreviewSource, SignConvention,
+};
 pub use ledger::{
     approve, assert_balanced, blank_draft, category_totals, correct, duplicates, event,
     missing_details, save_draft, totals, validation, CategoryTotal, ACTOR,
@@ -31,6 +36,5 @@ pub use types::{
     Account, AccountKind, Approval, AuditEvent, Business, BusinessData, Category,
     ClassificationRule, DocumentKind, EventType, ExpenseDraft, ExpenseStatus, FinancialEvent,
     ImportProvider, ImportedExpenseSource, ImportedTransaction, JournalEntry, JournalKind,
-    JournalLine, PayloadValue, SchemaVersion, SourceDocument, UncheckedJournal, Vendor,
-    Workspace,
+    JournalLine, PayloadValue, SchemaVersion, SourceDocument, UncheckedJournal, Vendor, Workspace,
 };

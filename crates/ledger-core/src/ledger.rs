@@ -51,8 +51,7 @@ pub fn missing_details(b: &BusinessData, d: &ExpenseDraft) -> Vec<String> {
     if d.business_id != b.profile.id {
         push("Expense belongs to another business.");
     }
-    if d
-        .import_source
+    if d.import_source
         .as_ref()
         .is_some_and(|s| s.business_id != b.profile.id)
     {
@@ -242,7 +241,11 @@ pub fn save_draft(
     Ok(b)
 }
 
-fn save_draft_in(b: &mut BusinessData, draft: ExpenseDraft, env: &mut impl Env) -> Result<()> {
+pub(crate) fn save_draft_in(
+    b: &mut BusinessData,
+    draft: ExpenseDraft,
+    env: &mut impl Env,
+) -> Result<()> {
     let prior = b.drafts.iter().find(|x| x.id == draft.id);
     if draft
         .import_source
@@ -257,8 +260,7 @@ fn save_draft_in(b: &mut BusinessData, draft: ExpenseDraft, env: &mut impl Env) 
     }
     if draft.business_id != b.profile.id
         || draft.status() != ExpenseStatus::Draft
-        || b
-            .drafts
+        || b.drafts
             .iter()
             .any(|x| x.id == draft.id && x.status() != ExpenseStatus::Draft)
     {
@@ -481,7 +483,11 @@ pub fn correct(
     }
     reversal.created_at = env.now();
     let reversal = JournalEntry::new(&b, reversal)?;
-    let sources = vec![prior.id.clone(), reversal.id.clone(), replacement.id.clone()];
+    let sources = vec![
+        prior.id.clone(),
+        reversal.id.clone(),
+        replacement.id.clone(),
+    ];
     if let Some(draft) = index.and_then(|i| b.drafts.get_mut(i)) {
         draft.mark_corrected();
     }

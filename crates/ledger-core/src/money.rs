@@ -48,7 +48,9 @@ impl fmt::Display for Currency {
 
 /// An amount in minor units (cents). Always within `±MAX_MINOR`, which is the
 /// range JavaScript's `Number.isSafeInteger` accepts.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize,
+)]
 #[serde(try_from = "i64", into = "i64")]
 pub struct Minor(i64);
 

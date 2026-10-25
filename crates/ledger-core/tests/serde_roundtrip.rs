@@ -78,7 +78,8 @@ fn workspace_round_trips_to_identical_json() {
 #[test]
 fn rejects_amounts_outside_the_safe_integer_range() {
     let mut input = sample();
-    input["businesses"][0]["drafts"][1]["importSource"]["amountMinor"] = json!(9007199254740992_i64);
+    input["businesses"][0]["drafts"][1]["importSource"]["amountMinor"] =
+        json!(9007199254740992_i64);
     assert!(serde_json::from_value::<Workspace>(input).is_err());
 }
 
