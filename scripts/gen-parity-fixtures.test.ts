@@ -327,7 +327,7 @@ function validation(ns: BusinessData, fw: BusinessData) {
       { ...find(ns, "Figma"), categoryId: fw.categories[0].id },
     ],
   ];
-  // Pinned (PARITY_NOTES.md): duplicates are matched across businesses.
+  // W5 (PARITY_NOTES.md): drafts from another business are not duplicates.
   record(
     "validation",
     "duplicates: drafts from another business",
@@ -765,7 +765,7 @@ function totals(ns: BusinessData, fw: BusinessData) {
     },
     (i) => L.categoryTotals(i.business, i.period, i.currency),
   );
-  // Pinned (PARITY_NOTES.md): queries do not filter journals by business.
+  // W4 (PARITY_NOTES.md): queries skip journals from another business.
   const mixed = { ...ns, journals: [...ns.journals, ...fw.journals] };
   record(
     "totals",

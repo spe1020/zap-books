@@ -1637,45 +1637,7 @@
     "createdAt": "2026-10-15T12:00:00.000Z"
    }
   },
-  "output": [
-   {
-    "id": "id-0122",
-    "businessId": "fieldwork",
-    "vendor": "Trail Fuel",
-    "date": "2026-10-18",
-    "description": "Fuel for field equipment",
-    "amountMinor": 3200,
-    "currency": "USD",
-    "categoryId": "fieldwork-category-4",
-    "accountId": "fieldwork-card",
-    "purpose": "Fuel for field equipment",
-    "documentIds": [
-     "id-0121"
-    ],
-    "status": "posted",
-    "duplicateReason": "",
-    "createdAt": "2026-10-15T12:00:00.000Z",
-    "journalId": "id-0126"
-   },
-   {
-    "id": "id-0133",
-    "businessId": "fieldwork",
-    "vendor": "Trail Fuel",
-    "date": "2026-10-18",
-    "description": "Possible repeat charge · review before posting",
-    "amountMinor": 3200,
-    "currency": "USD",
-    "categoryId": "fieldwork-category-4",
-    "accountId": "fieldwork-card",
-    "purpose": "Possible repeat charge · review before posting",
-    "documentIds": [
-     "id-0132"
-    ],
-    "status": "draft",
-    "duplicateReason": "",
-    "createdAt": "2026-10-15T12:00:00.000Z"
-   }
-  ]
+  "output": []
  },
  {
   "name": "validation: blank draft",

@@ -24,13 +24,14 @@ use crate::EventType;
 /// The actor recorded on every approval, event, and audit entry.
 pub const ACTOR: &str = "local-demo-user";
 
-/// `duplicates`: other live drafts with the same vendor, date, amount, and
-/// currency. A draft with a blank vendor has no duplicates.
+/// `duplicates`: other live drafts in the same business with the same vendor,
+/// date, amount, and currency. A draft with a blank vendor has no duplicates.
 pub fn duplicates(b: &BusinessData, d: &ExpenseDraft) -> Vec<ExpenseDraft> {
     b.drafts
         .iter()
         .filter(|x| {
             x.id != d.id
+                && x.business_id == d.business_id
                 && Some(&x.id) != d.correction_of.as_ref()
                 && x.status() != ExpenseStatus::Corrected
                 && x.amount_minor == d.amount_minor
@@ -369,11 +370,11 @@ fn approve_in(b: &mut BusinessData, expense_id: &str, env: &mut impl Env) -> Res
             return Err(LedgerError::PaymentAlreadyLinked);
         }
     }
-    // TS: `b.categories.find((x) => x.id === d.categoryId)!`
+    // TS: `b.categories.find((x) => x.id === d.categoryId && x.businessId === b.profile.id)!`
     let category = b
         .categories
         .iter()
-        .find(|x| x.id == d.category_id)
+        .find(|x| x.id == d.category_id && x.business_id == b.profile.id)
         .ok_or(LedgerError::Internal("approved expense has no category"))?;
     let lines = vec![
         JournalLine {
@@ -517,8 +518,9 @@ pub struct CategoryTotal {
     pub amount: Minor,
 }
 
-/// `categoryTotals`: net spend per category for journals in one currency
-/// whose date starts with `period`, largest first, zero totals dropped.
+/// `categoryTotals`: net spend per category for this business's journals in
+/// one currency whose date starts with `period`, largest first, zero totals
+/// dropped.
 pub fn category_totals(
     b: &BusinessData,
     period: &str,
@@ -528,7 +530,7 @@ pub fn category_totals(
     let mut order: Vec<String> = Vec::new();
     let mut sums: HashMap<String, Minor> = HashMap::new();
     for j in &b.journals {
-        if j.currency != currency || !j.date.starts_with(period) {
+        if j.business_id != b.profile.id || j.currency != currency || !j.date.starts_with(period) {
             continue;
         }
         for line in &j.lines {
@@ -553,7 +555,7 @@ pub fn category_totals(
             let name = b
                 .categories
                 .iter()
-                .find(|c| c.id == category_id)
+                .find(|c| c.id == category_id && c.business_id == b.profile.id)
                 .map_or_else(|| "Unknown".to_string(), |c| c.name.clone());
             CategoryTotal {
                 category_id,
@@ -568,12 +570,12 @@ pub fn category_totals(
     Ok(rows)
 }
 
-/// `totals`: net categorized spend per currency for journals whose date
-/// starts with `period`. Currencies are never combined.
+/// `totals`: net categorized spend per currency for this business's journals
+/// whose date starts with `period`. Currencies are never combined.
 pub fn totals(b: &BusinessData, period: &str) -> Result<BTreeMap<Currency, Minor>> {
     let mut result = BTreeMap::new();
     for j in &b.journals {
-        if !j.date.starts_with(period) {
+        if j.business_id != b.profile.id || !j.date.starts_with(period) {
             continue;
         }
         for line in &j.lines {

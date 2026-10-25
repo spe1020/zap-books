@@ -51,6 +51,7 @@ export function duplicates(b: BusinessData, d: ExpenseDraft): ExpenseDraft[] {
   return b.drafts.filter(
     (x) =>
       x.id !== d.id &&
+      x.businessId === d.businessId &&
       x.id !== d.correctionOf &&
       x.status !== "corrected" &&
       x.amountMinor === d.amountMinor &&
@@ -303,7 +304,9 @@ export function approve(
     )
   )
     throw new Error("This payment is already linked to a posted expense.");
-  const category = b.categories.find((x) => x.id === d.categoryId)!;
+  const category = b.categories.find(
+    (x) => x.id === d.categoryId && x.businessId === b.profile.id,
+  )!;
   const lines: JournalLine[] = [
     {
       accountId: category.accountId,
@@ -408,7 +411,11 @@ export function categoryTotals(
 ) {
   const totals = new Map<string, number>();
   for (const j of b.journals)
-    if (j.currency === currency && j.date.startsWith(period))
+    if (
+      j.businessId === b.profile.id &&
+      j.currency === currency &&
+      j.date.startsWith(period)
+    )
       for (const line of j.lines)
         if (line.categoryId)
           totals.set(
@@ -418,7 +425,10 @@ export function categoryTotals(
   return [...totals]
     .map(([categoryId, amount]) => ({
       categoryId,
-      name: b.categories.find((c) => c.id === categoryId)?.name ?? "Unknown",
+      name:
+        b.categories.find(
+          (c) => c.id === categoryId && c.businessId === b.profile.id,
+        )?.name ?? "Unknown",
       amount,
     }))
     .filter((x) => x.amount !== 0)
@@ -430,7 +440,7 @@ export function totals(
 ): Partial<Record<Currency, number>> {
   const result: Partial<Record<Currency, number>> = {};
   for (const j of b.journals)
-    if (j.date.startsWith(period))
+    if (j.businessId === b.profile.id && j.date.startsWith(period))
       for (const line of j.lines)
         if (line.categoryId)
           result[j.currency] = sum(

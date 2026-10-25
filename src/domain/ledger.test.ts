@@ -128,6 +128,35 @@ describe("financial invariants", () => {
       "Payment account currency must match the expense.",
     );
   });
+  test("category lookup, totals and duplicates ignore other businesses' records", () => {
+    const [a, b] = seedWorkspace().businesses;
+    const figma = a.drafts.find(
+      (d) => d.vendor === "Figma" && d.status === "draft",
+    )!;
+    // A foreign category sharing the id must not be used for posting.
+    const shadowed = {
+      ...a,
+      categories: [
+        { ...b.categories[0], id: figma.categoryId },
+        ...a.categories,
+      ],
+    };
+    const posted = approve(shadowed, figma.id);
+    expect(posted.journals.at(-1)!.lines[0].accountId).toBe(
+      a.categories.find((c) => c.id === figma.categoryId)!.accountId,
+    );
+    // Foreign journals and drafts are ignored.
+    const mixed = {
+      ...a,
+      journals: [...a.journals, ...b.journals],
+      drafts: [...a.drafts, { ...figma, id: id(), businessId: b.profile.id }],
+    };
+    expect(totals(mixed, currentPeriod())).toEqual(totals(a, currentPeriod()));
+    expect(categoryTotals(mixed, currentPeriod(), "USD")).toEqual(
+      categoryTotals(a, currentPeriod(), "USD"),
+    );
+    expect(duplicates(mixed, figma)).toEqual(duplicates(a, figma));
+  });
   test("business separation rejects foreign drafts, accounts, evidence, and journal context", async () => {
     const [a, b] = seedWorkspace().businesses;
     expect(() => saveDraft(b, a.drafts[0])).toThrow();

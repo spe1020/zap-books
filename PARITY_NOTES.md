@@ -149,6 +149,11 @@ the Rust follow, so both languages still agree on every fixture.
   were previewed for a different business or account. Preview the file
   again.") if any row names another. Fix 1 of `fix/domain-scoping-and-import`;
   the fingerprint recheck from `74c382e` stays as a second check.
+- **W1, W4, W5.** `approve` finds the posting category by id and business;
+  `totals` and `categoryTotals` skip other businesses' journals, and
+  `categoryTotals` names categories from this business only; `duplicates`
+  only matches drafts in the same business. Fix 2 of
+  `fix/domain-scoping-and-import`.
 
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
@@ -156,16 +161,6 @@ original and marks it corrected, then posts the replacement; merely naming an
 existing expense as a correction cannot authorize a second posting.
 
 ### Open
-
-#### W1. `approve` looks up the category without the business
-
-`src/domain/ledger.ts:308` finds the posting category by id alone, though
-`validation` (`:76-78`) requires one in the expense's business. If another
-business's category with the same id comes first in `categories`, posting
-debits the other business's expense account and fails with "Invalid journal
-account or currency."
-
-Fixture: `approve/category found by id in another business first`.
 
 #### W2. Import evidence can be added later, but never changed or removed
 
@@ -177,23 +172,6 @@ guaranteed to have come from an import.
 
 Fixtures: `drafts/saveDraft: import source added to existing draft`,
 `history/saveDraft: import source removed`.
-
-#### W4. `totals` and `categoryTotals` do not filter by business
-
-`src/domain/ledger.ts:406-443` sums every journal in `b.journals`, while
-`exportRecords` filters by `b.profile.id`. With well-formed data each business
-holds only its own journals, so this matters only if data is ever mixed.
-
-Fixtures: `totals/totals: mixed businesses`,
-`totals/categoryTotals: mixed businesses`.
-
-#### W5. `duplicates` matches drafts from other businesses
-
-`src/domain/ledger.ts:50-62` does not compare `businessId`, so a foreign draft
-with the same vendor, date, amount, and currency asks for a duplicate reason.
-Same caveat as W4.
-
-Fixture: `validation/duplicates: drafts from another business`.
 
 #### W6. `parseCSV` trims whitespace inside quoted cells
 
