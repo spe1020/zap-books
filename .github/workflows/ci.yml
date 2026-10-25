@@ -39,6 +39,9 @@ jobs:
       - name: npm run build
         run: npm run build
 
+      - name: npm run format:check
+        run: npm run format:check
+
       - name: Parity fixtures match the TypeScript
         run: |
           npm run parity:fixtures
