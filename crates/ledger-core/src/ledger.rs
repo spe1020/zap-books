@@ -563,7 +563,8 @@ pub fn category_totals(
         })
         .filter(|x| x.amount != Minor::ZERO)
         .collect();
-    rows.sort_by(|a, z| z.amount.cmp(&a.amount));
+    // Stable, like `Array.prototype.sort`: ties keep first-seen order.
+    rows.sort_by_key(|x| std::cmp::Reverse(x.amount));
     Ok(rows)
 }
 

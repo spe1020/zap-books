@@ -86,9 +86,12 @@ impl Minor {
             .and_then(|v| Minor::new(v).ok())
             .ok_or(LedgerError::TotalOutOfRange)
     }
+}
 
-    /// `-a`. The safe range is symmetric, so this cannot leave it.
-    pub fn neg(self) -> Minor {
+/// `-a`. The safe range is symmetric, so this cannot leave it.
+impl std::ops::Neg for Minor {
+    type Output = Minor;
+    fn neg(self) -> Minor {
         Minor(-self.0)
     }
 }

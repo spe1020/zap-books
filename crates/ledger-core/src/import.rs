@@ -447,7 +447,7 @@ pub fn preview_import(
             }
             let parsed = import_amount(&value(Some(&map.amount)))?;
             amount_minor = match convention {
-                SignConvention::Negative => parsed.neg(),
+                SignConvention::Negative => -parsed,
                 SignConvention::Positive => parsed,
             };
             if amount_minor <= Minor::ZERO {

@@ -3,7 +3,7 @@
   "name": "exportRecords: expenses, northstar",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -147,7 +147,7 @@
   "name": "exportRecords: expenses, fieldwork",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -291,7 +291,7 @@
   "name": "exportRecords: expenses, EUR only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -327,7 +327,7 @@
     [
      "northstar",
      "Northstar Studio",
-     "id-0335",
+     "id-0337",
      "2026-10-15",
      "Euro vendor",
      "Client brochures",
@@ -343,14 +343,14 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-EUR.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0335\",\"2026-10-15\",\"Euro vendor\",\"Client brochures\",\"100.01\",\"EUR\",\"Office & supplies\",\"Euro account\",\"Client deliverable\",\"\",\"\",\"\",\"0\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0337\",\"2026-10-15\",\"Euro vendor\",\"Client brochures\",\"100.01\",\"EUR\",\"Office & supplies\",\"Euro account\",\"Client deliverable\",\"\",\"\",\"\",\"0\"\r\n"
   }
  },
  {
   "name": "exportRecords: expenses, GBP only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -391,7 +391,7 @@
   "name": "exportRecords: expenses, date range",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -501,7 +501,7 @@
   "name": "exportRecords: expenses, from only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -594,7 +594,7 @@
   "name": "exportRecords: expenses, to only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -704,7 +704,7 @@
   "name": "exportRecords: expenses, empty range",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -745,7 +745,7 @@
   "name": "exportRecords: expenses, mixed businesses",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -903,7 +903,7 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0336",
+      "id": "id-0338",
       "businessId": "northstar",
       "name": "Euro vendor"
      }
@@ -1231,7 +1231,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0335",
+      "id": "id-0337",
       "businessId": "northstar",
       "vendor": "Euro vendor",
       "date": "2026-10-15",
@@ -1245,7 +1245,7 @@
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0339"
+      "journalId": "id-0341"
      },
      {
       "id": "id-0105",
@@ -1661,7 +1661,7 @@
       ]
      },
      {
-      "id": "id-0339",
+      "id": "id-0341",
       "businessId": "northstar",
       "date": "2026-10-15",
       "currency": "EUR",
@@ -1679,7 +1679,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0335",
+      "expenseId": "id-0337",
       "memo": "Euro vendor · Client brochures",
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
@@ -1948,9 +1948,9 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0340",
+      "id": "id-0342",
       "businessId": "northstar",
-      "expenseId": "id-0335",
+      "expenseId": "id-0337",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -2211,28 +2211,28 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0338",
+      "id": "id-0340",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0342",
+      "id": "id-0344",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0344",
+      "id": "id-0346",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -2645,42 +2645,42 @@
       }
      },
      {
-      "id": "id-0337",
+      "id": "id-0339",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [],
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "payload": {
        "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0341",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.approved",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [],
-      "entityId": "id-0335",
-      "payload": {
-       "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
       "id": "id-0343",
       "businessId": "northstar",
       "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0337",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0345",
+      "businessId": "northstar",
+      "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0339"
+       "id-0341"
       ],
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
@@ -2784,7 +2784,7 @@
     [
      "northstar",
      "Northstar Studio",
-     "id-0335",
+     "id-0337",
      "2026-10-15",
      "Euro vendor",
      "Client brochures",
@@ -2834,14 +2834,14 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0335\",\"2026-10-15\",\"Euro vendor\",\"Client brochures\",\"100.01\",\"EUR\",\"Office & supplies\",\"Euro account\",\"Client deliverable\",\"\",\"\",\"\",\"0\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0337\",\"2026-10-15\",\"Euro vendor\",\"Client brochures\",\"100.01\",\"EUR\",\"Office & supplies\",\"Euro account\",\"Client deliverable\",\"\",\"\",\"\",\"0\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
   "name": "exportRecords: journal, northstar",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -3189,7 +3189,7 @@
   "name": "exportRecords: journal, fieldwork",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -3537,7 +3537,7 @@
   "name": "exportRecords: journal, EUR only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -3573,10 +3573,10 @@
     [
      "northstar",
      "Northstar Studio",
-     "id-0339",
+     "id-0341",
      "2026-10-15",
      "expense",
-     "id-0335",
+     "id-0337",
      "",
      "northstar-expense-1",
      "Office & supplies",
@@ -3590,10 +3590,10 @@
     [
      "northstar",
      "Northstar Studio",
-     "id-0339",
+     "id-0341",
      "2026-10-15",
      "expense",
-     "id-0335",
+     "id-0337",
      "",
      "northstar-eur",
      "Euro account",
@@ -3606,14 +3606,14 @@
     ]
    ],
    "filename": "northstar-studio-journal-start-to-latest-EUR.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0339\",\"2026-10-15\",\"expense\",\"id-0335\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"100.01\",\"0.00\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0339\",\"2026-10-15\",\"expense\",\"id-0335\",\"\",\"northstar-eur\",\"Euro account\",\"\",\"0.00\",\"100.01\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0341\",\"2026-10-15\",\"expense\",\"id-0337\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"100.01\",\"0.00\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0341\",\"2026-10-15\",\"expense\",\"id-0337\",\"\",\"northstar-eur\",\"Euro account\",\"\",\"0.00\",\"100.01\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
   "name": "exportRecords: journal, GBP only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -3654,7 +3654,7 @@
   "name": "exportRecords: journal, date range",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -3934,7 +3934,7 @@
   "name": "exportRecords: journal, from only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -4078,7 +4078,7 @@
   "name": "exportRecords: journal, to only",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -4358,7 +4358,7 @@
   "name": "exportRecords: journal, empty range",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -4399,7 +4399,7 @@
   "name": "exportRecords: journal, mixed businesses",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -4557,7 +4557,7 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0336",
+      "id": "id-0338",
       "businessId": "northstar",
       "name": "Euro vendor"
      }
@@ -4885,7 +4885,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0335",
+      "id": "id-0337",
       "businessId": "northstar",
       "vendor": "Euro vendor",
       "date": "2026-10-15",
@@ -4899,7 +4899,7 @@
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0339"
+      "journalId": "id-0341"
      },
      {
       "id": "id-0105",
@@ -5315,7 +5315,7 @@
       ]
      },
      {
-      "id": "id-0339",
+      "id": "id-0341",
       "businessId": "northstar",
       "date": "2026-10-15",
       "currency": "EUR",
@@ -5333,7 +5333,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0335",
+      "expenseId": "id-0337",
       "memo": "Euro vendor · Client brochures",
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
@@ -5602,9 +5602,9 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0340",
+      "id": "id-0342",
       "businessId": "northstar",
-      "expenseId": "id-0335",
+      "expenseId": "id-0337",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -5865,28 +5865,28 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0338",
+      "id": "id-0340",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0342",
+      "id": "id-0344",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0344",
+      "id": "id-0346",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -6299,42 +6299,42 @@
       }
      },
      {
-      "id": "id-0337",
+      "id": "id-0339",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [],
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "payload": {
        "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0341",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.approved",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [],
-      "entityId": "id-0335",
-      "payload": {
-       "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
       "id": "id-0343",
       "businessId": "northstar",
       "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0337",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0345",
+      "businessId": "northstar",
+      "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0339"
+       "id-0341"
       ],
-      "entityId": "id-0335",
+      "entityId": "id-0337",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
@@ -6608,10 +6608,10 @@
     [
      "northstar",
      "Northstar Studio",
-     "id-0339",
+     "id-0341",
      "2026-10-15",
      "expense",
-     "id-0335",
+     "id-0337",
      "",
      "northstar-expense-1",
      "Office & supplies",
@@ -6625,10 +6625,10 @@
     [
      "northstar",
      "Northstar Studio",
-     "id-0339",
+     "id-0341",
      "2026-10-15",
      "expense",
-     "id-0335",
+     "id-0337",
      "",
      "northstar-eur",
      "Euro account",
@@ -6709,14 +6709,14 @@
     ]
    ],
    "filename": "northstar-studio-journal-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0339\",\"2026-10-15\",\"expense\",\"id-0335\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"100.01\",\"0.00\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0339\",\"2026-10-15\",\"expense\",\"id-0335\",\"\",\"northstar-eur\",\"Euro account\",\"\",\"0.00\",\"100.01\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0341\",\"2026-10-15\",\"expense\",\"id-0337\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"100.01\",\"0.00\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0341\",\"2026-10-15\",\"expense\",\"id-0337\",\"\",\"northstar-eur\",\"Euro account\",\"\",\"0.00\",\"100.01\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
   "name": "exportRecords: invalid from date",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -6736,7 +6736,7 @@
   "name": "exportRecords: invalid to date",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -6756,7 +6756,7 @@
   "name": "exportRecords: reversed range",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -6776,7 +6776,7 @@
   "name": "exportRecords: same-day range",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -6835,7 +6835,7 @@
   "name": "exportRecords: formula-injection escaping 0",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -8382,7 +8382,7 @@
   "name": "exportRecords: formula-injection escaping 1",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -9929,7 +9929,7 @@
   "name": "exportRecords: formula-injection escaping 2",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -11476,7 +11476,7 @@
   "name": "exportRecords: formula-injection escaping 3",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -13023,7 +13023,7 @@
   "name": "exportRecords: formula-injection escaping 4",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -14570,7 +14570,7 @@
   "name": "exportRecords: formula-injection escaping 5",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -16117,7 +16117,7 @@
   "name": "exportRecords: formula-injection escaping 6",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -17664,7 +17664,7 @@
   "name": "exportRecords: formula-injection escaping 7",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -19211,7 +19211,7 @@
   "name": "exportRecords: formula-injection escaping 8",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -20758,7 +20758,7 @@
   "name": "exportRecords: formula-injection escaping 9",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22305,7 +22305,7 @@
   "name": "exportRecords: formula-injection escaping 10",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -23852,7 +23852,7 @@
   "name": "exportRecords: filename for \"Café Ünïcode & Co.\"",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -25603,7 +25603,7 @@
   "name": "exportRecords: filename for \"!!!\"",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -27354,7 +27354,7 @@
   "name": "exportRecords: filename for \"  --Northstar--  \"",
   "call": "exportRecords",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -29105,7 +29105,7 @@
   "name": "encodeCSV: empty",
   "call": "encodeCSV",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -29117,7 +29117,7 @@
   "name": "encodeCSV: header only",
   "call": "encodeCSV",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -29134,7 +29134,7 @@
   "name": "encodeCSV: escaping",
   "call": "encodeCSV",
   "env": {
-   "nextId": 471,
+   "nextId": 480,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {

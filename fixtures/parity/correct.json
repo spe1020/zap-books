@@ -3,7 +3,7 @@
   "name": "success",
   "call": "correct",
   "env": {
-   "nextId": 269,
+   "nextId": 271,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -12,7 +12,7 @@
    },
    "originalId": "id-0081",
    "replacement": {
-    "id": "id-0268",
+    "id": "id-0270",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -508,7 +508,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0268",
+     "id": "id-0270",
      "businessId": "northstar",
      "vendor": "Adobe",
      "date": "2026-10-05",
@@ -525,7 +525,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "correctionOf": "id-0081",
-     "journalId": "id-0274"
+     "journalId": "id-0276"
     }
    ],
    "journals": [
@@ -736,7 +736,7 @@
      ]
     },
     {
-     "id": "id-0269",
+     "id": "id-0271",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -760,7 +760,7 @@
      "reversesId": "id-0085"
     },
     {
-     "id": "id-0274",
+     "id": "id-0276",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -778,7 +778,7 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0268",
+     "expenseId": "id-0270",
      "memo": "Adobe · Monthly creative tools subscription",
      "createdAt": "2026-10-15T12:00:00.000Z"
     }
@@ -841,9 +841,9 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0275",
+     "id": "id-0277",
      "businessId": "northstar",
-     "expenseId": "id-0268",
+     "expenseId": "id-0270",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -1104,7 +1104,7 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0271",
+     "id": "id-0273",
      "businessId": "northstar",
      "action": "expense.reversed",
      "entityId": "id-0081",
@@ -1113,28 +1113,28 @@
      "detail": "Updated invoice amount"
     },
     {
-     "id": "id-0273",
+     "id": "id-0275",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0277",
+     "id": "id-0279",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0279",
+     "id": "id-0281",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
@@ -1547,7 +1547,7 @@
      }
     },
     {
-     "id": "id-0270",
+     "id": "id-0272",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.reversed",
@@ -1555,8 +1555,8 @@
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
       "id-0085",
-      "id-0269",
-      "id-0268"
+      "id-0271",
+      "id-0270"
      ],
      "entityId": "id-0081",
      "payload": {
@@ -1564,7 +1564,7 @@
      }
     },
     {
-     "id": "id-0272",
+     "id": "id-0274",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
@@ -1573,13 +1573,13 @@
      "sourceIds": [
       "id-0080"
      ],
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0276",
+     "id": "id-0278",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.approved",
@@ -1588,22 +1588,22 @@
      "sourceIds": [
       "id-0080"
      ],
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "payload": {
       "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
-     "id": "id-0278",
+     "id": "id-0280",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0274"
+      "id-0276"
      ],
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }
@@ -1615,7 +1615,7 @@
   "name": "missing reason",
   "call": "correct",
   "env": {
-   "nextId": 280,
+   "nextId": 282,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1624,7 +1624,7 @@
    },
    "originalId": "id-0081",
    "replacement": {
-    "id": "id-0268",
+    "id": "id-0270",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -1649,7 +1649,7 @@
   "name": "original is a draft",
   "call": "correct",
   "env": {
-   "nextId": 280,
+   "nextId": 282,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1658,7 +1658,7 @@
    },
    "originalId": "id-0003",
    "replacement": {
-    "id": "id-0268",
+    "id": "id-0270",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -1683,7 +1683,7 @@
   "name": "replacement reuses original id",
   "call": "correct",
   "env": {
-   "nextId": 280,
+   "nextId": 282,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1717,7 +1717,7 @@
   "name": "replacement id already exists",
   "call": "correct",
   "env": {
-   "nextId": 280,
+   "nextId": 282,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1751,7 +1751,7 @@
   "name": "replacement already posted",
   "call": "correct",
   "env": {
-   "nextId": 280,
+   "nextId": 282,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1760,7 +1760,7 @@
    },
    "originalId": "id-0081",
    "replacement": {
-    "id": "id-0268",
+    "id": "id-0270",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -1785,7 +1785,7 @@
   "name": "replacement in another business",
   "call": "correct",
   "env": {
-   "nextId": 280,
+   "nextId": 282,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1794,7 +1794,7 @@
    },
    "originalId": "id-0081",
    "replacement": {
-    "id": "id-0268",
+    "id": "id-0270",
     "businessId": "fieldwork",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -1819,7 +1819,7 @@
   "name": "invalid replacement amount",
   "call": "correct",
   "env": {
-   "nextId": 280,
+   "nextId": 282,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1828,7 +1828,7 @@
    },
    "originalId": "id-0081",
    "replacement": {
-    "id": "id-0268",
+    "id": "id-0270",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -1853,7 +1853,7 @@
   "name": "replacement keeps the old journal id",
   "call": "correct",
   "env": {
-   "nextId": 286,
+   "nextId": 288,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1862,7 +1862,7 @@
    },
    "originalId": "id-0081",
    "replacement": {
-    "id": "id-0285",
+    "id": "id-0287",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -2359,7 +2359,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0285",
+     "id": "id-0287",
      "businessId": "northstar",
      "vendor": "Adobe",
      "date": "2026-10-05",
@@ -2375,7 +2375,7 @@
      "status": "posted",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "journalId": "id-0291",
+     "journalId": "id-0293",
      "correctionOf": "id-0081"
     }
    ],
@@ -2587,7 +2587,7 @@
      ]
     },
     {
-     "id": "id-0286",
+     "id": "id-0288",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -2611,7 +2611,7 @@
      "reversesId": "id-0085"
     },
     {
-     "id": "id-0291",
+     "id": "id-0293",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -2629,7 +2629,7 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0285",
+     "expenseId": "id-0287",
      "memo": "Adobe · Monthly creative tools subscription",
      "createdAt": "2026-10-15T12:00:00.000Z"
     }
@@ -2692,9 +2692,9 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0292",
+     "id": "id-0294",
      "businessId": "northstar",
-     "expenseId": "id-0285",
+     "expenseId": "id-0287",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -2955,7 +2955,7 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0288",
+     "id": "id-0290",
      "businessId": "northstar",
      "action": "expense.reversed",
      "entityId": "id-0081",
@@ -2964,28 +2964,28 @@
      "detail": "Same"
     },
     {
-     "id": "id-0290",
+     "id": "id-0292",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0285",
+     "entityId": "id-0287",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0294",
+     "id": "id-0296",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0285",
+     "entityId": "id-0287",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0296",
+     "id": "id-0298",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0285",
+     "entityId": "id-0287",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
@@ -3398,7 +3398,7 @@
      }
     },
     {
-     "id": "id-0287",
+     "id": "id-0289",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.reversed",
@@ -3406,8 +3406,8 @@
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
       "id-0085",
-      "id-0286",
-      "id-0285"
+      "id-0288",
+      "id-0287"
      ],
      "entityId": "id-0081",
      "payload": {
@@ -3415,7 +3415,7 @@
      }
     },
     {
-     "id": "id-0289",
+     "id": "id-0291",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
@@ -3424,13 +3424,13 @@
      "sourceIds": [
       "id-0080"
      ],
-     "entityId": "id-0285",
+     "entityId": "id-0287",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0293",
+     "id": "id-0295",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.approved",
@@ -3439,22 +3439,22 @@
      "sourceIds": [
       "id-0080"
      ],
-     "entityId": "id-0285",
+     "entityId": "id-0287",
      "payload": {
       "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
-     "id": "id-0295",
+     "id": "id-0297",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0291"
+      "id-0293"
      ],
-     "entityId": "id-0285",
+     "entityId": "id-0287",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }
@@ -3466,7 +3466,7 @@
   "name": "correcting the original a second time",
   "call": "correct",
   "env": {
-   "nextId": 298,
+   "nextId": 300,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -3947,7 +3947,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0268",
+      "id": "id-0270",
       "businessId": "northstar",
       "vendor": "Adobe",
       "date": "2026-10-05",
@@ -3964,7 +3964,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "correctionOf": "id-0081",
-      "journalId": "id-0274"
+      "journalId": "id-0276"
      }
     ],
     "journals": [
@@ -4175,7 +4175,7 @@
       ]
      },
      {
-      "id": "id-0269",
+      "id": "id-0271",
       "businessId": "northstar",
       "date": "2026-10-05",
       "currency": "USD",
@@ -4199,7 +4199,7 @@
       "reversesId": "id-0085"
      },
      {
-      "id": "id-0274",
+      "id": "id-0276",
       "businessId": "northstar",
       "date": "2026-10-05",
       "currency": "USD",
@@ -4217,7 +4217,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0268",
+      "expenseId": "id-0270",
       "memo": "Adobe · Monthly creative tools subscription",
       "createdAt": "2026-10-15T12:00:00.000Z"
      }
@@ -4280,9 +4280,9 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0275",
+      "id": "id-0277",
       "businessId": "northstar",
-      "expenseId": "id-0268",
+      "expenseId": "id-0270",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -4543,7 +4543,7 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0271",
+      "id": "id-0273",
       "businessId": "northstar",
       "action": "expense.reversed",
       "entityId": "id-0081",
@@ -4552,28 +4552,28 @@
       "detail": "Updated invoice amount"
      },
      {
-      "id": "id-0273",
+      "id": "id-0275",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0277",
+      "id": "id-0279",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0279",
+      "id": "id-0281",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -4986,7 +4986,7 @@
       }
      },
      {
-      "id": "id-0270",
+      "id": "id-0272",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.reversed",
@@ -4994,8 +4994,8 @@
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
        "id-0085",
-       "id-0269",
-       "id-0268"
+       "id-0271",
+       "id-0270"
       ],
       "entityId": "id-0081",
       "payload": {
@@ -5003,7 +5003,7 @@
       }
      },
      {
-      "id": "id-0272",
+      "id": "id-0274",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
@@ -5012,13 +5012,13 @@
       "sourceIds": [
        "id-0080"
       ],
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0276",
+      "id": "id-0278",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
@@ -5027,22 +5027,22 @@
       "sourceIds": [
        "id-0080"
       ],
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "payload": {
        "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
-      "id": "id-0278",
+      "id": "id-0280",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0274"
+       "id-0276"
       ],
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
@@ -5051,7 +5051,7 @@
    },
    "originalId": "id-0081",
    "replacement": {
-    "id": "id-0297",
+    "id": "id-0299",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -5076,7 +5076,7 @@
   "name": "correcting a replacement a second time",
   "call": "correct",
   "env": {
-   "nextId": 299,
+   "nextId": 301,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -5557,7 +5557,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0268",
+      "id": "id-0270",
       "businessId": "northstar",
       "vendor": "Adobe",
       "date": "2026-10-05",
@@ -5574,7 +5574,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "correctionOf": "id-0081",
-      "journalId": "id-0274"
+      "journalId": "id-0276"
      }
     ],
     "journals": [
@@ -5785,7 +5785,7 @@
       ]
      },
      {
-      "id": "id-0269",
+      "id": "id-0271",
       "businessId": "northstar",
       "date": "2026-10-05",
       "currency": "USD",
@@ -5809,7 +5809,7 @@
       "reversesId": "id-0085"
      },
      {
-      "id": "id-0274",
+      "id": "id-0276",
       "businessId": "northstar",
       "date": "2026-10-05",
       "currency": "USD",
@@ -5827,7 +5827,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0268",
+      "expenseId": "id-0270",
       "memo": "Adobe · Monthly creative tools subscription",
       "createdAt": "2026-10-15T12:00:00.000Z"
      }
@@ -5890,9 +5890,9 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0275",
+      "id": "id-0277",
       "businessId": "northstar",
-      "expenseId": "id-0268",
+      "expenseId": "id-0270",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -6153,7 +6153,7 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0271",
+      "id": "id-0273",
       "businessId": "northstar",
       "action": "expense.reversed",
       "entityId": "id-0081",
@@ -6162,28 +6162,28 @@
       "detail": "Updated invoice amount"
      },
      {
-      "id": "id-0273",
+      "id": "id-0275",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0277",
+      "id": "id-0279",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0279",
+      "id": "id-0281",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -6596,7 +6596,7 @@
       }
      },
      {
-      "id": "id-0270",
+      "id": "id-0272",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.reversed",
@@ -6604,8 +6604,8 @@
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
        "id-0085",
-       "id-0269",
-       "id-0268"
+       "id-0271",
+       "id-0270"
       ],
       "entityId": "id-0081",
       "payload": {
@@ -6613,7 +6613,7 @@
       }
      },
      {
-      "id": "id-0272",
+      "id": "id-0274",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
@@ -6622,13 +6622,13 @@
       "sourceIds": [
        "id-0080"
       ],
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0276",
+      "id": "id-0278",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
@@ -6637,31 +6637,31 @@
       "sourceIds": [
        "id-0080"
       ],
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "payload": {
        "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
-      "id": "id-0278",
+      "id": "id-0280",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0274"
+       "id-0276"
       ],
-      "entityId": "id-0268",
+      "entityId": "id-0270",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
      }
     ]
    },
-   "originalId": "id-0268",
+   "originalId": "id-0270",
    "replacement": {
-    "id": "id-0298",
+    "id": "id-0300",
     "businessId": "northstar",
     "vendor": "Adobe",
     "date": "2026-10-05",
@@ -7157,7 +7157,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0268",
+     "id": "id-0270",
      "businessId": "northstar",
      "vendor": "Adobe",
      "date": "2026-10-05",
@@ -7174,10 +7174,10 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "correctionOf": "id-0081",
-     "journalId": "id-0274"
+     "journalId": "id-0276"
     },
     {
-     "id": "id-0298",
+     "id": "id-0300",
      "businessId": "northstar",
      "vendor": "Adobe",
      "date": "2026-10-05",
@@ -7193,8 +7193,8 @@
      "status": "posted",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "correctionOf": "id-0268",
-     "journalId": "id-0304"
+     "correctionOf": "id-0270",
+     "journalId": "id-0306"
     }
    ],
    "journals": [
@@ -7405,7 +7405,7 @@
      ]
     },
     {
-     "id": "id-0269",
+     "id": "id-0271",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -7429,7 +7429,7 @@
      "reversesId": "id-0085"
     },
     {
-     "id": "id-0274",
+     "id": "id-0276",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -7447,12 +7447,12 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0268",
+     "expenseId": "id-0270",
      "memo": "Adobe · Monthly creative tools subscription",
      "createdAt": "2026-10-15T12:00:00.000Z"
     },
     {
-     "id": "id-0299",
+     "id": "id-0301",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -7470,13 +7470,13 @@
       }
      ],
      "kind": "reversal",
-     "expenseId": "id-0268",
+     "expenseId": "id-0270",
      "memo": "Correction: Second revision",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "reversesId": "id-0274"
+     "reversesId": "id-0276"
     },
     {
-     "id": "id-0304",
+     "id": "id-0306",
      "businessId": "northstar",
      "date": "2026-10-05",
      "currency": "USD",
@@ -7494,7 +7494,7 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0298",
+     "expenseId": "id-0300",
      "memo": "Adobe · Monthly creative tools subscription",
      "createdAt": "2026-10-15T12:00:00.000Z"
     }
@@ -7557,17 +7557,17 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0275",
+     "id": "id-0277",
      "businessId": "northstar",
-     "expenseId": "id-0268",
+     "expenseId": "id-0270",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
     },
     {
-     "id": "id-0305",
+     "id": "id-0307",
      "businessId": "northstar",
-     "expenseId": "id-0298",
+     "expenseId": "id-0300",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -7828,7 +7828,7 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0271",
+     "id": "id-0273",
      "businessId": "northstar",
      "action": "expense.reversed",
      "entityId": "id-0081",
@@ -7837,64 +7837,64 @@
      "detail": "Updated invoice amount"
     },
     {
-     "id": "id-0273",
+     "id": "id-0275",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0277",
+     "id": "id-0279",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0279",
+     "id": "id-0281",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0301",
+     "id": "id-0303",
      "businessId": "northstar",
      "action": "expense.reversed",
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Second revision"
     },
     {
-     "id": "id-0303",
+     "id": "id-0305",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0298",
+     "entityId": "id-0300",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0307",
+     "id": "id-0309",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0298",
+     "entityId": "id-0300",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0309",
+     "id": "id-0311",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0298",
+     "entityId": "id-0300",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
@@ -8307,7 +8307,7 @@
      }
     },
     {
-     "id": "id-0270",
+     "id": "id-0272",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.reversed",
@@ -8315,8 +8315,8 @@
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
       "id-0085",
-      "id-0269",
-      "id-0268"
+      "id-0271",
+      "id-0270"
      ],
      "entityId": "id-0081",
      "payload": {
@@ -8324,7 +8324,7 @@
      }
     },
     {
-     "id": "id-0272",
+     "id": "id-0274",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
@@ -8333,60 +8333,60 @@
      "sourceIds": [
       "id-0080"
      ],
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "payload": {
       "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0276",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.approved",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0080"
-     ],
-     "entityId": "id-0268",
-     "payload": {
-      "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
      "id": "id-0278",
      "businessId": "northstar",
      "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0080"
+     ],
+     "entityId": "id-0270",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0280",
+     "businessId": "northstar",
+     "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0274"
+      "id-0276"
      ],
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }
     },
     {
-     "id": "id-0300",
+     "id": "id-0302",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.reversed",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0274",
-      "id-0299",
-      "id-0298"
+      "id-0276",
+      "id-0301",
+      "id-0300"
      ],
-     "entityId": "id-0268",
+     "entityId": "id-0270",
      "payload": {
       "detail": "Second revision"
      }
     },
     {
-     "id": "id-0302",
+     "id": "id-0304",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
@@ -8395,13 +8395,13 @@
      "sourceIds": [
       "id-0080"
      ],
-     "entityId": "id-0298",
+     "entityId": "id-0300",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0306",
+     "id": "id-0308",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.approved",
@@ -8410,22 +8410,22 @@
      "sourceIds": [
       "id-0080"
      ],
-     "entityId": "id-0298",
+     "entityId": "id-0300",
      "payload": {
       "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
-     "id": "id-0308",
+     "id": "id-0310",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0304"
+      "id-0306"
      ],
-     "entityId": "id-0298",
+     "entityId": "id-0300",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }
@@ -8437,7 +8437,7 @@
   "name": "changed payment link",
   "call": "correct",
   "env": {
-   "nextId": 317,
+   "nextId": 319,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -8764,7 +8764,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "paymentId": "id-0012",
-      "journalId": "id-0310"
+      "journalId": "id-0312"
      },
      {
       "id": "id-0020",
@@ -9127,7 +9127,7 @@
       ]
      },
      {
-      "id": "id-0310",
+      "id": "id-0312",
       "businessId": "northstar",
       "date": "2026-10-20",
       "currency": "USD",
@@ -9208,7 +9208,7 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0311",
+      "id": "id-0313",
       "businessId": "northstar",
       "expenseId": "id-0011",
       "actor": "local-demo-user",
@@ -9471,7 +9471,7 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0313",
+      "id": "id-0315",
       "businessId": "northstar",
       "action": "expense.approved",
       "entityId": "id-0011",
@@ -9480,7 +9480,7 @@
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0315",
+      "id": "id-0317",
       "businessId": "northstar",
       "action": "expense.posted",
       "entityId": "id-0011",
@@ -9896,7 +9896,7 @@
       }
      },
      {
-      "id": "id-0312",
+      "id": "id-0314",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
@@ -9912,14 +9912,14 @@
       }
      },
      {
-      "id": "id-0314",
+      "id": "id-0316",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0310"
+       "id-0312"
       ],
       "entityId": "id-0011",
       "payload": {
@@ -9930,7 +9930,7 @@
    },
    "originalId": "id-0011",
    "replacement": {
-    "id": "id-0316",
+    "id": "id-0318",
     "businessId": "northstar",
     "vendor": "Notion",
     "date": "2026-10-20",
@@ -9946,7 +9946,7 @@
     "status": "draft",
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
-    "journalId": "id-0310"
+    "journalId": "id-0312"
    },
    "reason": "Unlink"
   },
@@ -9956,7 +9956,7 @@
   "name": "payment-linked amount change",
   "call": "correct",
   "env": {
-   "nextId": 318,
+   "nextId": 320,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -10283,7 +10283,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "paymentId": "id-0012",
-      "journalId": "id-0310"
+      "journalId": "id-0312"
      },
      {
       "id": "id-0020",
@@ -10646,7 +10646,7 @@
       ]
      },
      {
-      "id": "id-0310",
+      "id": "id-0312",
       "businessId": "northstar",
       "date": "2026-10-20",
       "currency": "USD",
@@ -10727,7 +10727,7 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0311",
+      "id": "id-0313",
       "businessId": "northstar",
       "expenseId": "id-0011",
       "actor": "local-demo-user",
@@ -10990,7 +10990,7 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0313",
+      "id": "id-0315",
       "businessId": "northstar",
       "action": "expense.approved",
       "entityId": "id-0011",
@@ -10999,7 +10999,7 @@
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0315",
+      "id": "id-0317",
       "businessId": "northstar",
       "action": "expense.posted",
       "entityId": "id-0011",
@@ -11415,7 +11415,7 @@
       }
      },
      {
-      "id": "id-0312",
+      "id": "id-0314",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
@@ -11431,14 +11431,14 @@
       }
      },
      {
-      "id": "id-0314",
+      "id": "id-0316",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0310"
+       "id-0312"
       ],
       "entityId": "id-0011",
       "payload": {
@@ -11449,7 +11449,7 @@
    },
    "originalId": "id-0011",
    "replacement": {
-    "id": "id-0317",
+    "id": "id-0319",
     "businessId": "northstar",
     "vendor": "Notion",
     "date": "2026-10-20",
@@ -11466,7 +11466,7 @@
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
     "paymentId": "id-0012",
-    "journalId": "id-0310"
+    "journalId": "id-0312"
    },
    "reason": "Changed receipt total"
   },
@@ -11476,7 +11476,7 @@
   "name": "payment-linked description change",
   "call": "correct",
   "env": {
-   "nextId": 324,
+   "nextId": 326,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -11803,7 +11803,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "paymentId": "id-0012",
-      "journalId": "id-0310"
+      "journalId": "id-0312"
      },
      {
       "id": "id-0020",
@@ -12166,7 +12166,7 @@
       ]
      },
      {
-      "id": "id-0310",
+      "id": "id-0312",
       "businessId": "northstar",
       "date": "2026-10-20",
       "currency": "USD",
@@ -12247,7 +12247,7 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0311",
+      "id": "id-0313",
       "businessId": "northstar",
       "expenseId": "id-0011",
       "actor": "local-demo-user",
@@ -12510,7 +12510,7 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0313",
+      "id": "id-0315",
       "businessId": "northstar",
       "action": "expense.approved",
       "entityId": "id-0011",
@@ -12519,7 +12519,7 @@
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0315",
+      "id": "id-0317",
       "businessId": "northstar",
       "action": "expense.posted",
       "entityId": "id-0011",
@@ -12935,7 +12935,7 @@
       }
      },
      {
-      "id": "id-0312",
+      "id": "id-0314",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
@@ -12951,14 +12951,14 @@
       }
      },
      {
-      "id": "id-0314",
+      "id": "id-0316",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0310"
+       "id-0312"
       ],
       "entityId": "id-0011",
       "payload": {
@@ -12969,7 +12969,7 @@
    },
    "originalId": "id-0011",
    "replacement": {
-    "id": "id-0323",
+    "id": "id-0325",
     "businessId": "northstar",
     "vendor": "Notion",
     "date": "2026-10-20",
@@ -12986,7 +12986,7 @@
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
     "paymentId": "id-0012",
-    "journalId": "id-0310"
+    "journalId": "id-0312"
    },
    "reason": "Clarify description"
   },
@@ -13313,7 +13313,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "paymentId": "id-0012",
-     "journalId": "id-0310"
+     "journalId": "id-0312"
     },
     {
      "id": "id-0020",
@@ -13468,7 +13468,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0323",
+     "id": "id-0325",
      "businessId": "northstar",
      "vendor": "Notion",
      "date": "2026-10-20",
@@ -13485,7 +13485,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "paymentId": "id-0012",
-     "journalId": "id-0329",
+     "journalId": "id-0331",
      "correctionOf": "id-0011"
     }
    ],
@@ -13697,7 +13697,7 @@
      ]
     },
     {
-     "id": "id-0310",
+     "id": "id-0312",
      "businessId": "northstar",
      "date": "2026-10-20",
      "currency": "USD",
@@ -13720,7 +13720,7 @@
      "createdAt": "2026-10-15T12:00:00.000Z"
     },
     {
-     "id": "id-0324",
+     "id": "id-0326",
      "businessId": "northstar",
      "date": "2026-10-20",
      "currency": "USD",
@@ -13741,10 +13741,10 @@
      "expenseId": "id-0011",
      "memo": "Correction: Clarify description",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "reversesId": "id-0310"
+     "reversesId": "id-0312"
     },
     {
-     "id": "id-0329",
+     "id": "id-0331",
      "businessId": "northstar",
      "date": "2026-10-20",
      "currency": "USD",
@@ -13762,7 +13762,7 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0323",
+     "expenseId": "id-0325",
      "memo": "Notion · Team workspace",
      "createdAt": "2026-10-15T12:00:00.000Z"
     }
@@ -13825,7 +13825,7 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0311",
+     "id": "id-0313",
      "businessId": "northstar",
      "expenseId": "id-0011",
      "actor": "local-demo-user",
@@ -13833,9 +13833,9 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0330",
+     "id": "id-0332",
      "businessId": "northstar",
-     "expenseId": "id-0323",
+     "expenseId": "id-0325",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -14096,7 +14096,7 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0313",
+     "id": "id-0315",
      "businessId": "northstar",
      "action": "expense.approved",
      "entityId": "id-0011",
@@ -14105,7 +14105,7 @@
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0315",
+     "id": "id-0317",
      "businessId": "northstar",
      "action": "expense.posted",
      "entityId": "id-0011",
@@ -14114,7 +14114,7 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0326",
+     "id": "id-0328",
      "businessId": "northstar",
      "action": "expense.reversed",
      "entityId": "id-0011",
@@ -14123,28 +14123,28 @@
      "detail": "Clarify description"
     },
     {
-     "id": "id-0328",
+     "id": "id-0330",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0323",
+     "entityId": "id-0325",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0332",
+     "id": "id-0334",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0323",
+     "entityId": "id-0325",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0334",
+     "id": "id-0336",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0323",
+     "entityId": "id-0325",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
@@ -14557,7 +14557,7 @@
      }
     },
     {
-     "id": "id-0312",
+     "id": "id-0314",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.approved",
@@ -14573,14 +14573,14 @@
      }
     },
     {
-     "id": "id-0314",
+     "id": "id-0316",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0310"
+      "id-0312"
      ],
      "entityId": "id-0011",
      "payload": {
@@ -14588,16 +14588,16 @@
      }
     },
     {
-     "id": "id-0325",
+     "id": "id-0327",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.reversed",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0310",
-      "id-0324",
-      "id-0323"
+      "id-0312",
+      "id-0326",
+      "id-0325"
      ],
      "entityId": "id-0011",
      "payload": {
@@ -14605,7 +14605,7 @@
      }
     },
     {
-     "id": "id-0327",
+     "id": "id-0329",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
@@ -14615,13 +14615,13 @@
       "id-0018",
       "id-0012"
      ],
-     "entityId": "id-0323",
+     "entityId": "id-0325",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0331",
+     "id": "id-0333",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.approved",
@@ -14631,22 +14631,22 @@
       "id-0018",
       "id-0012"
      ],
-     "entityId": "id-0323",
+     "entityId": "id-0325",
      "payload": {
       "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
-     "id": "id-0333",
+     "id": "id-0335",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0329"
+      "id-0331"
      ],
-     "entityId": "id-0323",
+     "entityId": "id-0325",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }

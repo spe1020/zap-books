@@ -1,5 +1,1683 @@
 [
  {
+  "name": "duplicates: drafts from another business",
+  "call": "duplicates",
+  "env": {
+   "nextId": 206,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "business": {
+    "profile": {
+     "id": "northstar",
+     "businessId": "northstar",
+     "name": "Northstar Studio",
+     "industry": "Design & creative services",
+     "initials": "NS",
+     "color": "#c8da78",
+     "currency": "USD"
+    },
+    "accounts": [
+     {
+      "id": "northstar-checking",
+      "businessId": "northstar",
+      "name": "Operating account",
+      "kind": "bank",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-card",
+      "businessId": "northstar",
+      "name": "Business card",
+      "kind": "card",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-reserve",
+      "businessId": "northstar",
+      "name": "Reserve account",
+      "kind": "bank",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-eur",
+      "businessId": "northstar",
+      "name": "Euro account",
+      "kind": "bank",
+      "currency": "EUR"
+     },
+     {
+      "id": "northstar-expense-0",
+      "businessId": "northstar",
+      "name": "Software & subscriptions",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-1",
+      "businessId": "northstar",
+      "name": "Office & supplies",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-2",
+      "businessId": "northstar",
+      "name": "Travel & meals",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-3",
+      "businessId": "northstar",
+      "name": "Professional services",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-4",
+      "businessId": "northstar",
+      "name": "Marketing & design",
+      "kind": "expense",
+      "currency": "USD"
+     }
+    ],
+    "categories": [
+     {
+      "id": "northstar-category-0",
+      "businessId": "northstar",
+      "name": "Software & subscriptions",
+      "accountId": "northstar-expense-0"
+     },
+     {
+      "id": "northstar-category-1",
+      "businessId": "northstar",
+      "name": "Office & supplies",
+      "accountId": "northstar-expense-1"
+     },
+     {
+      "id": "northstar-category-2",
+      "businessId": "northstar",
+      "name": "Travel & meals",
+      "accountId": "northstar-expense-2"
+     },
+     {
+      "id": "northstar-category-3",
+      "businessId": "northstar",
+      "name": "Professional services",
+      "accountId": "northstar-expense-3"
+     },
+     {
+      "id": "northstar-category-4",
+      "businessId": "northstar",
+      "name": "Marketing & design",
+      "accountId": "northstar-expense-4"
+     }
+    ],
+    "vendors": [
+     {
+      "id": "id-0004",
+      "businessId": "northstar",
+      "name": "Figma"
+     },
+     {
+      "id": "id-0008",
+      "businessId": "northstar",
+      "name": "West Elm"
+     },
+     {
+      "id": "id-0013",
+      "businessId": "northstar",
+      "name": "Notion"
+     },
+     {
+      "id": "id-0021",
+      "businessId": "northstar",
+      "name": "Linear"
+     },
+     {
+      "id": "id-0036",
+      "businessId": "northstar",
+      "name": "Studio Supply Co."
+     },
+     {
+      "id": "id-0047",
+      "businessId": "northstar",
+      "name": "Meridian Legal"
+     },
+     {
+      "id": "id-0058",
+      "businessId": "northstar",
+      "name": "Atlas Creative"
+     },
+     {
+      "id": "id-0082",
+      "businessId": "northstar",
+      "name": "Adobe"
+     },
+     {
+      "id": "id-0093",
+      "businessId": "northstar",
+      "name": "Common Ground"
+     }
+    ],
+    "documents": [
+     {
+      "id": "id-0002",
+      "businessId": "northstar",
+      "name": "figma-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1288,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0018",
+      "businessId": "northstar",
+      "name": "notion-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1292,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0019",
+      "businessId": "northstar",
+      "name": "linear-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1290,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0030",
+      "businessId": "northstar",
+      "name": "linear-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1290,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0034",
+      "businessId": "northstar",
+      "name": "studio-supply-co.-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1303,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0045",
+      "businessId": "northstar",
+      "name": "meridian-legal-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1302,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0056",
+      "businessId": "northstar",
+      "name": "atlas-creative-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1302,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0067",
+      "businessId": "northstar",
+      "name": "atlas-creative-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1302,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0080",
+      "businessId": "northstar",
+      "name": "adobe-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1288,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     },
+     {
+      "id": "id-0091",
+      "businessId": "northstar",
+      "name": "common-ground-receipt.svg",
+      "mime": "image/svg+xml",
+      "size": 1297,
+      "kind": "receipt",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "demo": true
+     }
+    ],
+    "payments": [
+     {
+      "id": "id-0012",
+      "businessId": "northstar",
+      "date": "2026-10-20",
+      "description": "Notion",
+      "amountMinor": 18000,
+      "currency": "USD",
+      "accountId": "northstar-checking",
+      "reference": "northstar-PAY-020",
+      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"northstar-PAY-020\"]",
+      "draftId": "id-0011"
+     }
+    ],
+    "drafts": [
+     {
+      "id": "id-0003",
+      "businessId": "northstar",
+      "vendor": "Figma",
+      "date": "2026-10-22",
+      "description": "Professional plan · monthly subscription",
+      "amountMinor": 9600,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-card",
+      "purpose": "Professional plan · monthly subscription",
+      "documentIds": [
+       "id-0002"
+      ],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0007",
+      "businessId": "northstar",
+      "vendor": "West Elm",
+      "date": "2026-10-21",
+      "description": "Purchase awaiting details",
+      "amountMinor": 24850,
+      "currency": "USD",
+      "categoryId": "",
+      "accountId": "northstar-card",
+      "purpose": "",
+      "documentIds": [],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0011",
+      "businessId": "northstar",
+      "vendor": "Notion",
+      "date": "2026-10-20",
+      "description": "Notion",
+      "amountMinor": 18000,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-checking",
+      "purpose": "Team documentation and project workspace",
+      "documentIds": [
+       "id-0018"
+      ],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "paymentId": "id-0012"
+     },
+     {
+      "id": "id-0020",
+      "businessId": "northstar",
+      "vendor": "Linear",
+      "date": "2026-10-18",
+      "description": "Issue tracking subscription",
+      "amountMinor": 3200,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-card",
+      "purpose": "Issue tracking subscription",
+      "documentIds": [
+       "id-0019"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0024"
+     },
+     {
+      "id": "id-0031",
+      "businessId": "northstar",
+      "vendor": "Linear",
+      "date": "2026-10-18",
+      "description": "Possible repeat charge · review before posting",
+      "amountMinor": 3200,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-card",
+      "purpose": "Possible repeat charge · review before posting",
+      "documentIds": [
+       "id-0030"
+      ],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0035",
+      "businessId": "northstar",
+      "vendor": "Studio Supply Co.",
+      "date": "2026-10-16",
+      "description": "Workspace equipment and supplies",
+      "amountMinor": 87500,
+      "currency": "USD",
+      "categoryId": "northstar-category-1",
+      "accountId": "northstar-card",
+      "purpose": "Workspace equipment and supplies",
+      "documentIds": [
+       "id-0034"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0039"
+     },
+     {
+      "id": "id-0046",
+      "businessId": "northstar",
+      "vendor": "Meridian Legal",
+      "date": "2026-10-12",
+      "description": "Client contract review",
+      "amountMinor": 240000,
+      "currency": "USD",
+      "categoryId": "northstar-category-3",
+      "accountId": "northstar-card",
+      "purpose": "Client contract review",
+      "documentIds": [
+       "id-0045"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0050"
+     },
+     {
+      "id": "id-0057",
+      "businessId": "northstar",
+      "vendor": "Atlas Creative",
+      "date": "2026-10-08",
+      "description": "Project services · initial record",
+      "amountMinor": 125000,
+      "currency": "USD",
+      "categoryId": "northstar-category-4",
+      "accountId": "northstar-card",
+      "purpose": "Project services · initial record",
+      "documentIds": [
+       "id-0056"
+      ],
+      "status": "corrected",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0061"
+     },
+     {
+      "id": "id-0068",
+      "businessId": "northstar",
+      "vendor": "Atlas Creative",
+      "date": "2026-10-08",
+      "description": "Project services · corrected invoice amount",
+      "amountMinor": 115000,
+      "currency": "USD",
+      "categoryId": "northstar-category-4",
+      "accountId": "northstar-card",
+      "purpose": "Project services · initial record",
+      "documentIds": [
+       "id-0067"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "correctionOf": "id-0057",
+      "journalId": "id-0074"
+     },
+     {
+      "id": "id-0081",
+      "businessId": "northstar",
+      "vendor": "Adobe",
+      "date": "2026-10-05",
+      "description": "Monthly creative tools subscription",
+      "amountMinor": 8999,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-card",
+      "purpose": "Monthly creative tools subscription",
+      "documentIds": [
+       "id-0080"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0085"
+     },
+     {
+      "id": "id-0092",
+      "businessId": "northstar",
+      "vendor": "Common Ground",
+      "date": "2026-10-03",
+      "description": "Client project planning meeting",
+      "amountMinor": 6800,
+      "currency": "USD",
+      "categoryId": "northstar-category-2",
+      "accountId": "northstar-card",
+      "purpose": "Client project planning meeting",
+      "documentIds": [
+       "id-0091"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0096"
+     },
+     {
+      "id": "id-0105",
+      "businessId": "fieldwork",
+      "vendor": "Jobber",
+      "date": "2026-10-22",
+      "description": "Monthly field service subscription",
+      "amountMinor": 14900,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-0",
+      "accountId": "fieldwork-card",
+      "purpose": "Monthly field service subscription",
+      "documentIds": [
+       "id-0104"
+      ],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0109",
+      "businessId": "fieldwork",
+      "vendor": "Greenway Supply",
+      "date": "2026-10-21",
+      "description": "Purchase awaiting details",
+      "amountMinor": 24850,
+      "currency": "USD",
+      "categoryId": "",
+      "accountId": "fieldwork-card",
+      "purpose": "",
+      "documentIds": [],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0113",
+      "businessId": "fieldwork",
+      "vendor": "Oak Valley Nursery",
+      "date": "2026-10-20",
+      "description": "Oak Valley Nursery",
+      "amountMinor": 18000,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-4",
+      "accountId": "fieldwork-checking",
+      "purpose": "Plants for a client landscape project",
+      "documentIds": [
+       "id-0120"
+      ],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "paymentId": "id-0114"
+     },
+     {
+      "id": "id-0122",
+      "businessId": "fieldwork",
+      "vendor": "Trail Fuel",
+      "date": "2026-10-18",
+      "description": "Fuel for field equipment",
+      "amountMinor": 3200,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-4",
+      "accountId": "fieldwork-card",
+      "purpose": "Fuel for field equipment",
+      "documentIds": [
+       "id-0121"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0126"
+     },
+     {
+      "id": "id-0133",
+      "businessId": "fieldwork",
+      "vendor": "Trail Fuel",
+      "date": "2026-10-18",
+      "description": "Possible repeat charge · review before posting",
+      "amountMinor": 3200,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-4",
+      "accountId": "fieldwork-card",
+      "purpose": "Possible repeat charge · review before posting",
+      "documentIds": [
+       "id-0132"
+      ],
+      "status": "draft",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0137",
+      "businessId": "fieldwork",
+      "vendor": "Cedar Equipment",
+      "date": "2026-10-16",
+      "description": "Commercial mower maintenance",
+      "amountMinor": 145000,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-4",
+      "accountId": "fieldwork-card",
+      "purpose": "Commercial mower maintenance",
+      "documentIds": [
+       "id-0136"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0141"
+     },
+     {
+      "id": "id-0148",
+      "businessId": "fieldwork",
+      "vendor": "Clearwater Insurance",
+      "date": "2026-10-12",
+      "description": "Business liability insurance",
+      "amountMinor": 240000,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-3",
+      "accountId": "fieldwork-card",
+      "purpose": "Business liability insurance",
+      "documentIds": [
+       "id-0147"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0152"
+     },
+     {
+      "id": "id-0159",
+      "businessId": "fieldwork",
+      "vendor": "Field Crew Co.",
+      "date": "2026-10-08",
+      "description": "Project services · initial record",
+      "amountMinor": 125000,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-4",
+      "accountId": "fieldwork-card",
+      "purpose": "Project services · initial record",
+      "documentIds": [
+       "id-0158"
+      ],
+      "status": "corrected",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0163"
+     },
+     {
+      "id": "id-0170",
+      "businessId": "fieldwork",
+      "vendor": "Field Crew Co.",
+      "date": "2026-10-08",
+      "description": "Project services · corrected invoice amount",
+      "amountMinor": 115000,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-4",
+      "accountId": "fieldwork-card",
+      "purpose": "Project services · initial record",
+      "documentIds": [
+       "id-0169"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "correctionOf": "id-0159",
+      "journalId": "id-0176"
+     },
+     {
+      "id": "id-0183",
+      "businessId": "fieldwork",
+      "vendor": "Sprout Software",
+      "date": "2026-10-05",
+      "description": "Monthly creative tools subscription",
+      "amountMinor": 8999,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-0",
+      "accountId": "fieldwork-card",
+      "purpose": "Monthly creative tools subscription",
+      "documentIds": [
+       "id-0182"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0187"
+     },
+     {
+      "id": "id-0194",
+      "businessId": "fieldwork",
+      "vendor": "Route Coffee",
+      "date": "2026-10-03",
+      "description": "Client project planning meeting",
+      "amountMinor": 6800,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-2",
+      "accountId": "fieldwork-card",
+      "purpose": "Client project planning meeting",
+      "documentIds": [
+       "id-0193"
+      ],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0198"
+     }
+    ],
+    "journals": [
+     {
+      "id": "id-0024",
+      "businessId": "northstar",
+      "date": "2026-10-18",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 3200,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 0,
+        "credit": 3200
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0020",
+      "memo": "Linear · Issue tracking subscription",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0039",
+      "businessId": "northstar",
+      "date": "2026-10-16",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-1",
+        "categoryId": "northstar-category-1",
+        "debit": 87500,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 0,
+        "credit": 87500
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0035",
+      "memo": "Studio Supply Co. · Workspace equipment and supplies",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0050",
+      "businessId": "northstar",
+      "date": "2026-10-12",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-3",
+        "categoryId": "northstar-category-3",
+        "debit": 240000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 0,
+        "credit": 240000
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0046",
+      "memo": "Meridian Legal · Client contract review",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0061",
+      "businessId": "northstar",
+      "date": "2026-10-08",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-4",
+        "categoryId": "northstar-category-4",
+        "debit": 125000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 0,
+        "credit": 125000
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0057",
+      "memo": "Atlas Creative · Project services · initial record",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0069",
+      "businessId": "northstar",
+      "date": "2026-10-08",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-4",
+        "categoryId": "northstar-category-4",
+        "debit": 0,
+        "credit": 125000
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 125000,
+        "credit": 0
+       }
+      ],
+      "kind": "reversal",
+      "expenseId": "id-0057",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "reversesId": "id-0061"
+     },
+     {
+      "id": "id-0074",
+      "businessId": "northstar",
+      "date": "2026-10-08",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-4",
+        "categoryId": "northstar-category-4",
+        "debit": 115000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 0,
+        "credit": 115000
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0068",
+      "memo": "Atlas Creative · Project services · corrected invoice amount",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0085",
+      "businessId": "northstar",
+      "date": "2026-10-05",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 8999,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 0,
+        "credit": 8999
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0081",
+      "memo": "Adobe · Monthly creative tools subscription",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0096",
+      "businessId": "northstar",
+      "date": "2026-10-03",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-2",
+        "categoryId": "northstar-category-2",
+        "debit": 6800,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-card",
+        "debit": 0,
+        "credit": 6800
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0092",
+      "memo": "Common Ground · Client project planning meeting",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0102",
+      "businessId": "northstar",
+      "date": "2026-10-10",
+      "currency": "USD",
+      "kind": "transfer",
+      "memo": "Operating account → Reserve account",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "lines": [
+       {
+        "accountId": "northstar-reserve",
+        "debit": 200000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-checking",
+        "debit": 0,
+        "credit": 200000
+       }
+      ]
+     }
+    ],
+    "approvals": [
+     {
+      "id": "id-0025",
+      "businessId": "northstar",
+      "expenseId": "id-0020",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0040",
+      "businessId": "northstar",
+      "expenseId": "id-0035",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0051",
+      "businessId": "northstar",
+      "expenseId": "id-0046",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0062",
+      "businessId": "northstar",
+      "expenseId": "id-0057",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0075",
+      "businessId": "northstar",
+      "expenseId": "id-0068",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0086",
+      "businessId": "northstar",
+      "expenseId": "id-0081",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0097",
+      "businessId": "northstar",
+      "expenseId": "id-0092",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     }
+    ],
+    "rules": [
+     {
+      "id": "id-0001",
+      "businessId": "northstar",
+      "vendorIncludes": "Figma",
+      "categoryId": "northstar-category-0",
+      "purpose": "Design collaboration for client projects",
+      "enabled": true
+     }
+    ],
+    "audits": [
+     {
+      "id": "id-0006",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0003",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0010",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0007",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0015",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0011",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0017",
+      "businessId": "northstar",
+      "action": "expense.matched",
+      "entityId": "id-0011",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
+     },
+     {
+      "id": "id-0023",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0020",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0027",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0020",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0029",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0020",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0033",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0031",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0038",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0035",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0042",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0035",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0044",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0035",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0049",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0046",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0053",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0046",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0055",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0046",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0060",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0057",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0064",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0057",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0066",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0057",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0071",
+      "businessId": "northstar",
+      "action": "expense.reversed",
+      "entityId": "id-0057",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+     },
+     {
+      "id": "id-0073",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0068",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0077",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0068",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0079",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0068",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0084",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0081",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0088",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0081",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0090",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0081",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0095",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0092",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0099",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0092",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0101",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0092",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     }
+    ],
+    "events": [
+     {
+      "id": "id-0005",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0002"
+      ],
+      "entityId": "id-0003",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0009",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0007",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0014",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0012"
+      ],
+      "entityId": "id-0011",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0016",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.matched",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0012"
+      ],
+      "entityId": "id-0011",
+      "payload": {
+       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
+      }
+     },
+     {
+      "id": "id-0022",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0019"
+      ],
+      "entityId": "id-0020",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0026",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0019"
+      ],
+      "entityId": "id-0020",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0028",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0024"
+      ],
+      "entityId": "id-0020",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0032",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0030"
+      ],
+      "entityId": "id-0031",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0037",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0034"
+      ],
+      "entityId": "id-0035",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0041",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0034"
+      ],
+      "entityId": "id-0035",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0043",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0039"
+      ],
+      "entityId": "id-0035",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0048",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0045"
+      ],
+      "entityId": "id-0046",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0052",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0045"
+      ],
+      "entityId": "id-0046",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0054",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0050"
+      ],
+      "entityId": "id-0046",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0059",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0056"
+      ],
+      "entityId": "id-0057",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0063",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0056"
+      ],
+      "entityId": "id-0057",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0065",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0061"
+      ],
+      "entityId": "id-0057",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0070",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.reversed",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0061",
+       "id-0069",
+       "id-0068"
+      ],
+      "entityId": "id-0057",
+      "payload": {
+       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      }
+     },
+     {
+      "id": "id-0072",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0067"
+      ],
+      "entityId": "id-0068",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0076",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0067"
+      ],
+      "entityId": "id-0068",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0078",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0074"
+      ],
+      "entityId": "id-0068",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0083",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0080"
+      ],
+      "entityId": "id-0081",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0087",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0080"
+      ],
+      "entityId": "id-0081",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0089",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0085"
+      ],
+      "entityId": "id-0081",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0094",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0091"
+      ],
+      "entityId": "id-0092",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0098",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0091"
+      ],
+      "entityId": "id-0092",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0100",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0096"
+      ],
+      "entityId": "id-0092",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     }
+    ]
+   },
+   "draft": {
+    "id": "id-0031",
+    "businessId": "northstar",
+    "vendor": "Trail Fuel",
+    "date": "2026-10-18",
+    "description": "Possible repeat charge · review before posting",
+    "amountMinor": 3200,
+    "currency": "USD",
+    "categoryId": "northstar-category-0",
+    "accountId": "northstar-card",
+    "purpose": "Possible repeat charge · review before posting",
+    "documentIds": [
+     "id-0030"
+    ],
+    "status": "draft",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z"
+   }
+  },
+  "output": [
+   {
+    "id": "id-0122",
+    "businessId": "fieldwork",
+    "vendor": "Trail Fuel",
+    "date": "2026-10-18",
+    "description": "Fuel for field equipment",
+    "amountMinor": 3200,
+    "currency": "USD",
+    "categoryId": "fieldwork-category-4",
+    "accountId": "fieldwork-card",
+    "purpose": "Fuel for field equipment",
+    "documentIds": [
+     "id-0121"
+    ],
+    "status": "posted",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "journalId": "id-0126"
+   },
+   {
+    "id": "id-0133",
+    "businessId": "fieldwork",
+    "vendor": "Trail Fuel",
+    "date": "2026-10-18",
+    "description": "Possible repeat charge · review before posting",
+    "amountMinor": 3200,
+    "currency": "USD",
+    "categoryId": "fieldwork-category-4",
+    "accountId": "fieldwork-card",
+    "purpose": "Possible repeat charge · review before posting",
+    "documentIds": [
+     "id-0132"
+    ],
+    "status": "draft",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z"
+   }
+  ]
+ },
+ {
   "name": "validation: blank draft",
   "call": "validation",
   "env": {

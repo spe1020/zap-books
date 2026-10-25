@@ -166,7 +166,7 @@ function money() {
     "42.5",
     "42.50",
     " 42.50 ",
-    " ﻿7.25　",
+    "\u00a0\ufeff7.25\u3000",
     "\u00857.25",
     "-0",
     "-0.00",
@@ -320,13 +320,24 @@ function validation(ns: BusinessData, fw: BusinessData) {
     ["negative amount", { ...find(ns, "Figma"), amountMinor: -5 }],
     [
       "whitespace-only text fields",
-      { ...find(ns, "Figma"), description: " \t", purpose: "　" },
+      { ...find(ns, "Figma"), description: " \t", purpose: "\u3000" },
     ],
     [
       "foreign category",
       { ...find(ns, "Figma"), categoryId: fw.categories[0].id },
     ],
   ];
+  // Pinned (PARITY_NOTES.md): duplicates are matched across businesses.
+  record(
+    "validation",
+    "duplicates: drafts from another business",
+    "duplicates",
+    {
+      business: { ...ns, drafts: [...ns.drafts, ...fw.drafts] },
+      draft: { ...find(ns, "Linear"), vendor: "Trail Fuel" },
+    },
+    (i) => L.duplicates(i.business, i.draft),
+  );
   for (const [name, draft] of cases)
     for (const call of ["validation", "missingDetails", "duplicates"] as const)
       record(
@@ -465,6 +476,23 @@ function drafts(ns: BusinessData, fw: BusinessData) {
       vendor: "",
       category: "",
       filename: "",
+    },
+  });
+  // Pinned (PARITY_NOTES.md): evidence may be attached after the fact.
+  save("import source added to existing draft", ns, {
+    ...find(ns, "Figma"),
+    importSource: {
+      id: "src",
+      businessId: ns.profile.id,
+      provider: "csv",
+      reference: "LATE-1",
+      fingerprint: "fp-late",
+      date: "2026-10-22",
+      amountMinor: 9600,
+      currency: "USD",
+      vendor: "Figma",
+      category: "",
+      filename: "late.csv",
     },
   });
   record(
@@ -736,6 +764,22 @@ function totals(ns: BusinessData, fw: BusinessData) {
     },
     (i) => L.categoryTotals(i.business, i.period, i.currency),
   );
+  // Pinned (PARITY_NOTES.md): queries do not filter journals by business.
+  const mixed = { ...ns, journals: [...ns.journals, ...fw.journals] };
+  record(
+    "totals",
+    "totals: mixed businesses",
+    "totals",
+    { business: mixed, period: "2026-10" },
+    (i) => L.totals(i.business, i.period),
+  );
+  record(
+    "totals",
+    "categoryTotals: mixed businesses",
+    "categoryTotals",
+    { business: mixed, period: "2026-10", currency: "USD" },
+    (i) => L.categoryTotals(i.business, i.period, i.currency),
+  );
   return withEur;
 }
 
@@ -752,7 +796,7 @@ function csv() {
   parse("embedded CRLF and comma", 'a,b\r\n"one,\r\ntwo",x');
   parse("doubled quotes", 'a,b\n"say ""hi""",""""');
   parse("CR line endings", "a,b\r1,2\r3,4");
-  parse("byte order mark", "﻿a,b\n1,2");
+  parse("byte order mark", "\ufeffa,b\n1,2");
   parse("blank and empty-cell rows skipped", "a,b\n\n , \n1,2\n,\n");
   parse("cells trimmed, quoted whitespace too", 'a,b\n  x  ," y "');
   parse("whitespace after closing quote", 'a,b\n"x"  ,z');
@@ -1040,6 +1084,13 @@ function payments(ns: BusinessData, fw: BusinessData) {
   commit("empty error string is not an error", ns, [
     { ...abcRows[0], error: "" },
   ]);
+  // Pinned (PARITY_NOTES.md): payment rows are not checked against the
+  // business or account they were previewed for.
+  commit(
+    "payment rows previewed for another business",
+    ns,
+    I.previewImport(fw, abc, paymentMap, fw.accounts[0].id, "negative"),
+  );
 }
 
 function history(ns: BusinessData, fw: BusinessData) {
@@ -1364,7 +1415,7 @@ function exports(ns: BusinessData, fw: BusinessData, withEur: BusinessData) {
     "-2",
     "@SUM(A1)",
     "  =x",
-    "﻿=x",
+    "\ufeff=x",
     "\tTabbed",
     "\rReturn",
     "\nNewline",
@@ -1408,7 +1459,7 @@ function exports(ns: BusinessData, fw: BusinessData, withEur: BusinessData) {
           "\t6",
           "\r7",
           "\n8",
-          "﻿=9",
+          "\ufeff=9",
           'say "hi"',
           "x,y",
           "",

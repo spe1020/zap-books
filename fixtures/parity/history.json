@@ -3,7 +3,7 @@
   "name": "previewImport: QuickBooks export with regional dates",
   "call": "previewImport",
   "env": {
-   "nextId": 379,
+   "nextId": 388,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -68,7 +68,7 @@
     "purpose": "Client workshop",
     "warnings": [],
     "importSource": {
-     "id": "id-0379",
+     "id": "id-0388",
      "businessId": "northstar",
      "provider": "quickbooks",
      "reference": "QB-901",
@@ -87,7 +87,7 @@
   "name": "commitImport: QuickBooks rows become drafts",
   "call": "commitImport",
   "env": {
-   "nextId": 380,
+   "nextId": 389,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -109,7 +109,7 @@
      "purpose": "Client workshop",
      "warnings": [],
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -279,7 +279,7 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0381",
+     "id": "id-0390",
      "businessId": "northstar",
      "name": "Paper & Pine"
     }
@@ -607,7 +607,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0380",
+     "id": "id-0389",
      "businessId": "northstar",
      "vendor": "Paper & Pine",
      "date": "2026-10-23",
@@ -622,7 +622,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -1157,19 +1157,19 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0383",
+     "id": "id-0392",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0385",
+     "id": "id-0394",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
@@ -1582,31 +1582,31 @@
      }
     },
     {
-     "id": "id-0382",
+     "id": "id-0391",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0384",
+     "id": "id-0393",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      }
@@ -1618,7 +1618,7 @@
   "name": "commitImport: source rejected in another business",
   "call": "commitImport",
   "env": {
-   "nextId": 386,
+   "nextId": 395,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1640,7 +1640,7 @@
      "purpose": "Client workshop",
      "warnings": [],
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -1662,7 +1662,7 @@
   "name": "saveDraft: import source cannot change",
   "call": "saveDraft",
   "env": {
-   "nextId": 386,
+   "nextId": 395,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1670,7 +1670,7 @@
     "$state": "northstar-history-imported"
    },
    "draft": {
-    "id": "id-0380",
+    "id": "id-0389",
     "businessId": "northstar",
     "vendor": "Paper & Pine",
     "date": "2026-10-23",
@@ -1685,7 +1685,7 @@
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
     "importSource": {
-     "id": "id-0379",
+     "id": "id-0388",
      "businessId": "northstar",
      "provider": "quickbooks",
      "reference": "different",
@@ -1705,7 +1705,7 @@
   "name": "saveDraft: import source removed",
   "call": "saveDraft",
   "env": {
-   "nextId": 386,
+   "nextId": 395,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1713,7 +1713,7 @@
     "$state": "northstar-history-imported"
    },
    "draft": {
-    "id": "id-0380",
+    "id": "id-0389",
     "businessId": "northstar",
     "vendor": "Paper & Pine",
     "date": "2026-10-23",
@@ -1735,7 +1735,7 @@
   "name": "saveDraft: draft moved to another business",
   "call": "saveDraft",
   "env": {
-   "nextId": 386,
+   "nextId": 395,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1743,7 +1743,7 @@
     "$state": "fieldwork"
    },
    "draft": {
-    "id": "id-0380",
+    "id": "id-0389",
     "businessId": "fieldwork",
     "vendor": "Paper & Pine",
     "date": "2026-10-23",
@@ -1758,7 +1758,7 @@
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
     "importSource": {
-     "id": "id-0379",
+     "id": "id-0388",
      "businessId": "northstar",
      "provider": "quickbooks",
      "reference": "QB-901",
@@ -1778,7 +1778,7 @@
   "name": "saveDraft: edit imported draft",
   "call": "saveDraft",
   "env": {
-   "nextId": 386,
+   "nextId": 395,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -1786,7 +1786,7 @@
     "$state": "northstar-history-imported"
    },
    "draft": {
-    "id": "id-0380",
+    "id": "id-0389",
     "businessId": "northstar",
     "vendor": "Edited vendor",
     "date": "2026-10-23",
@@ -1801,7 +1801,7 @@
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
     "importSource": {
-     "id": "id-0379",
+     "id": "id-0388",
      "businessId": "northstar",
      "provider": "quickbooks",
      "reference": "QB-901",
@@ -1969,12 +1969,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0381",
+     "id": "id-0390",
      "businessId": "northstar",
      "name": "Paper & Pine"
     },
     {
-     "id": "id-0386",
+     "id": "id-0395",
      "businessId": "northstar",
      "name": "Edited vendor"
     }
@@ -2302,7 +2302,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0380",
+     "id": "id-0389",
      "businessId": "northstar",
      "vendor": "Edited vendor",
      "date": "2026-10-23",
@@ -2317,7 +2317,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -2852,28 +2852,28 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0383",
+     "id": "id-0392",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0385",
+     "id": "id-0394",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0388",
+     "id": "id-0397",
      "businessId": "northstar",
      "action": "expense.updated",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft updated"
@@ -3286,46 +3286,46 @@
      }
     },
     {
-     "id": "id-0382",
+     "id": "id-0391",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0384",
+     "id": "id-0393",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0387",
+     "id": "id-0396",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.updated",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense draft updated"
      }
@@ -3337,7 +3337,7 @@
   "name": "approve: imported draft",
   "call": "approve",
   "env": {
-   "nextId": 389,
+   "nextId": 398,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -3495,12 +3495,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0381",
+      "id": "id-0390",
       "businessId": "northstar",
       "name": "Paper & Pine"
      },
      {
-      "id": "id-0386",
+      "id": "id-0395",
       "businessId": "northstar",
       "name": "Edited vendor"
      }
@@ -3828,7 +3828,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0380",
+      "id": "id-0389",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -3843,7 +3843,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -4378,28 +4378,28 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0383",
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0385",
+      "id": "id-0394",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      },
      {
-      "id": "id-0388",
+      "id": "id-0397",
       "businessId": "northstar",
       "action": "expense.updated",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft updated"
@@ -4812,53 +4812,53 @@
       }
      },
      {
-      "id": "id-0382",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0384",
+      "id": "id-0393",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
       }
      },
      {
-      "id": "id-0387",
+      "id": "id-0396",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.updated",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense draft updated"
       }
      }
     ]
    },
-   "expenseId": "id-0380"
+   "expenseId": "id-0389"
   },
   "output": {
    "profile": {
@@ -5014,12 +5014,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0381",
+     "id": "id-0390",
      "businessId": "northstar",
      "name": "Paper & Pine"
     },
     {
-     "id": "id-0386",
+     "id": "id-0395",
      "businessId": "northstar",
      "name": "Edited vendor"
     }
@@ -5347,7 +5347,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0380",
+     "id": "id-0389",
      "businessId": "northstar",
      "vendor": "Edited vendor",
      "date": "2026-10-23",
@@ -5362,7 +5362,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -5374,7 +5374,7 @@
       "category": "Office & supplies",
       "filename": "expenses.csv"
      },
-     "journalId": "id-0389"
+     "journalId": "id-0398"
     }
    ],
    "journals": [
@@ -5585,7 +5585,7 @@
      ]
     },
     {
-     "id": "id-0389",
+     "id": "id-0398",
      "businessId": "northstar",
      "date": "2026-10-23",
      "currency": "USD",
@@ -5603,7 +5603,7 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "memo": "Edited vendor · Workshop materials",
      "createdAt": "2026-10-15T12:00:00.000Z"
     }
@@ -5666,9 +5666,9 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0390",
+     "id": "id-0399",
      "businessId": "northstar",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -5929,46 +5929,46 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0383",
+     "id": "id-0392",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0385",
+     "id": "id-0394",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0388",
+     "id": "id-0397",
      "businessId": "northstar",
      "action": "expense.updated",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft updated"
     },
     {
-     "id": "id-0392",
+     "id": "id-0401",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0394",
+     "id": "id-0403",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
@@ -6381,76 +6381,76 @@
      }
     },
     {
-     "id": "id-0382",
+     "id": "id-0391",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0384",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.matched",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-     }
-    },
-    {
-     "id": "id-0387",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.updated",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Expense draft updated"
-     }
-    },
-    {
-     "id": "id-0391",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.approved",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
      "id": "id-0393",
      "businessId": "northstar",
      "schemaVersion": 1,
+     "type": "expense.matched",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0388"
+     ],
+     "entityId": "id-0389",
+     "payload": {
+      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
+     }
+    },
+    {
+     "id": "id-0396",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.updated",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0388"
+     ],
+     "entityId": "id-0389",
+     "payload": {
+      "detail": "Expense draft updated"
+     }
+    },
+    {
+     "id": "id-0400",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0388"
+     ],
+     "entityId": "id-0389",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0402",
+     "businessId": "northstar",
+     "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0389"
+      "id-0398"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }
@@ -6462,7 +6462,7 @@
   "name": "correct: imported expense",
   "call": "correct",
   "env": {
-   "nextId": 396,
+   "nextId": 405,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -6620,12 +6620,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0381",
+      "id": "id-0390",
       "businessId": "northstar",
       "name": "Paper & Pine"
      },
      {
-      "id": "id-0386",
+      "id": "id-0395",
       "businessId": "northstar",
       "name": "Edited vendor"
      }
@@ -6953,7 +6953,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0380",
+      "id": "id-0389",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -6968,7 +6968,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -6980,7 +6980,7 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0389"
+      "journalId": "id-0398"
      }
     ],
     "journals": [
@@ -7191,7 +7191,7 @@
       ]
      },
      {
-      "id": "id-0389",
+      "id": "id-0398",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -7209,7 +7209,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      }
@@ -7272,9 +7272,9 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0390",
+      "id": "id-0399",
       "businessId": "northstar",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -7535,46 +7535,46 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0383",
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0385",
+      "id": "id-0394",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      },
      {
-      "id": "id-0388",
+      "id": "id-0397",
       "businessId": "northstar",
       "action": "expense.updated",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft updated"
      },
      {
-      "id": "id-0392",
+      "id": "id-0401",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0394",
+      "id": "id-0403",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -7987,85 +7987,85 @@
       }
      },
      {
-      "id": "id-0382",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0384",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.matched",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-      }
-     },
-     {
-      "id": "id-0387",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.updated",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense draft updated"
-      }
-     },
-     {
-      "id": "id-0391",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.approved",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
       "id": "id-0393",
       "businessId": "northstar",
       "schemaVersion": 1,
+      "type": "expense.matched",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
+      }
+     },
+     {
+      "id": "id-0396",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.updated",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Expense draft updated"
+      }
+     },
+     {
+      "id": "id-0400",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0402",
+      "businessId": "northstar",
+      "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389"
+       "id-0398"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
      }
     ]
    },
-   "originalId": "id-0380",
+   "originalId": "id-0389",
    "replacement": {
-    "id": "id-0395",
+    "id": "id-0404",
     "businessId": "northstar",
     "vendor": "Edited vendor",
     "date": "2026-10-23",
@@ -8080,7 +8080,7 @@
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
     "importSource": {
-     "id": "id-0379",
+     "id": "id-0388",
      "businessId": "northstar",
      "provider": "quickbooks",
      "reference": "QB-901",
@@ -8092,7 +8092,7 @@
      "category": "Office & supplies",
      "filename": "expenses.csv"
     },
-    "journalId": "id-0389"
+    "journalId": "id-0398"
    },
    "reason": "Corrected expense total"
   },
@@ -8250,12 +8250,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0381",
+     "id": "id-0390",
      "businessId": "northstar",
      "name": "Paper & Pine"
     },
     {
-     "id": "id-0386",
+     "id": "id-0395",
      "businessId": "northstar",
      "name": "Edited vendor"
     }
@@ -8583,7 +8583,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0380",
+     "id": "id-0389",
      "businessId": "northstar",
      "vendor": "Edited vendor",
      "date": "2026-10-23",
@@ -8598,7 +8598,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -8610,10 +8610,10 @@
       "category": "Office & supplies",
       "filename": "expenses.csv"
      },
-     "journalId": "id-0389"
+     "journalId": "id-0398"
     },
     {
-     "id": "id-0395",
+     "id": "id-0404",
      "businessId": "northstar",
      "vendor": "Edited vendor",
      "date": "2026-10-23",
@@ -8628,7 +8628,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -8640,8 +8640,8 @@
       "category": "Office & supplies",
       "filename": "expenses.csv"
      },
-     "journalId": "id-0401",
-     "correctionOf": "id-0380"
+     "journalId": "id-0410",
+     "correctionOf": "id-0389"
     }
    ],
    "journals": [
@@ -8852,7 +8852,7 @@
      ]
     },
     {
-     "id": "id-0389",
+     "id": "id-0398",
      "businessId": "northstar",
      "date": "2026-10-23",
      "currency": "USD",
@@ -8870,12 +8870,12 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "memo": "Edited vendor · Workshop materials",
      "createdAt": "2026-10-15T12:00:00.000Z"
     },
     {
-     "id": "id-0396",
+     "id": "id-0405",
      "businessId": "northstar",
      "date": "2026-10-23",
      "currency": "USD",
@@ -8893,13 +8893,13 @@
       }
      ],
      "kind": "reversal",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "memo": "Correction: Corrected expense total",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "reversesId": "id-0389"
+     "reversesId": "id-0398"
     },
     {
-     "id": "id-0401",
+     "id": "id-0410",
      "businessId": "northstar",
      "date": "2026-10-23",
      "currency": "USD",
@@ -8917,7 +8917,7 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0395",
+     "expenseId": "id-0404",
      "memo": "Edited vendor · Workshop materials",
      "createdAt": "2026-10-15T12:00:00.000Z"
     }
@@ -8980,17 +8980,17 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0390",
+     "id": "id-0399",
      "businessId": "northstar",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
     },
     {
-     "id": "id-0402",
+     "id": "id-0411",
      "businessId": "northstar",
-     "expenseId": "id-0395",
+     "expenseId": "id-0404",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -9251,82 +9251,82 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0383",
+     "id": "id-0392",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0385",
+     "id": "id-0394",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0388",
+     "id": "id-0397",
      "businessId": "northstar",
      "action": "expense.updated",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft updated"
     },
     {
-     "id": "id-0392",
+     "id": "id-0401",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0394",
+     "id": "id-0403",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0398",
+     "id": "id-0407",
      "businessId": "northstar",
      "action": "expense.reversed",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Corrected expense total"
     },
     {
-     "id": "id-0400",
+     "id": "id-0409",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0395",
+     "entityId": "id-0404",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0404",
+     "id": "id-0413",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0395",
+     "entityId": "id-0404",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0406",
+     "id": "id-0415",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0395",
+     "entityId": "id-0404",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
@@ -9739,138 +9739,138 @@
      }
     },
     {
-     "id": "id-0382",
+     "id": "id-0391",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0384",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.matched",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-     }
-    },
-    {
-     "id": "id-0387",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.updated",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Expense draft updated"
-     }
-    },
-    {
-     "id": "id-0391",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.approved",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
      "id": "id-0393",
      "businessId": "northstar",
      "schemaVersion": 1,
-     "type": "expense.posted",
+     "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0389"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
-      "detail": "Balanced journal entry recorded"
+      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0397",
+     "id": "id-0396",
      "businessId": "northstar",
      "schemaVersion": 1,
-     "type": "expense.reversed",
+     "type": "expense.updated",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0389",
-      "id-0396",
-      "id-0395"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
-      "detail": "Corrected expense total"
+      "detail": "Expense draft updated"
      }
     },
     {
-     "id": "id-0399",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.created",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0395",
-     "payload": {
-      "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0403",
+     "id": "id-0400",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.approved",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0395",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
-     "id": "id-0405",
+     "id": "id-0402",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0401"
+      "id-0398"
      ],
-     "entityId": "id-0395",
+     "entityId": "id-0389",
+     "payload": {
+      "detail": "Balanced journal entry recorded"
+     }
+    },
+    {
+     "id": "id-0406",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.reversed",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0398",
+      "id-0405",
+      "id-0404"
+     ],
+     "entityId": "id-0389",
+     "payload": {
+      "detail": "Corrected expense total"
+     }
+    },
+    {
+     "id": "id-0408",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0388"
+     ],
+     "entityId": "id-0404",
+     "payload": {
+      "detail": "Expense draft created"
+     }
+    },
+    {
+     "id": "id-0412",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0388"
+     ],
+     "entityId": "id-0404",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0414",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.posted",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0410"
+     ],
+     "entityId": "id-0404",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }
@@ -9882,7 +9882,7 @@
   "name": "correct: changed import source",
   "call": "correct",
   "env": {
-   "nextId": 408,
+   "nextId": 417,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -10040,12 +10040,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0381",
+      "id": "id-0390",
       "businessId": "northstar",
       "name": "Paper & Pine"
      },
      {
-      "id": "id-0386",
+      "id": "id-0395",
       "businessId": "northstar",
       "name": "Edited vendor"
      }
@@ -10373,7 +10373,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0380",
+      "id": "id-0389",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -10388,7 +10388,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -10400,7 +10400,7 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0389"
+      "journalId": "id-0398"
      }
     ],
     "journals": [
@@ -10611,7 +10611,7 @@
       ]
      },
      {
-      "id": "id-0389",
+      "id": "id-0398",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -10629,7 +10629,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      }
@@ -10692,9 +10692,9 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0390",
+      "id": "id-0399",
       "businessId": "northstar",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -10955,46 +10955,46 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0383",
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0385",
+      "id": "id-0394",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      },
      {
-      "id": "id-0388",
+      "id": "id-0397",
       "businessId": "northstar",
       "action": "expense.updated",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft updated"
      },
      {
-      "id": "id-0392",
+      "id": "id-0401",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0394",
+      "id": "id-0403",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -11407,85 +11407,85 @@
       }
      },
      {
-      "id": "id-0382",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0384",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.matched",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-      }
-     },
-     {
-      "id": "id-0387",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.updated",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense draft updated"
-      }
-     },
-     {
-      "id": "id-0391",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.approved",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
       "id": "id-0393",
       "businessId": "northstar",
       "schemaVersion": 1,
+      "type": "expense.matched",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
+      }
+     },
+     {
+      "id": "id-0396",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.updated",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Expense draft updated"
+      }
+     },
+     {
+      "id": "id-0400",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0402",
+      "businessId": "northstar",
+      "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389"
+       "id-0398"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
      }
     ]
    },
-   "originalId": "id-0380",
+   "originalId": "id-0389",
    "replacement": {
-    "id": "id-0407",
+    "id": "id-0416",
     "businessId": "northstar",
     "vendor": "Edited vendor",
     "date": "2026-10-23",
@@ -11500,7 +11500,7 @@
     "duplicateReason": "",
     "createdAt": "2026-10-15T12:00:00.000Z",
     "importSource": {
-     "id": "id-0379",
+     "id": "id-0388",
      "businessId": "northstar",
      "provider": "quickbooks",
      "reference": "QB-901",
@@ -11512,7 +11512,7 @@
      "category": "Office & supplies",
      "filename": "other.csv"
     },
-    "journalId": "id-0389"
+    "journalId": "id-0398"
    },
    "reason": "Different file"
   },
@@ -11522,7 +11522,7 @@
   "name": "previewImport: re-import after correction is a duplicate",
   "call": "previewImport",
   "env": {
-   "nextId": 408,
+   "nextId": 417,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -11680,12 +11680,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0381",
+      "id": "id-0390",
       "businessId": "northstar",
       "name": "Paper & Pine"
      },
      {
-      "id": "id-0386",
+      "id": "id-0395",
       "businessId": "northstar",
       "name": "Edited vendor"
      }
@@ -12013,7 +12013,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0380",
+      "id": "id-0389",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -12028,7 +12028,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -12040,10 +12040,10 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0389"
+      "journalId": "id-0398"
      },
      {
-      "id": "id-0395",
+      "id": "id-0404",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -12058,7 +12058,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -12070,8 +12070,8 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0401",
-      "correctionOf": "id-0380"
+      "journalId": "id-0410",
+      "correctionOf": "id-0389"
      }
     ],
     "journals": [
@@ -12282,7 +12282,7 @@
       ]
      },
      {
-      "id": "id-0389",
+      "id": "id-0398",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -12300,12 +12300,12 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
      {
-      "id": "id-0396",
+      "id": "id-0405",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -12323,13 +12323,13 @@
        }
       ],
       "kind": "reversal",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Correction: Corrected expense total",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "reversesId": "id-0389"
+      "reversesId": "id-0398"
      },
      {
-      "id": "id-0401",
+      "id": "id-0410",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -12347,7 +12347,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0395",
+      "expenseId": "id-0404",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      }
@@ -12410,17 +12410,17 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0390",
+      "id": "id-0399",
       "businessId": "northstar",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
      },
      {
-      "id": "id-0402",
+      "id": "id-0411",
       "businessId": "northstar",
-      "expenseId": "id-0395",
+      "expenseId": "id-0404",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -12681,82 +12681,82 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0383",
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0385",
+      "id": "id-0394",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      },
      {
-      "id": "id-0388",
+      "id": "id-0397",
       "businessId": "northstar",
       "action": "expense.updated",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft updated"
      },
      {
-      "id": "id-0392",
+      "id": "id-0401",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0394",
+      "id": "id-0403",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0398",
+      "id": "id-0407",
       "businessId": "northstar",
       "action": "expense.reversed",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Corrected expense total"
      },
      {
-      "id": "id-0400",
+      "id": "id-0409",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0404",
+      "id": "id-0413",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0406",
+      "id": "id-0415",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -13169,138 +13169,138 @@
       }
      },
      {
-      "id": "id-0382",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0384",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.matched",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-      }
-     },
-     {
-      "id": "id-0387",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.updated",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense draft updated"
-      }
-     },
-     {
-      "id": "id-0391",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.approved",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
       "id": "id-0393",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.posted",
+      "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
-       "detail": "Balanced journal entry recorded"
+       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
       }
      },
      {
-      "id": "id-0397",
+      "id": "id-0396",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.reversed",
+      "type": "expense.updated",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389",
-       "id-0396",
-       "id-0395"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
-       "detail": "Corrected expense total"
+       "detail": "Expense draft updated"
       }
      },
      {
-      "id": "id-0399",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.created",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0395",
-      "payload": {
-       "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0403",
+      "id": "id-0400",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0395",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
-      "id": "id-0405",
+      "id": "id-0402",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0401"
+       "id-0398"
       ],
-      "entityId": "id-0395",
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0406",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.reversed",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0398",
+       "id-0405",
+       "id-0404"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Corrected expense total"
+      }
+     },
+     {
+      "id": "id-0408",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0404",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0412",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0404",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0414",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0410"
+      ],
+      "entityId": "id-0404",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
@@ -13365,7 +13365,7 @@
     "purpose": "Client workshop",
     "warnings": [],
     "importSource": {
-     "id": "id-0408",
+     "id": "id-0417",
      "businessId": "northstar",
      "provider": "quickbooks",
      "reference": "QB-901",
@@ -13384,7 +13384,7 @@
   "name": "commitImport: re-import after correction creates nothing",
   "call": "commitImport",
   "env": {
-   "nextId": 409,
+   "nextId": 418,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -13542,12 +13542,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0381",
+      "id": "id-0390",
       "businessId": "northstar",
       "name": "Paper & Pine"
      },
      {
-      "id": "id-0386",
+      "id": "id-0395",
       "businessId": "northstar",
       "name": "Edited vendor"
      }
@@ -13875,7 +13875,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0380",
+      "id": "id-0389",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -13890,7 +13890,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -13902,10 +13902,10 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0389"
+      "journalId": "id-0398"
      },
      {
-      "id": "id-0395",
+      "id": "id-0404",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -13920,7 +13920,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -13932,8 +13932,8 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0401",
-      "correctionOf": "id-0380"
+      "journalId": "id-0410",
+      "correctionOf": "id-0389"
      }
     ],
     "journals": [
@@ -14144,7 +14144,7 @@
       ]
      },
      {
-      "id": "id-0389",
+      "id": "id-0398",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -14162,12 +14162,12 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
      {
-      "id": "id-0396",
+      "id": "id-0405",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -14185,13 +14185,13 @@
        }
       ],
       "kind": "reversal",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Correction: Corrected expense total",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "reversesId": "id-0389"
+      "reversesId": "id-0398"
      },
      {
-      "id": "id-0401",
+      "id": "id-0410",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -14209,7 +14209,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0395",
+      "expenseId": "id-0404",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      }
@@ -14272,17 +14272,17 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0390",
+      "id": "id-0399",
       "businessId": "northstar",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
      },
      {
-      "id": "id-0402",
+      "id": "id-0411",
       "businessId": "northstar",
-      "expenseId": "id-0395",
+      "expenseId": "id-0404",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -14543,82 +14543,82 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0383",
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0385",
+      "id": "id-0394",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      },
      {
-      "id": "id-0388",
+      "id": "id-0397",
       "businessId": "northstar",
       "action": "expense.updated",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft updated"
      },
      {
-      "id": "id-0392",
+      "id": "id-0401",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0394",
+      "id": "id-0403",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0398",
+      "id": "id-0407",
       "businessId": "northstar",
       "action": "expense.reversed",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Corrected expense total"
      },
      {
-      "id": "id-0400",
+      "id": "id-0409",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0404",
+      "id": "id-0413",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0406",
+      "id": "id-0415",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
@@ -15031,138 +15031,138 @@
       }
      },
      {
-      "id": "id-0382",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0384",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.matched",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-      }
-     },
-     {
-      "id": "id-0387",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.updated",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense draft updated"
-      }
-     },
-     {
-      "id": "id-0391",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.approved",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
       "id": "id-0393",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.posted",
+      "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
-       "detail": "Balanced journal entry recorded"
+       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
       }
      },
      {
-      "id": "id-0397",
+      "id": "id-0396",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.reversed",
+      "type": "expense.updated",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389",
-       "id-0396",
-       "id-0395"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
-       "detail": "Corrected expense total"
+       "detail": "Expense draft updated"
       }
      },
      {
-      "id": "id-0399",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.created",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0395",
-      "payload": {
-       "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0403",
+      "id": "id-0400",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0395",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
-      "id": "id-0405",
+      "id": "id-0402",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0401"
+       "id-0398"
       ],
-      "entityId": "id-0395",
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0406",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.reversed",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0398",
+       "id-0405",
+       "id-0404"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Corrected expense total"
+      }
+     },
+     {
+      "id": "id-0408",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0404",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0412",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0404",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0414",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0410"
+      ],
+      "entityId": "id-0404",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
@@ -15184,7 +15184,7 @@
      "purpose": "Client workshop",
      "warnings": [],
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -15354,12 +15354,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0381",
+     "id": "id-0390",
      "businessId": "northstar",
      "name": "Paper & Pine"
     },
     {
-     "id": "id-0386",
+     "id": "id-0395",
      "businessId": "northstar",
      "name": "Edited vendor"
     }
@@ -15687,7 +15687,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0380",
+     "id": "id-0389",
      "businessId": "northstar",
      "vendor": "Edited vendor",
      "date": "2026-10-23",
@@ -15702,7 +15702,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -15714,10 +15714,10 @@
       "category": "Office & supplies",
       "filename": "expenses.csv"
      },
-     "journalId": "id-0389"
+     "journalId": "id-0398"
     },
     {
-     "id": "id-0395",
+     "id": "id-0404",
      "businessId": "northstar",
      "vendor": "Edited vendor",
      "date": "2026-10-23",
@@ -15732,7 +15732,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0379",
+      "id": "id-0388",
       "businessId": "northstar",
       "provider": "quickbooks",
       "reference": "QB-901",
@@ -15744,8 +15744,8 @@
       "category": "Office & supplies",
       "filename": "expenses.csv"
      },
-     "journalId": "id-0401",
-     "correctionOf": "id-0380"
+     "journalId": "id-0410",
+     "correctionOf": "id-0389"
     }
    ],
    "journals": [
@@ -15956,7 +15956,7 @@
      ]
     },
     {
-     "id": "id-0389",
+     "id": "id-0398",
      "businessId": "northstar",
      "date": "2026-10-23",
      "currency": "USD",
@@ -15974,12 +15974,12 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "memo": "Edited vendor · Workshop materials",
      "createdAt": "2026-10-15T12:00:00.000Z"
     },
     {
-     "id": "id-0396",
+     "id": "id-0405",
      "businessId": "northstar",
      "date": "2026-10-23",
      "currency": "USD",
@@ -15997,13 +15997,13 @@
       }
      ],
      "kind": "reversal",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "memo": "Correction: Corrected expense total",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "reversesId": "id-0389"
+     "reversesId": "id-0398"
     },
     {
-     "id": "id-0401",
+     "id": "id-0410",
      "businessId": "northstar",
      "date": "2026-10-23",
      "currency": "USD",
@@ -16021,7 +16021,7 @@
       }
      ],
      "kind": "expense",
-     "expenseId": "id-0395",
+     "expenseId": "id-0404",
      "memo": "Edited vendor · Workshop materials",
      "createdAt": "2026-10-15T12:00:00.000Z"
     }
@@ -16084,17 +16084,17 @@
      "duplicateReason": ""
     },
     {
-     "id": "id-0390",
+     "id": "id-0399",
      "businessId": "northstar",
-     "expenseId": "id-0380",
+     "expenseId": "id-0389",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
     },
     {
-     "id": "id-0402",
+     "id": "id-0411",
      "businessId": "northstar",
-     "expenseId": "id-0395",
+     "expenseId": "id-0404",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -16355,82 +16355,82 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0383",
+     "id": "id-0392",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0385",
+     "id": "id-0394",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0388",
+     "id": "id-0397",
      "businessId": "northstar",
      "action": "expense.updated",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft updated"
     },
     {
-     "id": "id-0392",
+     "id": "id-0401",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0394",
+     "id": "id-0403",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0398",
+     "id": "id-0407",
      "businessId": "northstar",
      "action": "expense.reversed",
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Corrected expense total"
     },
     {
-     "id": "id-0400",
+     "id": "id-0409",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0395",
+     "entityId": "id-0404",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0404",
+     "id": "id-0413",
      "businessId": "northstar",
      "action": "expense.approved",
-     "entityId": "id-0395",
+     "entityId": "id-0404",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Reviewed and approved. No payment initiated."
     },
     {
-     "id": "id-0406",
+     "id": "id-0415",
      "businessId": "northstar",
      "action": "expense.posted",
-     "entityId": "id-0395",
+     "entityId": "id-0404",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Balanced journal entry recorded"
@@ -16843,138 +16843,138 @@
      }
     },
     {
-     "id": "id-0382",
+     "id": "id-0391",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0384",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.matched",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-     }
-    },
-    {
-     "id": "id-0387",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.updated",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Expense draft updated"
-     }
-    },
-    {
-     "id": "id-0391",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.approved",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0380",
-     "payload": {
-      "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
      "id": "id-0393",
      "businessId": "northstar",
      "schemaVersion": 1,
-     "type": "expense.posted",
+     "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0389"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
-      "detail": "Balanced journal entry recorded"
+      "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0397",
+     "id": "id-0396",
      "businessId": "northstar",
      "schemaVersion": 1,
-     "type": "expense.reversed",
+     "type": "expense.updated",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0389",
-      "id-0396",
-      "id-0395"
+      "id-0388"
      ],
-     "entityId": "id-0380",
+     "entityId": "id-0389",
      "payload": {
-      "detail": "Corrected expense total"
+      "detail": "Expense draft updated"
      }
     },
     {
-     "id": "id-0399",
-     "businessId": "northstar",
-     "schemaVersion": 1,
-     "type": "expense.created",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0379"
-     ],
-     "entityId": "id-0395",
-     "payload": {
-      "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0403",
+     "id": "id-0400",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.approved",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0379"
+      "id-0388"
      ],
-     "entityId": "id-0395",
+     "entityId": "id-0389",
      "payload": {
       "detail": "Reviewed and approved. No payment initiated."
      }
     },
     {
-     "id": "id-0405",
+     "id": "id-0402",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.posted",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0401"
+      "id-0398"
      ],
-     "entityId": "id-0395",
+     "entityId": "id-0389",
+     "payload": {
+      "detail": "Balanced journal entry recorded"
+     }
+    },
+    {
+     "id": "id-0406",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.reversed",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0398",
+      "id-0405",
+      "id-0404"
+     ],
+     "entityId": "id-0389",
+     "payload": {
+      "detail": "Corrected expense total"
+     }
+    },
+    {
+     "id": "id-0408",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0388"
+     ],
+     "entityId": "id-0404",
+     "payload": {
+      "detail": "Expense draft created"
+     }
+    },
+    {
+     "id": "id-0412",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0388"
+     ],
+     "entityId": "id-0404",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0414",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.posted",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0410"
+     ],
+     "entityId": "id-0404",
      "payload": {
       "detail": "Balanced journal entry recorded"
      }
@@ -16986,7 +16986,7 @@
   "name": "approve: import source already posted",
   "call": "approve",
   "env": {
-   "nextId": 413,
+   "nextId": 422,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -17144,17 +17144,17 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0381",
+      "id": "id-0390",
       "businessId": "northstar",
       "name": "Paper & Pine"
      },
      {
-      "id": "id-0386",
+      "id": "id-0395",
       "businessId": "northstar",
       "name": "Edited vendor"
      },
      {
-      "id": "id-0410",
+      "id": "id-0419",
       "businessId": "northstar",
       "name": "Unrelated vendor"
      }
@@ -17482,7 +17482,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0380",
+      "id": "id-0389",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -17497,7 +17497,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -17509,10 +17509,10 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0389"
+      "journalId": "id-0398"
      },
      {
-      "id": "id-0395",
+      "id": "id-0404",
       "businessId": "northstar",
       "vendor": "Edited vendor",
       "date": "2026-10-23",
@@ -17527,7 +17527,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -17539,11 +17539,11 @@
        "category": "Office & supplies",
        "filename": "expenses.csv"
       },
-      "journalId": "id-0401",
-      "correctionOf": "id-0380"
+      "journalId": "id-0410",
+      "correctionOf": "id-0389"
      },
      {
-      "id": "id-0409",
+      "id": "id-0418",
       "businessId": "northstar",
       "vendor": "Unrelated vendor",
       "date": "2026-10-23",
@@ -17558,7 +17558,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0379",
+       "id": "id-0388",
        "businessId": "northstar",
        "provider": "quickbooks",
        "reference": "QB-901",
@@ -17780,7 +17780,7 @@
       ]
      },
      {
-      "id": "id-0389",
+      "id": "id-0398",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -17798,12 +17798,12 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
      {
-      "id": "id-0396",
+      "id": "id-0405",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -17821,13 +17821,13 @@
        }
       ],
       "kind": "reversal",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "memo": "Correction: Corrected expense total",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "reversesId": "id-0389"
+      "reversesId": "id-0398"
      },
      {
-      "id": "id-0401",
+      "id": "id-0410",
       "businessId": "northstar",
       "date": "2026-10-23",
       "currency": "USD",
@@ -17845,7 +17845,7 @@
        }
       ],
       "kind": "expense",
-      "expenseId": "id-0395",
+      "expenseId": "id-0404",
       "memo": "Edited vendor · Workshop materials",
       "createdAt": "2026-10-15T12:00:00.000Z"
      }
@@ -17908,17 +17908,17 @@
       "duplicateReason": ""
      },
      {
-      "id": "id-0390",
+      "id": "id-0399",
       "businessId": "northstar",
-      "expenseId": "id-0380",
+      "expenseId": "id-0389",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
      },
      {
-      "id": "id-0402",
+      "id": "id-0411",
       "businessId": "northstar",
-      "expenseId": "id-0395",
+      "expenseId": "id-0404",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -18179,91 +18179,91 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0383",
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0385",
+      "id": "id-0394",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      },
      {
-      "id": "id-0388",
+      "id": "id-0397",
       "businessId": "northstar",
       "action": "expense.updated",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft updated"
      },
      {
-      "id": "id-0392",
+      "id": "id-0401",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0394",
+      "id": "id-0403",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0398",
+      "id": "id-0407",
       "businessId": "northstar",
       "action": "expense.reversed",
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Corrected expense total"
      },
      {
-      "id": "id-0400",
+      "id": "id-0409",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0404",
+      "id": "id-0413",
       "businessId": "northstar",
       "action": "expense.approved",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Reviewed and approved. No payment initiated."
      },
      {
-      "id": "id-0406",
+      "id": "id-0415",
       "businessId": "northstar",
       "action": "expense.posted",
-      "entityId": "id-0395",
+      "entityId": "id-0404",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0412",
+      "id": "id-0421",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0409",
+      "entityId": "id-0418",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
@@ -18676,160 +18676,160 @@
       }
      },
      {
-      "id": "id-0382",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0384",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.matched",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
-      }
-     },
-     {
-      "id": "id-0387",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.updated",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Expense draft updated"
-      }
-     },
-     {
-      "id": "id-0391",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.approved",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0380",
-      "payload": {
-       "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
       "id": "id-0393",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.posted",
+      "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
-       "detail": "Balanced journal entry recorded"
+       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
       }
      },
      {
-      "id": "id-0397",
+      "id": "id-0396",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.reversed",
+      "type": "expense.updated",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0389",
-       "id-0396",
-       "id-0395"
+       "id-0388"
       ],
-      "entityId": "id-0380",
+      "entityId": "id-0389",
       "payload": {
-       "detail": "Corrected expense total"
+       "detail": "Expense draft updated"
       }
      },
      {
-      "id": "id-0399",
-      "businessId": "northstar",
-      "schemaVersion": 1,
-      "type": "expense.created",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0379"
-      ],
-      "entityId": "id-0395",
-      "payload": {
-       "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0403",
+      "id": "id-0400",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.approved",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0395",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Reviewed and approved. No payment initiated."
       }
      },
      {
-      "id": "id-0405",
+      "id": "id-0402",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.posted",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0401"
+       "id-0398"
       ],
-      "entityId": "id-0395",
+      "entityId": "id-0389",
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
      },
      {
-      "id": "id-0411",
+      "id": "id-0406",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.reversed",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0398",
+       "id-0405",
+       "id-0404"
+      ],
+      "entityId": "id-0389",
+      "payload": {
+       "detail": "Corrected expense total"
+      }
+     },
+     {
+      "id": "id-0408",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0379"
+       "id-0388"
       ],
-      "entityId": "id-0409",
+      "entityId": "id-0404",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0412",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0404",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0414",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0410"
+      ],
+      "entityId": "id-0404",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0420",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0388"
+      ],
+      "entityId": "id-0418",
       "payload": {
        "detail": "Expense draft created"
       }
      }
     ]
    },
-   "expenseId": "id-0409"
+   "expenseId": "id-0418"
   },
   "error": "This imported source already has a posted expense."
  },
@@ -18837,7 +18837,7 @@
   "name": "previewImport: unknown category",
   "call": "previewImport",
   "env": {
-   "nextId": 413,
+   "nextId": 422,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -18901,7 +18901,7 @@
      "Unmapped category: Legacy category. Choose it during review."
     ],
     "importSource": {
-     "id": "id-0413",
+     "id": "id-0422",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "QB-901",
@@ -18920,7 +18920,7 @@
   "name": "commitImport: unknown category stays unresolved",
   "call": "commitImport",
   "env": {
-   "nextId": 414,
+   "nextId": 423,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -18943,7 +18943,7 @@
       "Unmapped category: Legacy category. Choose it during review."
      ],
      "importSource": {
-      "id": "id-0413",
+      "id": "id-0422",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "QB-901",
@@ -19113,7 +19113,7 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0415",
+     "id": "id-0424",
      "businessId": "northstar",
      "name": "Paper & Pine"
     }
@@ -19441,7 +19441,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0414",
+     "id": "id-0423",
      "businessId": "northstar",
      "vendor": "Paper & Pine",
      "date": "2026-10-23",
@@ -19456,7 +19456,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0413",
+      "id": "id-0422",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "QB-901",
@@ -19991,19 +19991,19 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0417",
+     "id": "id-0426",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0414",
+     "entityId": "id-0423",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0419",
+     "id": "id-0428",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0414",
+     "entityId": "id-0423",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
@@ -20416,31 +20416,31 @@
      }
     },
     {
-     "id": "id-0416",
+     "id": "id-0425",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0413"
+      "id-0422"
      ],
-     "entityId": "id-0414",
+     "entityId": "id-0423",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0418",
+     "id": "id-0427",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0413"
+      "id-0422"
      ],
-     "entityId": "id-0414",
+     "entityId": "id-0423",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
@@ -20452,7 +20452,7 @@
   "name": "approve: unresolved category",
   "call": "approve",
   "env": {
-   "nextId": 420,
+   "nextId": 429,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -20610,7 +20610,7 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0415",
+      "id": "id-0424",
       "businessId": "northstar",
       "name": "Paper & Pine"
      }
@@ -20938,7 +20938,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0414",
+      "id": "id-0423",
       "businessId": "northstar",
       "vendor": "Paper & Pine",
       "date": "2026-10-23",
@@ -20953,7 +20953,7 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "importSource": {
-       "id": "id-0413",
+       "id": "id-0422",
        "businessId": "northstar",
        "provider": "csv",
        "reference": "QB-901",
@@ -21488,19 +21488,19 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0417",
+      "id": "id-0426",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0414",
+      "entityId": "id-0423",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0419",
+      "id": "id-0428",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0414",
+      "entityId": "id-0423",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
@@ -21913,38 +21913,38 @@
       }
      },
      {
-      "id": "id-0416",
+      "id": "id-0425",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0413"
+       "id-0422"
       ],
-      "entityId": "id-0414",
+      "entityId": "id-0423",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0418",
+      "id": "id-0427",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0413"
+       "id-0422"
       ],
-      "entityId": "id-0414",
+      "entityId": "id-0423",
       "payload": {
        "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
       }
      }
     ]
    },
-   "expenseId": "id-0414"
+   "expenseId": "id-0423"
   },
   "error": "Category is required."
  },
@@ -21952,7 +21952,7 @@
   "name": "previewImport: Zoho bill row rejected",
   "call": "previewImport",
   "env": {
-   "nextId": 420,
+   "nextId": 429,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22015,7 +22015,7 @@
      "Add the business purpose during review."
     ],
     "importSource": {
-     "id": "id-0420",
+     "id": "id-0429",
      "businessId": "northstar",
      "provider": "zoho",
      "reference": "Z1",
@@ -22034,7 +22034,7 @@
   "name": "previewImport: conflicting repeated reference",
   "call": "previewImport",
   "env": {
-   "nextId": 421,
+   "nextId": 430,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22107,7 +22107,7 @@
     "purpose": "Client workshop",
     "warnings": [],
     "importSource": {
-     "id": "id-0421",
+     "id": "id-0430",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "QB-901",
@@ -22135,7 +22135,7 @@
     "purpose": "Client workshop",
     "warnings": [],
     "importSource": {
-     "id": "id-0422",
+     "id": "id-0431",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "QB-901",
@@ -22154,7 +22154,7 @@
   "name": "previewImport: mixed-account file",
   "call": "previewImport",
   "env": {
-   "nextId": 423,
+   "nextId": 432,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22226,7 +22226,7 @@
      "Add the business purpose during review."
     ],
     "importSource": {
-     "id": "id-0423",
+     "id": "id-0432",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "A1",
@@ -22256,7 +22256,7 @@
      "Add the business purpose during review."
     ],
     "importSource": {
-     "id": "id-0424",
+     "id": "id-0433",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "B1",
@@ -22275,7 +22275,7 @@
   "name": "commitImport: mixed-account file blocked",
   "call": "commitImport",
   "env": {
-   "nextId": 425,
+   "nextId": 434,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22300,7 +22300,7 @@
       "Add the business purpose during review."
      ],
      "importSource": {
-      "id": "id-0423",
+      "id": "id-0432",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "A1",
@@ -22330,7 +22330,7 @@
       "Add the business purpose during review."
      ],
      "importSource": {
-      "id": "id-0424",
+      "id": "id-0433",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "B1",
@@ -22352,7 +22352,7 @@
   "name": "previewImport: missing vendor, category and purpose columns",
   "call": "previewImport",
   "env": {
-   "nextId": 425,
+   "nextId": 434,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22416,7 +22416,7 @@
      "Add the business purpose during review."
     ],
     "importSource": {
-     "id": "id-0425",
+     "id": "id-0434",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "",
@@ -22446,7 +22446,7 @@
      "Add the business purpose during review."
     ],
     "importSource": {
-     "id": "id-0426",
+     "id": "id-0435",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "",
@@ -22477,7 +22477,7 @@
      "Add the business purpose during review."
     ],
     "importSource": {
-     "id": "id-0427",
+     "id": "id-0436",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "",
@@ -22496,7 +22496,7 @@
   "name": "previewImport: blank vendor cell with mapped vendor column",
   "call": "previewImport",
   "env": {
-   "nextId": 428,
+   "nextId": 437,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22556,7 +22556,7 @@
      "Add the business purpose during review."
     ],
     "importSource": {
-     "id": "id-0428",
+     "id": "id-0437",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "",
@@ -22575,7 +22575,7 @@
   "name": "commitImport: rows without references",
   "call": "commitImport",
   "env": {
-   "nextId": 429,
+   "nextId": 438,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -22599,7 +22599,7 @@
       "Add the business purpose during review."
      ],
      "importSource": {
-      "id": "id-0425",
+      "id": "id-0434",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "",
@@ -22769,7 +22769,7 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0430",
+     "id": "id-0439",
      "businessId": "northstar",
      "name": "Bulk paper"
     }
@@ -23097,7 +23097,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0429",
+     "id": "id-0438",
      "businessId": "northstar",
      "vendor": "Bulk paper",
      "date": "2026-10-02",
@@ -23112,7 +23112,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0425",
+      "id": "id-0434",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "",
@@ -23647,19 +23647,19 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0432",
+     "id": "id-0441",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0429",
+     "entityId": "id-0438",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0434",
+     "id": "id-0443",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0429",
+     "entityId": "id-0438",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
@@ -24072,31 +24072,31 @@
      }
     },
     {
-     "id": "id-0431",
+     "id": "id-0440",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0425"
+      "id-0434"
      ],
-     "entityId": "id-0429",
+     "entityId": "id-0438",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0433",
+     "id": "id-0442",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0425"
+      "id-0434"
      ],
-     "entityId": "id-0429",
+     "entityId": "id-0438",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
@@ -24108,7 +24108,7 @@
   "name": "previewImport: our expense export maps back",
   "call": "previewImport",
   "env": {
-   "nextId": 435,
+   "nextId": 444,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -24269,7 +24269,7 @@
     "purpose": "Client project planning meeting",
     "warnings": [],
     "importSource": {
-     "id": "id-0435",
+     "id": "id-0444",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "id-0092",
@@ -24296,7 +24296,7 @@
     "purpose": "Monthly creative tools subscription",
     "warnings": [],
     "importSource": {
-     "id": "id-0436",
+     "id": "id-0445",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "id-0081",
@@ -24323,7 +24323,7 @@
     "purpose": "Project services · initial record",
     "warnings": [],
     "importSource": {
-     "id": "id-0437",
+     "id": "id-0446",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "id-0068",
@@ -24350,7 +24350,7 @@
     "purpose": "Client contract review",
     "warnings": [],
     "importSource": {
-     "id": "id-0438",
+     "id": "id-0447",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "id-0046",
@@ -24377,7 +24377,7 @@
     "purpose": "Workspace equipment and supplies",
     "warnings": [],
     "importSource": {
-     "id": "id-0439",
+     "id": "id-0448",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "id-0035",
@@ -24404,7 +24404,7 @@
     "purpose": "Issue tracking subscription",
     "warnings": [],
     "importSource": {
-     "id": "id-0440",
+     "id": "id-0449",
      "businessId": "northstar",
      "provider": "csv",
      "reference": "id-0020",
@@ -24423,7 +24423,7 @@
   "name": "commitImport: our export imports back as drafts",
   "call": "commitImport",
   "env": {
-   "nextId": 441,
+   "nextId": 450,
    "now": "2026-10-15T12:00:00.000Z"
   },
   "input": {
@@ -24445,7 +24445,7 @@
      "purpose": "Client project planning meeting",
      "warnings": [],
      "importSource": {
-      "id": "id-0435",
+      "id": "id-0444",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0092",
@@ -24472,7 +24472,7 @@
      "purpose": "Monthly creative tools subscription",
      "warnings": [],
      "importSource": {
-      "id": "id-0436",
+      "id": "id-0445",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0081",
@@ -24499,7 +24499,7 @@
      "purpose": "Project services · initial record",
      "warnings": [],
      "importSource": {
-      "id": "id-0437",
+      "id": "id-0446",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0068",
@@ -24526,7 +24526,7 @@
      "purpose": "Client contract review",
      "warnings": [],
      "importSource": {
-      "id": "id-0438",
+      "id": "id-0447",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0046",
@@ -24553,7 +24553,7 @@
      "purpose": "Workspace equipment and supplies",
      "warnings": [],
      "importSource": {
-      "id": "id-0439",
+      "id": "id-0448",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0035",
@@ -24580,7 +24580,7 @@
      "purpose": "Issue tracking subscription",
      "warnings": [],
      "importSource": {
-      "id": "id-0440",
+      "id": "id-0449",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0020",
@@ -25073,7 +25073,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0441",
+     "id": "id-0450",
      "businessId": "northstar",
      "vendor": "Common Ground",
      "date": "2026-10-03",
@@ -25088,7 +25088,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0435",
+      "id": "id-0444",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0092",
@@ -25102,7 +25102,7 @@
      }
     },
     {
-     "id": "id-0446",
+     "id": "id-0455",
      "businessId": "northstar",
      "vendor": "Adobe",
      "date": "2026-10-05",
@@ -25117,7 +25117,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0436",
+      "id": "id-0445",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0081",
@@ -25131,7 +25131,7 @@
      }
     },
     {
-     "id": "id-0451",
+     "id": "id-0460",
      "businessId": "northstar",
      "vendor": "Atlas Creative",
      "date": "2026-10-08",
@@ -25146,7 +25146,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0437",
+      "id": "id-0446",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0068",
@@ -25160,7 +25160,7 @@
      }
     },
     {
-     "id": "id-0456",
+     "id": "id-0465",
      "businessId": "northstar",
      "vendor": "Meridian Legal",
      "date": "2026-10-12",
@@ -25175,7 +25175,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0438",
+      "id": "id-0447",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0046",
@@ -25189,7 +25189,7 @@
      }
     },
     {
-     "id": "id-0461",
+     "id": "id-0470",
      "businessId": "northstar",
      "vendor": "Studio Supply Co.",
      "date": "2026-10-16",
@@ -25204,7 +25204,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0439",
+      "id": "id-0448",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0035",
@@ -25218,7 +25218,7 @@
      }
     },
     {
-     "id": "id-0466",
+     "id": "id-0475",
      "businessId": "northstar",
      "vendor": "Linear",
      "date": "2026-10-18",
@@ -25233,7 +25233,7 @@
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "importSource": {
-      "id": "id-0440",
+      "id": "id-0449",
       "businessId": "northstar",
       "provider": "csv",
       "reference": "id-0020",
@@ -25768,109 +25768,109 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0443",
+     "id": "id-0452",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0441",
+     "entityId": "id-0450",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0445",
+     "id": "id-0454",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0441",
+     "entityId": "id-0450",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0448",
+     "id": "id-0457",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0446",
+     "entityId": "id-0455",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0450",
+     "id": "id-0459",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0446",
+     "entityId": "id-0455",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0453",
+     "id": "id-0462",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0451",
+     "entityId": "id-0460",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0455",
+     "id": "id-0464",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0451",
+     "entityId": "id-0460",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0458",
+     "id": "id-0467",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0456",
+     "entityId": "id-0465",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0460",
+     "id": "id-0469",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0456",
+     "entityId": "id-0465",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0463",
+     "id": "id-0472",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0461",
+     "entityId": "id-0470",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0465",
+     "id": "id-0474",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0461",
+     "entityId": "id-0470",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
     },
     {
-     "id": "id-0468",
+     "id": "id-0477",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0466",
+     "entityId": "id-0475",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0470",
+     "id": "id-0479",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0466",
+     "entityId": "id-0475",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
@@ -26283,181 +26283,181 @@
      }
     },
     {
-     "id": "id-0442",
+     "id": "id-0451",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0435"
+      "id-0444"
      ],
-     "entityId": "id-0441",
+     "entityId": "id-0450",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0444",
+     "id": "id-0453",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0435"
+      "id-0444"
      ],
-     "entityId": "id-0441",
+     "entityId": "id-0450",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0447",
+     "id": "id-0456",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0436"
+      "id-0445"
      ],
-     "entityId": "id-0446",
+     "entityId": "id-0455",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0449",
+     "id": "id-0458",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0436"
+      "id-0445"
      ],
-     "entityId": "id-0446",
+     "entityId": "id-0455",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0452",
+     "id": "id-0461",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0437"
+      "id-0446"
      ],
-     "entityId": "id-0451",
+     "entityId": "id-0460",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0454",
+     "id": "id-0463",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0437"
+      "id-0446"
      ],
-     "entityId": "id-0451",
+     "entityId": "id-0460",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0457",
+     "id": "id-0466",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0438"
+      "id-0447"
      ],
-     "entityId": "id-0456",
+     "entityId": "id-0465",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0459",
+     "id": "id-0468",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0438"
+      "id-0447"
      ],
-     "entityId": "id-0456",
+     "entityId": "id-0465",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0462",
+     "id": "id-0471",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0439"
+      "id-0448"
      ],
-     "entityId": "id-0461",
+     "entityId": "id-0470",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0464",
+     "id": "id-0473",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0439"
+      "id-0448"
      ],
-     "entityId": "id-0461",
+     "entityId": "id-0470",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     },
     {
-     "id": "id-0467",
+     "id": "id-0476",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0440"
+      "id-0449"
      ],
-     "entityId": "id-0466",
+     "entityId": "id-0475",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0469",
+     "id": "id-0478",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0440"
+      "id-0449"
      ],
-     "entityId": "id-0466",
+     "entityId": "id-0475",
      "payload": {
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
