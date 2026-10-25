@@ -759,6 +759,7 @@ function totals(ns: BusinessData, fw: BusinessData) {
     "categoryTotals",
     {
       business: { ...ns, categories: ns.categories.slice(1) },
+      journalContexts: ["northstar"],
       period: "2026-10",
       currency: "USD",
     },
@@ -770,14 +771,23 @@ function totals(ns: BusinessData, fw: BusinessData) {
     "totals",
     "totals: mixed businesses",
     "totals",
-    { business: mixed, period: "2026-10" },
+    {
+      business: mixed,
+      journalContexts: ["northstar", "fieldwork"],
+      period: "2026-10",
+    },
     (i) => L.totals(i.business, i.period),
   );
   record(
     "totals",
     "categoryTotals: mixed businesses",
     "categoryTotals",
-    { business: mixed, period: "2026-10", currency: "USD" },
+    {
+      business: mixed,
+      journalContexts: ["northstar", "fieldwork"],
+      period: "2026-10",
+      currency: "USD",
+    },
     (i) => L.categoryTotals(i.business, i.period, i.currency),
   );
   return withEur;
@@ -1084,8 +1094,7 @@ function payments(ns: BusinessData, fw: BusinessData) {
   commit("empty error string is not an error", ns, [
     { ...abcRows[0], error: "" },
   ]);
-  // Pinned (PARITY_NOTES.md): payment rows are not checked against the
-  // business or account they were previewed for.
+  // Audit regression: previews cannot be moved across businesses/accounts.
   commit(
     "payment rows previewed for another business",
     ns,
@@ -1360,12 +1369,13 @@ function exports(ns: BusinessData, fw: BusinessData, withEur: BusinessData) {
     b: BusinessData,
     format: string,
     filter: unknown,
+    journalContexts?: string[],
   ) =>
     record(
       "export",
       `exportRecords: ${name}`,
       "exportRecords",
-      { business: b, format, filter },
+      { business: b, format, filter, journalContexts },
       (i) => X.exportRecords(i.business, i.format, i.filter),
     );
   for (const format of ["expenses", "journal"]) {
@@ -1394,6 +1404,7 @@ function exports(ns: BusinessData, fw: BusinessData, withEur: BusinessData) {
       },
       format,
       all,
+      ["northstar-with-eur", "fieldwork"],
     );
   }
   run("invalid from date", ns, "expenses", { ...all, from: "2026-02-30" });
@@ -1473,6 +1484,81 @@ function exports(ns: BusinessData, fw: BusinessData, withEur: BusinessData) {
     );
 }
 
+function integrity(ns: BusinessData, fw: BusinessData) {
+  for (const kind of ["payment", "expense-history"] as const) {
+    for (const reference of ["AUDIT-ONE", ""]) {
+      const rows = I.parseCSV(
+        `date,description,amount,currency,reference\n2026-10-24,Audit Vendor,-42.50,USD,${reference}`,
+      );
+      const account = ns.accounts[0].id;
+      const preview = I.previewImport(
+        ns,
+        rows,
+        paymentMap,
+        account,
+        "negative",
+        { kind },
+      );
+      const imported = I.commitImport(ns, preview, account);
+      const commit = (
+        name: string,
+        business: BusinessData,
+        accountId: string,
+      ) =>
+        record(
+          "integrity",
+          `${kind}/${reference || "fallback"}: ${name}`,
+          "commitImport",
+          { business, rows: preview, accountId },
+          (i) => I.commitImport(i.business, i.rows, i.accountId),
+        );
+      commit("different account", ns, ns.accounts[1].id);
+      commit("different business", fw, fw.accounts[0].id);
+      commit(
+        "already imported row still checks destination",
+        imported,
+        ns.accounts[1].id,
+      );
+      commit("same destination re-import", imported, account);
+      const draft = {
+        ...imported.drafts.at(-1)!,
+        categoryId: ns.categories[0].id,
+        purpose: "Client work",
+      };
+      const posted = L.approve(L.saveDraft(imported, draft), draft.id);
+      const original = posted.drafts.find((d) => d.id === draft.id)!;
+      const replacement = {
+        ...original,
+        id: L.id(),
+        status: "draft" as const,
+        correctionOf: original.id,
+      };
+      record(
+        "integrity",
+        `${kind}/${reference || "fallback"}: forged correction`,
+        "approve",
+        {
+          business: L.saveDraft(posted, replacement),
+          expenseId: replacement.id,
+        },
+        (i) => L.approve(i.business, i.expenseId),
+      );
+      record(
+        "integrity",
+        `${kind}/${reference || "fallback"}: valid correction`,
+        "correct",
+        {
+          business: posted,
+          originalId: original.id,
+          replacement,
+          reason: "Clarify purchase",
+        },
+        (i) => L.correct(i.business, i.originalId, i.replacement, i.reason),
+      );
+    }
+  }
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -1503,6 +1589,7 @@ test("generate parity fixtures", () => {
     payments(ns, fw);
     history(ns, fw);
     exports(ns, fw, withEur);
+    integrity(ns, fw);
     write();
   } finally {
     vi.useRealTimers();

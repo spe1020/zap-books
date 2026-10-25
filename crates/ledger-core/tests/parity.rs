@@ -90,6 +90,43 @@ impl Args {
     fn str(&self, key: &str) -> String {
         self.get(key)
     }
+
+    fn business(&self) -> BusinessData {
+        if !self.0.contains_key("journalContexts") {
+            return self.get("business");
+        }
+        // A few negative query fixtures deliberately mix already-validated
+        // journals or remove categories in memory. Rebuild those journals in
+        // their recorded original contexts; never weaken production loading
+        // to accept these deliberately inconsistent business snapshots.
+        let contexts: Vec<BusinessData> = self
+            .get::<Vec<String>>("journalContexts")
+            .into_iter()
+            .map(|name| {
+                serde_json::from_value(read_json(
+                    &fixtures_dir().join(format!("states/{name}.json")),
+                ))
+                .unwrap()
+            })
+            .collect();
+        let mut raw: Value = self.get("business");
+        let entries: Vec<UncheckedJournal> =
+            serde_json::from_value(raw["journals"].take()).unwrap();
+        raw["journals"] = Value::Array(Vec::new());
+        let mut business: BusinessData = serde_json::from_value(raw).unwrap();
+        business.journals = entries
+            .into_iter()
+            .map(|entry| {
+                let context = contexts
+                    .iter()
+                    .find(|b| b.profile.id == entry.business_id)
+                    .expect("fixture must supply the original journal context");
+                JournalEntry::new(context, entry)
+                    .expect("fixture journals must be valid in their original context")
+            })
+            .collect();
+        business
+    }
 }
 
 fn ok<T: Serialize>(value: T) -> std::result::Result<Value, String> {
@@ -103,7 +140,7 @@ fn out<T: Serialize>(result: Result<T>) -> std::result::Result<Value, String> {
 }
 
 fn run(call: &str, a: &Args, env: &mut SequentialEnv) -> std::result::Result<Value, String> {
-    let business = || a.get::<BusinessData>("business");
+    let business = || a.business();
     match call {
         "parseMoney" => out(parse_money(&a.str("input"))),
         "amountInput" => ok(amount_input(a.get("n"))),

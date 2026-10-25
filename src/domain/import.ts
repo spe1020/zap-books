@@ -49,6 +49,35 @@ export interface ImportRow {
   warnings?: string[];
   importSource?: ImportedExpenseSource;
 }
+function importFingerprint(
+  businessId: string,
+  accountId: string,
+  row: Pick<
+    ImportRow,
+    "date" | "description" | "amountMinor" | "currency" | "reference" | "vendor"
+  >,
+  provider?: ImportProvider,
+) {
+  const scope = [
+    businessId,
+    accountId,
+    ...(provider ? ["expense-history", provider] : []),
+  ];
+  return JSON.stringify(
+    row.reference
+      ? [...scope, "ref", row.reference]
+      : [
+          ...scope,
+          row.date,
+          row.description.trim().toLowerCase().replace(/\s+/g, " "),
+          ...(provider
+            ? [(row.vendor ?? row.description).trim().toLowerCase()]
+            : []),
+          row.amountMinor,
+          row.currency,
+        ],
+  );
+}
 export function parseCSV(text: string): string[][] {
   if (text.length > 2_000_000)
     throw new Error("CSV must be smaller than 2 MB.");
@@ -257,25 +286,11 @@ export function previewImport(
     } catch (e) {
       error = (e as Error).message;
     }
-    const fingerprint = JSON.stringify(
-      reference
-        ? [
-            b.profile.id,
-            accountId,
-            ...(history ? ["expense-history", provider] : []),
-            "ref",
-            reference,
-          ]
-        : [
-            b.profile.id,
-            accountId,
-            ...(history ? ["expense-history", provider] : []),
-            date,
-            description.trim().toLowerCase().replace(/\s+/g, " "),
-            ...(history ? [vendor.trim().toLowerCase()] : []),
-            amountMinor,
-            currency,
-          ],
+    const fingerprint = importFingerprint(
+      b.profile.id,
+      accountId,
+      { date, description, vendor, amountMinor, currency, reference },
+      history ? provider : undefined,
     );
     const previous = seen.get(fingerprint),
       duplicate = seen.has(fingerprint);
@@ -341,6 +356,29 @@ export function commitImport(
   );
   if (!account) throw new Error("Payment account not found.");
   for (const row of rows) {
+    if (
+      row.importSource &&
+      (row.importSource.businessId !== b.profile.id ||
+        row.importSource.fingerprint !== row.fingerprint ||
+        row.importSource.amountMinor !== row.amountMinor ||
+        row.importSource.date !== row.date ||
+        row.importSource.currency !== row.currency)
+    )
+      throw new Error("Invalid import source.");
+    // Recompute before duplicate lookup: even a repeated row must belong to
+    // this destination. Never silently reassign a preview from another account.
+    if (
+      row.fingerprint !==
+      importFingerprint(
+        b.profile.id,
+        accountId,
+        row,
+        row.importSource?.provider,
+      )
+    )
+      throw new Error(
+        "Import preview does not match this business or payment account. Preview the file again.",
+      );
     const existing = row.importSource
       ? b.drafts.flatMap((d) => (d.importSource ? [d.importSource] : []))
       : b.payments;
@@ -364,15 +402,6 @@ export function commitImport(
       row.currency !== account.currency
     )
       throw new Error("Invalid import row.");
-    if (
-      row.importSource &&
-      (row.importSource.businessId !== b.profile.id ||
-        row.importSource.fingerprint !== row.fingerprint ||
-        row.importSource.amountMinor !== row.amountMinor ||
-        row.importSource.date !== row.date ||
-        row.importSource.currency !== row.currency)
-    )
-      throw new Error("Invalid import source.");
     const draft = {
       ...blankDraft(b),
       vendor: row.vendor ?? row.description,

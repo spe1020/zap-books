@@ -347,9 +347,9 @@ fn approve_in(b: &mut BusinessData, expense_id: &str, env: &mut impl Env) -> Res
         return Err(LedgerError::Validation(errors));
     }
     let other_posted = |x: &&ExpenseDraft| {
-        x.id != d.id
-            && Some(&x.id) != d.correction_of.as_ref()
-            && x.status() == ExpenseStatus::Posted
+        // A real correction has already reversed and marked its original
+        // corrected. A caller-supplied correction_of cannot exempt a posting.
+        x.id != d.id && x.status() == ExpenseStatus::Posted
     };
     if let Some(source) = &d.import_source {
         if b.drafts.iter().filter(other_posted).any(|x| {

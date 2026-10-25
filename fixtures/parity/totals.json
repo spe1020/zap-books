@@ -2823,6 +2823,9 @@
      }
     ]
    },
+   "journalContexts": [
+    "northstar"
+   ],
    "period": "2026-10",
    "currency": "USD"
   },
@@ -4474,6 +4477,10 @@
      }
     ]
    },
+   "journalContexts": [
+    "northstar",
+    "fieldwork"
+   ],
    "period": "2026-10"
   },
   "output": {
@@ -6100,6 +6107,10 @@
      }
     ]
    },
+   "journalContexts": [
+    "northstar",
+    "fieldwork"
+   ],
    "period": "2026-10",
    "currency": "USD"
   },

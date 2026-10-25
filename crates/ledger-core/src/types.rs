@@ -9,7 +9,6 @@ use std::ops::Deref;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::date::valid_date;
 use crate::error::{LedgerError, Result};
 use crate::money::{Currency, Minor};
 
@@ -286,24 +285,6 @@ pub struct UncheckedJournal {
     pub created_at: String,
 }
 
-impl UncheckedJournal {
-    /// The checks from `assertBalanced` that need no business context: a
-    /// valid date, at least two lines, non-negative one-sided amounts, and
-    /// equal non-zero debit and credit totals.
-    fn check_intrinsic(&self) -> Result<()> {
-        if !valid_date(&self.date) || self.lines.len() < 2 {
-            return Err(LedgerError::InvalidJournalContext);
-        }
-        let (mut debit, mut credit) = (Minor::ZERO, Minor::ZERO);
-        for line in &self.lines {
-            check_line_amounts(line)?;
-            debit = debit.checked_add(line.debit)?;
-            credit = credit.checked_add(line.credit)?;
-        }
-        check_totals(debit, credit)
-    }
-}
-
 pub(crate) fn check_line_amounts(line: &JournalLine) -> Result<()> {
     let negative = line.debit < Minor::ZERO || line.credit < Minor::ZERO;
     let two_sided = line.debit > Minor::ZERO && line.credit > Minor::ZERO;
@@ -325,11 +306,26 @@ pub(crate) fn check_totals(debit: Minor, credit: Minor) -> Result<()> {
 /// A balanced, single-currency journal entry.
 ///
 /// The only constructor is [`JournalEntry::new`], which runs every
-/// `assertBalanced` check against the business. Deserialization re-checks the
-/// parts that need no business context (see `PARITY_NOTES.md`). Fields are
-/// readable through `Deref` and cannot be changed.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(try_from = "UncheckedJournal", into = "UncheckedJournal")]
+/// `assertBalanced` check against the business. Load persisted entries through
+/// [`BusinessData`] or [`Workspace`], whose deserializers provide that context.
+/// Fields are readable through `Deref` and cannot be changed.
+///
+/// A context-free conversion cannot create a validated entry:
+/// ```compile_fail
+/// use ledger_core::{JournalEntry, UncheckedJournal};
+/// fn bypass(entry: UncheckedJournal) -> JournalEntry {
+///     entry.try_into().unwrap()
+/// }
+/// ```
+/// Nor can a context-free JSON load:
+/// ```compile_fail
+/// use ledger_core::JournalEntry;
+/// fn bypass(json: &str) -> JournalEntry {
+///     serde_json::from_str(json).unwrap()
+/// }
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(transparent)]
 pub struct JournalEntry(UncheckedJournal);
 
 impl JournalEntry {
@@ -349,14 +345,6 @@ impl Deref for JournalEntry {
     type Target = UncheckedJournal;
     fn deref(&self) -> &UncheckedJournal {
         &self.0
-    }
-}
-
-impl TryFrom<UncheckedJournal> for JournalEntry {
-    type Error = LedgerError;
-    fn try_from(entry: UncheckedJournal) -> Result<JournalEntry> {
-        entry.check_intrinsic()?;
-        Ok(JournalEntry(entry))
     }
 }
 
@@ -461,7 +449,7 @@ pub struct FinancialEvent {
     pub payload: BTreeMap<String, PayloadValue>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BusinessData {
     pub profile: Business,
@@ -476,6 +464,51 @@ pub struct BusinessData {
     pub rules: Vec<ClassificationRule>,
     pub audits: Vec<AuditEvent>,
     pub events: Vec<FinancialEvent>,
+}
+
+/// Wire records stay unchecked until their owning business's accounts and
+/// categories are available. This type is private so it cannot be mistaken
+/// for validated domain state.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct StoredBusinessData {
+    profile: Business,
+    accounts: Vec<Account>,
+    categories: Vec<Category>,
+    vendors: Vec<Vendor>,
+    documents: Vec<SourceDocument>,
+    payments: Vec<ImportedTransaction>,
+    drafts: Vec<ExpenseDraft>,
+    journals: Vec<UncheckedJournal>,
+    approvals: Vec<Approval>,
+    rules: Vec<ClassificationRule>,
+    audits: Vec<AuditEvent>,
+    events: Vec<FinancialEvent>,
+}
+
+impl<'de> Deserialize<'de> for BusinessData {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        let raw = StoredBusinessData::deserialize(d)?;
+        let mut business = BusinessData {
+            profile: raw.profile,
+            accounts: raw.accounts,
+            categories: raw.categories,
+            vendors: raw.vendors,
+            documents: raw.documents,
+            payments: raw.payments,
+            drafts: raw.drafts,
+            journals: Vec::with_capacity(raw.journals.len()),
+            approvals: raw.approvals,
+            rules: raw.rules,
+            audits: raw.audits,
+            events: raw.events,
+        };
+        for entry in raw.journals {
+            let checked = JournalEntry::new(&business, entry).map_err(serde::de::Error::custom)?;
+            business.journals.push(checked);
+        }
+        Ok(business)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

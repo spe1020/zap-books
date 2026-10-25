@@ -68,9 +68,9 @@ fn d2_unrepresentable_values_are_rejected_at_deserialization() {
 #[test]
 fn d3_unbalanced_stored_journals_do_not_deserialize() {
     let (b, _) = fresh();
-    let mut journal = serde_json::to_value(&b.journals[0]).unwrap();
-    journal["lines"][0]["debit"] = json!(1);
-    let err = serde_json::from_value::<JournalEntry>(journal).unwrap_err();
+    let mut business = serde_json::to_value(&b).unwrap();
+    business["journals"][0]["lines"][0]["debit"] = json!(1);
+    let err = serde_json::from_value::<BusinessData>(business).unwrap_err();
     assert!(err.to_string().contains("Journal entry must balance."));
 }
 

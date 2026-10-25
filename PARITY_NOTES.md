@@ -63,18 +63,29 @@ message. The affected checks are always true in Rust:
 
 Test: `d2_unrepresentable_values_are_rejected_at_deserialization`.
 
-### D3. Stored journals are checked when loaded
+### D3. Journal construction and loading require business context
 
-The brief asks that an unbalanced or mixed-currency `JournalEntry` be
-impossible to build except through a function returning `Result`.
-`JournalEntry::new(&business, entry)` runs every `assertBalanced` check.
-Deserializing a `JournalEntry` re-runs the checks that need no business
-context: valid date, at least two lines, non-negative one-sided amounts, and
-equal non-zero totals, with the same messages. Account and currency
-consistency need the business, so they are checked by `JournalEntry::new` and
-`assert_balanced`, not on load. The TypeScript loads any stored journal.
+`JournalEntry::new(&business, entry)` is the only constructor and runs every
+`assertBalanced` check, including account ownership, account currency, and
+category membership. There is no context-free `TryFrom<UncheckedJournal>` or
+`Deserialize` implementation for `JournalEntry`. A single wire entry can be
+read as `UncheckedJournal`, then passed to `JournalEntry::new`.
 
-Test: `d3_unbalanced_stored_journals_do_not_deserialize`.
+Deserialize `BusinessData` or `Workspace` to load saved state. The loader reads
+raw journals privately and validates each one against its containing business
+before returning any state. The JSON shape is unchanged. The TypeScript
+browser adapter still loads stored journals without this validation; malformed
+stored state is therefore an intentional Rust loading difference.
+
+Tests: `d3_unbalanced_stored_journals_do_not_deserialize`,
+`stored_journals_validate_business_accounts_categories_and_currency`, and the
+two `compile_fail` doctests on `JournalEntry`.
+
+Some query fixtures deliberately mix valid journals from different businesses
+or remove categories after construction. Their explicit `journalContexts`
+metadata reconstructs the original validated journals for those in-memory
+negative cases. This does not bypass the production loader; ordinary fixture
+states must still deserialize and round-trip unchanged.
 
 ### D4. Import sources compare by value, not `JSON.stringify`
 
@@ -147,15 +158,21 @@ guaranteed to have come from an import.
 Fixtures: `drafts/saveDraft: import source added to existing draft`,
 `history/saveDraft: import source removed`.
 
-### W3. `commitImport` trusts payment rows from any business
+### W3. Resolved: import previews bind business and destination account
 
-`src/domain/import.ts:343-404` checks import-source rows against the business
-(`Invalid import source.`) but not payment rows. Rows previewed for another
-business are committed under the selected account, while their fingerprints
-still carry the other business and account ids. Re-importing the same file
-for the right account would then not be detected as a duplicate.
+Both implementations now recompute the canonical fingerprint at commit time
+using the actual business, destination account, import kind/provider, and row
+identity. A mismatched preview is rejected before duplicate lookup. Source
+ownership is also checked on repeated rows. Reference-based and fallback
+fingerprints keep their existing format, so valid stored imports still dedupe.
 
-Fixture: `import/commitImport: payment rows previewed for another business`.
+Fixtures: `import/commitImport: payment rows previewed for another business`
+(now an error) and `integrity/*`.
+
+The same audit removed `correctionOf` exemptions from posted payment/source
+uniqueness checks in both languages. A real correction first reverses its
+original and marks it corrected, then posts the replacement. Merely naming an
+existing expense as a correction cannot authorize a second posting.
 
 ### W4. `totals` and `categoryTotals` do not filter by business
 

@@ -115,6 +115,10 @@ pub enum LedgerError {
     InvalidImportRow,
     #[error("Invalid import source.")]
     InvalidImportSource,
+    #[error(
+        "Import preview does not match this business or payment account. Preview the file again."
+    )]
+    InvalidImportScope,
 
     // export.ts exportRecords
     #[error("Choose valid export dates.")]

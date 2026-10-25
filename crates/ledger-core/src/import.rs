@@ -132,6 +132,41 @@ pub struct ImportRow {
     pub import_source: Option<PreviewSource>,
 }
 
+/// Canonical identity shared by preview and commit. No destination scope is
+/// trusted from the preview supplied by a caller.
+struct ImportIdentity<'a> {
+    date: &'a str,
+    description: &'a str,
+    vendor: &'a str,
+    reference: &'a str,
+    amount_minor: Minor,
+    currency: &'a str,
+    provider: Option<ImportProvider>,
+}
+
+impl ImportIdentity<'_> {
+    fn fingerprint(&self, business_id: &str, account_id: &str) -> String {
+        let mut parts = vec![Value::from(business_id), Value::from(account_id)];
+        if let Some(provider) = self.provider {
+            parts.push(Value::from("expense-history"));
+            parts.push(Value::from(provider.as_str()));
+        }
+        if self.reference.is_empty() {
+            parts.push(Value::from(self.date));
+            parts.push(Value::from(js::normalize(self.description)));
+            if self.provider.is_some() {
+                parts.push(Value::from(js::trim(self.vendor).to_lowercase()));
+            }
+            parts.push(Value::from(self.amount_minor.get()));
+            parts.push(Value::from(self.currency));
+        } else {
+            parts.push(Value::from("ref"));
+            parts.push(Value::from(self.reference));
+        }
+        Value::Array(parts).to_string()
+    }
+}
+
 /// `text.length` limit, in UTF-16 code units.
 const MAX_CSV_LENGTH: usize = 2_000_000;
 /// One header row plus 2,000 transactions.
@@ -456,29 +491,16 @@ pub fn preview_import(
             Ok(())
         })();
         let mut error = checked.err().map(|e| e.to_string());
-        let scope = || {
-            let mut parts = vec![Value::from(b.profile.id.as_str()), Value::from(account_id)];
-            if history {
-                parts.push(Value::from("expense-history"));
-                parts.push(Value::from(provider.as_str()));
-            }
-            parts
-        };
-        let mut parts = scope();
-        if reference.is_empty() {
-            parts.push(Value::from(date.as_str()));
-            parts.push(Value::from(js::normalize(&description)));
-            if history {
-                parts.push(Value::from(js::trim(&vendor).to_lowercase()));
-            }
-            parts.push(Value::from(amount_minor.get()));
-            parts.push(Value::from(currency.as_str()));
-        } else {
-            parts.push(Value::from("ref"));
-            parts.push(Value::from(reference.as_str()));
+        let fingerprint = ImportIdentity {
+            date: &date,
+            description: &description,
+            vendor: &vendor,
+            reference: &reference,
+            amount_minor,
+            currency: &currency,
+            provider: history.then_some(provider),
         }
-        // `JSON.stringify` of an array of strings and safe integers.
-        let fingerprint = Value::Array(parts).to_string();
+        .fingerprint(&b.profile.id, account_id);
         let previous = seen.get(&fingerprint);
         let duplicate = previous.is_some();
         if previous.is_some_and(|p| {
@@ -557,6 +579,34 @@ pub fn commit_import(
         .cloned()
         .ok_or(LedgerError::PaymentAccountNotFound)?;
     for row in rows {
+        let import_source = match &row.import_source {
+            Some(s) => {
+                if s.business_id != b.profile.id
+                    || s.fingerprint != row.fingerprint
+                    || s.amount_minor != row.amount_minor
+                    || s.date != row.date
+                    || s.currency != row.currency
+                {
+                    return Err(LedgerError::InvalidImportSource);
+                }
+                Some(s.clone().into_source()?)
+            }
+            None => None,
+        };
+        let expected_fingerprint = ImportIdentity {
+            date: &row.date,
+            description: &row.description,
+            vendor: row.vendor.as_deref().unwrap_or(&row.description),
+            reference: &row.reference,
+            amount_minor: row.amount_minor,
+            currency: &row.currency,
+            provider: row.import_source.as_ref().map(|s| s.provider),
+        }
+        .fingerprint(&b.profile.id, account_id);
+        // Check scope before duplicate lookup, including on repeated rows.
+        if row.fingerprint != expected_fingerprint {
+            return Err(LedgerError::InvalidImportScope);
+        }
         let previous = if row.import_source.is_some() {
             b.drafts
                 .iter()
@@ -586,20 +636,6 @@ pub fn commit_import(
         {
             return Err(LedgerError::InvalidImportRow);
         }
-        let import_source = match &row.import_source {
-            Some(s) => {
-                if s.business_id != b.profile.id
-                    || s.fingerprint != row.fingerprint
-                    || s.amount_minor != row.amount_minor
-                    || s.date != row.date
-                    || s.currency != row.currency
-                {
-                    return Err(LedgerError::InvalidImportSource);
-                }
-                Some(s.clone().into_source()?)
-            }
-            None => None,
-        };
         let mut draft = blank_draft(&b, env);
         draft.vendor = row
             .vendor
