@@ -100,20 +100,16 @@ fn previews_bind_destination_before_deduplication_and_import_is_atomic() {
             let before = b.clone();
             assert_eq!(
                 commit_import(b, &rows, to, &mut env),
-                Err(LedgerError::InvalidImportScope)
+                Err(LedgerError::PreviewedElsewhere)
             );
             assert_eq!(
                 commit_import(other, &rows, &other.accounts[0].id, &mut env),
-                Err(if history {
-                    LedgerError::InvalidImportSource
-                } else {
-                    LedgerError::InvalidImportScope
-                })
+                Err(LedgerError::PreviewedElsewhere)
             );
             let once = commit_import(b, &rows, from, &mut env).unwrap();
             assert_eq!(
                 commit_import(&once, &rows, to, &mut env),
-                Err(LedgerError::InvalidImportScope)
+                Err(LedgerError::PreviewedElsewhere)
             );
             assert_eq!(commit_import(&once, &rows, from, &mut env).unwrap(), once);
             let destination = preview(b, to, history, reference, &mut env);
@@ -121,7 +117,7 @@ fn previews_bind_destination_before_deduplication_and_import_is_atomic() {
             mixed.extend(rows);
             assert_eq!(
                 commit_import(b, &mixed, to, &mut env),
-                Err(LedgerError::InvalidImportScope)
+                Err(LedgerError::PreviewedElsewhere)
             );
             assert_eq!(*b, before);
             let imported = commit_import(b, &destination, to, &mut env).unwrap();
@@ -133,6 +129,23 @@ fn previews_bind_destination_before_deduplication_and_import_is_atomic() {
                 imported
             );
         }
+    }
+}
+
+#[test]
+fn forged_fingerprint_is_rejected_even_in_scope() {
+    for history in [false, true] {
+        let (b, mut env) = fresh();
+        let mut rows = preview(&b, &b.accounts[0].id, history, "", &mut env);
+        let forged = r#"["northstar","elsewhere"]"#.to_string();
+        if let Some(source) = rows[0].import_source.as_mut() {
+            source.fingerprint = forged.clone();
+        }
+        rows[0].fingerprint = forged;
+        assert_eq!(
+            commit_import(&b, &rows, &b.accounts[0].id, &mut env),
+            Err(LedgerError::InvalidImportScope)
+        );
     }
 }
 

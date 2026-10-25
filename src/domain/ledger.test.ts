@@ -258,3 +258,34 @@ test("conflicting references in one file are rejected without partial import", (
   expect(() => commitImport(b, preview, b.accounts[0].id)).toThrow();
   expect(b.payments).toHaveLength(1);
 });
+
+test("rows previewed for another business cannot be committed", () => {
+  const [northstar, fieldwork] = seedWorkspace().businesses;
+  const rows = parseCSV(
+    "date,description,amount,currency,reference\n2026-10-20,Tools,-42.50,USD,REF-FW",
+  );
+  const preview = previewImport(
+    fieldwork,
+    rows,
+    {
+      date: "date",
+      description: "description",
+      amount: "amount",
+      currency: "currency",
+      reference: "reference",
+    },
+    fieldwork.accounts[0].id,
+    "negative",
+  );
+  expect(preview[0]).toMatchObject({
+    businessId: fieldwork.profile.id,
+    accountId: fieldwork.accounts[0].id,
+  });
+  const before = structuredClone(northstar);
+  expect(() =>
+    commitImport(northstar, preview, northstar.accounts[0].id),
+  ).toThrow(
+    "Import rows were previewed for a different business or account. Preview the file again.",
+  );
+  expect(northstar).toEqual(before);
+});

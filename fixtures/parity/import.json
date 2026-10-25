@@ -47,6 +47,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-20",
     "description": "Tools, Inc.",
     "amountMinor": 4250,
@@ -60,6 +62,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-21",
     "description": "Tools, Inc.",
     "amountMinor": 4250,
@@ -87,6 +91,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-20",
      "description": "Tools, Inc.",
      "amountMinor": 4250,
@@ -100,6 +106,8 @@
     },
     {
      "row": 3,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-21",
      "description": "Tools, Inc.",
      "amountMinor": 4250,
@@ -3256,6 +3264,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-20",
      "description": "Tools, Inc.",
      "amountMinor": 4250,
@@ -3269,6 +3279,8 @@
     },
     {
      "row": 3,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-21",
      "description": "Tools, Inc.",
      "amountMinor": 4250,
@@ -6459,6 +6471,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-20",
     "description": "Tools, Inc.",
     "amountMinor": 4250,
@@ -6472,6 +6486,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-21",
     "description": "Tools, Inc.",
     "amountMinor": 4250,
@@ -6526,6 +6542,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-02-30",
     "description": "A",
     "amountMinor": 0,
@@ -6581,6 +6599,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": -1000,
@@ -6636,6 +6656,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -6691,6 +6713,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 1000,
@@ -6745,6 +6769,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -6800,6 +6826,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -6855,6 +6883,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 123456,
@@ -6909,6 +6939,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 1234567890,
@@ -6963,6 +6995,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7018,6 +7052,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7073,6 +7109,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7128,6 +7166,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "",
     "amountMinor": 0,
@@ -7184,6 +7224,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7236,6 +7278,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7291,6 +7335,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "  Tools \t Inc  ",
     "amountMinor": 100,
@@ -7345,6 +7391,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 4250,
@@ -7399,6 +7447,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": -4250,
@@ -7454,6 +7504,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7509,6 +7561,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 100,
@@ -7563,6 +7617,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-expense-0",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7618,6 +7674,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "fieldwork-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7673,6 +7731,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "missing",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -7730,6 +7790,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-20",
     "description": "A",
     "amountMinor": 100,
@@ -7786,6 +7848,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-20",
     "description": "A",
     "amountMinor": 100,
@@ -7842,6 +7906,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-20",
     "description": "A",
     "amountMinor": 100,
@@ -7898,6 +7964,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-20-10",
     "description": "A",
     "amountMinor": 0,
@@ -7955,6 +8023,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-20-10",
     "description": "A",
     "amountMinor": 0,
@@ -8012,6 +8082,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "10/20/2026",
     "description": "A",
     "amountMinor": 0,
@@ -8069,6 +8141,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2028-02-29",
     "description": "A",
     "amountMinor": 100,
@@ -8150,6 +8224,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 100,
@@ -8163,6 +8239,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "B",
     "amountMinor": 100,
@@ -8176,6 +8254,8 @@
    },
    {
     "row": 4,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "C",
     "amountMinor": 0,
@@ -8190,6 +8270,8 @@
    },
    {
     "row": 5,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "D",
     "amountMinor": 0,
@@ -8264,6 +8346,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -8278,6 +8362,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-02",
     "description": "B",
     "amountMinor": 0,
@@ -8292,6 +8378,8 @@
    },
    {
     "row": 4,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-03",
     "description": "C",
     "amountMinor": 0,
@@ -8358,6 +8446,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 100,
@@ -8371,6 +8461,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-02",
     "description": "B",
     "amountMinor": 100,
@@ -8439,6 +8531,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 5000000000000000,
@@ -8452,6 +8546,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-02",
     "description": "B",
     "amountMinor": 5000000000000000,
@@ -8466,6 +8562,8 @@
    },
    {
     "row": 4,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-03",
     "description": "C",
     "amountMinor": 100,
@@ -8528,6 +8626,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-20",
     "description": "Tools",
     "amountMinor": 4250,
@@ -8541,6 +8641,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-21",
     "description": "Tools",
     "amountMinor": 5500,
@@ -8569,6 +8671,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-20",
      "description": "Tools",
      "amountMinor": 4250,
@@ -8582,6 +8686,8 @@
     },
     {
      "row": 3,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-21",
      "description": "Tools",
      "amountMinor": 5500,
@@ -8647,6 +8753,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 1000,
@@ -8660,6 +8768,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 1000,
@@ -8687,6 +8797,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-01",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -11716,6 +11828,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "Vendor",
     "amountMinor": 2000,
@@ -13229,6 +13343,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-01",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -13259,6 +13375,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-01",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -13289,6 +13407,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-01",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -13319,6 +13439,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-02-30",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -13349,6 +13471,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-01",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -13379,6 +13503,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-01",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -14897,6 +15023,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "fieldwork",
+     "accountId": "fieldwork-checking",
      "date": "2026-10-01",
      "description": "Vendor",
      "amountMinor": 1000,
@@ -14911,6 +15039,6 @@
    ],
    "accountId": "northstar-checking"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  }
 ]

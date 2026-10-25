@@ -687,7 +687,7 @@ fn source_evidence_and_approval_remain_business_scoped() {
         &other.accounts[0].id,
         &mut env
     ))
-    .contains("Invalid import source"));
+    .contains("Import rows were previewed for a different business or account"));
     let next = commit_import(&b, &preview, &account, &mut env).unwrap();
     let mut moved = next.drafts.last().unwrap().clone();
     moved.business_id = other.profile.id.clone();

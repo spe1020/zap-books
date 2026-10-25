@@ -111,6 +111,10 @@ impl PreviewSource {
 #[serde(rename_all = "camelCase")]
 pub struct ImportRow {
     pub row: u64,
+    /// The business the row was previewed for.
+    pub business_id: String,
+    /// The payment account the row was previewed for.
+    pub account_id: String,
     pub date: String,
     pub description: String,
     pub amount_minor: Minor,
@@ -539,6 +543,8 @@ pub fn preview_import(
         });
         out.push(ImportRow {
             row: i as u64 + 2,
+            business_id: b.profile.id.clone(),
+            account_id: account_id.to_string(),
             date,
             description,
             amount_minor,
@@ -578,6 +584,13 @@ pub fn commit_import(
         })
         .cloned()
         .ok_or(LedgerError::PaymentAccountNotFound)?;
+    // Checked for every row before any is processed, so nothing is imported.
+    if rows
+        .iter()
+        .any(|r| r.business_id != b.profile.id || r.account_id != account_id)
+    {
+        return Err(LedgerError::PreviewedElsewhere);
+    }
     for row in rows {
         let import_source = match &row.import_source {
             Some(s) => {

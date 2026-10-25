@@ -35,6 +35,8 @@ export interface ImportOptions {
 }
 export interface ImportRow {
   row: number;
+  businessId: string;
+  accountId: string;
   date: string;
   description: string;
   amountMinor: number;
@@ -324,6 +326,8 @@ export function previewImport(
       : undefined;
     return {
       row: i + 2,
+      businessId: b.profile.id,
+      accountId,
       date,
       description,
       amountMinor,
@@ -355,6 +359,13 @@ export function commitImport(
       a.businessId === b.profile.id,
   );
   if (!account) throw new Error("Payment account not found.");
+  // Checked for every row before any is processed, so nothing is imported.
+  if (
+    rows.some((r) => r.businessId !== b.profile.id || r.accountId !== accountId)
+  )
+    throw new Error(
+      "Import rows were previewed for a different business or account. Preview the file again.",
+    );
   for (const row of rows) {
     if (
       row.importSource &&

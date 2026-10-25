@@ -210,7 +210,7 @@ describe("expense-history migration", () => {
     const { b, preview, account } = migration();
     const other = seedWorkspace().businesses[1];
     expect(() => commitImport(other, preview, other.accounts[0].id)).toThrow(
-      "Invalid import source",
+      "Import rows were previewed for a different business or account",
     );
     const next = commitImport(b, preview, account);
     expect(() =>

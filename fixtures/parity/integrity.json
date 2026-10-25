@@ -13,6 +13,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -27,7 +29,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "payment/AUDIT-ONE: different business",
@@ -43,6 +45,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -57,7 +61,7 @@
    ],
    "accountId": "fieldwork-checking"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "payment/AUDIT-ONE: already imported row still checks destination",
@@ -1558,6 +1562,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -1572,7 +1578,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "payment/AUDIT-ONE: same destination re-import",
@@ -3073,6 +3079,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -4575,6 +4583,38 @@
     }
    ]
   }
+ },
+ {
+  "name": "payment/AUDIT-ONE: forged fingerprint in scope",
+  "call": "commitImport",
+  "env": {
+   "nextId": 480,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "rows": [
+    {
+     "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
+     "date": "2026-10-24",
+     "description": "Audit Vendor",
+     "amountMinor": 4250,
+     "currency": "USD",
+     "reference": "AUDIT-ONE",
+     "fingerprint": "[\"northstar\",\"elsewhere\"]",
+     "duplicate": false,
+     "vendor": "Audit Vendor",
+     "purpose": "",
+     "warnings": []
+    }
+   ],
+   "accountId": "northstar-checking"
+  },
+  "error": "Import preview does not match this business or payment account. Preview the file again."
  },
  {
   "name": "payment/AUDIT-ONE: forged correction",
@@ -9624,6 +9664,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -9638,7 +9680,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "payment/fallback: different business",
@@ -9654,6 +9696,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -9668,7 +9712,7 @@
    ],
    "accountId": "fieldwork-checking"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "payment/fallback: already imported row still checks destination",
@@ -11169,6 +11213,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -11183,7 +11229,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "payment/fallback: same destination re-import",
@@ -12684,6 +12730,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -14186,6 +14234,38 @@
     }
    ]
   }
+ },
+ {
+  "name": "payment/fallback: forged fingerprint in scope",
+  "call": "commitImport",
+  "env": {
+   "nextId": 509,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "rows": [
+    {
+     "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
+     "date": "2026-10-24",
+     "description": "Audit Vendor",
+     "amountMinor": 4250,
+     "currency": "USD",
+     "reference": "",
+     "fingerprint": "[\"northstar\",\"elsewhere\"]",
+     "duplicate": false,
+     "vendor": "Audit Vendor",
+     "purpose": "",
+     "warnings": []
+    }
+   ],
+   "accountId": "northstar-checking"
+  },
+  "error": "Import preview does not match this business or payment account. Preview the file again."
  },
  {
   "name": "payment/fallback: forged correction",
@@ -19235,6 +19315,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -19265,7 +19347,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "expense-history/AUDIT-ONE: different business",
@@ -19281,6 +19363,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -19311,7 +19395,7 @@
    ],
    "accountId": "fieldwork-checking"
   },
-  "error": "Invalid import source."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "expense-history/AUDIT-ONE: already imported row still checks destination",
@@ -20812,6 +20896,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -20842,7 +20928,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "expense-history/AUDIT-ONE: same destination re-import",
@@ -22343,6 +22429,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -23861,6 +23949,54 @@
     }
    ]
   }
+ },
+ {
+  "name": "expense-history/AUDIT-ONE: forged fingerprint in scope",
+  "call": "commitImport",
+  "env": {
+   "nextId": 538,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "rows": [
+    {
+     "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
+     "date": "2026-10-24",
+     "description": "Audit Vendor",
+     "amountMinor": 4250,
+     "currency": "USD",
+     "reference": "AUDIT-ONE",
+     "fingerprint": "[\"northstar\",\"elsewhere\"]",
+     "duplicate": false,
+     "vendor": "Audit Vendor",
+     "purpose": "",
+     "warnings": [
+      "Choose a category during review.",
+      "Add the business purpose during review."
+     ],
+     "importSource": {
+      "id": "id-0531",
+      "businessId": "northstar",
+      "provider": "csv",
+      "reference": "AUDIT-ONE",
+      "fingerprint": "[\"northstar\",\"elsewhere\"]",
+      "date": "2026-10-24",
+      "amountMinor": 4250,
+      "currency": "USD",
+      "vendor": "Audit Vendor",
+      "category": "",
+      "filename": ""
+     }
+    }
+   ],
+   "accountId": "northstar-checking"
+  },
+  "error": "Import preview does not match this business or payment account. Preview the file again."
  },
  {
   "name": "expense-history/AUDIT-ONE: forged correction",
@@ -28946,6 +29082,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -28976,7 +29114,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "expense-history/fallback: different business",
@@ -28992,6 +29130,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -29022,7 +29162,7 @@
    ],
    "accountId": "fieldwork-checking"
   },
-  "error": "Invalid import source."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "expense-history/fallback: already imported row still checks destination",
@@ -30523,6 +30663,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -30553,7 +30695,7 @@
    ],
    "accountId": "northstar-card"
   },
-  "error": "Import preview does not match this business or payment account. Preview the file again."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "expense-history/fallback: same destination re-import",
@@ -32054,6 +32196,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-24",
      "description": "Audit Vendor",
      "amountMinor": 4250,
@@ -33572,6 +33716,54 @@
     }
    ]
   }
+ },
+ {
+  "name": "expense-history/fallback: forged fingerprint in scope",
+  "call": "commitImport",
+  "env": {
+   "nextId": 567,
+   "now": "2026-10-15T12:00:00.000Z"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "rows": [
+    {
+     "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
+     "date": "2026-10-24",
+     "description": "Audit Vendor",
+     "amountMinor": 4250,
+     "currency": "USD",
+     "reference": "",
+     "fingerprint": "[\"northstar\",\"elsewhere\"]",
+     "duplicate": false,
+     "vendor": "Audit Vendor",
+     "purpose": "",
+     "warnings": [
+      "Choose a category during review.",
+      "Add the business purpose during review."
+     ],
+     "importSource": {
+      "id": "id-0560",
+      "businessId": "northstar",
+      "provider": "csv",
+      "reference": "",
+      "fingerprint": "[\"northstar\",\"elsewhere\"]",
+      "date": "2026-10-24",
+      "amountMinor": 4250,
+      "currency": "USD",
+      "vendor": "Audit Vendor",
+      "category": "",
+      "filename": ""
+     }
+    }
+   ],
+   "accountId": "northstar-checking"
+  },
+  "error": "Import preview does not match this business or payment account. Preview the file again."
  },
  {
   "name": "expense-history/fallback: forged correction",

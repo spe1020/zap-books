@@ -56,6 +56,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-23",
     "description": "Workshop materials",
     "amountMinor": 123456,
@@ -97,6 +99,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-23",
      "description": "Workshop materials",
      "amountMinor": 123456,
@@ -1628,6 +1632,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-23",
      "description": "Workshop materials",
      "amountMinor": 123456,
@@ -1656,7 +1662,7 @@
    ],
    "accountId": "fieldwork-checking"
   },
-  "error": "Invalid import source."
+  "error": "Import rows were previewed for a different business or account. Preview the file again."
  },
  {
   "name": "saveDraft: import source cannot change",
@@ -13353,6 +13359,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-23",
     "description": "Workshop materials",
     "amountMinor": 123456,
@@ -15172,6 +15180,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-23",
      "description": "Workshop materials",
      "amountMinor": 123456,
@@ -18888,6 +18898,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-23",
     "description": "Workshop materials",
     "amountMinor": 123456,
@@ -18930,6 +18942,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-23",
      "description": "Workshop materials",
      "amountMinor": 123456,
@@ -22000,6 +22014,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-23",
     "description": "Old bill",
     "amountMinor": 0,
@@ -22095,6 +22111,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-23",
     "description": "Workshop materials",
     "amountMinor": 123456,
@@ -22122,6 +22140,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-23",
     "description": "Workshop materials",
     "amountMinor": 50000,
@@ -22211,6 +22231,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-01",
     "description": "A",
     "amountMinor": 0,
@@ -22241,6 +22263,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-02",
     "description": "B",
     "amountMinor": 0,
@@ -22285,6 +22309,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-01",
      "description": "A",
      "amountMinor": 0,
@@ -22315,6 +22341,8 @@
     },
     {
      "row": 3,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-02",
      "description": "B",
      "amountMinor": 0,
@@ -22402,6 +22430,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-02",
     "description": "Bulk paper",
     "amountMinor": 1500,
@@ -22431,6 +22461,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-03",
     "description": "Toner",
     "amountMinor": 0,
@@ -22461,6 +22493,8 @@
    },
    {
     "row": 4,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-04",
     "description": "",
     "amountMinor": 0,
@@ -22540,6 +22574,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-02",
     "description": "",
     "amountMinor": 0,
@@ -22585,6 +22621,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-02",
      "description": "Bulk paper",
      "amountMinor": 1500,
@@ -24257,6 +24295,8 @@
   "output": [
    {
     "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-03",
     "description": "Common Ground",
     "amountMinor": 6800,
@@ -24284,6 +24324,8 @@
    },
    {
     "row": 3,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-05",
     "description": "Adobe",
     "amountMinor": 8999,
@@ -24311,6 +24353,8 @@
    },
    {
     "row": 4,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-08",
     "description": "Atlas Creative",
     "amountMinor": 115000,
@@ -24338,6 +24382,8 @@
    },
    {
     "row": 5,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-12",
     "description": "Meridian Legal",
     "amountMinor": 240000,
@@ -24365,6 +24411,8 @@
    },
    {
     "row": 6,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-16",
     "description": "Studio Supply Co.",
     "amountMinor": 87500,
@@ -24392,6 +24440,8 @@
    },
    {
     "row": 7,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
     "date": "2026-10-18",
     "description": "Linear",
     "amountMinor": 3200,
@@ -24433,6 +24483,8 @@
    "rows": [
     {
      "row": 2,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-03",
      "description": "Common Ground",
      "amountMinor": 6800,
@@ -24460,6 +24512,8 @@
     },
     {
      "row": 3,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-05",
      "description": "Adobe",
      "amountMinor": 8999,
@@ -24487,6 +24541,8 @@
     },
     {
      "row": 4,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-08",
      "description": "Atlas Creative",
      "amountMinor": 115000,
@@ -24514,6 +24570,8 @@
     },
     {
      "row": 5,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-12",
      "description": "Meridian Legal",
      "amountMinor": 240000,
@@ -24541,6 +24599,8 @@
     },
     {
      "row": 6,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-16",
      "description": "Studio Supply Co.",
      "amountMinor": 87500,
@@ -24568,6 +24628,8 @@
     },
     {
      "row": 7,
+     "businessId": "northstar",
+     "accountId": "northstar-checking",
      "date": "2026-10-18",
      "description": "Linear",
      "amountMinor": 3200,

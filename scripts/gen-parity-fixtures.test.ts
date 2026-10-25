@@ -1520,6 +1520,24 @@ function integrity(ns: BusinessData, fw: BusinessData) {
         ns.accounts[1].id,
       );
       commit("same destination re-import", imported, account);
+      // In scope, but the fingerprint no longer matches the row.
+      const forged = preview.map((r) => ({
+        ...r,
+        fingerprint: '["northstar","elsewhere"]',
+        ...(r.importSource && {
+          importSource: {
+            ...r.importSource,
+            fingerprint: '["northstar","elsewhere"]',
+          },
+        }),
+      }));
+      record(
+        "integrity",
+        `${kind}/${reference || "fallback"}: forged fingerprint in scope`,
+        "commitImport",
+        { business: ns, rows: forged, accountId: account },
+        (i) => I.commitImport(i.business, i.rows, i.accountId),
+      );
       const draft = {
         ...imported.drafts.at(-1)!,
         categoryId: ns.categories[0].id,

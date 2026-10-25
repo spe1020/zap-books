@@ -111,6 +111,10 @@ pub enum LedgerError {
     UnresolvedRows,
     #[error("Payment account not found.")]
     PaymentAccountNotFound,
+    #[error(
+        "Import rows were previewed for a different business or account. Preview the file again."
+    )]
+    PreviewedElsewhere,
     #[error("Invalid import row.")]
     InvalidImportRow,
     #[error("Invalid import source.")]

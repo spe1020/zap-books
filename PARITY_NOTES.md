@@ -16,8 +16,9 @@ This file has two lists:
   the TypeScript exactly. None of them is reachable from data the TypeScript
   itself writes. Each is pinned by a test in
   `crates/ledger-core/tests/divergences.rs` or by the type system.
-- **W: TypeScript behavior that may be wrong.** Ported exactly as written,
-  pinned by a parity fixture, and left for Seth to decide on.
+- **W: TypeScript behavior that looked wrong.** Ported exactly as written and
+  pinned by a parity fixture, then decided by Seth: resolved, kept on purpose,
+  or still open.
 
 Fixtures are cited as `area/name`: the file `fixtures/parity/<area>.json` and
 the fixture's `name` (`*` matches any text).
@@ -135,9 +136,28 @@ final sigma, but the Unicode versions can differ, so a code point added in a
 newer Unicode release could map differently. JavaScript whitespace (`trim`,
 `\s`) and `\d` are reproduced exactly in `src/js.rs`.
 
-## W: TypeScript behavior that may be wrong (kept, pinned)
+## W: TypeScript behavior that looked wrong
 
-### W1. `approve` looks up the category without the business
+Each item was ported exactly and pinned by a parity fixture, then decided by
+Seth. Fixes change the TypeScript first, regenerate the fixtures, then make
+the Rust follow, so both languages still agree on every fixture.
+
+### Resolved
+
+- **W3.** `ImportRow` carries the `businessId` and `accountId` it was
+  previewed for, and `commitImport` rejects the whole import ("Import rows
+  were previewed for a different business or account. Preview the file
+  again.") if any row names another. Fix 1 of `fix/domain-scoping-and-import`;
+  the fingerprint recheck from `74c382e` stays as a second check.
+
+`74c382e` also removed the `correctionOf` exemptions from the posted payment
+and import-source uniqueness checks. A real correction first reverses its
+original and marks it corrected, then posts the replacement; merely naming an
+existing expense as a correction cannot authorize a second posting.
+
+### Open
+
+#### W1. `approve` looks up the category without the business
 
 `src/domain/ledger.ts:308` finds the posting category by id alone, though
 `validation` (`:76-78`) requires one in the expense's business. If another
@@ -147,7 +167,7 @@ account or currency."
 
 Fixture: `approve/category found by id in another business first`.
 
-### W2. Import evidence can be added later, but never changed or removed
+#### W2. Import evidence can be added later, but never changed or removed
 
 `src/domain/ledger.ts:223-227` blocks changes only when the stored draft
 already has an `importSource`. A draft created without one can gain one
@@ -158,23 +178,7 @@ guaranteed to have come from an import.
 Fixtures: `drafts/saveDraft: import source added to existing draft`,
 `history/saveDraft: import source removed`.
 
-### W3. Resolved: import previews bind business and destination account
-
-Both implementations now recompute the canonical fingerprint at commit time
-using the actual business, destination account, import kind/provider, and row
-identity. A mismatched preview is rejected before duplicate lookup. Source
-ownership is also checked on repeated rows. Reference-based and fallback
-fingerprints keep their existing format, so valid stored imports still dedupe.
-
-Fixtures: `import/commitImport: payment rows previewed for another business`
-(now an error) and `integrity/*`.
-
-The same audit removed `correctionOf` exemptions from posted payment/source
-uniqueness checks in both languages. A real correction first reverses its
-original and marks it corrected, then posts the replacement. Merely naming an
-existing expense as a correction cannot authorize a second posting.
-
-### W4. `totals` and `categoryTotals` do not filter by business
+#### W4. `totals` and `categoryTotals` do not filter by business
 
 `src/domain/ledger.ts:406-443` sums every journal in `b.journals`, while
 `exportRecords` filters by `b.profile.id`. With well-formed data each business
@@ -183,7 +187,7 @@ holds only its own journals, so this matters only if data is ever mixed.
 Fixtures: `totals/totals: mixed businesses`,
 `totals/categoryTotals: mixed businesses`.
 
-### W5. `duplicates` matches drafts from other businesses
+#### W5. `duplicates` matches drafts from other businesses
 
 `src/domain/ledger.ts:50-62` does not compare `businessId`, so a foreign draft
 with the same vendor, date, amount, and currency asks for a duplicate reason.
@@ -191,21 +195,21 @@ Same caveat as W4.
 
 Fixture: `validation/duplicates: drafts from another business`.
 
-### W6. `parseCSV` trims whitespace inside quoted cells
+#### W6. `parseCSV` trims whitespace inside quoted cells
 
 `src/domain/import.ts:77` and `:92` trim every cell after unquoting, so
 `" y "` becomes `y`. RFC 4180 keeps whitespace inside quotes.
 
 Fixture: `csv/parseCSV: cells trimmed, quoted whitespace too`.
 
-### W7. `parseCSV` rejects whitespace before an opening quote
+#### W7. `parseCSV` rejects whitespace before an opening quote
 
 `src/domain/import.ts:74` throws "Malformed CSV quote." for `a, "b"` because
 the cell already holds a space. Many exporters write a space after the comma.
 
 Fixture: `csv/parseCSV: space before quote`.
 
-### W8. "Today" is the UTC date
+#### W8. "Today" is the UTC date
 
 `src/domain/ledger.ts:15` takes `today()` from `toISOString()`, so
 `blankDraft` dates an expense created in the evening in the Americas
@@ -213,7 +217,7 @@ tomorrow. Rust's `Env::now` has the same ISO-8601 UTC contract, so it matches.
 
 Fixtures: `drafts/blankDraft: *`.
 
-### W9. Lenient amount and date text
+#### W9. Lenient amount and date text
 
 `parseMoney` (`src/domain/ledger.ts:24`) accepts leading zeros (`00012.30`)
 and `-0`. `validDate` (`:36-42`) accepts year `0000`.
@@ -221,7 +225,7 @@ and `-0`. `validDate` (`:36-42`) accepts year `0000`.
 Fixtures: `money/parseMoney "00012.30"`, `money/parseMoney "-0"`,
 `date/validDate "0000-01-01"`, `date/validDate "0000-02-29"`.
 
-### W10. Empty strings count as absent
+#### W10. Empty strings count as absent
 
 `commitImport` treats `error: ""` as no error (`src/domain/import.ts:334`), and
 `missingDetails` treats `paymentId: ""` as no payment (`src/domain/ledger.ts:99`).
@@ -231,7 +235,7 @@ there.
 Fixtures: `import/commitImport: empty error string is not an error`,
 `validation/*: empty payment id is ignored`.
 
-### W11. One overflowing import row fails every later row
+#### W11. One overflowing import row fails every later row
 
 `src/domain/import.ts:289-293` keeps adding to `combinedAmount` after it
 leaves the safe range, so every later valid row also reports "Combined import

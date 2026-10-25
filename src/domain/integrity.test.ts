@@ -80,26 +80,24 @@ describe("ledger trust boundaries", () => {
         const rows = preview(b, from.id, kind, reference);
         const before = structuredClone(b);
         expect(() => commitImport(b, rows, to.id)).toThrow(
-          "Import preview does not match",
+          "Import rows were previewed for a different business or account",
         );
         expect(() => commitImport(other, rows, other.accounts[0].id)).toThrow(
-          kind === "payment"
-            ? "Import preview does not match"
-            : "Invalid import source",
+          "Import rows were previewed for a different business or account",
         );
         expect(b).toEqual(before);
 
         const once = commitImport(b, rows, from.id);
         // Scope must be checked even if this fingerprint is already stored.
         expect(() => commitImport(once, rows, to.id)).toThrow(
-          "Import preview does not match",
+          "Import rows were previewed for a different business or account",
         );
         expect(commitImport(once, rows, from.id)).toEqual(once);
 
         const destination = preview(b, to.id, kind, reference);
         // A later invalid row must not partially import earlier valid rows.
         expect(() => commitImport(b, [...destination, ...rows], to.id)).toThrow(
-          "Import preview does not match",
+          "Import rows were previewed for a different business or account",
         );
         expect(b).toEqual(before);
         const imported = commitImport(b, destination, to.id);
@@ -110,6 +108,21 @@ describe("ledger trust boundaries", () => {
       },
     );
   }
+
+  test.each(kinds)(
+    "a %s row with a forged fingerprint is rejected even in scope",
+    (kind) => {
+      const b = seedWorkspace().businesses[0];
+      const rows = preview(b, b.accounts[0].id, kind, "");
+      const forged = structuredClone(rows);
+      forged[0].fingerprint = '["northstar","elsewhere"]';
+      if (forged[0].importSource)
+        forged[0].importSource.fingerprint = forged[0].fingerprint;
+      expect(() => commitImport(b, forged, b.accounts[0].id)).toThrow(
+        "Import preview does not match",
+      );
+    },
+  );
 
   test("repeated history rows still validate source ownership", () => {
     const b = seedWorkspace().businesses[0];
