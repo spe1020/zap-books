@@ -244,7 +244,7 @@
   "input": {
    "date": "0000-01-01"
   },
-  "output": true
+  "output": false
  },
  {
   "name": "validDate \"0000-02-29\"",
@@ -256,6 +256,32 @@
   },
   "input": {
    "date": "0000-02-29"
+  },
+  "output": false
+ },
+ {
+  "name": "validDate \"1899-12-31\"",
+  "call": "validDate",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "date": "1899-12-31"
+  },
+  "output": false
+ },
+ {
+  "name": "validDate \"1900-01-01\"",
+  "call": "validDate",
+  "env": {
+   "nextId": 205,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "date": "1900-01-01"
   },
   "output": true
  },

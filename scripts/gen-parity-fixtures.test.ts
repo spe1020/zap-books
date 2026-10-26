@@ -275,6 +275,8 @@ function dates() {
     "",
     "0000-01-01",
     "0000-02-29",
+    "1899-12-31",
+    "1900-01-01",
     "9999-12-31",
     "２０２６-01-01",
   ])
@@ -1660,6 +1662,48 @@ function clock(ns: BusinessData) {
   );
 }
 
+/**
+ * W9: callers keep their own message for a year before 1900. Recorded last so
+ * these calls cannot shift any other fixture's ids.
+ */
+function earlyDates(ns: BusinessData) {
+  record(
+    "validation",
+    "missingDetails: date before 1900",
+    "missingDetails",
+    { business: ns, draft: { ...find(ns, "Figma"), date: "1899-12-31" } },
+    (i) => L.missingDetails(i.business, i.draft),
+  );
+  const rows = I.parseCSV(
+    "date,description,amount,currency,reference\n1899-12-31,Tools,-42.50,USD,OLD-1",
+  );
+  record(
+    "import",
+    "previewImport: date before 1900",
+    "previewImport",
+    {
+      business: ns,
+      rows,
+      map: paymentMap,
+      accountId: ns.accounts[0].id,
+      convention: "negative",
+    },
+    (i) =>
+      I.previewImport(i.business, i.rows, i.map, i.accountId, i.convention),
+  );
+  record(
+    "export",
+    "exportRecords: from before 1900",
+    "exportRecords",
+    {
+      business: ns,
+      format: "expenses",
+      filter: { from: "1899-12-31", to: "", currency: "" },
+    },
+    (i) => X.exportRecords(i.business, i.format, i.filter),
+  );
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -1691,6 +1735,7 @@ test("generate parity fixtures", () => {
     exports(ns, fw, withEur);
     integrity(ns, fw);
     clock(ns);
+    earlyDates(ns);
     write();
   } finally {
     vi.useRealTimers();

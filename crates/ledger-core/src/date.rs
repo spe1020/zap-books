@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::js;
 
 /// `validDate`: `^\d{4}-\d{2}-\d{2}$` that names a real proleptic Gregorian
-/// day.
+/// day in 1900 or later.
 ///
 /// The TypeScript also requires `new Date(date).toISOString().slice(0, 10)`
 /// to give back `date`. For a four-digit year that holds exactly when the
@@ -14,7 +14,7 @@ pub fn valid_date(date: &str) -> bool {
     let Some((year, month, day)) = split_ymd(date) else {
         return false;
     };
-    (1..=12).contains(&month) && day >= 1 && day <= days_in_month(year, month)
+    year >= 1900 && (1..=12).contains(&month) && day >= 1 && day <= days_in_month(year, month)
 }
 
 fn split_ymd(date: &str) -> Option<(u32, u32, u32)> {

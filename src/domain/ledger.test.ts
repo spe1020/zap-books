@@ -15,6 +15,7 @@ import {
   saveDraft,
   today,
   totals,
+  validDate,
   validation,
 } from "./ledger";
 import { commitImport, guessMapping, parseCSV, previewImport } from "./import";
@@ -398,4 +399,18 @@ test("import evidence can only be added by an import", () => {
     status: "posted",
     importSource: source,
   });
+});
+
+test("dates before 1900 are rejected with the caller's existing message", () => {
+  expect(validDate("1900-01-01")).toBe(true);
+  for (const date of ["1899-12-31", "0000-01-01", "0000-02-29"])
+    expect(validDate(date)).toBe(false);
+  const b = fresh();
+  const d = b.drafts.find((x) => x.vendor === "Figma" && x.status === "draft")!;
+  expect(validation(b, { ...d, date: "1899-12-31" })).toContain(
+    "A valid expense date is required.",
+  );
+  // Leading zeros and -0 stay accepted (kept on purpose).
+  expect(parseMoney("00012.30")).toBe(1230);
+  expect(parseMoney("-0")).toBe(-0);
 });

@@ -4767,5 +4767,40 @@
    }
   },
   "error": "Financial total exceeds supported range."
+ },
+ {
+  "name": "missingDetails: date before 1900",
+  "call": "missingDetails",
+  "env": {
+   "nextId": 598,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "draft": {
+    "id": "id-0003",
+    "businessId": "northstar",
+    "vendor": "Figma",
+    "date": "1899-12-31",
+    "description": "Professional plan · monthly subscription",
+    "amountMinor": 9600,
+    "currency": "USD",
+    "categoryId": "northstar-category-0",
+    "accountId": "northstar-card",
+    "purpose": "Professional plan · monthly subscription",
+    "documentIds": [
+     "id-0002"
+    ],
+    "status": "draft",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z"
+   }
+  },
+  "output": [
+   "A valid expense date is required."
+  ]
  }
 ]

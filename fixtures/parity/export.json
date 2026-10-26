@@ -29204,5 +29204,26 @@
    ]
   },
   "output": "﻿\"'=1\",\"'+2\",\"'-3\",\"'@4\",\"' =5\",\"'\t6\",\"'\r7\",\"'\n8\",\"'﻿=9\",\"say \"\"hi\"\"\",\"x,y\",\"\",\"1-2\"\r\n"
+ },
+ {
+  "name": "exportRecords: from before 1900",
+  "call": "exportRecords",
+  "env": {
+   "nextId": 598,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "format": "expenses",
+   "filter": {
+    "from": "1899-12-31",
+    "to": "",
+    "currency": ""
+   }
+  },
+  "error": "Choose valid export dates."
  }
 ]

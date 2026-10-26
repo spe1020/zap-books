@@ -15089,5 +15089,62 @@
    "accountId": "northstar-checking"
   },
   "error": "Import rows were previewed for a different business or account. Preview the file again."
+ },
+ {
+  "name": "previewImport: date before 1900",
+  "call": "previewImport",
+  "env": {
+   "nextId": 598,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "rows": [
+    [
+     "date",
+     "description",
+     "amount",
+     "currency",
+     "reference"
+    ],
+    [
+     "1899-12-31",
+     "Tools",
+     "-42.50",
+     "USD",
+     "OLD-1"
+    ]
+   ],
+   "map": {
+    "date": "date",
+    "description": "description",
+    "amount": "amount",
+    "currency": "currency",
+    "reference": "reference"
+   },
+   "accountId": "northstar-checking",
+   "convention": "negative"
+  },
+  "output": [
+   {
+    "row": 2,
+    "businessId": "northstar",
+    "accountId": "northstar-checking",
+    "date": "1899-12-31",
+    "description": "Tools",
+    "amountMinor": 0,
+    "currency": "USD",
+    "reference": "OLD-1",
+    "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"OLD-1\"]",
+    "error": "Date does not match the selected format or is invalid.",
+    "duplicate": false,
+    "vendor": "Tools",
+    "purpose": "",
+    "warnings": []
+   }
+  ]
  }
 ]

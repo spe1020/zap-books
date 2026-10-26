@@ -38,9 +38,11 @@ export function parseMoney(input: string): number {
 }
 export const amountInput = (n: number) =>
   `${n < 0 ? "-" : ""}${Math.floor(Math.abs(n) / 100)}.${String(Math.abs(n) % 100).padStart(2, "0")}`;
+/** A real `YYYY-MM-DD` calendar day in 1900 or later. */
 export function validDate(date: string) {
   return (
     /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    Number(date.slice(0, 4)) >= 1900 &&
     !Number.isNaN(Date.parse(date)) &&
     new Date(date).toISOString().slice(0, 10) === date
   );

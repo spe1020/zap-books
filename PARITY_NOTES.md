@@ -32,12 +32,12 @@ Where the TypeScript uses a non-null assertion (`!`) or reads a property of
 so these return `LedgerError::Internal(..)` instead. The fixture generator
 refuses to record `TypeError`s, so no fixture covers these paths.
 
-| Site                                         | TypeScript                                             | Rust                                                                                                                   |
-| -------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/ledger.ts:308` (`approve`)       | `b.categories.find((x) => x.id === d.categoryId)!`     | `Internal("approved expense has no category")`. Unreachable: `validation` has already required the category.           |
-| `src/domain/ledger.ts:385` (`correct`)       | `b.journals.find((x) => x.id === original.journalId)!` | `Internal("posted expense has no journal")`. Reached only by corrupt data (a posted expense whose journal is missing). |
-| `src/domain/import.ts:177` (`previewImport`) | `rows[0].indexOf(...)` with `rows = []`                | `Internal("import has no header row")`. `parseCSV` never returns fewer than two rows.                                  |
-| `src/domain/import.ts:413` (`commitImport`)  | `draft.paymentId!`                                     | No error path: the payment id is created in the same branch, so the type system guarantees it.                         |
+| Site                                         | TypeScript                                                                          | Rust                                                                                                                   |
+| -------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/ledger.ts:340` (`approve`)       | `b.categories.find((x) => x.id === d.categoryId && x.businessId === b.profile.id)!` | `Internal("approved expense has no category")`. Unreachable: `validation` has already required the category.           |
+| `src/domain/ledger.ts:419` (`correct`)       | `b.journals.find((x) => x.id === original.journalId)!`                              | `Internal("posted expense has no journal")`. Reached only by corrupt data (a posted expense whose journal is missing). |
+| `src/domain/import.ts:211` (`previewImport`) | `rows[0].indexOf(...)` with `rows = []`                                             | `Internal("import has no header row")`. `parseCSV` never returns fewer than two rows.                                  |
+| `src/domain/import.ts:456` (`commitImport`)  | `draft.paymentId!`                                                                  | No error path: the payment id is created in the same branch, so the type system guarantees it.                         |
 
 Tests: `d1_correct_without_a_journal_is_an_internal_error`,
 `d1_preview_without_a_header_is_an_internal_error`.
@@ -50,16 +50,16 @@ amount outside the safe range, or an unsupported currency fails to
 deserialize. The TypeScript would instead accept it and later report a
 message. The affected checks are always true in Rust:
 
-- `src/domain/ledger.ts:72`: "Amount must be greater than zero in whole minor
+- `src/domain/ledger.ts:80`: "Amount must be greater than zero in whole minor
   units." still fires for `<= 0`, but never for non-integers.
-- `src/domain/ledger.ts:74`: "Choose a supported currency." is unreachable.
-- `src/domain/ledger.ts:125` and `:143`: the currency and safe-integer parts
+- `src/domain/ledger.ts:82`: "Choose a supported currency." is unreachable.
+- `src/domain/ledger.ts:133` and `:151`: the currency and safe-integer parts
   of "Invalid journal context." / "Invalid journal amounts." are unreachable.
   The `>= 0` part is still checked.
-- `src/domain/import.ts:362`: the `Number.isSafeInteger` part of "Invalid
+- `src/domain/import.ts:414`: the `Number.isSafeInteger` part of "Invalid
   import row." is unreachable.
-- `src/domain/ledger.ts:31` and `:45` (`parseMoney`, `sum`) and
-  `src/domain/import.ts:291` (combined import amount) are ported as explicit
+- `src/domain/ledger.ts:36` and `:52` (`parseMoney`, `sum`) and
+  `src/domain/import.ts:311` (combined import amount) are ported as explicit
   range checks against `MAX_MINOR`, with the same messages.
 
 Test: `d2_unrepresentable_values_are_rejected_at_deserialization`.
@@ -114,7 +114,7 @@ Covered by every `export` fixture, which sorts generated and seeded ids.
 
 ### D6. No negative zero
 
-`parseMoney("-0")` returns `-0` in JavaScript (`src/domain/ledger.ts:32`).
+`parseMoney("-0")` returns `-0` in JavaScript (`src/domain/ledger.ts:37`).
 Rust has no negative zero, so it returns `0`. Both serialize as `0` and format
 as `0.00`, and every comparison in the domain treats them the same.
 
@@ -170,6 +170,10 @@ the Rust follow, so both languages still agree on every fixture.
   attaches evidence, through `writeDraft` with `allowImportSource: true`;
   `correct` checks the replacement against its original's evidence. Fix 5 of
   `fix/domain-scoping-and-import`.
+- **W9 (dates).** `validDate` rejects years before 1900, so callers report
+  their existing messages ("A valid expense date is required.", "Date does
+  not match the selected format or is invalid.", "Choose valid export
+  dates."). Fix 6 of `fix/domain-scoping-and-import`.
 
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
@@ -188,32 +192,34 @@ imported.
 
 Fixture: `csv/parseCSV: cells trimmed, quoted whitespace too`.
 
+#### W9 (amounts). Leading zeros and `-0` in `parseMoney`
+
+`parseMoney` (`src/domain/ledger.ts:27`) accepts leading zeros (`00012.30` is
+`1230`) and `-0`. Both read unambiguously, so they stay accepted. The year
+part of W9 is resolved above.
+
+Fixtures: `money/parseMoney "00012.30"`, `money/parseMoney "-0"`.
+
 ### Open
-
-#### W9. Lenient amount and date text
-
-`parseMoney` (`src/domain/ledger.ts:24`) accepts leading zeros (`00012.30`)
-and `-0`. `validDate` (`:36-42`) accepts year `0000`.
-
-Fixtures: `money/parseMoney "00012.30"`, `money/parseMoney "-0"`,
-`date/validDate "0000-01-01"`, `date/validDate "0000-02-29"`.
 
 #### W10. Empty strings count as absent
 
-`commitImport` treats `error: ""` as no error (`src/domain/import.ts:334`), and
-`missingDetails` treats `paymentId: ""` as no payment (`src/domain/ledger.ts:99`).
-`correct` compares `paymentId` strictly (`:376`), so `""` and absent differ
-there.
+`commitImport` treats `error: ""` as no error (`src/domain/import.ts:356`),
+and `missingDetails` treats `paymentId: ""` as no payment
+(`src/domain/ledger.ts:107`). `correct` compares `paymentId` strictly
+(`:410`), so `""` and absent differ there. Deferred to step 2, where the
+server validates input at its boundary.
 
 Fixtures: `import/commitImport: empty error string is not an error`,
 `validation/*: empty payment id is ignored`.
 
 #### W11. One overflowing import row fails every later row
 
-`src/domain/import.ts:289-293` keeps adding to `combinedAmount` after it
+`src/domain/import.ts:310-312` keeps adding to `combinedAmount` after it
 leaves the safe range, so every later valid row also reports "Combined import
 amount exceeds the supported range." The Rust accumulator (an `i128`) is
-written to give the same result.
+written to give the same result. Kept for now: the file cannot be committed
+either way.
 
 Fixture: `import/previewImport: combined amount exceeds the safe range`.
 
