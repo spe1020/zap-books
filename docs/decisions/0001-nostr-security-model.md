@@ -11,11 +11,11 @@ This record captures the security decisions agreed before stage 2 begins.
 
 ## Three kinds of keys
 
-| Key | Purpose | Held by |
-|---|---|---|
-| Member identity key (nsec) | Signs proposals; logs in to relays | Each person |
-| Business data key | Encrypts amounts, vendors, receipts. Rotates in numbered **epochs** | Members allowed to read the books, and the ledger service |
-| Service key | Signs accepted postings: the signer of record | The ledger service only |
+| Key                        | Purpose                                                             | Held by                                                   |
+| -------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
+| Member identity key (nsec) | Signs proposals; logs in to relays                                  | Each person                                               |
+| Business data key          | Encrypts amounts, vendors, receipts. Rotates in numbered **epochs** | Members allowed to read the books, and the ledger service |
+| Service key                | Signs accepted postings: the signer of record                       | The ledger service only                                   |
 
 A Nostr identity key cannot be rotated: the npub is the identity. Compromise is handled by **revoking** an npub and adding a replacement, never by changing the key.
 
@@ -32,12 +32,12 @@ Known limit: a removed member keeps anything they already received. Rotation pro
 
 ### Compromise playbook
 
-| What's compromised | Response |
-|---|---|
-| Member nsec | Owner revokes the npub and adds the new one. Relays cut off the old key; the service rotates the epoch. Postings signed by the old key after the reported compromise time are flagged for review. Encourage NIP-46 or hardware signers. |
-| Owner nsec | Recovery key plus waiting period lets another owner veto the attacker's changes, then revoke the key. |
-| Service key | Hash-chain breaks expose forged postings. The owner declares a new service key. Keep the service key on a separate, locked-down machine. |
-| A relay | Attacker sees metadata only: no content, no forging. Withholding is detected by sequence gaps and repaired from another relay. |
+| What's compromised | Response                                                                                                                                                                                                                                |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Member nsec        | Owner revokes the npub and adds the new one. Relays cut off the old key; the service rotates the epoch. Postings signed by the old key after the reported compromise time are flagged for review. Encourage NIP-46 or hardware signers. |
+| Owner nsec         | Recovery key plus waiting period lets another owner veto the attacker's changes, then revoke the key.                                                                                                                                   |
+| Service key        | Hash-chain breaks expose forged postings. The owner declares a new service key. Keep the service key on a separate, locked-down machine.                                                                                                |
+| A relay            | Attacker sees metadata only: no content, no forging. Withholding is detected by sequence gaps and repaired from another relay.                                                                                                          |
 
 ## Decision 2: Relays (option B, plus redundancy)
 
@@ -51,7 +51,7 @@ Known limit: a removed member keeps anything they already received. Rotation pro
 **Benefits**
 
 - **Availability:** if one relay is down, clients and the service keep working from the others.
-- **Recoverability:** every acceptance is signed and hash-chained, so any relay holding a full copy is a *verifiable backup*. If the service's database is lost, the books can be rebuilt by replaying the chain from any relay, and the chain proves nothing was altered or dropped. This directly supports stage 3 (backup and recovery).
+- **Recoverability:** every acceptance is signed and hash-chained, so any relay holding a full copy is a _verifiable backup_. If the service's database is lost, the books can be rebuilt by replaying the chain from any relay, and the chain proves nothing was altered or dropped. This directly supports stage 3 (backup and recovery).
 - **Withholding detection:** comparing relays against the hash chain exposes a relay that drops events, and the gap is filled from another.
 - **No single operator:** no one relay operator, including us, can make a business's history disappear.
 
@@ -71,12 +71,12 @@ Known limit: a removed member keeps anything they already received. Rotation pro
 
 Encryption is the real read control: anyone holding the business key can read everything. So each role has two parts, **key access** (reading) and **what the service accepts** (writing).
 
-| Role | Gets business key | Service accepts | v1? |
-|---|---|---|---|
-| Owner | Yes | Everything, including membership, keys, settings | Yes |
-| Bookkeeper | Yes | Drafts, imports, approvals, corrections | Yes |
-| Viewer | Yes | Nothing (read only) | Yes |
-| Submitter | **No** | New drafts and receipts only, encrypted to the service | Designed now, shipped later |
+| Role       | Gets business key | Service accepts                                        | v1?                         |
+| ---------- | ----------------- | ------------------------------------------------------ | --------------------------- |
+| Owner      | Yes               | Everything, including membership, keys, settings       | Yes                         |
+| Bookkeeper | Yes               | Drafts, imports, approvals, corrections                | Yes                         |
+| Viewer     | Yes               | Nothing (read only)                                    | Yes                         |
+| Submitter  | **No**            | New drafts and receipts only, encrypted to the service | Designed now, shipped later |
 
 The submitter is write-only by cryptography: they can send receipts in but can never read the books. A later option: approvals above a set amount require someone other than the drafter (maker-checker).
 

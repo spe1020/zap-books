@@ -6,6 +6,19 @@ import type {
 } from "../domain/types";
 import { seedWorkspace } from "../domain/seed";
 const DB = "business-finance-v1";
+/**
+ * Fills fields added after a workspace was first saved, so older saved
+ * workspaces load unchanged otherwise.
+ */
+export function upgradeWorkspace(state: Workspace): Workspace {
+  return {
+    ...state,
+    businesses: state.businesses.map((b) => ({
+      ...b,
+      extractions: b.extractions ?? [],
+    })),
+  };
+}
 async function database(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const r = indexedDB.open(DB, 1);
@@ -37,7 +50,7 @@ export class LocalRepository implements BusinessRepository {
     if (state) {
       if (state.schemaVersion !== 1)
         throw new Error("Unsupported workspace version.");
-      return state;
+      return upgradeWorkspace(state);
     }
     return this.write(seedWorkspace(), -1);
   }
@@ -112,6 +125,7 @@ export class LocalRepository implements BusinessRepository {
       business.rules,
       business.audits,
       business.events,
+      business.extractions,
     ])
       if (records.some((r) => r.businessId !== businessId))
         throw new Error("Cross-business record rejected.");

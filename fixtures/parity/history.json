@@ -1617,7 +1617,8 @@
       "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -3343,7 +3344,8 @@
       "detail": "Expense draft updated"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -4870,7 +4872,8 @@
        "detail": "Expense draft updated"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0385"
   },
@@ -6469,7 +6472,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -8076,7 +8080,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "originalId": "id-0385",
    "replacement": {
@@ -9890,7 +9895,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -11497,7 +11503,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "originalId": "id-0385",
    "replacement": {
@@ -13322,7 +13329,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "rows": [
     [
@@ -15187,7 +15195,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "rows": [
     {
@@ -17001,7 +17010,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -18792,7 +18802,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "draft": {
     "id": "id-0414",
@@ -20672,7 +20683,8 @@
        "detail": "Expense draft created"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0414"
   },
@@ -22296,7 +22308,8 @@
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -23794,7 +23807,8 @@
        "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0419"
   },
@@ -25984,7 +25998,8 @@
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -28371,7 +28386,8 @@
       "detail": "Expense history imported from csv; source record retained for review. This is not bank payment evidence."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  }
 ]

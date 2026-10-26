@@ -1687,7 +1687,8 @@
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -3262,7 +3263,8 @@
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "rows": [
     {
@@ -4861,7 +4863,8 @@
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -6436,7 +6439,8 @@
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "rows": [
     [
@@ -10340,7 +10344,8 @@
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -11838,7 +11843,8 @@
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "rows": [
     [
@@ -13381,7 +13387,8 @@
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "rows": [
     {
@@ -15054,7 +15061,8 @@
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {

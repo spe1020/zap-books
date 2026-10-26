@@ -464,6 +464,7 @@ pub struct BusinessData {
     pub rules: Vec<ClassificationRule>,
     pub audits: Vec<AuditEvent>,
     pub events: Vec<FinancialEvent>,
+    pub extractions: Vec<ExtractionRecord>,
 }
 
 /// Wire records stay unchecked until their owning business's accounts and
@@ -484,6 +485,9 @@ struct StoredBusinessData {
     rules: Vec<ClassificationRule>,
     audits: Vec<AuditEvent>,
     events: Vec<FinancialEvent>,
+    /// Absent in workspaces saved before receipt extraction existed.
+    #[serde(default)]
+    extractions: Vec<ExtractionRecord>,
 }
 
 impl<'de> Deserialize<'de> for BusinessData {
@@ -502,6 +506,7 @@ impl<'de> Deserialize<'de> for BusinessData {
             rules: raw.rules,
             audits: raw.audits,
             events: raw.events,
+            extractions: raw.extractions,
         };
         for entry in raw.journals {
             let checked = JournalEntry::new(&business, entry).map_err(serde::de::Error::custom)?;
@@ -517,4 +522,91 @@ pub struct Workspace {
     pub schema_version: SchemaVersion,
     pub revision: u64,
     pub businesses: Vec<BusinessData>,
+}
+
+/// `ExtractedField<T>["status"]`
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FieldStatus {
+    Found,
+    Unclear,
+    Absent,
+}
+
+/// `ExtractedField<T>`: one value a receipt reader proposed. `value` is
+/// `null` unless `status` is `found`; `evidence` is untrusted receipt text.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExtractedField<T> {
+    pub status: FieldStatus,
+    pub value: Option<T>,
+    pub evidence: String,
+}
+
+/// `ExtractionFields`
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExtractionFields {
+    pub vendor: ExtractedField<String>,
+    /// `YYYY-MM-DD`
+    pub date: ExtractedField<String>,
+    pub total: ExtractedField<Minor>,
+    pub currency: ExtractedField<Currency>,
+    pub reference: ExtractedField<String>,
+    pub subtotal: ExtractedField<Minor>,
+    pub tax: ExtractedField<Minor>,
+    /// A tip or gratuity line. Absent in records made before tips were read.
+    #[serde(default = "absent_amount")]
+    pub tip: ExtractedField<Minor>,
+    /// A category id of the business.
+    pub category: ExtractedField<String>,
+}
+
+fn absent_amount() -> ExtractedField<Minor> {
+    ExtractedField {
+        status: FieldStatus::Absent,
+        value: None,
+        evidence: String::new(),
+    }
+}
+
+/// `ExtractionFieldName`
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ExtractionFieldName {
+    Vendor,
+    Date,
+    Total,
+    Currency,
+    Reference,
+    Subtotal,
+    Tax,
+    Tip,
+    Category,
+}
+
+/// `ExtractionOutcome`
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ExtractionOutcome {
+    Accepted,
+    Edited,
+    Ignored,
+    Unclear,
+}
+
+/// `ExtractionRecord`: what a receipt reader proposed for a draft and what
+/// the user did with it. Stored only; no ledger rule reads it.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExtractionRecord {
+    pub id: String,
+    pub business_id: String,
+    pub document_id: String,
+    pub draft_id: String,
+    pub model: String,
+    pub prompt_version: String,
+    pub created_at: String,
+    pub fields: ExtractionFields,
+    pub accepted: Vec<ExtractionFieldName>,
+    /// Set when the draft is approved; `null` before.
+    pub outcomes: Option<BTreeMap<ExtractionFieldName, ExtractionOutcome>>,
 }

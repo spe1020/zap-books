@@ -10,10 +10,14 @@ import {
   AlertCircle,
   Link2,
   RotateCcw,
+  ScanText,
 } from "lucide-react";
 import type {
   BusinessData,
   ExpenseDraft,
+  ExtractionFieldName,
+  ExtractionResult,
+  ExtractorHealth,
   SourceDocument,
 } from "../domain/types";
 import { currencies } from "../domain/types";
@@ -33,7 +37,17 @@ import {
 } from "../domain/ledger";
 import { attachment } from "../adapters/attachments";
 import { demoAI } from "../adapters/ai";
+import { extractor } from "../adapters/extractor";
+import {
+  acceptAllFound,
+  applySuggestion,
+  finalizeExtractions,
+  recordExtraction,
+  type ApplicableField,
+  type FormValues,
+} from "../domain/extraction";
 import { Modal, Status } from "./common";
+import { Suggestions } from "./Suggestions";
 export type Mutation = (
   fn: (b: BusinessData) => BusinessData,
   message: string,
@@ -113,7 +127,7 @@ export function DocumentPreview({ document }: { document?: SourceDocument }) {
       <p className="document-caption">
         {document.demo
           ? "Fictional receipt · demo evidence"
-          : "Uploaded evidence · no OCR or document analysis"}
+          : "Uploaded evidence · read only if you choose Read receipt"}
       </p>
     </>
   );
@@ -144,6 +158,16 @@ export function Review({
   const [reason, setReason] = useState("");
   const [saveRule, setSaveRule] = useState(false);
   const [loadingFile, setLoadingFile] = useState(false);
+  const [health, setHealth] = useState<ExtractorHealth | null>(null);
+  const [reading, setReading] = useState(false);
+  const [readError, setReadError] = useState("");
+  const [extraction, setExtraction] = useState<{
+    documentId: string;
+    result: ExtractionResult;
+  } | null>(null);
+  // Fields the user changed since clicking Read receipt.
+  const [edited, setEdited] = useState<Set<ApplicableField>>(new Set());
+  const [accepted, setAccepted] = useState<Set<ExtractionFieldName>>(new Set());
   const readOnly = initial.status !== "draft" && !correcting;
   const working = { ...b, documents: [...b.documents, ...docs] };
   const suggestion = demoAI.propose(working, draft);
@@ -151,11 +175,73 @@ export function Review({
   const duplicate = duplicates(working, draft);
   const payment = b.payments.find((p) => p.id === draft.paymentId);
   const document = working.documents.find((d) => d.id === activeDoc);
+  useEffect(() => {
+    if (readOnly) return;
+    let live = true;
+    void extractor.health().then((h) => live && setHealth(h));
+    return () => {
+      live = false;
+    };
+  }, [readOnly]);
+  const formField: Partial<Record<keyof ExpenseDraft, ApplicableField>> = {
+    vendor: "vendor",
+    date: "date",
+    amountMinor: "total",
+    currency: "currency",
+    categoryId: "category",
+  };
   function update<K extends keyof ExpenseDraft>(
     key: K,
     value: ExpenseDraft[K],
   ) {
+    const field = formField[key];
+    if (field) setEdited((e) => new Set(e).add(field));
     setDraft((d) => ({ ...d, [key]: value }));
+  }
+  const values: FormValues = {
+    vendor: draft.vendor,
+    date: draft.date,
+    amount,
+    currency: draft.currency,
+    categoryId: draft.categoryId,
+  };
+  function applyValues(next: FormValues, fields: ApplicableField[]) {
+    setAmount(next.amount);
+    setDraft((d) => {
+      let amountMinor = d.amountMinor;
+      try {
+        amountMinor = next.amount ? parseMoney(next.amount) : 0;
+      } catch {
+        amountMinor = 0;
+      }
+      return {
+        ...d,
+        vendor: next.vendor,
+        date: next.date,
+        currency: next.currency as ExpenseDraft["currency"],
+        categoryId: next.categoryId,
+        amountMinor,
+      };
+    });
+    setAccepted((a) => new Set([...a, ...fields]));
+  }
+  async function readReceipt() {
+    if (!document) return;
+    setReading(true);
+    setReadError("");
+    setEdited(new Set());
+    try {
+      const result = await extractor.extract(
+        document,
+        b.categories.map(({ id, name }) => ({ id, name })),
+      );
+      setExtraction({ documentId: document.id, result });
+      setAccepted(new Set());
+    } catch (e) {
+      setReadError((e as Error).message);
+    } finally {
+      setReading(false);
+    }
   }
   async function upload(file?: File) {
     if (!file) return;
@@ -229,9 +315,24 @@ export function Review({
             `Explicitly saved classification rule for ${rule.vendorIncludes}`,
           );
         }
-        if (correcting) return correct(updated, initial.id, next, reason);
-        updated = saveDraft(updated, next);
-        return post ? approve(updated, next.id) : updated;
+        const withReading = (state: BusinessData) =>
+          extraction
+            ? recordExtraction(state, {
+                draftId: next.id,
+                documentId: extraction.documentId,
+                result: extraction.result,
+                accepted: [...accepted],
+              })
+            : state;
+        if (correcting)
+          return finalizeExtractions(
+            withReading(correct(updated, initial.id, next, reason)),
+            next.id,
+          );
+        updated = withReading(saveDraft(updated, next));
+        return post
+          ? finalizeExtractions(approve(updated, next.id), next.id)
+          : updated;
       },
       correcting
         ? "Correction posted. Original history preserved."
@@ -270,6 +371,34 @@ export function Review({
           <div className="document-stage">
             <DocumentPreview document={document} />
           </div>
+          {!readOnly && document && (
+            <div className="read-receipt">
+              <button
+                type="button"
+                className="button secondary"
+                disabled={!health?.ready || reading}
+                onClick={() => void readReceipt()}
+                aria-describedby="read-receipt-note"
+              >
+                <ScanText size={16} />
+                {reading ? "Reading receipt…" : "Read receipt"}
+              </button>
+              <p id="read-receipt-note" className="small muted" role="status">
+                {reading
+                  ? "Reading on this computer. You can keep editing."
+                  : health === null
+                    ? "Checking for receipt reading on this computer…"
+                    : health.ready
+                      ? `Reads the receipt with ${health.model} on this computer. Nothing is sent anywhere else.`
+                      : health.reason}
+              </p>
+              {readError && (
+                <p className="alert error" role="alert">
+                  {readError}
+                </p>
+              )}
+            </div>
+          )}
           {draft.documentIds.length > 1 && (
             <div className="doc-tabs">
               {draft.documentIds.map((docId, i) => (
@@ -363,6 +492,32 @@ export function Review({
               {error}
             </div>
           )}
+          {!readOnly && extraction && (
+            <Suggestions
+              result={extraction.result}
+              draft={draft}
+              values={values}
+              payment={payment}
+              categories={b.categories}
+              edited={edited}
+              ruleCategoryId={suggestion.categoryId}
+              onAccept={(field) =>
+                applyValues(
+                  applySuggestion(values, draft, extraction.result, field),
+                  [field],
+                )
+              }
+              onAcceptAll={() => {
+                const { values: next, applied } = acceptAllFound(
+                  values,
+                  draft,
+                  extraction.result,
+                  edited,
+                );
+                applyValues(next, applied);
+              }}
+            />
+          )}
           {!readOnly && (
             <div className="ai-proposal">
               <div className="flex-between">
@@ -385,13 +540,14 @@ export function Review({
               {suggestion.categoryId && (
                 <button
                   className="text-button"
-                  onClick={() =>
+                  onClick={() => {
+                    setEdited((e) => new Set(e).add("category"));
                     setDraft((d) => ({
                       ...d,
                       categoryId: suggestion.categoryId!,
                       purpose: suggestion.purpose || d.purpose,
-                    }))
-                  }
+                    }));
+                  }}
                 >
                   <Check size={14} />
                   Apply suggestion

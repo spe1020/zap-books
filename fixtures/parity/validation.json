@@ -1617,7 +1617,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "draft": {
     "id": "id-0031",

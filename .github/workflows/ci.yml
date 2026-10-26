@@ -24,6 +24,11 @@ jobs:
 
       - run: npm ci
 
+      # The extractor's PDF tests use Poppler (pdftotext, pdftoppm). No
+      # model runs in CI; the tests use a fake Ollama server.
+      - name: Install Poppler
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
       - name: cargo fmt --check
         run: cargo fmt --check
 

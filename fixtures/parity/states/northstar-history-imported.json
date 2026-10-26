@@ -1484,5 +1484,6 @@
     "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
    }
   }
- ]
+ ],
+ "extractions": []
 }

@@ -115,6 +115,7 @@ function business(
     rules: [],
     audits: [],
     events: [],
+    extractions: [],
   };
   categories.forEach((name, i) => {
     const accountId = `${businessId}-expense-${i}`,
