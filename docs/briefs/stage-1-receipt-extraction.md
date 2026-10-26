@@ -159,12 +159,12 @@ Every number should be traceable, so record what the model proposed and what the
 
 ### Starting targets (Seth can adjust)
 
-| Field | Accuracy | Confident-wrong |
-|---|---|---|
-| Total | ≥ 95% on clear receipts | ≤ 1% |
-| Date | ≥ 95% | ≤ 1% |
-| Vendor | ≥ 90% | ≤ 3% |
-| Currency | ≥ 98% | ≤ 1% |
+| Field    | Accuracy                | Confident-wrong |
+| -------- | ----------------------- | --------------- |
+| Total    | ≥ 95% on clear receipts | ≤ 1%            |
+| Date     | ≥ 95%                   | ≤ 1%            |
+| Vendor   | ≥ 90%                   | ≤ 3%            |
+| Currency | ≥ 98%                   | ≤ 1%            |
 
 And under 20 seconds median per receipt on the Mac Studio. If no model meets the targets, report what came closest and stop. Don't lower the targets yourself.
 
