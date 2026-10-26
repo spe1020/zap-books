@@ -1,6 +1,6 @@
 # Business Finance
 
-A standalone, frontend-first expense workspace for small businesses. Built with React, TypeScript, and Vite. The temporary product name is centralized in `src/config.ts`.
+A standalone, frontend-first expense workspace for small businesses. Built with Rust, TypeScript, and Vite. The temporary product name is centralized in `src/config.ts`.
 
 ## Run on your computer
 
