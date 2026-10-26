@@ -298,11 +298,7 @@ pub(crate) fn write_draft(
         .or(prior)
         .and_then(|d| d.payment_id.as_ref());
     if !options.allow_import_source && payment != draft.payment_id.as_ref() {
-        return Err(if payment.is_some_and(|p| !p.is_empty()) {
-            LedgerError::PaymentLinkLocked
-        } else {
-            LedgerError::PaymentNotFromImport
-        });
+        return Err(LedgerError::PaymentNotFromImport);
     }
     if draft.business_id != b.profile.id
         || draft.status() != ExpenseStatus::Draft
@@ -413,6 +409,14 @@ fn approve_in(b: &mut BusinessData, expense_id: &str, env: &mut impl Env) -> Res
             .any(|x| x.payment_id.as_deref() == Some(payment_id))
         {
             return Err(LedgerError::PaymentAlreadyLinked);
+        }
+        let owner = b
+            .payments
+            .iter()
+            .find(|p| p.id == payment_id && p.business_id == b.profile.id)
+            .map(|p| p.draft_id.as_str());
+        if owner != Some(d.id.as_str()) {
+            return Err(LedgerError::PaymentOfOtherExpense);
         }
     }
     // TS: `b.categories.find((x) => x.id === d.categoryId && x.businessId === b.profile.id)!`
@@ -554,6 +558,17 @@ pub fn correct(
         evidence_of: Some(&original),
     };
     write_draft(&mut b, replacement, options, env)?;
+    // The replacement takes over the original's payment.
+    if let Some(payment_id) = truthy(&original.payment_id) {
+        let business_id = &b.profile.id;
+        if let Some(p) = b
+            .payments
+            .iter_mut()
+            .find(|p| p.id == payment_id && p.business_id == *business_id)
+        {
+            p.draft_id = replacement_id.clone();
+        }
+    }
     approve_in(&mut b, &replacement_id, env)?;
     Ok(b)
 }

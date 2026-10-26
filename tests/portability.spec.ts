@@ -76,6 +76,8 @@ test("mapped expense history becomes a reviewable draft and re-import skips the 
   await page
     .getByRole("button", { name: "Import 1 draft", exact: true })
     .click();
+  // Reloading before the import commits aborts its IndexedDB transaction.
+  await expect(page.getByText("1 expense drafts imported.")).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: /Expense inbox/ }).click();
   await page.getByRole("button", { name: "Review Maple Supply" }).click();

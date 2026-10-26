@@ -415,7 +415,7 @@ test("dates before 1900 are rejected with the caller's existing message", () => 
   expect(parseMoney("-0")).toBe(-0);
 });
 
-test("payment links can only be added by an import and never changed or removed", () => {
+test("W12: payment links can only be created by an import and belong to one expense", () => {
   const b = fresh();
   const rows = parseCSV(
     "date,description,amount,currency,reference\n2026-10-20,Tools,-42.50,USD,P-1",
@@ -448,20 +448,20 @@ test("payment links can only be added by an import and never changed or removed"
     paymentId,
   };
   expect(() => saveDraft(imported, claim)).toThrow(
-    "A payment can only be linked by an import.",
+    "Payment links can only be created by an import.",
   );
   const figma = imported.drafts.find(
     (d) => d.vendor === "Figma" && d.status === "draft",
   )!;
   expect(() => saveDraft(imported, { ...figma, paymentId })).toThrow(
-    "A payment can only be linked by an import.",
+    "Payment links can only be created by an import.",
   );
   // The imported draft cannot drop or swap its payment.
   expect(() =>
     saveDraft(imported, { ...linked, paymentId: undefined }),
-  ).toThrow("A linked payment cannot be changed or removed.");
+  ).toThrow("Payment links can only be created by an import.");
   expect(() => saveDraft(imported, { ...linked, paymentId: "other" })).toThrow(
-    "A linked payment cannot be changed or removed.",
+    "Payment links can only be created by an import.",
   );
   // Editing it otherwise, posting it, and correcting it still work.
   const ready = {
@@ -482,4 +482,30 @@ test("payment links can only be added by an import and never changed or removed"
     status: "posted",
     paymentId,
   });
+
+  // The correction hands the payment to the replacement.
+  expect(corrected.payments.find((p) => p.id === paymentId)!.draftId).toBe(
+    replacement.id,
+  );
+  // A second correction of the replacement still works.
+  const again = {
+    ...corrected.drafts.find((d) => d.id === replacement.id)!,
+    id: id(),
+    status: "draft" as const,
+    description: "Tools, corrected again",
+  };
+  const twice = correct(corrected, replacement.id, again, "Clarify again");
+  expect(twice.payments.find((p) => p.id === paymentId)!.draftId).toBe(
+    again.id,
+  );
+  // approve refuses a draft whose payment records a different expense.
+  const handedOff = {
+    ...imported,
+    payments: imported.payments.map((p) =>
+      p.id === paymentId ? { ...p, draftId: figma.id } : p,
+    ),
+  };
+  expect(() => approve(saveDraft(handedOff, ready), linked.id)).toThrow(
+    "This payment belongs to a different expense.",
+  );
 });
