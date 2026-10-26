@@ -145,35 +145,33 @@ the Rust follow, so both languages still agree on every fixture.
 
 ### Resolved
 
-- **W3.** `ImportRow` carries the `businessId` and `accountId` it was
-  previewed for, and `commitImport` rejects the whole import ("Import rows
-  were previewed for a different business or account. Preview the file
-  again.") if any row names another. Fix 1 of `fix/domain-scoping-and-import`;
-  the fingerprint recheck from `74c382e` stays as a second check.
 - **W1, W4, W5.** `approve` finds the posting category by id and business;
   `totals` and `categoryTotals` skip other businesses' journals, and
   `categoryTotals` names categories from this business only; `duplicates`
-  only matches drafts in the same business. Fix 2 of
-  `fix/domain-scoping-and-import`.
-- **W7.** `parseCSV` drops whitespace (as `.trim()` defines it) between a
-  comma and an opening quote, so `a, "b"` parses to `["a", "b"]`; any other
-  text before a quote is still "Malformed CSV quote." Fix 3 of
-  `fix/domain-scoping-and-import`.
-- **W8.** `today()` is the user's local date (from `getFullYear`,
-  `getMonth`, `getDate`), so `blankDraft` and `currentPeriod` follow it, while
-  `now()` timestamps stay UTC. Rust takes the date from the new required
-  `Env::today`; fixtures are recorded with `TZ=America/New_York` and store
-  `today` beside `now`. Fix 4 of `fix/domain-scoping-and-import`.
+  only matches drafts in the same business. Commit `82918a6`.
 - **W2.** `saveDraft` no longer lets a draft gain import evidence ("Imported
   source evidence can only be added by an import."); changing or removing it
   is still "Imported source evidence cannot be changed." Only `commitImport`
   attaches evidence, through `writeDraft` with `allowImportSource: true`;
-  `correct` checks the replacement against its original's evidence. Fix 5 of
-  `fix/domain-scoping-and-import`.
+  `correct` checks the replacement against its original's evidence. Commit
+  `b63c3b7`.
+- **W3.** `ImportRow` carries the `businessId` and `accountId` it was
+  previewed for, and `commitImport` rejects the whole import ("Import rows
+  were previewed for a different business or account. Preview the file
+  again.") if any row names another. Commit `ee084c0`; the fingerprint
+  recheck from `74c382e` stays as a second check.
+- **W7.** `parseCSV` drops whitespace (as `.trim()` defines it) between a
+  comma and an opening quote, so `a, "b"` parses to `["a", "b"]`; any other
+  text before a quote is still "Malformed CSV quote." Commit `e17587b`.
+- **W8.** `today()` is the user's local date (from `getFullYear`,
+  `getMonth`, `getDate`), so `blankDraft` and `currentPeriod` follow it, while
+  `now()` timestamps stay UTC. Rust takes the date from the new required
+  `Env::today`; fixtures are recorded with `TZ=America/New_York` and store
+  `today` beside `now`. Commit `1f4c5c0`.
 - **W9 (dates).** `validDate` rejects years before 1900, so callers report
   their existing messages ("A valid expense date is required.", "Date does
   not match the selected format or is invalid.", "Choose valid export
-  dates."). Fix 6 of `fix/domain-scoping-and-import`.
+  dates."). Commit `7cd3764`.
 
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
