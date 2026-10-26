@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { seedWorkspace } from "./seed";
 import {
   amountInput,
@@ -10,12 +10,15 @@ import {
   currentPeriod,
   duplicates,
   id,
+  now,
   parseMoney,
   saveDraft,
+  today,
   totals,
+  validDate,
   validation,
 } from "./ledger";
-import { commitImport, parseCSV, previewImport } from "./import";
+import { commitImport, guessMapping, parseCSV, previewImport } from "./import";
 import { demoAI } from "../adapters/ai";
 import { MockTransport } from "../adapters/transport";
 const fresh = () => seedWorkspace().businesses[0];
@@ -128,6 +131,35 @@ describe("financial invariants", () => {
       "Payment account currency must match the expense.",
     );
   });
+  test("category lookup, totals and duplicates ignore other businesses' records", () => {
+    const [a, b] = seedWorkspace().businesses;
+    const figma = a.drafts.find(
+      (d) => d.vendor === "Figma" && d.status === "draft",
+    )!;
+    // A foreign category sharing the id must not be used for posting.
+    const shadowed = {
+      ...a,
+      categories: [
+        { ...b.categories[0], id: figma.categoryId },
+        ...a.categories,
+      ],
+    };
+    const posted = approve(shadowed, figma.id);
+    expect(posted.journals.at(-1)!.lines[0].accountId).toBe(
+      a.categories.find((c) => c.id === figma.categoryId)!.accountId,
+    );
+    // Foreign journals and drafts are ignored.
+    const mixed = {
+      ...a,
+      journals: [...a.journals, ...b.journals],
+      drafts: [...a.drafts, { ...figma, id: id(), businessId: b.profile.id }],
+    };
+    expect(totals(mixed, currentPeriod())).toEqual(totals(a, currentPeriod()));
+    expect(categoryTotals(mixed, currentPeriod(), "USD")).toEqual(
+      categoryTotals(a, currentPeriod(), "USD"),
+    );
+    expect(duplicates(mixed, figma)).toEqual(duplicates(a, figma));
+  });
   test("business separation rejects foreign drafts, accounts, evidence, and journal context", async () => {
     const [a, b] = seedWorkspace().businesses;
     expect(() => saveDraft(b, a.drafts[0])).toThrow();
@@ -179,6 +211,14 @@ describe("CSV payments and evidence", () => {
     );
     expect(rePreview.every((r) => r.duplicate)).toBe(true);
     expect(() => parseCSV('a,b\n"unterminated')).toThrow();
+  });
+  test("whitespace before an opening quote is allowed, other text is not", () => {
+    expect(parseCSV('h1,h2\na, "b"')).toEqual([
+      ["h1", "h2"],
+      ["a", "b"],
+    ]);
+    expect(parseCSV('h1,h2\na,\t\u00a0"b, c"')[1]).toEqual(["a", "b, c"]);
+    expect(() => parseCSV('h1,h2\na,x "b"')).toThrow("Malformed CSV quote.");
   });
   test("malformed dates, income, mismatched currencies and conflicting references are rejected", () => {
     const b = fresh();
@@ -257,4 +297,189 @@ test("conflicting references in one file are rejected without partial import", (
   expect(preview[1].error).toContain("conflicting");
   expect(() => commitImport(b, preview, b.accounts[0].id)).toThrow();
   expect(b.payments).toHaveLength(1);
+});
+
+test("rows previewed for another business cannot be committed", () => {
+  const [northstar, fieldwork] = seedWorkspace().businesses;
+  const rows = parseCSV(
+    "date,description,amount,currency,reference\n2026-10-20,Tools,-42.50,USD,REF-FW",
+  );
+  const preview = previewImport(
+    fieldwork,
+    rows,
+    {
+      date: "date",
+      description: "description",
+      amount: "amount",
+      currency: "currency",
+      reference: "reference",
+    },
+    fieldwork.accounts[0].id,
+    "negative",
+  );
+  expect(preview[0]).toMatchObject({
+    businessId: fieldwork.profile.id,
+    accountId: fieldwork.accounts[0].id,
+  });
+  const before = structuredClone(northstar);
+  expect(() =>
+    commitImport(northstar, preview, northstar.accounts[0].id),
+  ).toThrow(
+    "Import rows were previewed for a different business or account. Preview the file again.",
+  );
+  expect(northstar).toEqual(before);
+});
+
+test("today and the current period use the local date; timestamps stay UTC", () => {
+  const tz = process.env.TZ;
+  process.env.TZ = "America/New_York";
+  vi.useFakeTimers({ toFake: ["Date"] });
+  try {
+    vi.setSystemTime(new Date("2026-10-15T02:00:00.000Z"));
+    expect(today()).toBe("2026-10-14");
+    expect(blankDraft(fresh()).date).toBe("2026-10-14");
+    expect(now()).toBe("2026-10-15T02:00:00.000Z");
+    vi.setSystemTime(new Date("2026-11-01T01:30:00.000Z"));
+    expect(today()).toBe("2026-10-31");
+    expect(currentPeriod()).toBe("2026-10");
+    process.env.TZ = "Pacific/Kiritimati";
+    expect(today()).toBe("2026-11-01");
+  } finally {
+    vi.useRealTimers();
+    if (tz === undefined) delete process.env.TZ;
+    else process.env.TZ = tz;
+  }
+});
+
+test("import evidence can only be added by an import", () => {
+  const b = fresh();
+  const rows = parseCSV(
+    "date,vendor,description,amount,currency,reference\n2026-10-20,Paper & Pine,Workshop materials,42.50,USD,HIST-1",
+  );
+  const preview = previewImport(
+    b,
+    rows,
+    guessMapping(rows[0]),
+    b.accounts[0].id,
+    "positive",
+    { kind: "expense-history" },
+  );
+  const source = preview[0].importSource!;
+  const message = "Imported source evidence can only be added by an import.";
+  // A new draft cannot arrive with evidence through saveDraft.
+  expect(() =>
+    saveDraft(b, { ...blankDraft(b), vendor: "X", importSource: source }),
+  ).toThrow(message);
+  // An existing draft cannot gain evidence.
+  const figma = b.drafts.find(
+    (d) => d.vendor === "Figma" && d.status === "draft",
+  )!;
+  expect(() => saveDraft(b, { ...figma, importSource: source })).toThrow(
+    message,
+  );
+  // The history import still attaches it, and the draft stays editable.
+  const imported = commitImport(b, preview, b.accounts[0].id);
+  const draft = {
+    ...imported.drafts.at(-1)!,
+    categoryId: b.categories[0].id,
+    purpose: "Client workshop",
+  };
+  expect(draft.importSource).toEqual(source);
+  const posted = approve(saveDraft(imported, draft), draft.id);
+  // Correcting an imported expense keeps its evidence on the replacement.
+  const original = posted.drafts.find((d) => d.id === draft.id)!;
+  const replacement = {
+    ...original,
+    id: id(),
+    status: "draft" as const,
+    amountMinor: 4000,
+  };
+  const corrected = correct(posted, original.id, replacement, "Fix total");
+  expect(corrected.drafts.find((d) => d.id === replacement.id)).toMatchObject({
+    status: "posted",
+    importSource: source,
+  });
+});
+
+test("dates before 1900 are rejected with the caller's existing message", () => {
+  expect(validDate("1900-01-01")).toBe(true);
+  for (const date of ["1899-12-31", "0000-01-01", "0000-02-29"])
+    expect(validDate(date)).toBe(false);
+  const b = fresh();
+  const d = b.drafts.find((x) => x.vendor === "Figma" && x.status === "draft")!;
+  expect(validation(b, { ...d, date: "1899-12-31" })).toContain(
+    "A valid expense date is required.",
+  );
+  // Leading zeros and -0 stay accepted (kept on purpose).
+  expect(parseMoney("00012.30")).toBe(1230);
+  expect(parseMoney("-0")).toBe(-0);
+});
+
+test("payment links can only be added by an import and never changed or removed", () => {
+  const b = fresh();
+  const rows = parseCSV(
+    "date,description,amount,currency,reference\n2026-10-20,Tools,-42.50,USD,P-1",
+  );
+  const map = {
+    date: "date",
+    description: "description",
+    amount: "amount",
+    currency: "currency",
+    reference: "reference",
+  };
+  const account = b.accounts[0].id;
+  const imported = commitImport(
+    b,
+    previewImport(b, rows, map, account, "negative"),
+    account,
+  );
+  const linked = imported.drafts.at(-1)!;
+  const paymentId = linked.paymentId!;
+  // A manual draft cannot claim the imported payment.
+  const claim = {
+    ...blankDraft(imported),
+    vendor: "Other",
+    description: "Other",
+    purpose: "Client work",
+    categoryId: b.categories[0].id,
+    amountMinor: 4250,
+    date: "2026-10-20",
+    accountId: account,
+    paymentId,
+  };
+  expect(() => saveDraft(imported, claim)).toThrow(
+    "A payment can only be linked by an import.",
+  );
+  const figma = imported.drafts.find(
+    (d) => d.vendor === "Figma" && d.status === "draft",
+  )!;
+  expect(() => saveDraft(imported, { ...figma, paymentId })).toThrow(
+    "A payment can only be linked by an import.",
+  );
+  // The imported draft cannot drop or swap its payment.
+  expect(() =>
+    saveDraft(imported, { ...linked, paymentId: undefined }),
+  ).toThrow("A linked payment cannot be changed or removed.");
+  expect(() => saveDraft(imported, { ...linked, paymentId: "other" })).toThrow(
+    "A linked payment cannot be changed or removed.",
+  );
+  // Editing it otherwise, posting it, and correcting it still work.
+  const ready = {
+    ...linked,
+    categoryId: b.categories[0].id,
+    purpose: "Client work",
+  };
+  const posted = approve(saveDraft(imported, ready), linked.id);
+  const original = posted.drafts.find((d) => d.id === linked.id)!;
+  const replacement = {
+    ...original,
+    id: id(),
+    status: "draft" as const,
+    description: "Tools, corrected",
+  };
+  const corrected = correct(posted, original.id, replacement, "Clarify");
+  expect(corrected.drafts.find((d) => d.id === replacement.id)).toMatchObject({
+    status: "posted",
+    paymentId,
+  });
 });

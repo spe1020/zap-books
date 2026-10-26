@@ -34,6 +34,12 @@ pub enum LedgerError {
     ForeignImportSource,
     #[error("Imported source evidence cannot be changed.")]
     ImportSourceChanged,
+    #[error("Imported source evidence can only be added by an import.")]
+    ImportSourceNotFromImport,
+    #[error("A payment can only be linked by an import.")]
+    PaymentNotFromImport,
+    #[error("A linked payment cannot be changed or removed.")]
+    PaymentLinkLocked,
     #[error("Only drafts in this business can be edited.")]
     NotEditable,
     #[error("Invalid receipt reference.")]
@@ -111,6 +117,10 @@ pub enum LedgerError {
     UnresolvedRows,
     #[error("Payment account not found.")]
     PaymentAccountNotFound,
+    #[error(
+        "Import rows were previewed for a different business or account. Preview the file again."
+    )]
+    PreviewedElsewhere,
     #[error("Invalid import row.")]
     InvalidImportRow,
     #[error("Invalid import source.")]

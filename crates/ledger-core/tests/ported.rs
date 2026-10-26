@@ -624,10 +624,11 @@ fn repeat_import_stays_safe_after_edits_posting_and_correction_and_original_sour
     assert!(err_text(save_draft(&initial, &tampered, &mut env)).contains("cannot be changed"));
     let mut duplicate = d.replacement(env.new_id());
     duplicate.vendor = "Unrelated vendor".into();
-    let saved = save_draft(&next, &duplicate, &mut env).unwrap();
-    assert!(
-        err_text(approve(&saved, &duplicate.id, &mut env)).contains("already has a posted expense")
-    );
+    assert!(err_text(save_draft(&next, &duplicate, &mut env))
+        .contains("Imported source evidence can only be added by an import."));
+    // The TypeScript test also approves this duplicate through `writeDraft`'s
+    // import path, which is crate-private here; the parity fixture
+    // `history/approve: import source already posted` covers that check.
 }
 
 // "unknown categories stay unresolved, conflicts and unsupported document types block import"
@@ -687,7 +688,7 @@ fn source_evidence_and_approval_remain_business_scoped() {
         &other.accounts[0].id,
         &mut env
     ))
-    .contains("Invalid import source"));
+    .contains("Import rows were previewed for a different business or account"));
     let next = commit_import(&b, &preview, &account, &mut env).unwrap();
     let mut moved = next.drafts.last().unwrap().clone();
     moved.business_id = other.profile.id.clone();

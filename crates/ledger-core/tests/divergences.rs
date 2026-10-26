@@ -79,22 +79,37 @@ fn d3_unbalanced_stored_journals_do_not_deserialize() {
 #[test]
 fn d4_import_source_comparison_ignores_key_order() {
     let (b, mut env) = fresh();
-    let mut d = blank_draft(&b, &mut env);
-    let source = json!({
-        "id": "s", "businessId": b.profile.id, "provider": "csv", "reference": "R",
-        "fingerprint": "f", "date": "2026-10-01", "amountMinor": 1, "currency": "USD",
-        "vendor": "", "category": "", "filename": ""
-    });
-    d.import_source = Some(serde_json::from_value(source).unwrap());
-    let saved = save_draft(&b, &d, &mut env).unwrap();
-    let reordered = json!({
-        "filename": "", "category": "", "vendor": "", "currency": "USD", "amountMinor": 1,
-        "date": "2026-10-01", "fingerprint": "f", "reference": "R", "provider": "csv",
-        "businessId": b.profile.id, "id": "s"
-    });
-    d.import_source = Some(serde_json::from_value(reordered).unwrap());
+    let rows = parse_csv(
+        "date,description,amount,currency,reference\n2026-10-24,Audit Vendor,-42.50,USD,R",
+    )
+    .unwrap();
+    let preview = preview_import(
+        &b,
+        &rows,
+        &guess_mapping(&rows[0]),
+        &b.accounts[0].id,
+        SignConvention::Negative,
+        &ImportOptions {
+            kind: Some(ImportKind::ExpenseHistory),
+            ..Default::default()
+        },
+        &mut env,
+    )
+    .unwrap();
+    let imported = commit_import(&b, &preview, &b.accounts[0].id, &mut env).unwrap();
+    let mut d = imported.drafts.last().unwrap().clone();
+    let source = serde_json::to_value(d.import_source.as_ref().unwrap()).unwrap();
+    // The same evidence with its keys in reverse order.
+    let reordered: serde_json::Map<String, serde_json::Value> = source
+        .as_object()
+        .unwrap()
+        .iter()
+        .rev()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect();
+    d.import_source = Some(serde_json::from_value(reordered.into()).unwrap());
     d.vendor = "Edited".into();
-    assert!(save_draft(&saved, &d, &mut env).is_ok());
+    assert!(save_draft(&imported, &d, &mut env).is_ok());
 }
 
 // D6: `parseMoney("-0")` is `-0` in JavaScript; Rust has no negative zero.

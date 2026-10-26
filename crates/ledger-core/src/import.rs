@@ -9,7 +9,7 @@ use crate::date::{normalize_import_date, valid_date, DateFormat};
 use crate::env::Env;
 use crate::error::{LedgerError, Result};
 use crate::js;
-use crate::ledger::{blank_draft, push_event, save_draft_in, truthy};
+use crate::ledger::{blank_draft, push_event, truthy, write_draft, WriteOptions};
 use crate::money::{parse_money, Currency, Minor, MAX_MINOR};
 use crate::types::{
     AccountKind, BusinessData, EventType, ImportProvider, ImportedExpenseSource,
@@ -111,6 +111,10 @@ impl PreviewSource {
 #[serde(rename_all = "camelCase")]
 pub struct ImportRow {
     pub row: u64,
+    /// The business the row was previewed for.
+    pub business_id: String,
+    /// The payment account the row was previewed for.
+    pub account_id: String,
     pub date: String,
     pub description: String,
     pub amount_minor: Minor,
@@ -198,9 +202,12 @@ pub fn parse_csv(text: &str) -> Result<Vec<Vec<String>>> {
                 cell.push(c);
             }
         } else if c == '"' {
-            if !cell.is_empty() || closed {
+            // Whitespace before an opening quote (`a, "b"`) is dropped; any
+            // other text before it is an error.
+            if js::has_text(&cell) || closed {
                 return Err(LedgerError::MalformedQuote);
             }
+            cell.clear();
             quoted = true;
         } else if c == ',' || c == '\n' || c == '\r' {
             row.push(js::trim(&cell).to_string());
@@ -539,6 +546,8 @@ pub fn preview_import(
         });
         out.push(ImportRow {
             row: i as u64 + 2,
+            business_id: b.profile.id.clone(),
+            account_id: account_id.to_string(),
             date,
             description,
             amount_minor,
@@ -578,6 +587,13 @@ pub fn commit_import(
         })
         .cloned()
         .ok_or(LedgerError::PaymentAccountNotFound)?;
+    // Checked for every row before any is processed, so nothing is imported.
+    if rows
+        .iter()
+        .any(|r| r.business_id != b.profile.id || r.account_id != account_id)
+    {
+        return Err(LedgerError::PreviewedElsewhere);
+    }
     for row in rows {
         let import_source = match &row.import_source {
             Some(s) => {
@@ -681,7 +697,11 @@ pub fn commit_import(
             }
         };
         let draft_id = draft.id.clone();
-        save_draft_in(&mut b, draft, env)?;
+        let options = WriteOptions {
+            allow_import_source: true,
+            evidence_of: None,
+        };
+        write_draft(&mut b, draft, options, env)?;
         push_event(
             &mut b,
             env,

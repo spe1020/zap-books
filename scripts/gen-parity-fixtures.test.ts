@@ -1,8 +1,8 @@
 /**
  * Records the behavior of src/domain as JSON fixtures for the Rust port in
  * crates/ledger-core. Every fixture runs a real TypeScript function with
- * sequential ids and a frozen clock, then stores the call, its input, and its
- * output or error message. crates/ledger-core/tests/parity.rs replays each
+ * sequential ids, a frozen clock and a fixed time zone (America/New_York),
+ * then stores the call, its input, and its output or error message. crates/ledger-core/tests/parity.rs replays each
  * one and requires identical JSON.
  *
  * Run with `npm run parity:fixtures`. CI regenerates the fixtures and fails if
@@ -22,6 +22,7 @@ import * as X from "../src/domain/export";
 import { seedWorkspace } from "../src/domain/seed";
 
 const NOW = "2026-10-15T12:00:00.000Z";
+const TZ = "America/New_York";
 const OUT = new URL("../fixtures/parity/", import.meta.url);
 const MAX = Number.MAX_SAFE_INTEGER;
 let nextId = 1;
@@ -30,7 +31,7 @@ type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 interface Fixture {
   name: string;
   call: string;
-  env: { nextId: number; now: string };
+  env: { nextId: number; now: string; today: string };
   input: Record<string, Json>;
   output?: Json;
   error?: string;
@@ -40,6 +41,36 @@ const areas = new Map<string, Fixture[]>();
 const stateNames = new Map<string, string>();
 const stateFiles = new Map<string, Json>();
 const json = <T>(value: T): T => JSON.parse(JSON.stringify(value));
+
+/**
+ * The environment a call runs in. `today` is the local date in `TZ`, worked
+ * out independently of `L.today()` so the fixtures check it.
+ */
+function env() {
+  const at = new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(at);
+  const part = (type: string) => parts.find((p) => p.type === type)!.value;
+  return {
+    nextId,
+    now: at.toISOString(),
+    today: `${part("year")}-${part("month")}-${part("day")}`,
+  };
+}
+
+/** Runs `fn` with the clock at `instant`, then puts it back at `NOW`. */
+function at<T>(instant: string, fn: () => T): T {
+  vi.setSystemTime(new Date(instant));
+  try {
+    return fn();
+  } finally {
+    vi.setSystemTime(new Date(NOW));
+  }
+}
 
 /** Stores `value` once under `states/` so fixtures can refer to it by name. */
 function state<T>(name: string, value: T): T {
@@ -87,7 +118,7 @@ function record(
   const fixture: Fixture = {
     name,
     call,
-    env: { nextId, now: NOW },
+    env: env(),
     input: stored,
   };
   try {
@@ -127,6 +158,13 @@ const find = (b: BusinessData, vendor: string, status = "draft") => {
   if (!d) throw new Error(`No ${status} draft for ${vendor}`);
   return json(d);
 };
+/**
+ * Saves a draft through the import path (`allowImportSource: true`). Used only
+ * to build inputs that carry import evidence or a payment link on a second
+ * draft, so `approve` fixtures can still reach its own duplicate checks.
+ */
+const viaImport = (b: BusinessData, draft: ExpenseDraft) =>
+  L.writeDraft(b, draft, { allowImportSource: true });
 const ready = (b: BusinessData, extra: Partial<ExpenseDraft>) => ({
   ...L.blankDraft(b),
   vendor: "Harbor Print",
@@ -237,6 +275,8 @@ function dates() {
     "",
     "0000-01-01",
     "0000-02-29",
+    "1899-12-31",
+    "1900-01-01",
     "9999-12-31",
     "２０２６-01-01",
   ])
@@ -327,7 +367,7 @@ function validation(ns: BusinessData, fw: BusinessData) {
       { ...find(ns, "Figma"), categoryId: fw.categories[0].id },
     ],
   ];
-  // Pinned (PARITY_NOTES.md): duplicates are matched across businesses.
+  // W5 (PARITY_NOTES.md): drafts from another business are not duplicates.
   record(
     "validation",
     "duplicates: drafts from another business",
@@ -478,7 +518,14 @@ function drafts(ns: BusinessData, fw: BusinessData) {
       filename: "",
     },
   });
-  // Pinned (PARITY_NOTES.md): evidence may be attached after the fact.
+  const notion = find(ns, "Notion");
+  save("payment link added to existing draft", ns, {
+    ...find(ns, "Figma"),
+    paymentId: notion.paymentId,
+  });
+  save("payment link removed", ns, { ...notion, paymentId: undefined });
+  save("payment link changed", ns, { ...notion, paymentId: "other" });
+  // W2 (PARITY_NOTES.md): evidence can only be attached by an import.
   save("import source added to existing draft", ns, {
     ...find(ns, "Figma"),
     importSource: {
@@ -574,7 +621,14 @@ function approvals(ns: BusinessData, fw: BusinessData) {
     vendor: "Notion Labs",
     documentIds: [],
   };
-  approve("payment already linked", L.saveDraft(posted, second), second.id);
+  record(
+    "approve",
+    "saveDraft: second draft claims a linked payment",
+    "saveDraft",
+    { business: posted, draft: second },
+    (i) => L.saveDraft(i.business, i.draft),
+  );
+  approve("payment already linked", viaImport(posted, second), second.id);
   approve(
     "category found by id in another business first",
     {
@@ -765,7 +819,7 @@ function totals(ns: BusinessData, fw: BusinessData) {
     },
     (i) => L.categoryTotals(i.business, i.period, i.currency),
   );
-  // Pinned (PARITY_NOTES.md): queries do not filter journals by business.
+  // W4 (PARITY_NOTES.md): queries skip journals from another business.
   const mixed = { ...ns, journals: [...ns.journals, ...fw.journals] };
   record(
     "totals",
@@ -814,6 +868,10 @@ function csv() {
   parse("unterminated quote", 'a,b\n"unterminated');
   parse("quote inside unquoted cell", 'a,b\nx"y",z');
   parse("space before quote", 'a,b\n "x",z');
+  parse("space after comma before quote", 'a,b\nx, "y"');
+  parse("JS whitespace before quote", 'a,b\n\t\u00a0\ufeff"x, y",z');
+  parse("text and space before quote", 'a,b\nx,y "z"');
+  parse("whitespace between two quoted values", 'a,b\n"x" "y",z');
   parse("text after closing quote", 'a,b\n"x"y,z');
   parse("header only", "a,b\n");
   parse("empty", "");
@@ -1266,14 +1324,21 @@ function history(ns: BusinessData, fw: BusinessData) {
     ...d,
     id: L.id(),
     vendor: "Unrelated vendor",
-    status: "draft",
+    status: "draft" as const,
   };
+  record(
+    "history",
+    "saveDraft: second draft with posted import source",
+    "saveDraft",
+    { business: corrected, draft: duplicate },
+    (i) => L.saveDraft(i.business, i.draft),
+  );
   record(
     "history",
     "approve: import source already posted",
     "approve",
     {
-      business: L.saveDraft(corrected, duplicate),
+      business: viaImport(corrected, duplicate),
       expenseId: duplicate.id,
     },
     (i) => L.approve(i.business, i.expenseId),
@@ -1520,6 +1585,24 @@ function integrity(ns: BusinessData, fw: BusinessData) {
         ns.accounts[1].id,
       );
       commit("same destination re-import", imported, account);
+      // In scope, but the fingerprint no longer matches the row.
+      const forged = preview.map((r) => ({
+        ...r,
+        fingerprint: '["northstar","elsewhere"]',
+        ...(r.importSource && {
+          importSource: {
+            ...r.importSource,
+            fingerprint: '["northstar","elsewhere"]',
+          },
+        }),
+      }));
+      record(
+        "integrity",
+        `${kind}/${reference || "fallback"}: forged fingerprint in scope`,
+        "commitImport",
+        { business: ns, rows: forged, accountId: account },
+        (i) => I.commitImport(i.business, i.rows, i.accountId),
+      );
       const draft = {
         ...imported.drafts.at(-1)!,
         categoryId: ns.categories[0].id,
@@ -1535,10 +1618,17 @@ function integrity(ns: BusinessData, fw: BusinessData) {
       };
       record(
         "integrity",
+        `${kind}/${reference || "fallback"}: forged correction saved manually`,
+        "saveDraft",
+        { business: posted, draft: replacement },
+        (i) => L.saveDraft(i.business, i.draft),
+      );
+      record(
+        "integrity",
         `${kind}/${reference || "fallback"}: forged correction`,
         "approve",
         {
-          business: L.saveDraft(posted, replacement),
+          business: viaImport(posted, replacement),
           expenseId: replacement.id,
         },
         (i) => L.approve(i.business, i.expenseId),
@@ -1559,6 +1649,75 @@ function integrity(ns: BusinessData, fw: BusinessData) {
   }
 }
 
+/**
+ * W8: the local date differs from the UTC date. Recorded last so the ids
+ * these calls take cannot shift any other fixture.
+ */
+function clock(ns: BusinessData) {
+  const instants = [
+    ["2026-10-15T02:00:00.000Z", "evening before in New York"],
+    ["2026-11-01T01:30:00.000Z", "last evening of October in New York"],
+  ];
+  for (const [instant, label] of instants)
+    at(instant, () => {
+      record(
+        "drafts",
+        `blankDraft: ${label}`,
+        "blankDraft",
+        { business: ns },
+        (i) => L.blankDraft(i.business),
+      );
+      record("drafts", `currentPeriod: ${label}`, "currentPeriod", {}, () =>
+        L.currentPeriod(),
+      );
+    });
+  record("drafts", "currentPeriod: frozen clock", "currentPeriod", {}, () =>
+    L.currentPeriod(),
+  );
+}
+
+/**
+ * W9: callers keep their own message for a year before 1900. Recorded last so
+ * these calls cannot shift any other fixture's ids.
+ */
+function earlyDates(ns: BusinessData) {
+  record(
+    "validation",
+    "missingDetails: date before 1900",
+    "missingDetails",
+    { business: ns, draft: { ...find(ns, "Figma"), date: "1899-12-31" } },
+    (i) => L.missingDetails(i.business, i.draft),
+  );
+  const rows = I.parseCSV(
+    "date,description,amount,currency,reference\n1899-12-31,Tools,-42.50,USD,OLD-1",
+  );
+  record(
+    "import",
+    "previewImport: date before 1900",
+    "previewImport",
+    {
+      business: ns,
+      rows,
+      map: paymentMap,
+      accountId: ns.accounts[0].id,
+      convention: "negative",
+    },
+    (i) =>
+      I.previewImport(i.business, i.rows, i.map, i.accountId, i.convention),
+  );
+  record(
+    "export",
+    "exportRecords: from before 1900",
+    "exportRecords",
+    {
+      business: ns,
+      format: "expenses",
+      filter: { from: "1899-12-31", to: "", currency: "" },
+    },
+    (i) => X.exportRecords(i.business, i.format, i.filter),
+  );
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -1566,16 +1725,15 @@ test("generate parity fixtures", () => {
         typeof crypto.randomUUID
       >,
   );
+  if (Intl.DateTimeFormat().resolvedOptions().timeZone !== TZ)
+    throw new Error(`Run with TZ=${TZ} (npm run parity:fixtures).`);
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(NOW));
   try {
     const workspace = seedWorkspace();
     for (const b of workspace.businesses)
       for (const d of b.documents) delete (d as Partial<SourceDocument>).blob;
-    stateFiles.set(
-      "seed",
-      json({ env: { nextId, now: NOW }, workspace }) as Json,
-    );
+    stateFiles.set("seed", json({ env: env(), workspace }) as Json);
     const ns = state("northstar", workspace.businesses[0]);
     const fw = state("fieldwork", workspace.businesses[1]);
     money();
@@ -1590,6 +1748,8 @@ test("generate parity fixtures", () => {
     history(ns, fw);
     exports(ns, fw, withEur);
     integrity(ns, fw);
+    clock(ns);
+    earlyDates(ns);
     write();
   } finally {
     vi.useRealTimers();

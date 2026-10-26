@@ -30,8 +30,8 @@ pub use import::{
     ImportRow, PreviewSource, SignConvention,
 };
 pub use ledger::{
-    approve, assert_balanced, blank_draft, category_totals, correct, duplicates, event,
-    missing_details, save_draft, totals, validation, CategoryTotal, ACTOR,
+    approve, assert_balanced, blank_draft, category_totals, correct, current_period, duplicates,
+    event, missing_details, save_draft, totals, validation, CategoryTotal, ACTOR,
 };
 pub use money::{amount_input, parse_money, Currency, Minor, MAX_MINOR};
 pub use types::{

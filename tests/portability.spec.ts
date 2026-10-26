@@ -45,7 +45,13 @@ test("expense and journal CSV downloads contain accurate, scoped records", async
 test("mapped expense history becomes a reviewable draft and re-import skips the posted record", async ({
   page,
 }) => {
-  const [year, month, day] = new Date().toISOString().slice(0, 10).split("-");
+  // Local date: the app's reporting period comes from the local date (W8).
+  const now = new Date();
+  const [year, month, day] = [
+    now.getFullYear(),
+    now.getMonth() + 1,
+    now.getDate(),
+  ].map((n) => String(n).padStart(2, "0"));
   const csv = `Date,Name,Memo/Description,Amount,Transaction Type,Num,Expense Category,Business Purpose\n${month}/${day}/${year},Maple Supply,Workshop materials,42.50,Expense,QB-TEST-100,Office & supplies,Client workshop\n`;
   const openImport = async () => {
     await page.getByRole("button", { name: "Import CSV", exact: true }).click();

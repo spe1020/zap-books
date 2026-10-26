@@ -11,8 +11,8 @@ import {
   event,
   id,
   parseMoney,
-  saveDraft,
   validDate,
+  writeDraft,
 } from "./ledger";
 export interface CSVMapping {
   date: string;
@@ -35,6 +35,8 @@ export interface ImportOptions {
 }
 export interface ImportRow {
   row: number;
+  businessId: string;
+  accountId: string;
   date: string;
   description: string;
   amountMinor: number;
@@ -100,7 +102,10 @@ export function parseCSV(text: string): string[][] {
         }
       } else cell += c;
     } else if (c === '"') {
-      if (cell || closed) throw new Error("Malformed CSV quote.");
+      // Whitespace before an opening quote (`a, "b"`) is dropped; any other
+      // text before it is an error.
+      if (cell.trim() || closed) throw new Error("Malformed CSV quote.");
+      cell = "";
       quoted = true;
     } else if (c === "," || c === "\n" || c === "\r") {
       row.push(cell.trim());
@@ -324,6 +329,8 @@ export function previewImport(
       : undefined;
     return {
       row: i + 2,
+      businessId: b.profile.id,
+      accountId,
       date,
       description,
       amountMinor,
@@ -355,6 +362,13 @@ export function commitImport(
       a.businessId === b.profile.id,
   );
   if (!account) throw new Error("Payment account not found.");
+  // Checked for every row before any is processed, so nothing is imported.
+  if (
+    rows.some((r) => r.businessId !== b.profile.id || r.accountId !== accountId)
+  )
+    throw new Error(
+      "Import rows were previewed for a different business or account. Preview the file again.",
+    );
   for (const row of rows) {
     if (
       row.importSource &&
@@ -431,7 +445,7 @@ export function commitImport(
       };
       b.payments.push(payment);
     }
-    b = saveDraft(b, draft);
+    b = writeDraft(b, draft, { allowImportSource: true });
     event(
       b,
       "expense.matched",

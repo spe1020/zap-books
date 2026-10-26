@@ -18,6 +18,7 @@ pub fn seed() -> (Vec<BusinessData>, SequentialEnv) {
     let env = SequentialEnv::new(
         value["env"]["nextId"].as_u64().unwrap(),
         value["env"]["now"].as_str().unwrap(),
+        value["env"]["today"].as_str().unwrap(),
     );
     (workspace.businesses, env)
 }

@@ -12,7 +12,12 @@ import type {
 import { currencies } from "./types";
 export const id = () => crypto.randomUUID();
 export const now = () => new Date().toISOString();
-export const today = () => new Date().toISOString().slice(0, 10);
+/** The user's local calendar date as `YYYY-MM-DD`. Timestamps stay UTC. */
+export function today() {
+  const d = new Date();
+  const pad = (n: number, width = 2) => String(n).padStart(width, "0");
+  return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 export const currentPeriod = () => today().slice(0, 7);
 export function money(value: number, currency: Currency) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
@@ -33,9 +38,11 @@ export function parseMoney(input: string): number {
 }
 export const amountInput = (n: number) =>
   `${n < 0 ? "-" : ""}${Math.floor(Math.abs(n) / 100)}.${String(Math.abs(n) % 100).padStart(2, "0")}`;
+/** A real `YYYY-MM-DD` calendar day in 1900 or later. */
 export function validDate(date: string) {
   return (
     /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    Number(date.slice(0, 4)) >= 1900 &&
     !Number.isNaN(Date.parse(date)) &&
     new Date(date).toISOString().slice(0, 10) === date
   );
@@ -51,6 +58,7 @@ export function duplicates(b: BusinessData, d: ExpenseDraft): ExpenseDraft[] {
   return b.drafts.filter(
     (x) =>
       x.id !== d.id &&
+      x.businessId === d.businessId &&
       x.id !== d.correctionOf &&
       x.status !== "corrected" &&
       x.amountMinor === d.amountMinor &&
@@ -216,6 +224,25 @@ export function saveDraft(
   business: BusinessData,
   draft: ExpenseDraft,
 ): BusinessData {
+  return writeDraft(business, draft, { allowImportSource: false });
+}
+/**
+ * The body of `saveDraft`. Only `commitImport` may pass
+ * `allowImportSource: true`; it is exported for that call alone and is not
+ * part of the public ledger API.
+ *
+ * With `allowImportSource: false`, the draft's `importSource` and `paymentId`
+ * must equal the evidence it already had: the stored draft's, or
+ * `evidenceOf`'s when a correction carries its original's evidence onto a
+ * new draft.
+ *
+ * @internal
+ */
+export function writeDraft(
+  business: BusinessData,
+  draft: ExpenseDraft,
+  options: { allowImportSource: boolean; evidenceOf?: ExpenseDraft },
+): BusinessData {
   const b = structuredClone(business);
   const prior = b.drafts.find((x) => x.id === draft.id);
   if (draft.importSource && draft.importSource.businessId !== b.profile.id)
@@ -225,6 +252,23 @@ export function saveDraft(
     JSON.stringify(prior.importSource) !== JSON.stringify(draft.importSource)
   )
     throw new Error("Imported source evidence cannot be changed.");
+  const evidence = (options.evidenceOf ?? prior)?.importSource;
+  if (
+    !options.allowImportSource &&
+    JSON.stringify(evidence) !== JSON.stringify(draft.importSource)
+  )
+    throw new Error(
+      evidence
+        ? "Imported source evidence cannot be changed."
+        : "Imported source evidence can only be added by an import.",
+    );
+  const payment = (options.evidenceOf ?? prior)?.paymentId;
+  if (!options.allowImportSource && draft.paymentId !== payment)
+    throw new Error(
+      payment
+        ? "A linked payment cannot be changed or removed."
+        : "A payment can only be linked by an import.",
+    );
   if (
     draft.businessId !== b.profile.id ||
     draft.status !== "draft" ||
@@ -303,7 +347,9 @@ export function approve(
     )
   )
     throw new Error("This payment is already linked to a posted expense.");
-  const category = b.categories.find((x) => x.id === d.categoryId)!;
+  const category = b.categories.find(
+    (x) => x.id === d.categoryId && x.businessId === b.profile.id,
+  )!;
   const lines: JournalLine[] = [
     {
       accountId: category.accountId,
@@ -398,7 +444,11 @@ export function correct(
     reversal.id,
     replacement.id,
   ]);
-  b = saveDraft(b, { ...replacement, correctionOf: original.id });
+  b = writeDraft(
+    b,
+    { ...replacement, correctionOf: original.id },
+    { allowImportSource: false, evidenceOf: original },
+  );
   return approve(b, replacement.id);
 }
 export function categoryTotals(
@@ -408,7 +458,11 @@ export function categoryTotals(
 ) {
   const totals = new Map<string, number>();
   for (const j of b.journals)
-    if (j.currency === currency && j.date.startsWith(period))
+    if (
+      j.businessId === b.profile.id &&
+      j.currency === currency &&
+      j.date.startsWith(period)
+    )
       for (const line of j.lines)
         if (line.categoryId)
           totals.set(
@@ -418,7 +472,10 @@ export function categoryTotals(
   return [...totals]
     .map(([categoryId, amount]) => ({
       categoryId,
-      name: b.categories.find((c) => c.id === categoryId)?.name ?? "Unknown",
+      name:
+        b.categories.find(
+          (c) => c.id === categoryId && c.businessId === b.profile.id,
+        )?.name ?? "Unknown",
       amount,
     }))
     .filter((x) => x.amount !== 0)
@@ -430,7 +487,7 @@ export function totals(
 ): Partial<Record<Currency, number>> {
   const result: Partial<Record<Currency, number>> = {};
   for (const j of b.journals)
-    if (j.date.startsWith(period))
+    if (j.businessId === b.profile.id && j.date.startsWith(period))
       for (const line of j.lines)
         if (line.categoryId)
           result[j.currency] = sum(

@@ -3,8 +3,9 @@
   "name": "parseCSV: quoted fields with commas, CRLF",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "date,description,amount,currency,reference\r\n2026-10-20,\"Tools, Inc.\",-42.50,USD,R1\r\n2026-10-21,\"Tools, Inc.\",-42.50,USD,R2\r\n"
@@ -37,8 +38,9 @@
   "name": "parseCSV: embedded newline",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n\"line one\nline two\",x\n"
@@ -58,8 +60,9 @@
   "name": "parseCSV: embedded CRLF and comma",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\r\n\"one,\r\ntwo\",x"
@@ -79,8 +82,9 @@
   "name": "parseCSV: doubled quotes",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n\"say \"\"hi\"\"\",\"\"\"\""
@@ -100,8 +104,9 @@
   "name": "parseCSV: CR line endings",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\r1,2\r3,4"
@@ -125,8 +130,9 @@
   "name": "parseCSV: byte order mark",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "﻿a,b\n1,2"
@@ -146,8 +152,9 @@
   "name": "parseCSV: blank and empty-cell rows skipped",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n\n , \n1,2\n,\n"
@@ -167,8 +174,9 @@
   "name": "parseCSV: cells trimmed, quoted whitespace too",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n  x  ,\" y \""
@@ -188,8 +196,9 @@
   "name": "parseCSV: whitespace after closing quote",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n\"x\"  ,z"
@@ -209,8 +218,9 @@
   "name": "parseCSV: ragged rows",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b,c\n1\n1,2,3,4"
@@ -236,8 +246,9 @@
   "name": "parseCSV: unterminated quote",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n\"unterminated"
@@ -248,8 +259,9 @@
   "name": "parseCSV: quote inside unquoted cell",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\nx\"y\",z"
@@ -260,11 +272,91 @@
   "name": "parseCSV: space before quote",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n \"x\",z"
+  },
+  "output": [
+   [
+    "a",
+    "b"
+   ],
+   [
+    "x",
+    "z"
+   ]
+  ]
+ },
+ {
+  "name": "parseCSV: space after comma before quote",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "text": "a,b\nx, \"y\""
+  },
+  "output": [
+   [
+    "a",
+    "b"
+   ],
+   [
+    "x",
+    "y"
+   ]
+  ]
+ },
+ {
+  "name": "parseCSV: JS whitespace before quote",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "text": "a,b\n\t ﻿\"x, y\",z"
+  },
+  "output": [
+   [
+    "a",
+    "b"
+   ],
+   [
+    "x, y",
+    "z"
+   ]
+  ]
+ },
+ {
+  "name": "parseCSV: text and space before quote",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "text": "a,b\nx,y \"z\""
+  },
+  "error": "Malformed CSV quote."
+ },
+ {
+  "name": "parseCSV: whitespace between two quoted values",
+  "call": "parseCSV",
+  "env": {
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "text": "a,b\n\"x\" \"y\",z"
   },
   "error": "Malformed CSV quote."
  },
@@ -272,8 +364,9 @@
   "name": "parseCSV: text after closing quote",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n\"x\"y,z"
@@ -284,8 +377,9 @@
   "name": "parseCSV: header only",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n"
@@ -296,8 +390,9 @@
   "name": "parseCSV: empty",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": ""
@@ -308,8 +403,9 @@
   "name": "parseCSV: duplicate headers",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,a\n1,2"
@@ -320,8 +416,9 @@
   "name": "parseCSV: empty header",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,,c\n1,2,3"
@@ -332,8 +429,9 @@
   "name": "parseCSV: 2,000 transactions",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": {
@@ -6358,8 +6456,9 @@
   "name": "parseCSV: 2,001 transactions",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": {
@@ -6380,8 +6479,9 @@
   "name": "parseCSV: oversized file",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": {
@@ -6402,8 +6502,9 @@
   "name": "parseCSV: oversized by UTF-16 length",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": {
@@ -6424,8 +6525,9 @@
   "name": "parseCSV: within limit by UTF-16 length",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": {
@@ -6455,8 +6557,9 @@
   "name": "parseCSV: emoji cells",
   "call": "parseCSV",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "text": "a,b\n😀,ok"
@@ -6476,8 +6579,9 @@
   "name": "guessMapping: date|description|amount|currency|reference",
   "call": "guessMapping",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "headers": [
@@ -6505,8 +6609,9 @@
   "name": "guessMapping: Expense Date|Vendor Name|Description|Expense Amount|Currency Code|Expense Category|Reference Number|Business Purpose",
   "call": "guessMapping",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "headers": [
@@ -6537,8 +6642,9 @@
   "name": "guessMapping: Date|Name|Memo/Description|Amount|Transaction Type|Num",
   "call": "guessMapping",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "headers": [
@@ -6567,8 +6673,9 @@
   "name": "guessMapping: Transaction Date|Merchant|Total|Paid Through|Expense ID",
   "call": "guessMapping",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "headers": [
@@ -6596,8 +6703,9 @@
   "name": "guessMapping: Date|Vendor|Description|Amount|Currency|Payment account|Reference",
   "call": "guessMapping",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "headers": [
@@ -6627,8 +6735,9 @@
   "name": "guessMapping: DATE|Date|Payee|Total Amount|Category|Type|Bank Account|ID",
   "call": "guessMapping",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "headers": [
@@ -6659,8 +6768,9 @@
   "name": "guessMapping: x|y",
   "call": "guessMapping",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "headers": [

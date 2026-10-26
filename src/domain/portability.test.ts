@@ -11,6 +11,7 @@ import {
   parseMoney,
   saveDraft,
   totals,
+  writeDraft,
 } from "./ledger";
 const filters = { from: "", to: "", currency: "" as const };
 const historyCSV =
@@ -157,9 +158,16 @@ describe("expense-history migration", () => {
       vendor: "Unrelated vendor",
       status: "draft" as const,
     };
-    expect(() => approve(saveDraft(next, duplicate), duplicate.id)).toThrow(
-      "already has a posted expense",
+    expect(() => saveDraft(next, duplicate)).toThrow(
+      "Imported source evidence can only be added by an import.",
     );
+    // Even through the import path, approval refuses a second posting.
+    expect(() =>
+      approve(
+        writeDraft(next, duplicate, { allowImportSource: true }),
+        duplicate.id,
+      ),
+    ).toThrow("already has a posted expense");
   });
   test("unknown categories stay unresolved, conflicts and unsupported document types block import", () => {
     const { b, account } = migration();
@@ -210,7 +218,7 @@ describe("expense-history migration", () => {
     const { b, preview, account } = migration();
     const other = seedWorkspace().businesses[1];
     expect(() => commitImport(other, preview, other.accounts[0].id)).toThrow(
-      "Invalid import source",
+      "Import rows were previewed for a different business or account",
     );
     const next = commitImport(b, preview, account);
     expect(() =>

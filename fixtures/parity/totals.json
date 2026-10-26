@@ -3,8 +3,9 @@
   "name": "totals: northstar \"2026-10\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -20,8 +21,9 @@
   "name": "categoryTotals: northstar \"2026-10\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -62,8 +64,9 @@
   "name": "categoryTotals: northstar \"2026-10\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -78,8 +81,9 @@
   "name": "categoryTotals: northstar \"2026-10\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -94,8 +98,9 @@
   "name": "totals: northstar \"2026\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -111,8 +116,9 @@
   "name": "categoryTotals: northstar \"2026\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -153,8 +159,9 @@
   "name": "categoryTotals: northstar \"2026\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -169,8 +176,9 @@
   "name": "categoryTotals: northstar \"2026\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -185,8 +193,9 @@
   "name": "totals: northstar \"2026-09\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -200,8 +209,9 @@
   "name": "categoryTotals: northstar \"2026-09\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -216,8 +226,9 @@
   "name": "categoryTotals: northstar \"2026-09\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -232,8 +243,9 @@
   "name": "categoryTotals: northstar \"2026-09\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -248,8 +260,9 @@
   "name": "totals: northstar \"2026-10-08\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -265,8 +278,9 @@
   "name": "categoryTotals: northstar \"2026-10-08\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -287,8 +301,9 @@
   "name": "categoryTotals: northstar \"2026-10-08\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -303,8 +318,9 @@
   "name": "categoryTotals: northstar \"2026-10-08\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -319,8 +335,9 @@
   "name": "totals: northstar \"1900-01\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -334,8 +351,9 @@
   "name": "categoryTotals: northstar \"1900-01\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -350,8 +368,9 @@
   "name": "categoryTotals: northstar \"1900-01\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -366,8 +385,9 @@
   "name": "categoryTotals: northstar \"1900-01\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -382,8 +402,9 @@
   "name": "totals: northstar \"\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -399,8 +420,9 @@
   "name": "categoryTotals: northstar \"\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -441,8 +463,9 @@
   "name": "categoryTotals: northstar \"\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -457,8 +480,9 @@
   "name": "categoryTotals: northstar \"\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -473,8 +497,9 @@
   "name": "totals: fieldwork \"2026-10\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -490,8 +515,9 @@
   "name": "categoryTotals: fieldwork \"2026-10\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -527,8 +553,9 @@
   "name": "categoryTotals: fieldwork \"2026-10\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -543,8 +570,9 @@
   "name": "categoryTotals: fieldwork \"2026-10\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -559,8 +587,9 @@
   "name": "totals: fieldwork \"2026\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -576,8 +605,9 @@
   "name": "categoryTotals: fieldwork \"2026\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -613,8 +643,9 @@
   "name": "categoryTotals: fieldwork \"2026\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -629,8 +660,9 @@
   "name": "categoryTotals: fieldwork \"2026\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -645,8 +677,9 @@
   "name": "totals: fieldwork \"2026-09\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -660,8 +693,9 @@
   "name": "categoryTotals: fieldwork \"2026-09\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -676,8 +710,9 @@
   "name": "categoryTotals: fieldwork \"2026-09\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -692,8 +727,9 @@
   "name": "categoryTotals: fieldwork \"2026-09\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -708,8 +744,9 @@
   "name": "totals: fieldwork \"2026-10-08\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -725,8 +762,9 @@
   "name": "categoryTotals: fieldwork \"2026-10-08\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -747,8 +785,9 @@
   "name": "categoryTotals: fieldwork \"2026-10-08\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -763,8 +802,9 @@
   "name": "categoryTotals: fieldwork \"2026-10-08\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -779,8 +819,9 @@
   "name": "totals: fieldwork \"1900-01\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -794,8 +835,9 @@
   "name": "categoryTotals: fieldwork \"1900-01\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -810,8 +852,9 @@
   "name": "categoryTotals: fieldwork \"1900-01\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -826,8 +869,9 @@
   "name": "categoryTotals: fieldwork \"1900-01\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -842,8 +886,9 @@
   "name": "totals: fieldwork \"\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -859,8 +904,9 @@
   "name": "categoryTotals: fieldwork \"\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -896,8 +942,9 @@
   "name": "categoryTotals: fieldwork \"\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -912,8 +959,9 @@
   "name": "categoryTotals: fieldwork \"\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -928,8 +976,9 @@
   "name": "totals: northstar with EUR \"2026-10\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -946,8 +995,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-10\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -988,8 +1038,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-10\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1010,8 +1061,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-10\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1026,8 +1078,9 @@
   "name": "totals: northstar with EUR \"2026\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1044,8 +1097,9 @@
   "name": "categoryTotals: northstar with EUR \"2026\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1086,8 +1140,9 @@
   "name": "categoryTotals: northstar with EUR \"2026\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1108,8 +1163,9 @@
   "name": "categoryTotals: northstar with EUR \"2026\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1124,8 +1180,9 @@
   "name": "totals: northstar with EUR \"2026-09\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1139,8 +1196,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-09\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1155,8 +1213,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-09\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1171,8 +1230,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-09\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1187,8 +1247,9 @@
   "name": "totals: northstar with EUR \"2026-10-08\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1204,8 +1265,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-10-08\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1226,8 +1288,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-10-08\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1242,8 +1305,9 @@
   "name": "categoryTotals: northstar with EUR \"2026-10-08\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1258,8 +1322,9 @@
   "name": "totals: northstar with EUR \"1900-01\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1273,8 +1338,9 @@
   "name": "categoryTotals: northstar with EUR \"1900-01\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1289,8 +1355,9 @@
   "name": "categoryTotals: northstar with EUR \"1900-01\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1305,8 +1372,9 @@
   "name": "categoryTotals: northstar with EUR \"1900-01\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1321,8 +1389,9 @@
   "name": "totals: northstar with EUR \"\"",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1339,8 +1408,9 @@
   "name": "categoryTotals: northstar with EUR \"\" USD",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1381,8 +1451,9 @@
   "name": "categoryTotals: northstar with EUR \"\" EUR",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1403,8 +1474,9 @@
   "name": "categoryTotals: northstar with EUR \"\" GBP",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -1419,8 +1491,9 @@
   "name": "categoryTotals: unknown category name and zero net",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -2861,8 +2934,9 @@
   "name": "totals: mixed businesses",
   "call": "totals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -4484,15 +4558,16 @@
    "period": "2026-10"
   },
   "output": {
-   "USD": 980498
+   "USD": 461499
   }
  },
  {
   "name": "categoryTotals: mixed businesses",
   "call": "categoryTotals",
   "env": {
-   "nextId": 347,
-   "now": "2026-10-15T12:00:00.000Z"
+   "nextId": 350,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
   },
   "input": {
    "business": {
@@ -6116,18 +6191,8 @@
   },
   "output": [
    {
-    "categoryId": "fieldwork-category-4",
-    "name": "Unknown",
-    "amount": 263200
-   },
-   {
     "categoryId": "northstar-category-3",
     "name": "Professional services",
-    "amount": 240000
-   },
-   {
-    "categoryId": "fieldwork-category-3",
-    "name": "Unknown",
     "amount": 240000
    },
    {
@@ -6146,18 +6211,8 @@
     "amount": 12199
    },
    {
-    "categoryId": "fieldwork-category-0",
-    "name": "Unknown",
-    "amount": 8999
-   },
-   {
     "categoryId": "northstar-category-2",
     "name": "Travel & meals",
-    "amount": 6800
-   },
-   {
-    "categoryId": "fieldwork-category-2",
-    "name": "Unknown",
     "amount": 6800
    }
   ]
