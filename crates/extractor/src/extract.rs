@@ -50,6 +50,7 @@ pub fn status_summary(fields: &ExtractionFields) -> String {
         s("reference", &fields.reference),
         s("subtotal", &fields.subtotal),
         s("tax", &fields.tax),
+        s("tip", &fields.tip),
         s("category", &fields.category),
     ]
     .join(" ")

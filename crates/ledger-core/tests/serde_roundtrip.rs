@@ -72,6 +72,7 @@ fn sample() -> Value {
                     "reference": { "status": "absent", "value": null, "evidence": "" },
                     "subtotal": { "status": "unclear", "value": null, "evidence": "SUB ?" },
                     "tax": { "status": "absent", "value": null, "evidence": "" },
+                    "tip": { "status": "found", "value": 0, "evidence": "TIP 0.00" },
                     "category": { "status": "found", "value": "cat", "evidence": "Office" }
                 },
                 "accepted": ["vendor", "total"],
@@ -126,6 +127,19 @@ fn journal_entries_build_only_through_checked_constructors() {
         "Journal entry must balance."
     );
     assert!(JournalEntry::new(b, b.journals[0].to_unchecked()).is_ok());
+}
+
+#[test]
+fn extraction_records_without_a_tip_load_with_an_absent_tip() {
+    let mut input = sample();
+    input["businesses"][0]["extractions"][0]["fields"]
+        .as_object_mut()
+        .unwrap()
+        .remove("tip");
+    let workspace: Workspace = serde_json::from_value(input).unwrap();
+    let tip = &workspace.businesses[0].extractions[0].fields.tip;
+    assert_eq!(tip.status, ledger_core::FieldStatus::Absent);
+    assert_eq!(tip.value, None);
 }
 
 #[test]

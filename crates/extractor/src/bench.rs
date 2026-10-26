@@ -23,7 +23,7 @@ use crate::error::ExtractError;
 use crate::extract::{Category, ExtractionResult, Extractor};
 use crate::normalize::parse_amount;
 
-pub const FIELDS: [&str; 8] = [
+pub const FIELDS: [&str; 9] = [
     "total",
     "date",
     "vendor",
@@ -31,6 +31,7 @@ pub const FIELDS: [&str; 8] = [
     "reference",
     "subtotal",
     "tax",
+    "tip",
     "category",
 ];
 
@@ -52,6 +53,9 @@ pub struct Expected {
     pub subtotal: Option<Value>,
     #[serde(default, deserialize_with = "present")]
     pub tax: Option<Value>,
+    /// `null` when the receipt has no tip line.
+    #[serde(default, deserialize_with = "present")]
+    pub tip: Option<Value>,
     #[serde(default, deserialize_with = "present")]
     pub category: Option<Value>,
     /// Counts toward "Total on clear receipts". Defaults to true.
@@ -81,6 +85,7 @@ impl Expected {
             "reference" => self.reference.as_ref(),
             "subtotal" => self.subtotal.as_ref(),
             "tax" => self.tax.as_ref(),
+            "tip" => self.tip.as_ref(),
             "category" => self.category.as_ref(),
             _ => None,
         }
@@ -121,7 +126,7 @@ fn amount(v: &Value) -> Option<Minor> {
 /// Whether a found value matches the label.
 fn matches(field: &str, expected: &Value, found: &Value) -> bool {
     match field {
-        "total" | "subtotal" | "tax" => {
+        "total" | "subtotal" | "tax" | "tip" => {
             let got = found.as_i64().and_then(|n| Minor::new(n).ok());
             got.is_some() && got == amount(expected)
         }
@@ -184,6 +189,7 @@ pub fn score(expected: &Expected, result: &ExtractionResult) -> BTreeMap<&'stati
             "reference" => status_and_value(&f.reference),
             "subtotal" => status_and_value(&f.subtotal),
             "tax" => status_and_value(&f.tax),
+            "tip" => status_and_value(&f.tip),
             _ => status_and_value(&f.category),
         };
         out.insert(
@@ -602,6 +608,29 @@ mod tests {
             verdict_for("currency", &json!("GBP"), Found, &json!("GBP")),
             Verdict::Correct
         );
+    }
+
+    #[test]
+    fn tips_and_zero_amounts_are_scored() {
+        use FieldStatus::*;
+        assert_eq!(
+            verdict_for("tip", &json!("8.50"), Found, &json!(850)),
+            Verdict::Correct
+        );
+        assert_eq!(
+            verdict_for("tip", &Value::Null, Found, &json!(850)),
+            Verdict::ConfidentWrong
+        );
+        assert_eq!(
+            verdict_for("tip", &Value::Null, Absent, &Value::Null),
+            Verdict::RightlyAbsent
+        );
+        assert_eq!(
+            verdict_for("tax", &json!("0.00"), Found, &json!(0)),
+            Verdict::Correct
+        );
+        let e = expected(json!({ "total": "51.00", "tip": null }));
+        assert_eq!(e.get("tip"), Some(&Value::Null));
     }
 
     #[test]

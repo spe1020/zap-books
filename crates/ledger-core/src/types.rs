@@ -553,8 +553,19 @@ pub struct ExtractionFields {
     pub reference: ExtractedField<String>,
     pub subtotal: ExtractedField<Minor>,
     pub tax: ExtractedField<Minor>,
+    /// A tip or gratuity line. Absent in records made before tips were read.
+    #[serde(default = "absent_amount")]
+    pub tip: ExtractedField<Minor>,
     /// A category id of the business.
     pub category: ExtractedField<String>,
+}
+
+fn absent_amount() -> ExtractedField<Minor> {
+    ExtractedField {
+        status: FieldStatus::Absent,
+        value: None,
+        evidence: String::new(),
+    }
 }
 
 /// `ExtractionFieldName`
@@ -568,6 +579,7 @@ pub enum ExtractionFieldName {
     Reference,
     Subtotal,
     Tax,
+    Tip,
     Category,
 }
 

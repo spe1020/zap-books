@@ -6,6 +6,7 @@
   "reference": "DEMO-RECEIPT-001",
   "subtotal": "40.00",
   "tax": "2.50",
+  "tip": null,
   "category": "northstar-category-1",
   "clear": true,
   "kind": "fictional sample"

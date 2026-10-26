@@ -2,7 +2,7 @@
 
 **Read receipt** on the Review screen asks a vision model running on your own
 computer to suggest an expense's vendor, date, total, currency, receipt number,
-subtotal, tax and category, each with the text it was read from. You accept,
+subtotal, tax, tip and category, each with the text it was read from. You accept,
 edit or ignore each suggestion, then approve through the usual validation.
 Nothing is applied without a click and nothing is ever approved automatically.
 
@@ -96,8 +96,9 @@ Review ── POST /extract ─▶ check file ─ render PDF pages ────�
   10 MB, identified by content. For PDFs, Poppler renders the first three
   pages and extracts the text layer when there is one. It asks the model for
   a fixed JSON schema, then re-checks every value: amounts with
-  `ledger-core`'s exact money rules (comma decimals are never guessed), a
-  total that disagrees with the subtotal and tax becomes unclear, dates must
+  `ledger-core`'s exact money rules (comma decimals are never guessed;
+  zero is allowed for subtotal, tax and tip but not the total), a total that
+  doesn't equal subtotal + tax + tip becomes unclear, dates must
   be real and not in the future, currencies must be USD, EUR or GBP, and the
   category must be one sent in. A value without evidence is unclear.
 - **Model:** sees only the receipt, the category list, and the fixed prompt in
@@ -126,12 +127,15 @@ record.
 
 ## Known limits
 
-- Restaurant receipts with a tip: the total includes the tip but subtotal plus
-  tax doesn't, so the total is marked unclear by design. Enter it yourself.
+- Tips: when the receipt prints a tip line, the total is checked against
+  subtotal + tax + tip. If the total is more than subtotal plus tax and no tip
+  was read (for example a tip written in by hand without a tip line), the
+  total is marked unclear: "The total is more than the subtotal plus tax. If
+  you added a tip, check the amount matches what you paid."
 - Receipts in currencies other than USD, EUR and GBP are marked unclear.
 - The business purpose is never suggested; only you know why you bought it.
-- Receipt numbers, subtotals and taxes are shown for checking; the expense
-  form has no fields for them.
+- Receipt numbers, subtotals, taxes and tips are shown for checking; the
+  expense form has no fields for them.
 
 ## Benchmark
 
@@ -154,13 +158,15 @@ next to it:
   "reference": "DEMO-RECEIPT-001",
   "subtotal": "40.00",
   "tax": "2.50",
+  "tip": null,
   "category": "northstar-category-1",
   "clear": true,
   "kind": "pdf"
 }
 ```
 
-A missing key isn't scored; `null` means the receipt doesn't show that field.
+A missing key isn't scored; `null` means the receipt doesn't show that field
+(use `"tip": null` when there is no tip line).
 `vendor` may be a list of accepted spellings. Amounts are text as printed.
 `clear: false` leaves a receipt out of "Total, clear receipts". `kind` is a
 free tag counted in the report. An optional `categories.json` at the corpus

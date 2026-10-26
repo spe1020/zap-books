@@ -40,6 +40,7 @@ function result(
       reference: found("R-1", "Receipt R-1"),
       subtotal: absent(),
       tax: absent(),
+      tip: absent(),
       category: found("northstar-category-1", "Office supplies"),
       ...overrides,
     },
@@ -182,4 +183,15 @@ test("unclear fields find the warning that explains them", () => {
   expect(fieldReason(r, "total")).toBe(r.warnings[1]);
   expect(fieldReason(r, "subtotal")).toBe(r.warnings[0]);
   expect(fieldReason(r, "tax")).toBeUndefined();
+});
+
+test("an unclear total explains a missing tip", () => {
+  const warning =
+    "The total is more than the subtotal plus tax. If you added a tip, check the amount matches what you paid.";
+  const r = {
+    ...result({ total: unclear("TOTAL $51.00") }),
+    warnings: [warning],
+  };
+  expect(fieldReason(r, "total")).toBe(warning);
+  expect(fieldReason(r, "tip")).toBeUndefined();
 });

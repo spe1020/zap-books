@@ -25,6 +25,7 @@ const names: Record<ExtractionFieldName, string> = {
   reference: "Receipt number",
   subtotal: "Subtotal",
   tax: "Tax",
+  tip: "Tip",
   category: "Category",
 };
 
@@ -38,7 +39,8 @@ function display(
   switch (field) {
     case "total":
     case "subtotal":
-    case "tax": {
+    case "tax":
+    case "tip": {
       const v = f[field].value;
       return v === null ? "" : money(v, currency as ExpenseDraft["currency"]);
     }
@@ -196,7 +198,7 @@ export function Suggestions({
       )}
       <ul className="suggestion-list">
         {applicableFields.map(row)}
-        {(["reference", "subtotal", "tax"] as const).map(row)}
+        {(["reference", "subtotal", "tax", "tip"] as const).map(row)}
       </ul>
       {ruleCategoryId &&
         readerCategory &&

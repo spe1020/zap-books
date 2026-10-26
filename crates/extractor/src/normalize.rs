@@ -43,8 +43,18 @@ pub struct RawFields {
     pub subtotal: RawField,
     #[serde(default)]
     pub tax: RawField,
+    /// Optional: an answer without a tip means no tip line.
+    #[serde(default = "absent_raw")]
+    pub tip: RawField,
     #[serde(default)]
     pub category: RawField,
+}
+
+fn absent_raw() -> RawField {
+    RawField {
+        status: Some("absent".into()),
+        ..RawField::default()
+    }
 }
 
 /// Parses the model's message content. Anything that is not a JSON object
@@ -73,12 +83,13 @@ pub fn clean_text(text: &str, max: usize) -> String {
 pub enum AmountProblem {
     CommaDecimal,
     NotAnAmount,
-    NotPositive,
+    Negative,
 }
 
 /// Parses amount text exactly: an optional leading `$`, `€` or `£`, optional
 /// comma thousands groups, at most two decimals, never through floating point.
-/// A comma decimal (`42,50`) is never guessed.
+/// A comma decimal (`42,50`) is never guessed. Zero is a valid amount here;
+/// only the total must be positive.
 pub fn parse_amount(text: &str) -> Result<Minor, AmountProblem> {
     let mut s = text.trim();
     let negative = s.starts_with('-');
@@ -113,10 +124,10 @@ fn finish(s: &str, negative: bool) -> Result<Minor, AmountProblem> {
         return Err(AmountProblem::NotAnAmount);
     }
     let value = parse_money(s).map_err(|_| AmountProblem::NotAnAmount)?;
-    if negative || value.get() <= 0 {
-        return Err(AmountProblem::NotPositive);
+    if negative && value.get() != 0 {
+        return Err(AmountProblem::Negative);
     }
-    Ok(value)
+    Ok(if negative { Minor::ZERO } else { value })
 }
 
 /// `1,234` or `12,345,678.90`: comma groups of exactly three digits.
@@ -259,17 +270,30 @@ fn text_value(text: &str) -> Option<String> {
     (!v.is_empty()).then_some(v)
 }
 
-fn amount_field(raw: &RawField, label: &str, warnings: &mut Vec<String>) -> ExtractedField<Minor> {
+/// An amount field. Only the total must be more than zero; a zero subtotal,
+/// tax or tip is valid.
+fn amount_field(
+    raw: &RawField,
+    label: &str,
+    allow_zero: bool,
+    warnings: &mut Vec<String>,
+) -> ExtractedField<Minor> {
     field(raw, label, warnings, |text, warnings| {
         match parse_amount(text) {
+            Ok(value) if value == Minor::ZERO && !allow_zero => {
+                warnings.push(format!(
+                    "The {label} isn't a positive amount. Check it on the receipt."
+                ));
+                None
+            }
             Ok(value) => Some(value),
             Err(problem) => {
                 warnings.push(match problem {
                     AmountProblem::CommaDecimal => format!(
                     "The {label} uses a comma as the decimal separator. Enter the amount yourself."
                 ),
-                    AmountProblem::NotPositive => {
-                        format!("The {label} isn't a positive amount. Check it on the receipt.")
+                    AmountProblem::Negative => {
+                        format!("The {label} is negative. Check it on the receipt.")
                     }
                     AmountProblem::NotAnAmount => format!(
                         "The {label} couldn't be read as an exact amount. Check it on the receipt."
@@ -323,16 +347,29 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
         }
     });
 
-    let mut total = amount_field(&raw.total, "total", w);
-    let subtotal = amount_field(&raw.subtotal, "subtotal", w);
-    let tax = amount_field(&raw.tax, "tax", w);
+    let mut total = amount_field(&raw.total, "total", false, w);
+    let subtotal = amount_field(&raw.subtotal, "subtotal", true, w);
+    let tax = amount_field(&raw.tax, "tax", true, w);
+    let tip = amount_field(&raw.tip, "tip", true, w);
+    // The total must equal subtotal + tax + tip. A tip that wasn't read
+    // (absent or unclear) counts as 0.
     if let (Some(t), Some(s), Some(x)) = (total.value, subtotal.value, tax.value) {
-        if s.checked_add(x).ok() != Some(t) {
+        let parts = s.checked_add(x).ok();
+        let tip_amount = tip.value.unwrap_or(Minor::ZERO);
+        let expected = parts.and_then(|p| p.checked_add(tip_amount).ok());
+        if expected != Some(t) {
             total = unclear(total.evidence);
-            w.push(
+            let tip_read = tip.status == FieldStatus::Found;
+            w.push(if tip_read {
+                "The receipt's subtotal, tax and tip don't add up to the total. Check the amount."
+                    .into()
+            } else if parts.is_some_and(|p| t.get() > p.get()) {
+                "The total is more than the subtotal plus tax. If you added a tip, check the amount matches what you paid."
+                    .into()
+            } else {
                 "The receipt's subtotal and tax don't add up to the total. Check the amount."
-                    .into(),
-            );
+                    .into()
+            });
         }
     }
 
@@ -361,6 +398,7 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             reference,
             subtotal,
             tax,
+            tip,
             category,
         },
         warnings,
@@ -459,10 +497,9 @@ mod tests {
     }
 
     #[test]
-    fn zero_negative_and_garbage_amounts_are_unclear() {
-        assert_eq!(parse_amount("0.00"), Err(AmountProblem::NotPositive));
-        assert_eq!(parse_amount("-5.00"), Err(AmountProblem::NotPositive));
-        assert_eq!(parse_amount("-$5.00"), Err(AmountProblem::NotPositive));
+    fn negative_and_garbage_amounts_are_unclear() {
+        assert_eq!(parse_amount("-5.00"), Err(AmountProblem::Negative));
+        assert_eq!(parse_amount("-$5.00"), Err(AmountProblem::Negative));
         assert_eq!(parse_amount("$-5.00"), Err(AmountProblem::NotAnAmount));
         assert_eq!(parse_amount("42.505"), Err(AmountProblem::NotAnAmount));
         assert_eq!(parse_amount("forty"), Err(AmountProblem::NotAnAmount));
@@ -471,9 +508,30 @@ mod tests {
             parse_amount("9007199254740992"),
             Err(AmountProblem::NotAnAmount)
         );
-        let n = with("tax", found("0.00", "TAX 0.00"));
+        let n = with("tax", found("-2.50", "TAX -2.50"));
         assert_eq!(n.fields.tax.status, FieldStatus::Unclear);
-        assert!(n.warnings[0].contains("isn't a positive amount"));
+        assert!(n.warnings[0].contains("The tax is negative"));
+    }
+
+    #[test]
+    fn zero_is_rejected_only_for_the_total() {
+        assert_eq!(parse_amount("0.00"), Ok(Minor::ZERO));
+        assert_eq!(parse_amount("-0.00"), Ok(Minor::ZERO));
+        let n = with("total", found("0.00", "TOTAL $0.00"));
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert!(n.warnings[0].contains("The total isn't a positive amount"));
+        // A zero tax with a matching total stays found, as does a zero tip.
+        let mut answer = good();
+        answer["total"] = found("40.00", "TOTAL $40.00");
+        answer["tax"] = found("0.00", "TAX $0.00");
+        answer["tip"] = found("0.00", "TIP $0.00");
+        let n = run(answer);
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.tax.value, Some(Minor::ZERO));
+        assert_eq!(n.fields.tip.value, Some(Minor::ZERO));
+        assert_eq!(n.fields.total.value, Some(minor(4000)));
+        let n = with("subtotal", found("0", "SUBTOTAL 0"));
+        assert_eq!(n.fields.subtotal.value, Some(Minor::ZERO));
     }
 
     #[test]
@@ -487,9 +545,9 @@ mod tests {
 
     #[test]
     fn subtotal_and_tax_must_add_up_to_the_total() {
-        let n = with("total", found("45.00", "TOTAL $45.00"));
+        let n = with("total", found("40.00", "TOTAL $40.00"));
         assert_eq!(n.fields.total.status, FieldStatus::Unclear);
-        assert_eq!(n.fields.total.evidence, "TOTAL $45.00");
+        assert_eq!(n.fields.total.evidence, "TOTAL $40.00");
         assert_eq!(
             n.warnings,
             vec!["The receipt's subtotal and tax don't add up to the total. Check the amount."]
@@ -618,5 +676,64 @@ mod tests {
         assert_eq!(utc_date(1_792_886_400), "2026-10-25");
         assert_eq!(day_number("2026-10-25"), Some(1_792_886_400 / 86_400));
         assert_eq!(utc_date(951_782_400), "2000-02-29");
+    }
+
+    #[test]
+    fn a_tip_makes_the_parts_add_up() {
+        let mut answer = good();
+        answer["total"] = found("51.00", "TOTAL $51.00");
+        answer["tip"] = found("8.50", "TIP $8.50");
+        let n = run(answer);
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.total.value, Some(minor(5100)));
+        assert_eq!(n.fields.tip.value, Some(minor(850)));
+    }
+
+    #[test]
+    fn a_total_above_subtotal_and_tax_without_a_tip_is_unclear() {
+        for tip in [
+            json!({ "status": "absent", "value": null, "evidence": "" }),
+            json!({ "status": "unclear", "value": null, "evidence": "TIP ___" }),
+        ] {
+            let mut answer = good();
+            answer["total"] = found("51.00", "TOTAL $51.00");
+            answer["tip"] = tip;
+            let n = run(answer);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+            assert_eq!(
+                n.warnings,
+                vec!["The total is more than the subtotal plus tax. If you added a tip, check the amount matches what you paid."]
+            );
+        }
+        // A tip that doesn't reconcile names all three parts.
+        let mut answer = good();
+        answer["total"] = found("51.00", "TOTAL $51.00");
+        answer["tip"] = found("5.00", "TIP $5.00");
+        let n = run(answer);
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(
+            n.warnings,
+            vec![
+                "The receipt's subtotal, tax and tip don't add up to the total. Check the amount."
+            ]
+        );
+    }
+
+    #[test]
+    fn an_unclear_tip_counts_as_no_tip() {
+        let mut answer = good();
+        answer["tip"] = json!({ "status": "unclear", "value": null, "evidence": "TIP ?" });
+        let n = run(answer);
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+    }
+
+    #[test]
+    fn an_answer_without_a_tip_means_no_tip_line() {
+        let mut answer = good();
+        answer.as_object_mut().unwrap().remove("tip");
+        let n = run(answer);
+        assert_eq!(n.fields.tip.status, FieldStatus::Absent);
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
     }
 }

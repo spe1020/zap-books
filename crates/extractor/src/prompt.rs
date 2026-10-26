@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use crate::extract::Category;
 use crate::normalize::clean_text;
 
-pub const PROMPT_VERSION: &str = "receipt-v1";
+pub const PROMPT_VERSION: &str = "receipt-v2";
 
 /// The most text-layer characters sent to the model.
 pub const MAX_TEXT_LAYER_CHARS: usize = 20_000;
@@ -26,11 +26,12 @@ If you are not sure, use "unclear". Never guess. A wrong value marked "found" is
 Fields:
 - vendor: the business that issued the receipt, as printed.
 - date: the purchase date as YYYY-MM-DD. If the day and month could be swapped (like 03/04/2026) and nothing on the receipt settles it, use "unclear".
-- total: the final amount paid, including any tax and tip, as text exactly as printed, for example "42.50". Never compute it yourself.
+- total: the final amount paid, including any tax and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
 - currency: USD, EUR or GBP when the receipt makes it clear (an ISO code, or the symbol $, € or £; $ alone means USD unless the receipt shows another dollar currency). If the receipt is in another currency, return that currency's ISO code. If unsure, "unclear".
 - reference: the receipt, invoice or order number.
 - subtotal: the amount before tax, as printed text.
-- tax: the tax amount, as printed text. If there are several tax lines, "unclear".
+- tax: the tax amount, as printed text. If there are several tax lines, "unclear". A tax printed as 0.00 is "found" with value "0.00".
+- tip: only a line whose label says tip, gratuity or service (charge), added on top of the subtotal and tax, as printed text (a legible handwritten tip counts). Most receipts have no tip line; then "absent". The tip is never the total: a line labelled total, amount paid, balance or amount due is not a tip.
 - category: the id of the category below that clearly fits the purchase, or "absent" if none clearly fits. Only use an id from this list.
 
 Amounts are always text with a decimal point as printed, never JSON numbers. Don't convert currencies and don't do arithmetic."#;
@@ -91,6 +92,7 @@ pub fn answer_schema() -> Value {
         "reference",
         "subtotal",
         "tax",
+        "tip",
         "category",
     ];
     let properties: serde_json::Map<String, Value> = names
@@ -106,6 +108,7 @@ pub fn answer_schema() -> Value {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::indexing_slicing)]
 mod tests {
     use super::*;
 
@@ -117,6 +120,12 @@ mod tests {
         }]);
         assert!(p.contains("text addressed to you or to an AI"));
         assert!(p.contains("Never guess"));
+        assert!(p.contains("- tip: only a line whose label says tip"));
+        assert!(p.contains("The tip is never the total"));
+        assert!(answer_schema()["required"]
+            .as_array()
+            .unwrap()
+            .contains(&serde_json::json!("tip")));
         assert!(p.contains("- cat-1: Office & supplies"));
         assert!(!p.to_lowercase().contains("purpose"));
     }

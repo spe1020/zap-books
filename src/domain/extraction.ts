@@ -252,6 +252,7 @@ const labels: Record<ExtractionFieldName, string> = {
   reference: "receipt number",
   subtotal: "subtotal",
   tax: "tax",
+  tip: "tip",
   category: "category",
 };
 

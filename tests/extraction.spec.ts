@@ -32,6 +32,7 @@ function result(fields: Record<string, unknown> = {}, warnings: string[] = []) {
       reference: found("DEMO-RECEIPT-001", "RECEIPT NUMBER DEMO-RECEIPT-001"),
       subtotal: found(4000, "Subtotal $40.00"),
       tax: found(250, "Sales tax $2.50"),
+      tip: absent(),
       category: found("northstar-category-1", "Office supplies"),
       ...fields,
     },
@@ -389,4 +390,28 @@ test("a workspace saved before extraction records loads and saves", async ({
   await expect(page.getByText("Draft saved.")).toBeVisible();
   const state = await workspace(page);
   expect(state.businesses.map((b: any) => b.extractions)).toEqual([[], []]);
+});
+
+test("a tip is shown for reference only", async ({ page }) => {
+  await stubExtractor(
+    page,
+    result({
+      total: found(5100, "TOTAL $51.00"),
+      tip: found(850, "TIP $8.50"),
+    }),
+  );
+  await page.reload();
+  const dialog = await newExpenseWithReceipt(page);
+  await dialog.getByRole("button", { name: "Read receipt" }).click();
+  const panel = dialog.getByRole("region", {
+    name: "Suggestions from the receipt",
+  });
+  const tip = panel.locator("li.suggestion", { hasText: "Tip" });
+  await expect(tip.getByText("$8.50", { exact: true })).toBeVisible();
+  await expect(tip.getByText("Seen on receipt: TIP $8.50")).toBeVisible();
+  await expect(tip.getByRole("button")).toHaveCount(0);
+  await panel.getByRole("button", { name: "Accept all found" }).click();
+  await expect(dialog.getByLabel("Amount", { exact: true })).toHaveValue(
+    "51.00",
+  );
 });

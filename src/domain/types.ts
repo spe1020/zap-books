@@ -165,6 +165,7 @@ export const extractionFields = [
   "reference",
   "subtotal",
   "tax",
+  "tip",
   "category",
 ] as const;
 export type ExtractionFieldName = (typeof extractionFields)[number];
@@ -185,6 +186,8 @@ export interface ExtractionFields {
   reference: ExtractedField<string>;
   subtotal: ExtractedField<number>;
   tax: ExtractedField<number>;
+  /** A tip or gratuity line; absent when the receipt has none. */
+  tip: ExtractedField<number>;
   /** A category id of this business. */
   category: ExtractedField<string>;
 }
