@@ -222,6 +222,22 @@ export function saveDraft(
   business: BusinessData,
   draft: ExpenseDraft,
 ): BusinessData {
+  return writeDraft(business, draft, { allowImportSource: false });
+}
+/**
+ * The body of `saveDraft`. Only `commitImport` may pass
+ * `allowImportSource: true`; it is exported for that call alone and is not
+ * part of the public ledger API.
+ *
+ * With `allowImportSource: false`, the draft's `importSource` must equal the
+ * evidence it already had: the stored draft's, or `evidenceOf`'s when a
+ * correction carries its original's evidence onto a new draft.
+ */
+export function writeDraft(
+  business: BusinessData,
+  draft: ExpenseDraft,
+  options: { allowImportSource: boolean; evidenceOf?: ExpenseDraft },
+): BusinessData {
   const b = structuredClone(business);
   const prior = b.drafts.find((x) => x.id === draft.id);
   if (draft.importSource && draft.importSource.businessId !== b.profile.id)
@@ -231,6 +247,16 @@ export function saveDraft(
     JSON.stringify(prior.importSource) !== JSON.stringify(draft.importSource)
   )
     throw new Error("Imported source evidence cannot be changed.");
+  const evidence = (options.evidenceOf ?? prior)?.importSource;
+  if (
+    !options.allowImportSource &&
+    JSON.stringify(evidence) !== JSON.stringify(draft.importSource)
+  )
+    throw new Error(
+      evidence
+        ? "Imported source evidence cannot be changed."
+        : "Imported source evidence can only be added by an import.",
+    );
   if (
     draft.businessId !== b.profile.id ||
     draft.status !== "draft" ||
@@ -406,7 +432,11 @@ export function correct(
     reversal.id,
     replacement.id,
   ]);
-  b = saveDraft(b, { ...replacement, correctionOf: original.id });
+  b = writeDraft(
+    b,
+    { ...replacement, correctionOf: original.id },
+    { allowImportSource: false, evidenceOf: original },
+  );
   return approve(b, replacement.id);
 }
 export function categoryTotals(

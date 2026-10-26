@@ -158,6 +158,13 @@ const find = (b: BusinessData, vendor: string, status = "draft") => {
   if (!d) throw new Error(`No ${status} draft for ${vendor}`);
   return json(d);
 };
+/**
+ * Saves a draft through the import path (`allowImportSource: true`). Used only
+ * to build inputs that carry import evidence on a second draft, so `approve`
+ * fixtures can still reach its own duplicate-evidence check.
+ */
+const viaImport = (b: BusinessData, draft: ExpenseDraft) =>
+  L.writeDraft(b, draft, { allowImportSource: true });
 const ready = (b: BusinessData, extra: Partial<ExpenseDraft>) => ({
   ...L.blankDraft(b),
   vendor: "Harbor Print",
@@ -509,7 +516,7 @@ function drafts(ns: BusinessData, fw: BusinessData) {
       filename: "",
     },
   });
-  // Pinned (PARITY_NOTES.md): evidence may be attached after the fact.
+  // W2 (PARITY_NOTES.md): evidence can only be attached by an import.
   save("import source added to existing draft", ns, {
     ...find(ns, "Figma"),
     importSource: {
@@ -1301,14 +1308,21 @@ function history(ns: BusinessData, fw: BusinessData) {
     ...d,
     id: L.id(),
     vendor: "Unrelated vendor",
-    status: "draft",
+    status: "draft" as const,
   };
+  record(
+    "history",
+    "saveDraft: second draft with posted import source",
+    "saveDraft",
+    { business: corrected, draft: duplicate },
+    (i) => L.saveDraft(i.business, i.draft),
+  );
   record(
     "history",
     "approve: import source already posted",
     "approve",
     {
-      business: L.saveDraft(corrected, duplicate),
+      business: viaImport(corrected, duplicate),
       expenseId: duplicate.id,
     },
     (i) => L.approve(i.business, i.expenseId),
@@ -1588,10 +1602,17 @@ function integrity(ns: BusinessData, fw: BusinessData) {
       };
       record(
         "integrity",
+        `${kind}/${reference || "fallback"}: forged correction saved manually`,
+        "saveDraft",
+        { business: posted, draft: replacement },
+        (i) => L.saveDraft(i.business, i.draft),
+      );
+      record(
+        "integrity",
         `${kind}/${reference || "fallback"}: forged correction`,
         "approve",
         {
-          business: L.saveDraft(posted, replacement),
+          business: viaImport(posted, replacement),
           expenseId: replacement.id,
         },
         (i) => L.approve(i.business, i.expenseId),

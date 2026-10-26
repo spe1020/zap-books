@@ -237,20 +237,36 @@ pub fn blank_draft(b: &BusinessData, env: &mut impl Env) -> ExpenseDraft {
 }
 
 /// `saveDraft`: inserts or replaces a draft, records a new vendor name, and
-/// logs the change.
+/// logs the change. Import evidence cannot be added, changed, or removed here.
 pub fn save_draft(
     business: &BusinessData,
     draft: &ExpenseDraft,
     env: &mut impl Env,
 ) -> Result<BusinessData> {
     let mut b = business.clone();
-    save_draft_in(&mut b, draft.clone(), env)?;
+    let options = WriteOptions {
+        allow_import_source: false,
+        evidence_of: None,
+    };
+    write_draft(&mut b, draft.clone(), options, env)?;
     Ok(b)
 }
 
-pub(crate) fn save_draft_in(
+/// `writeDraft`'s options.
+pub(crate) struct WriteOptions<'a> {
+    /// Only `commit_import` passes `true`.
+    pub(crate) allow_import_source: bool,
+    /// The draft whose evidence a correction carries onto a new draft;
+    /// otherwise the stored draft's evidence is the reference.
+    pub(crate) evidence_of: Option<&'a ExpenseDraft>,
+}
+
+/// `writeDraft`: the body of `saveDraft`, shared with `commitImport` (which
+/// may attach import evidence) and `correct`.
+pub(crate) fn write_draft(
     b: &mut BusinessData,
     draft: ExpenseDraft,
+    options: WriteOptions<'_>,
     env: &mut impl Env,
 ) -> Result<()> {
     let prior = b.drafts.iter().find(|x| x.id == draft.id);
@@ -264,6 +280,17 @@ pub(crate) fn save_draft_in(
     // The TypeScript compares `JSON.stringify` output; see PARITY_NOTES.md.
     if prior.is_some_and(|p| p.import_source.is_some() && p.import_source != draft.import_source) {
         return Err(LedgerError::ImportSourceChanged);
+    }
+    let evidence = options
+        .evidence_of
+        .or(prior)
+        .and_then(|d| d.import_source.as_ref());
+    if !options.allow_import_source && evidence != draft.import_source.as_ref() {
+        return Err(if evidence.is_some() {
+            LedgerError::ImportSourceChanged
+        } else {
+            LedgerError::ImportSourceNotFromImport
+        });
     }
     if draft.business_id != b.profile.id
         || draft.status() != ExpenseStatus::Draft
@@ -510,7 +537,11 @@ pub fn correct(
     let mut replacement = replacement.clone();
     replacement.correction_of = Some(original.id.clone());
     let replacement_id = replacement.id.clone();
-    save_draft_in(&mut b, replacement, env)?;
+    let options = WriteOptions {
+        allow_import_source: false,
+        evidence_of: Some(&original),
+    };
+    write_draft(&mut b, replacement, options, env)?;
     approve_in(&mut b, &replacement_id, env)?;
     Ok(b)
 }

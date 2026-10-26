@@ -9,7 +9,7 @@ use crate::date::{normalize_import_date, valid_date, DateFormat};
 use crate::env::Env;
 use crate::error::{LedgerError, Result};
 use crate::js;
-use crate::ledger::{blank_draft, push_event, save_draft_in, truthy};
+use crate::ledger::{blank_draft, push_event, truthy, write_draft, WriteOptions};
 use crate::money::{parse_money, Currency, Minor, MAX_MINOR};
 use crate::types::{
     AccountKind, BusinessData, EventType, ImportProvider, ImportedExpenseSource,
@@ -697,7 +697,11 @@ pub fn commit_import(
             }
         };
         let draft_id = draft.id.clone();
-        save_draft_in(&mut b, draft, env)?;
+        let options = WriteOptions {
+            allow_import_source: true,
+            evidence_of: None,
+        };
+        write_draft(&mut b, draft, options, env)?;
         push_event(
             &mut b,
             env,

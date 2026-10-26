@@ -17,7 +17,7 @@ import {
   totals,
   validation,
 } from "./ledger";
-import { commitImport, parseCSV, previewImport } from "./import";
+import { commitImport, guessMapping, parseCSV, previewImport } from "./import";
 import { demoAI } from "../adapters/ai";
 import { MockTransport } from "../adapters/transport";
 const fresh = () => seedWorkspace().businesses[0];
@@ -348,4 +348,54 @@ test("today and the current period use the local date; timestamps stay UTC", () 
     if (tz === undefined) delete process.env.TZ;
     else process.env.TZ = tz;
   }
+});
+
+test("import evidence can only be added by an import", () => {
+  const b = fresh();
+  const rows = parseCSV(
+    "date,vendor,description,amount,currency,reference\n2026-10-20,Paper & Pine,Workshop materials,42.50,USD,HIST-1",
+  );
+  const preview = previewImport(
+    b,
+    rows,
+    guessMapping(rows[0]),
+    b.accounts[0].id,
+    "positive",
+    { kind: "expense-history" },
+  );
+  const source = preview[0].importSource!;
+  const message = "Imported source evidence can only be added by an import.";
+  // A new draft cannot arrive with evidence through saveDraft.
+  expect(() =>
+    saveDraft(b, { ...blankDraft(b), vendor: "X", importSource: source }),
+  ).toThrow(message);
+  // An existing draft cannot gain evidence.
+  const figma = b.drafts.find(
+    (d) => d.vendor === "Figma" && d.status === "draft",
+  )!;
+  expect(() => saveDraft(b, { ...figma, importSource: source })).toThrow(
+    message,
+  );
+  // The history import still attaches it, and the draft stays editable.
+  const imported = commitImport(b, preview, b.accounts[0].id);
+  const draft = {
+    ...imported.drafts.at(-1)!,
+    categoryId: b.categories[0].id,
+    purpose: "Client workshop",
+  };
+  expect(draft.importSource).toEqual(source);
+  const posted = approve(saveDraft(imported, draft), draft.id);
+  // Correcting an imported expense keeps its evidence on the replacement.
+  const original = posted.drafts.find((d) => d.id === draft.id)!;
+  const replacement = {
+    ...original,
+    id: id(),
+    status: "draft" as const,
+    amountMinor: 4000,
+  };
+  const corrected = correct(posted, original.id, replacement, "Fix total");
+  expect(corrected.drafts.find((d) => d.id === replacement.id)).toMatchObject({
+    status: "posted",
+    importSource: source,
+  });
 });

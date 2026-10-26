@@ -11,8 +11,8 @@ import {
   event,
   id,
   parseMoney,
-  saveDraft,
   validDate,
+  writeDraft,
 } from "./ledger";
 export interface CSVMapping {
   date: string;
@@ -445,7 +445,7 @@ export function commitImport(
       };
       b.payments.push(payment);
     }
-    b = saveDraft(b, draft);
+    b = writeDraft(b, draft, { allowImportSource: true });
     event(
       b,
       "expense.matched",

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { seedWorkspace } from "./seed";
-import { approve, correct, id, saveDraft } from "./ledger";
+import { approve, correct, id, saveDraft, writeDraft } from "./ledger";
 import { commitImport, guessMapping, parseCSV, previewImport } from "./import";
 import type { BusinessData } from "./types";
 import type { ImportOptions } from "./import";
@@ -44,8 +44,19 @@ describe("ledger trust boundaries", () => {
         correctionOf: original.id,
       };
       const before = structuredClone(posted);
+      if (kind === "expense-history")
+        // W2: a manual save cannot attach import evidence to a new draft.
+        expect(() => saveDraft(posted, replacement)).toThrow(
+          "Imported source evidence can only be added by an import.",
+        );
+      // Approval still refuses a second posting, even on the import path.
       expect(() =>
-        approve(saveDraft(posted, replacement), replacement.id),
+        approve(
+          kind === "payment"
+            ? saveDraft(posted, replacement)
+            : writeDraft(posted, replacement, { allowImportSource: true }),
+          replacement.id,
+        ),
       ).toThrow(
         kind === "payment"
           ? "This payment is already linked"

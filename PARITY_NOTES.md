@@ -90,12 +90,13 @@ states must still deserialize and round-trip unchanged.
 
 ### D4. Import sources compare by value, not `JSON.stringify`
 
-`src/domain/ledger.ts:225` (`saveDraft`) and `:379` (`correct`) compare
-`JSON.stringify(a) !== JSON.stringify(b)`, which depends on key order and on
-unknown extra keys. Rust compares the structs field by field. The results
-agree for every source the TypeScript creates. They differ only for a source
-whose keys were reordered, for example by a storage layer that sorts keys,
-which the TypeScript would wrongly treat as "changed".
+`src/domain/ledger.ts:247` and `:253` (`writeDraft`, behind `saveDraft`) and
+`:411` (`correct`) compare `JSON.stringify(a) !== JSON.stringify(b)`, which
+depends on key order and on unknown extra keys. Rust compares the structs
+field by field. The results agree for every source the TypeScript creates.
+They differ only for a source whose keys were reordered, for example by a
+storage layer that sorts keys, which the TypeScript would wrongly treat as
+"changed".
 
 Test: `d4_import_source_comparison_ignores_key_order`.
 
@@ -163,6 +164,12 @@ the Rust follow, so both languages still agree on every fixture.
   `now()` timestamps stay UTC. Rust takes the date from the new required
   `Env::today`; fixtures are recorded with `TZ=America/New_York` and store
   `today` beside `now`. Fix 4 of `fix/domain-scoping-and-import`.
+- **W2.** `saveDraft` no longer lets a draft gain import evidence ("Imported
+  source evidence can only be added by an import."); changing or removing it
+  is still "Imported source evidence cannot be changed." Only `commitImport`
+  attaches evidence, through `writeDraft` with `allowImportSource: true`;
+  `correct` checks the replacement against its original's evidence. Fix 5 of
+  `fix/domain-scoping-and-import`.
 
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
@@ -182,17 +189,6 @@ imported.
 Fixture: `csv/parseCSV: cells trimmed, quoted whitespace too`.
 
 ### Open
-
-#### W2. Import evidence can be added later, but never changed or removed
-
-`src/domain/ledger.ts:223-227` blocks changes only when the stored draft
-already has an `importSource`. A draft created without one can gain one
-through `saveDraft`. Removing one is blocked ("Imported source evidence cannot
-be changed."). This may be intended; it means import evidence is not
-guaranteed to have come from an import.
-
-Fixtures: `drafts/saveDraft: import source added to existing draft`,
-`history/saveDraft: import source removed`.
 
 #### W9. Lenient amount and date text
 

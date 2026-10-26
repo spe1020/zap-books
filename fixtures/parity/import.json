@@ -3,7 +3,7 @@
   "name": "previewImport: equal amounts with distinct references",
   "call": "previewImport",
   "env": {
-   "nextId": 352,
+   "nextId": 350,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -82,7 +82,7 @@
   "name": "commitImport: two payments",
   "call": "commitImport",
   "env": {
-   "nextId": 352,
+   "nextId": 350,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -278,7 +278,7 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0354",
+     "id": "id-0352",
      "businessId": "northstar",
      "name": "Tools, Inc."
     }
@@ -399,7 +399,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0353",
+     "id": "id-0351",
      "businessId": "northstar",
      "date": "2026-10-20",
      "description": "Tools, Inc.",
@@ -408,10 +408,10 @@
      "accountId": "northstar-checking",
      "reference": "R1",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-     "draftId": "id-0352"
+     "draftId": "id-0350"
     },
     {
-     "id": "id-0360",
+     "id": "id-0358",
      "businessId": "northstar",
      "date": "2026-10-21",
      "description": "Tools, Inc.",
@@ -420,7 +420,7 @@
      "accountId": "northstar-checking",
      "reference": "R2",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-     "draftId": "id-0359"
+     "draftId": "id-0357"
     }
    ],
    "drafts": [
@@ -630,7 +630,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0352",
+     "id": "id-0350",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-20",
@@ -644,10 +644,10 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0353"
+     "paymentId": "id-0351"
     },
     {
-     "id": "id-0359",
+     "id": "id-0357",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-21",
@@ -661,7 +661,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0360"
+     "paymentId": "id-0358"
     }
    ],
    "journals": [
@@ -1185,37 +1185,37 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0356",
+     "id": "id-0354",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0358",
+     "id": "id-0356",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
     },
     {
-     "id": "id-0362",
+     "id": "id-0360",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0359",
+     "entityId": "id-0357",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0364",
+     "id": "id-0362",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0359",
+     "entityId": "id-0357",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -1628,61 +1628,61 @@
      }
     },
     {
-     "id": "id-0355",
+     "id": "id-0353",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0353"
+      "id-0351"
      ],
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0357",
+     "id": "id-0355",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0353"
+      "id-0351"
      ],
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
+     }
+    },
+    {
+     "id": "id-0359",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0358"
+     ],
+     "entityId": "id-0357",
+     "payload": {
+      "detail": "Expense draft created"
      }
     },
     {
      "id": "id-0361",
      "businessId": "northstar",
      "schemaVersion": 1,
-     "type": "expense.created",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0360"
-     ],
-     "entityId": "id-0359",
-     "payload": {
-      "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0363",
-     "businessId": "northstar",
-     "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0360"
+      "id-0358"
      ],
-     "entityId": "id-0359",
+     "entityId": "id-0357",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -1694,7 +1694,7 @@
   "name": "commitImport: re-import creates nothing",
   "call": "commitImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1853,7 +1853,7 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0354",
+      "id": "id-0352",
       "businessId": "northstar",
       "name": "Tools, Inc."
      }
@@ -1974,7 +1974,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0353",
+      "id": "id-0351",
       "businessId": "northstar",
       "date": "2026-10-20",
       "description": "Tools, Inc.",
@@ -1983,10 +1983,10 @@
       "accountId": "northstar-checking",
       "reference": "R1",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-      "draftId": "id-0352"
+      "draftId": "id-0350"
      },
      {
-      "id": "id-0360",
+      "id": "id-0358",
       "businessId": "northstar",
       "date": "2026-10-21",
       "description": "Tools, Inc.",
@@ -1995,7 +1995,7 @@
       "accountId": "northstar-checking",
       "reference": "R2",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-      "draftId": "id-0359"
+      "draftId": "id-0357"
      }
     ],
     "drafts": [
@@ -2205,7 +2205,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0352",
+      "id": "id-0350",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-20",
@@ -2219,10 +2219,10 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0353"
+      "paymentId": "id-0351"
      },
      {
-      "id": "id-0359",
+      "id": "id-0357",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-21",
@@ -2236,7 +2236,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0360"
+      "paymentId": "id-0358"
      }
     ],
     "journals": [
@@ -2760,37 +2760,37 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0356",
+      "id": "id-0354",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0358",
+      "id": "id-0356",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      },
      {
-      "id": "id-0362",
+      "id": "id-0360",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0359",
+      "entityId": "id-0357",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0364",
+      "id": "id-0362",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0359",
+      "entityId": "id-0357",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -3203,61 +3203,61 @@
       }
      },
      {
-      "id": "id-0355",
+      "id": "id-0353",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0353"
+       "id-0351"
       ],
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0357",
+      "id": "id-0355",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0353"
+       "id-0351"
       ],
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
+      }
+     },
+     {
+      "id": "id-0359",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0358"
+      ],
+      "entityId": "id-0357",
+      "payload": {
+       "detail": "Expense draft created"
       }
      },
      {
       "id": "id-0361",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.created",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0360"
-      ],
-      "entityId": "id-0359",
-      "payload": {
-       "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0363",
-      "businessId": "northstar",
-      "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0360"
+       "id-0358"
       ],
-      "entityId": "id-0359",
+      "entityId": "id-0357",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -3452,7 +3452,7 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0354",
+     "id": "id-0352",
      "businessId": "northstar",
      "name": "Tools, Inc."
     }
@@ -3573,7 +3573,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0353",
+     "id": "id-0351",
      "businessId": "northstar",
      "date": "2026-10-20",
      "description": "Tools, Inc.",
@@ -3582,10 +3582,10 @@
      "accountId": "northstar-checking",
      "reference": "R1",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-     "draftId": "id-0352"
+     "draftId": "id-0350"
     },
     {
-     "id": "id-0360",
+     "id": "id-0358",
      "businessId": "northstar",
      "date": "2026-10-21",
      "description": "Tools, Inc.",
@@ -3594,7 +3594,7 @@
      "accountId": "northstar-checking",
      "reference": "R2",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-     "draftId": "id-0359"
+     "draftId": "id-0357"
     }
    ],
    "drafts": [
@@ -3804,7 +3804,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0352",
+     "id": "id-0350",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-20",
@@ -3818,10 +3818,10 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0353"
+     "paymentId": "id-0351"
     },
     {
-     "id": "id-0359",
+     "id": "id-0357",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-21",
@@ -3835,7 +3835,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0360"
+     "paymentId": "id-0358"
     }
    ],
    "journals": [
@@ -4359,37 +4359,37 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0356",
+     "id": "id-0354",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0358",
+     "id": "id-0356",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
     },
     {
-     "id": "id-0362",
+     "id": "id-0360",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0359",
+     "entityId": "id-0357",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0364",
+     "id": "id-0362",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0359",
+     "entityId": "id-0357",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -4802,61 +4802,61 @@
      }
     },
     {
-     "id": "id-0355",
+     "id": "id-0353",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0353"
+      "id-0351"
      ],
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0357",
+     "id": "id-0355",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0353"
+      "id-0351"
      ],
-     "entityId": "id-0352",
+     "entityId": "id-0350",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
+     }
+    },
+    {
+     "id": "id-0359",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0358"
+     ],
+     "entityId": "id-0357",
+     "payload": {
+      "detail": "Expense draft created"
      }
     },
     {
      "id": "id-0361",
      "businessId": "northstar",
      "schemaVersion": 1,
-     "type": "expense.created",
-     "actor": "local-demo-user",
-     "occurredAt": "2026-10-15T12:00:00.000Z",
-     "sourceIds": [
-      "id-0360"
-     ],
-     "entityId": "id-0359",
-     "payload": {
-      "detail": "Expense draft created"
-     }
-    },
-    {
-     "id": "id-0363",
-     "businessId": "northstar",
-     "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0360"
+      "id-0358"
      ],
-     "entityId": "id-0359",
+     "entityId": "id-0357",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -4868,7 +4868,7 @@
   "name": "previewImport: re-import is all duplicates",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -5027,7 +5027,7 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0354",
+      "id": "id-0352",
       "businessId": "northstar",
       "name": "Tools, Inc."
      }
@@ -5148,7 +5148,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0353",
+      "id": "id-0351",
       "businessId": "northstar",
       "date": "2026-10-20",
       "description": "Tools, Inc.",
@@ -5157,10 +5157,10 @@
       "accountId": "northstar-checking",
       "reference": "R1",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-      "draftId": "id-0352"
+      "draftId": "id-0350"
      },
      {
-      "id": "id-0360",
+      "id": "id-0358",
       "businessId": "northstar",
       "date": "2026-10-21",
       "description": "Tools, Inc.",
@@ -5169,7 +5169,7 @@
       "accountId": "northstar-checking",
       "reference": "R2",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-      "draftId": "id-0359"
+      "draftId": "id-0357"
      }
     ],
     "drafts": [
@@ -5379,7 +5379,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0352",
+      "id": "id-0350",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-20",
@@ -5393,10 +5393,10 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0353"
+      "paymentId": "id-0351"
      },
      {
-      "id": "id-0359",
+      "id": "id-0357",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-21",
@@ -5410,7 +5410,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0360"
+      "paymentId": "id-0358"
      }
     ],
     "journals": [
@@ -5934,37 +5934,37 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0356",
+      "id": "id-0354",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0358",
+      "id": "id-0356",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      },
      {
-      "id": "id-0362",
+      "id": "id-0360",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0359",
+      "entityId": "id-0357",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0364",
+      "id": "id-0362",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0359",
+      "entityId": "id-0357",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -6377,61 +6377,61 @@
       }
      },
      {
-      "id": "id-0355",
+      "id": "id-0353",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0353"
+       "id-0351"
       ],
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0357",
+      "id": "id-0355",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0353"
+       "id-0351"
       ],
-      "entityId": "id-0352",
+      "entityId": "id-0350",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
+      }
+     },
+     {
+      "id": "id-0359",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0358"
+      ],
+      "entityId": "id-0357",
+      "payload": {
+       "detail": "Expense draft created"
       }
      },
      {
       "id": "id-0361",
       "businessId": "northstar",
       "schemaVersion": 1,
-      "type": "expense.created",
-      "actor": "local-demo-user",
-      "occurredAt": "2026-10-15T12:00:00.000Z",
-      "sourceIds": [
-       "id-0360"
-      ],
-      "entityId": "id-0359",
-      "payload": {
-       "detail": "Expense draft created"
-      }
-     },
-     {
-      "id": "id-0363",
-      "businessId": "northstar",
-      "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0360"
+       "id-0358"
       ],
-      "entityId": "id-0359",
+      "entityId": "id-0357",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -6509,7 +6509,7 @@
   "name": "previewImport: impossible date",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6567,7 +6567,7 @@
   "name": "previewImport: income row",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6625,7 +6625,7 @@
   "name": "previewImport: currency mismatch",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6683,7 +6683,7 @@
   "name": "previewImport: lower-case currency",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6740,7 +6740,7 @@
   "name": "previewImport: zero amount",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6798,7 +6798,7 @@
   "name": "previewImport: negative zero",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6856,7 +6856,7 @@
   "name": "previewImport: thousands groups",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6913,7 +6913,7 @@
   "name": "previewImport: many thousands groups",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6970,7 +6970,7 @@
   "name": "previewImport: malformed thousands groups",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7028,7 +7028,7 @@
   "name": "previewImport: four-digit leading group",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7086,7 +7086,7 @@
   "name": "previewImport: three decimals",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7144,7 +7144,7 @@
   "name": "previewImport: missing description",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7202,7 +7202,7 @@
   "name": "previewImport: column count mismatch",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7261,7 +7261,7 @@
   "name": "previewImport: short row",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7316,7 +7316,7 @@
   "name": "previewImport: no reference uses details",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7373,7 +7373,7 @@
   "name": "previewImport: positive convention outflow",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7430,7 +7430,7 @@
   "name": "previewImport: positive convention refund",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7488,7 +7488,7 @@
   "name": "previewImport: unmapped amount",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7546,7 +7546,7 @@
   "name": "previewImport: currency not mapped uses account currency",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7603,7 +7603,7 @@
   "name": "previewImport: expense account selected",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7661,7 +7661,7 @@
   "name": "previewImport: other business account selected",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7719,7 +7719,7 @@
   "name": "previewImport: unknown account selected",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7777,7 +7777,7 @@
   "name": "previewImport: date format mdy 10/20/2026",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7836,7 +7836,7 @@
   "name": "previewImport: date format dmy 20/10/2026",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7895,7 +7895,7 @@
   "name": "previewImport: date format iso 2026-10-20",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7954,7 +7954,7 @@
   "name": "previewImport: date format mdy 20/10/2026 rejected",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8014,7 +8014,7 @@
   "name": "previewImport: date format dmy 10/20/2026 rejected",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8074,7 +8074,7 @@
   "name": "previewImport: date format iso 10/20/2026 rejected",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8134,7 +8134,7 @@
   "name": "previewImport: date format mdy 2/29/2028",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8193,7 +8193,7 @@
   "name": "previewImport: transaction types",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8324,7 +8324,7 @@
   "name": "previewImport: multiple source accounts",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8433,7 +8433,7 @@
   "name": "previewImport: one source account in different case",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8516,7 +8516,7 @@
   "name": "previewImport: combined amount exceeds the safe range",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8619,7 +8619,7 @@
   "name": "previewImport: conflicting references in one file",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8699,7 +8699,7 @@
   "name": "commitImport: conflict blocks the whole import",
   "call": "commitImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8748,7 +8748,7 @@
   "name": "previewImport: repeated reference in one file",
   "call": "previewImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8827,7 +8827,7 @@
   "name": "commitImport: single payment",
   "call": "commitImport",
   "env": {
-   "nextId": 365,
+   "nextId": 363,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -9008,7 +9008,7 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0367",
+     "id": "id-0365",
      "businessId": "northstar",
      "name": "Vendor"
     }
@@ -9129,7 +9129,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0366",
+     "id": "id-0364",
      "businessId": "northstar",
      "date": "2026-10-01",
      "description": "Vendor",
@@ -9138,7 +9138,7 @@
      "accountId": "northstar-checking",
      "reference": "ABC",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-     "draftId": "id-0365"
+     "draftId": "id-0363"
     }
    ],
    "drafts": [
@@ -9348,7 +9348,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0365",
+     "id": "id-0363",
      "businessId": "northstar",
      "vendor": "Vendor",
      "date": "2026-10-01",
@@ -9362,7 +9362,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0366"
+     "paymentId": "id-0364"
     }
    ],
    "journals": [
@@ -9886,19 +9886,19 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0369",
+     "id": "id-0367",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0365",
+     "entityId": "id-0363",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0371",
+     "id": "id-0369",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0365",
+     "entityId": "id-0363",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -10311,31 +10311,31 @@
      }
     },
     {
-     "id": "id-0368",
+     "id": "id-0366",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0366"
+      "id-0364"
      ],
-     "entityId": "id-0365",
+     "entityId": "id-0363",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0370",
+     "id": "id-0368",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0366"
+      "id-0364"
      ],
-     "entityId": "id-0365",
+     "entityId": "id-0363",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -10347,7 +10347,7 @@
   "name": "previewImport: conflicting reference against existing payment",
   "call": "previewImport",
   "env": {
-   "nextId": 372,
+   "nextId": 370,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -10506,7 +10506,7 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0367",
+      "id": "id-0365",
       "businessId": "northstar",
       "name": "Vendor"
      }
@@ -10627,7 +10627,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0366",
+      "id": "id-0364",
       "businessId": "northstar",
       "date": "2026-10-01",
       "description": "Vendor",
@@ -10636,7 +10636,7 @@
       "accountId": "northstar-checking",
       "reference": "ABC",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-      "draftId": "id-0365"
+      "draftId": "id-0363"
      }
     ],
     "drafts": [
@@ -10846,7 +10846,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0365",
+      "id": "id-0363",
       "businessId": "northstar",
       "vendor": "Vendor",
       "date": "2026-10-01",
@@ -10860,7 +10860,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0366"
+      "paymentId": "id-0364"
      }
     ],
     "journals": [
@@ -11384,19 +11384,19 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0369",
+      "id": "id-0367",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0365",
+      "entityId": "id-0363",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0371",
+      "id": "id-0369",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0365",
+      "entityId": "id-0363",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -11809,31 +11809,31 @@
       }
      },
      {
-      "id": "id-0368",
+      "id": "id-0366",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0366"
+       "id-0364"
       ],
-      "entityId": "id-0365",
+      "entityId": "id-0363",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0370",
+      "id": "id-0368",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0366"
+       "id-0364"
       ],
-      "entityId": "id-0365",
+      "entityId": "id-0363",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -11890,7 +11890,7 @@
   "name": "commitImport: conflict with existing payment at commit time",
   "call": "commitImport",
   "env": {
-   "nextId": 379,
+   "nextId": 377,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -12049,7 +12049,7 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0374",
+      "id": "id-0372",
       "businessId": "northstar",
       "name": "Vendor"
      }
@@ -12170,7 +12170,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0373",
+      "id": "id-0371",
       "businessId": "northstar",
       "date": "2026-10-01",
       "description": "Vendor",
@@ -12179,7 +12179,7 @@
       "accountId": "northstar-checking",
       "reference": "ABC",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-      "draftId": "id-0372"
+      "draftId": "id-0370"
      }
     ],
     "drafts": [
@@ -12389,7 +12389,7 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0372",
+      "id": "id-0370",
       "businessId": "northstar",
       "vendor": "Vendor",
       "date": "2026-10-01",
@@ -12403,7 +12403,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0373"
+      "paymentId": "id-0371"
      }
     ],
     "journals": [
@@ -12927,19 +12927,19 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0376",
+      "id": "id-0374",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0372",
+      "entityId": "id-0370",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0378",
+      "id": "id-0376",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0372",
+      "entityId": "id-0370",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -13352,31 +13352,31 @@
       }
      },
      {
-      "id": "id-0375",
+      "id": "id-0373",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0373"
+       "id-0371"
       ],
-      "entityId": "id-0372",
+      "entityId": "id-0370",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0377",
+      "id": "id-0375",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0373"
+       "id-0371"
       ],
-      "entityId": "id-0372",
+      "entityId": "id-0370",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -13408,7 +13408,7 @@
   "name": "commitImport: expense account rejected",
   "call": "commitImport",
   "env": {
-   "nextId": 379,
+   "nextId": 377,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13441,7 +13441,7 @@
   "name": "commitImport: other business account rejected",
   "call": "commitImport",
   "env": {
-   "nextId": 379,
+   "nextId": 377,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13474,7 +13474,7 @@
   "name": "commitImport: crafted invalid row",
   "call": "commitImport",
   "env": {
-   "nextId": 379,
+   "nextId": 377,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13507,7 +13507,7 @@
   "name": "commitImport: crafted currency mismatch",
   "call": "commitImport",
   "env": {
-   "nextId": 379,
+   "nextId": 377,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13540,7 +13540,7 @@
   "name": "commitImport: empty error string is not an error",
   "call": "commitImport",
   "env": {
-   "nextId": 379,
+   "nextId": 377,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13722,7 +13722,7 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0381",
+     "id": "id-0379",
      "businessId": "northstar",
      "name": "Vendor"
     }
@@ -13843,7 +13843,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0380",
+     "id": "id-0378",
      "businessId": "northstar",
      "date": "2026-10-01",
      "description": "Vendor",
@@ -13852,7 +13852,7 @@
      "accountId": "northstar-checking",
      "reference": "ABC",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-     "draftId": "id-0379"
+     "draftId": "id-0377"
     }
    ],
    "drafts": [
@@ -14062,7 +14062,7 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0379",
+     "id": "id-0377",
      "businessId": "northstar",
      "vendor": "Vendor",
      "date": "2026-10-01",
@@ -14076,7 +14076,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0380"
+     "paymentId": "id-0378"
     }
    ],
    "journals": [
@@ -14600,19 +14600,19 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0383",
+     "id": "id-0381",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0379",
+     "entityId": "id-0377",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0385",
+     "id": "id-0383",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0379",
+     "entityId": "id-0377",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -15025,31 +15025,31 @@
      }
     },
     {
-     "id": "id-0382",
+     "id": "id-0380",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0380"
+      "id-0378"
      ],
-     "entityId": "id-0379",
+     "entityId": "id-0377",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0384",
+     "id": "id-0382",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0380"
+      "id-0378"
      ],
-     "entityId": "id-0379",
+     "entityId": "id-0377",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -15061,7 +15061,7 @@
   "name": "commitImport: payment rows previewed for another business",
   "call": "commitImport",
   "env": {
-   "nextId": 386,
+   "nextId": 384,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },

@@ -152,7 +152,7 @@
    "name": "Common Ground"
   },
   {
-   "id": "id-0388",
+   "id": "id-0386",
    "businessId": "northstar",
    "name": "Paper & Pine"
   }
@@ -480,7 +480,7 @@
    "journalId": "id-0096"
   },
   {
-   "id": "id-0387",
+   "id": "id-0385",
    "businessId": "northstar",
    "vendor": "Paper & Pine",
    "date": "2026-10-23",
@@ -495,7 +495,7 @@
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
    "importSource": {
-    "id": "id-0386",
+    "id": "id-0384",
     "businessId": "northstar",
     "provider": "quickbooks",
     "reference": "QB-901",
@@ -1030,19 +1030,19 @@
    "detail": "Balanced journal entry recorded"
   },
   {
-   "id": "id-0390",
+   "id": "id-0388",
    "businessId": "northstar",
    "action": "expense.created",
-   "entityId": "id-0387",
+   "entityId": "id-0385",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0392",
+   "id": "id-0390",
    "businessId": "northstar",
    "action": "expense.matched",
-   "entityId": "id-0387",
+   "entityId": "id-0385",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
@@ -1455,31 +1455,31 @@
    }
   },
   {
-   "id": "id-0389",
+   "id": "id-0387",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0386"
+    "id-0384"
    ],
-   "entityId": "id-0387",
+   "entityId": "id-0385",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0391",
+   "id": "id-0389",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "expense.matched",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0386"
+    "id-0384"
    ],
-   "entityId": "id-0387",
+   "entityId": "id-0385",
    "payload": {
     "detail": "Expense history imported from quickbooks; source record retained for review. This is not bank payment evidence."
    }

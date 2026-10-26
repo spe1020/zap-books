@@ -34,6 +34,8 @@ pub enum LedgerError {
     ForeignImportSource,
     #[error("Imported source evidence cannot be changed.")]
     ImportSourceChanged,
+    #[error("Imported source evidence can only be added by an import.")]
+    ImportSourceNotFromImport,
     #[error("Only drafts in this business can be edited.")]
     NotEditable,
     #[error("Invalid receipt reference.")]
