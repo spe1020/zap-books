@@ -6242,7 +6242,7 @@
     "correctionOf": "id-0476"
    }
   },
-  "error": "A payment can only be linked by an import."
+  "error": "Payment links can only be created by an import."
  },
  {
   "name": "payment/AUDIT-ONE: forged correction",
@@ -9799,7 +9799,7 @@
      "accountId": "northstar-checking",
      "reference": "AUDIT-ONE",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"AUDIT-ONE\"]",
-     "draftId": "id-0476"
+     "draftId": "id-0491"
     }
    ],
    "drafts": [
@@ -17523,7 +17523,7 @@
     "correctionOf": "id-0505"
    }
   },
-  "error": "A payment can only be linked by an import."
+  "error": "Payment links can only be created by an import."
  },
  {
   "name": "payment/fallback: forged correction",
@@ -21080,7 +21080,7 @@
      "accountId": "northstar-checking",
      "reference": "",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"2026-10-24\",\"audit vendor\",4250,\"USD\"]",
-     "draftId": "id-0505"
+     "draftId": "id-0520"
     }
    ],
    "drafts": [

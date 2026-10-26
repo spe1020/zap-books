@@ -47,7 +47,7 @@ describe("ledger trust boundaries", () => {
       // A manual save cannot attach existing evidence to a new draft.
       expect(() => saveDraft(posted, replacement)).toThrow(
         kind === "payment"
-          ? "A payment can only be linked by an import."
+          ? "Payment links can only be created by an import."
           : "Imported source evidence can only be added by an import.",
       );
       // Approval still refuses a second posting, even on the import path.

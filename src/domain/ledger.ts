@@ -264,11 +264,7 @@ export function writeDraft(
     );
   const payment = (options.evidenceOf ?? prior)?.paymentId;
   if (!options.allowImportSource && draft.paymentId !== payment)
-    throw new Error(
-      payment
-        ? "A linked payment cannot be changed or removed."
-        : "A payment can only be linked by an import.",
-    );
+    throw new Error("Payment links can only be created by an import.");
   if (
     draft.businessId !== b.profile.id ||
     draft.status !== "draft" ||
@@ -347,6 +343,13 @@ export function approve(
     )
   )
     throw new Error("This payment is already linked to a posted expense.");
+  if (
+    d.paymentId &&
+    b.payments.find(
+      (p) => p.id === d.paymentId && p.businessId === b.profile.id,
+    )?.draftId !== d.id
+  )
+    throw new Error("This payment belongs to a different expense.");
   const category = b.categories.find(
     (x) => x.id === d.categoryId && x.businessId === b.profile.id,
   )!;
@@ -449,6 +452,11 @@ export function correct(
     { ...replacement, correctionOf: original.id },
     { allowImportSource: false, evidenceOf: original },
   );
+  // The replacement takes over the original's payment.
+  const payment = b.payments.find(
+    (p) => p.id === original.paymentId && p.businessId === b.profile.id,
+  );
+  if (original.paymentId && payment) payment.draftId = replacement.id;
   return approve(b, replacement.id);
 }
 export function categoryTotals(

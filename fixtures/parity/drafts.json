@@ -7596,7 +7596,7 @@
     "paymentId": "id-0012"
    }
   },
-  "error": "A payment can only be linked by an import."
+  "error": "Payment links can only be created by an import."
  },
  {
   "name": "saveDraft: payment link removed",
@@ -7629,7 +7629,7 @@
     "createdAt": "2026-10-15T12:00:00.000Z"
    }
   },
-  "error": "A linked payment cannot be changed or removed."
+  "error": "Payment links can only be created by an import."
  },
  {
   "name": "saveDraft: payment link changed",
@@ -7663,7 +7663,7 @@
     "paymentId": "other"
    }
   },
-  "error": "A linked payment cannot be changed or removed."
+  "error": "Payment links can only be created by an import."
  },
  {
   "name": "saveDraft: import source added to existing draft",

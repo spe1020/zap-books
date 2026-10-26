@@ -220,3 +220,43 @@ fn stored_journals_validate_business_accounts_categories_and_currency() {
     let loaded: BusinessData = serde_json::from_value(raw.clone()).unwrap();
     assert_eq!(serde_json::to_value(loaded).unwrap(), raw);
 }
+
+// W12: a correction hands the payment to the replacement, and approve only
+// posts a draft that its payment records.
+#[test]
+fn corrections_hand_the_payment_to_the_replacement() {
+    let (b, mut env) = fresh();
+    let account = b.accounts[0].id.clone();
+    let rows = preview(&b, &account, false, "W12", &mut env);
+    let imported = commit_import(&b, &rows, &account, &mut env).unwrap();
+    let mut draft = imported.drafts.last().unwrap().clone();
+    let payment_id = draft.payment_id.clone().unwrap();
+    draft.category_id = b.categories[0].id.clone();
+    draft.purpose = "Client work".into();
+    let saved = save_draft(&imported, &draft, &mut env).unwrap();
+    let posted = approve(&saved, &draft.id, &mut env).unwrap();
+    let original = posted.drafts.iter().find(|d| d.id == draft.id).unwrap();
+    let mut replacement = original.replacement(env.new_id());
+    replacement.description = "Corrected".into();
+    let corrected = correct(&posted, &original.id, &replacement, "Clarify", &mut env).unwrap();
+    let owner = |b: &BusinessData| {
+        b.payments
+            .iter()
+            .find(|p| p.id == payment_id)
+            .unwrap()
+            .draft_id
+            .clone()
+    };
+    assert_eq!(owner(&corrected), replacement.id);
+
+    let mut handed_off = saved.clone();
+    for p in &mut handed_off.payments {
+        if p.id == payment_id {
+            p.draft_id = "someone-else".into();
+        }
+    }
+    assert_eq!(
+        approve(&handed_off, &draft.id, &mut env),
+        Err(LedgerError::PaymentOfOtherExpense)
+    );
+}

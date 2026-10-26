@@ -1718,6 +1718,30 @@ function earlyDates(ns: BusinessData) {
   );
 }
 
+/**
+ * W12: approve requires the linked payment to record this draft. Recorded
+ * last so the call cannot shift any other fixture's ids.
+ */
+function paymentOwner(ns: BusinessData) {
+  const notion = find(ns, "Notion");
+  const figma = find(ns, "Figma");
+  record(
+    "approve",
+    "payment belongs to a different expense",
+    "approve",
+    {
+      business: {
+        ...ns,
+        payments: ns.payments.map((p) =>
+          p.id === notion.paymentId ? { ...p, draftId: figma.id } : p,
+        ),
+      },
+      expenseId: notion.id,
+    },
+    (i) => L.approve(i.business, i.expenseId),
+  );
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -1750,6 +1774,7 @@ test("generate parity fixtures", () => {
     integrity(ns, fw);
     clock(ns);
     earlyDates(ns);
+    paymentOwner(ns);
     write();
   } finally {
     vi.useRealTimers();

@@ -36,10 +36,8 @@ pub enum LedgerError {
     ImportSourceChanged,
     #[error("Imported source evidence can only be added by an import.")]
     ImportSourceNotFromImport,
-    #[error("A payment can only be linked by an import.")]
+    #[error("Payment links can only be created by an import.")]
     PaymentNotFromImport,
-    #[error("A linked payment cannot be changed or removed.")]
-    PaymentLinkLocked,
     #[error("Only drafts in this business can be edited.")]
     NotEditable,
     #[error("Invalid receipt reference.")]
@@ -59,6 +57,8 @@ pub enum LedgerError {
     ImportSourceAlreadyPosted,
     #[error("This payment is already linked to a posted expense.")]
     PaymentAlreadyLinked,
+    #[error("This payment belongs to a different expense.")]
+    PaymentOfOtherExpense,
 
     // ledger.ts correct
     #[error("A posted expense and correction reason are required.")]
