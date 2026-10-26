@@ -52,7 +52,7 @@ In **Northstar Studio → New expense**, attach either the PDF or PNG and enter:
 | Payment account   | Business card                             |
 | Business purpose  | Stationery for client project planning    |
 
-The receipt totals $40.00 of items plus $2.50 of sample sales tax. Enter the full **$42.50** as the expense amount; this prototype does not split tax into a separate ledger account. Save the draft, reopen it to check the attachment, then approve it. October 2026 USD spending should increase by $42.50. Use one format per test expense; the PDF and PNG represent the same fictional purchase. Receipt fields are entered manually until local OCR/AI is connected.
+The receipt totals $40.00 of items plus $2.50 of sample sales tax. Enter the full **$42.50** as the expense amount; this prototype does not split tax into a separate ledger account. Save the draft, reopen it to check the attachment, then approve it. October 2026 USD spending should increase by $42.50. Use one format per test expense; the PDF and PNG represent the same fictional purchase. With the local extractor running, **Read receipt** suggests these fields instead; see [Receipt extraction](docs/receipt-extraction.md).
 
 ## Import payments from CSV
 
@@ -82,7 +82,8 @@ Use **Export** to download current posted expenses or the full journal history, 
 - Business IDs enforce local workspace separation. **This is not production authentication or authorization.** Anyone with access to the browser profile can access or alter its local data. Attachments are not encrypted at rest by this app.
 - Saving is atomic across records and evidence. Revision checks reject stale-tab writes rather than overwriting newer records; reload the stale tab before retrying. Reset requires typing `RESET` and replaces both businesses.
 - Amounts use integer minor units. USD, EUR, and GBP are supported with two decimal places. Reports never combine currencies or assume exchange rates. Transfers do not count as expenses. Corrections post an exact reversal on the original accounting date and a linked replacement; closed accounting periods are outside this prototype.
-- The assistant is deterministic demo logic using saved records and explicit rules. There is no live model or OCR. Uploaded document text is not extracted or interpreted; any instructions inside documents are untrusted content. Suggestions are labeled simulated and require review. Rules are saved only when explicitly requested and can be edited or paused in Settings.
+- **Read receipt** uses a vision model running on your own computer (Ollama, through the local extractor in `crates/extractor`) to suggest receipt fields with the text each was read from. Receipts never leave the computer. Every suggestion needs a click, values are re-checked with the ledger's money and date rules, unclear values are shown as unclear, and nothing is approved automatically. Any instructions inside documents are untrusted content. Without the extractor running, the button is disabled and manual entry works as before. See [Receipt extraction](docs/receipt-extraction.md).
+- The assistant and the category rule suggestion are deterministic demo logic using saved records and explicit rules; they don't read documents. Rule suggestions are labeled simulated and require review. Rules are saved only when explicitly requested and can be edited or paused in Settings.
 - Transport is an in-memory mock. No public relays, key collection, real Nostr publishing, payment execution, live banking, payroll, tax filing, or full accounting-platform coverage is included. The local ledger is prototype domain logic, not a production accounting backend.
 - PDF preview depends on the browser's PDF support; an Open link is available when inline display is unavailable. User uploads support PNG, JPEG, WebP, and PDF; SVG receipts are trusted fictional seed assets only.
 
@@ -114,6 +115,8 @@ cargo clippy --all-targets --locked -- -D warnings
 cargo test --locked
 npm run parity:fixtures
 ```
+
+`cargo test` also runs the receipt extractor's tests (`crates/extractor`) against a fake model server; its PDF tests need Poppler (`brew install poppler`). No real model runs in tests.
 
 The parity fixtures compare both implementations, including rejected imports and duplicate postings. Commit regenerated fixtures with any shared behavior change. See [Parity notes](PARITY_NOTES.md) for deliberate differences.
 

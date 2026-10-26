@@ -9,6 +9,7 @@
 | Demo fixtures   | `src/domain/seed.ts`                            | Two independent fictional businesses and generated receipt evidence                   |
 | Storage         | `src/adapters/storage.ts`, `attachments.ts`     | IndexedDB transactions, revision checks, scoped receipts, supported upload validation |
 | AI              | `src/adapters/ai.ts`                            | `AIAdapter` deterministic proposals and supported questions                           |
+| Receipt reading | `src/adapters/extractor.ts`, `crates/extractor` | `ExtractionAdapter` client; local Rust service calling a local Ollama vision model    |
 | Event transport | `src/adapters/transport.ts`                     | `EventTransport` mock with event-ID deduplication and business-scoped synchronization |
 
 React owns presentation and in-progress forms. Ledger commands return a new business snapshot; they do not mutate their input. The application awaits an IndexedDB commit before displaying success or advancing posted reports. Receipt Blobs and their record references are persisted together. The single workspace snapshot makes this small prototype's atomic writes straightforward; large workspaces will need indexed tables, pagination, migrations, and storage-quota strategy.
@@ -44,7 +45,9 @@ Events and audit records are persisted with the business. The mock publisher sto
 
 The demo adapter only consults explicit vendor rules and stored fields. It reports the rule and linked-payment evidence, marks every proposal simulated, and states uncertainty. Accepted proposals only update the editable draft. Rules are explicitly saved and visible; there is no implicit training. Posting always requires the same deterministic ledger validation as manual entry.
 
-Documents are evidence, never instructions. No OCR, model call, prompt execution, or remote document submission occurs. Before real extraction, design a schema-constrained extraction path with untrusted document isolation, field-level provenance, uncertainty handling, and human review. A model must never bypass the authoritative ledger service or directly alter posted balances.
+Documents are evidence, never instructions. Receipt reading (stage 1) runs entirely on the user's computer: the browser sends an attached receipt to the extractor service (`crates/extractor`, bound to `127.0.0.1`), which renders PDF pages with Poppler and asks a local Ollama vision model for a fixed JSON schema. The model has no tools, sees only the receipt, the business's category ids and names, and a fixed prompt that treats text addressed to an AI as receipt content. The service re-validates every value with `ledger-core`'s exact money and date rules, downgrades anything doubtful to "unclear", and only accepts category ids it was given. It rejects foreign `Host` headers and origins, accepts only the attachment rules' file types and size, and logs timings and field statuses, never contents. See [Receipt extraction](receipt-extraction.md).
+
+The Review screen shows each suggestion with its evidence; nothing is applied without a click, a suggestion never overwrites a field edited since reading, and fields locked to an imported payment are compared rather than applied. Every reading is stored as a business-scoped `ExtractionRecord` (model, prompt version, proposed fields, and per-field outcome finalized at approval) for provenance. Posting still requires the same deterministic ledger validation as manual entry. A model must never bypass the authoritative ledger service or directly alter posted balances. Sending a document to any model off the computer requires an explicit user choice that does not exist yet.
 
 ## Recommended next backend milestone
 
@@ -52,7 +55,7 @@ Documents are evidence, never instructions. No OCR, model call, prompt execution
 2. Build **one authoritative accounting service**. It validates, orders, and accepts postings using database transactions and business-scoped idempotency keys. Persist immutable journals, approvals, corrections, and a durable outbox together. Revalidate currency, account, period, duplicate, and balance invariants server-side. Clients submit proposals and reconcile against acknowledged server versions.
 3. Introduce encrypted object storage for receipt documents. Bind object references and keys to authorized business members, verify integrity, and design key rotation, retention, recovery, and access auditing. Do not include plaintext document contents in relay events.
 4. Use an **existing private Nostr relay implementation**, configured with enforced authentication and business authorization. Select supported authentication and audited encryption/signing libraries; design key custody before handling real financial information. No custom relay is needed. A relay transports encrypted application events; it does not decide accounting truth or ordering.
-5. Replace demo AI with a scoped service that returns typed proposals and evidence. Treat extracted receipt content as untrusted data and keep approvals explicit.
+5. Replace the demo assistant with a scoped service that returns typed proposals and evidence, building on the local extractor. Treat extracted receipt content as untrusted data and keep approvals explicit.
 6. Validate concurrent submissions, offline retries, replay protection, member revocation, recovery, schema upgrades, and encrypted document access before any real-business pilot.
 
 External deployment, payments, live banking, payroll, taxes, and broad QuickBooks parity are outside this frontend milestone.
