@@ -1351,6 +1351,102 @@ td:last-child {
 .ai-proposal .text-button {
   margin-top: 10px;
 }
+.read-receipt {
+  margin-top: 12px;
+}
+.read-receipt p {
+  margin: 8px 0 0;
+}
+.button.small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.suggestions {
+  border: 1px solid #d9e3ec;
+  border-radius: 7px;
+  background: #f5f8fb;
+  padding: 16px;
+  margin-bottom: 22px;
+}
+.suggestions-note {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 8px 0 12px;
+}
+.suggestion-warnings {
+  list-style: none;
+  padding: 10px 12px;
+  margin: 0 0 12px;
+  border: 1px solid #eee3c5;
+  border-radius: 6px;
+  background: #fbf6e7;
+  font-size: 11px;
+  color: var(--muted);
+}
+.suggestion-warnings li {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+.suggestion-warnings li + li {
+  margin-top: 6px;
+}
+.suggestion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+}
+.suggestion {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.suggestion:last-child {
+  border-bottom: 0;
+}
+.suggestion-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.suggestion-name {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.suggestion-value {
+  font-size: 13px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.suggestion-evidence,
+.suggestion-reason {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+}
+.suggestion-applied {
+  font-size: 11px;
+  color: var(--green);
+}
+.suggestion-compare {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 11px;
+  margin: 6px 0 0;
+}
+.suggestion-compare.match {
+  color: var(--green);
+}
+.suggestion-compare.mismatch {
+  color: #9a4b16;
+  font-weight: 550;
+}
 .flex-between {
   display: flex;
   align-items: center;

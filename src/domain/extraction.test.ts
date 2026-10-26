@@ -5,6 +5,7 @@ import {
   acceptAllFound,
   applySuggestion,
   compareWithPayment,
+  fieldReason,
   finalizeExtractions,
   recordExtraction,
   type FormValues,
@@ -168,4 +169,17 @@ describe("recording what the reader proposed", () => {
       },
     });
   });
+});
+
+test("unclear fields find the warning that explains them", () => {
+  const r = {
+    ...result({ total: unclear("TOTAL $45.00"), subtotal: unclear("SUB") }),
+    warnings: [
+      "The subtotal couldn't be read as an exact amount. Check it on the receipt.",
+      "The receipt's subtotal and tax don't add up to the total. Check the amount.",
+    ],
+  };
+  expect(fieldReason(r, "total")).toBe(r.warnings[1]);
+  expect(fieldReason(r, "subtotal")).toBe(r.warnings[0]);
+  expect(fieldReason(r, "tax")).toBeUndefined();
 });

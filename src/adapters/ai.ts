@@ -37,7 +37,7 @@ export const demoAI: AIAdapter = {
           : []),
       ],
       uncertainty:
-        "Review the classification and business purpose. Document contents have not been read or extracted.",
+        "Review the classification and business purpose. This rule suggestion uses only the fields you entered, not the receipt.",
     };
   },
   answer(b, question, period) {

@@ -243,3 +243,33 @@ export function finalizeExtractions(
     ),
   };
 }
+
+const labels: Record<ExtractionFieldName, string> = {
+  vendor: "vendor",
+  date: "date",
+  total: "total",
+  currency: "currency",
+  reference: "receipt number",
+  subtotal: "subtotal",
+  tax: "tax",
+  category: "category",
+};
+
+/**
+ * The service's warning that explains why a field is unclear, if any.
+ * Warnings are plain sentences such as "The total couldn't be read…".
+ */
+export function fieldReason(
+  result: ExtractionResult,
+  field: ExtractionFieldName,
+): string | undefined {
+  const label = labels[field];
+  return result.warnings.find(
+    (w) =>
+      w.startsWith(`The ${label} `) ||
+      (field === "total" && w.includes("add up to the total")) ||
+      (field === "date" &&
+        (w.startsWith("The date ") || w.startsWith("The receipt date "))) ||
+      (field === "currency" && w.startsWith("The receipt's currency ")),
+  );
+}
