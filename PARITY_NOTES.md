@@ -34,8 +34,8 @@ refuses to record `TypeError`s, so no fixture covers these paths.
 
 | Site                                         | TypeScript                                                                          | Rust                                                                                                                   |
 | -------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/ledger.ts:340` (`approve`)       | `b.categories.find((x) => x.id === d.categoryId && x.businessId === b.profile.id)!` | `Internal("approved expense has no category")`. Unreachable: `validation` has already required the category.           |
-| `src/domain/ledger.ts:419` (`correct`)       | `b.journals.find((x) => x.id === original.journalId)!`                              | `Internal("posted expense has no journal")`. Reached only by corrupt data (a posted expense whose journal is missing). |
+| `src/domain/ledger.ts:350` (`approve`)       | `b.categories.find((x) => x.id === d.categoryId && x.businessId === b.profile.id)!` | `Internal("approved expense has no category")`. Unreachable: `validation` has already required the category.           |
+| `src/domain/ledger.ts:429` (`correct`)       | `b.journals.find((x) => x.id === original.journalId)!`                              | `Internal("posted expense has no journal")`. Reached only by corrupt data (a posted expense whose journal is missing). |
 | `src/domain/import.ts:211` (`previewImport`) | `rows[0].indexOf(...)` with `rows = []`                                             | `Internal("import has no header row")`. `parseCSV` never returns fewer than two rows.                                  |
 | `src/domain/import.ts:456` (`commitImport`)  | `draft.paymentId!`                                                                  | No error path: the payment id is created in the same branch, so the type system guarantees it.                         |
 
@@ -90,13 +90,14 @@ states must still deserialize and round-trip unchanged.
 
 ### D4. Import sources compare by value, not `JSON.stringify`
 
-`src/domain/ledger.ts:247` and `:253` (`writeDraft`, behind `saveDraft`) and
-`:411` (`correct`) compare `JSON.stringify(a) !== JSON.stringify(b)`, which
+`src/domain/ledger.ts:252` and `:258` (`writeDraft`, behind `saveDraft`) and
+`:423` (`correct`) compare `JSON.stringify(a) !== JSON.stringify(b)`, which
 depends on key order and on unknown extra keys. Rust compares the structs
 field by field. The results agree for every source the TypeScript creates.
 They differ only for a source whose keys were reordered, for example by a
-storage layer that sorts keys, which the TypeScript would wrongly treat as
-"changed".
+storage layer or migration that sorts keys. The TypeScript would wrongly
+treat it as "changed", so W2's restricted check in `saveDraft` would throw
+"Imported source evidence cannot be changed." where Rust saves the draft.
 
 Test: `d4_import_source_comparison_ignores_key_order`.
 
@@ -172,6 +173,12 @@ the Rust follow, so both languages still agree on every fixture.
   their existing messages ("A valid expense date is required.", "Date does
   not match the selected format or is invalid.", "Choose valid export
   dates."). Commit `7cd3764`.
+- **Payment links** (review follow-up to W2). `saveDraft` no longer lets a
+  draft gain a `paymentId` ("A payment can only be linked by an import.") or
+  change or drop one ("A linked payment cannot be changed or removed."), so
+  a manual draft cannot claim an imported payment and an imported draft
+  cannot be stripped of it. Same `writeDraft` gate as W2. The commit after
+  `aaf94b4`.
 
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
@@ -205,8 +212,9 @@ Fixtures: `money/parseMoney "00012.30"`, `money/parseMoney "-0"`.
 `commitImport` treats `error: ""` as no error (`src/domain/import.ts:356`),
 and `missingDetails` treats `paymentId: ""` as no payment
 (`src/domain/ledger.ts:107`). `correct` compares `paymentId` strictly
-(`:410`), so `""` and absent differ there. Deferred to step 2, where the
-server validates input at its boundary.
+(`:420`), and so does `saveDraft`'s payment-link check, so `""` and absent
+differ there. Deferred to step 2, where the server validates input at its
+boundary.
 
 Fixtures: `import/commitImport: empty error string is not an error`,
 `validation/*: empty payment id is ignored`.

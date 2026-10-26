@@ -414,3 +414,72 @@ test("dates before 1900 are rejected with the caller's existing message", () => 
   expect(parseMoney("00012.30")).toBe(1230);
   expect(parseMoney("-0")).toBe(-0);
 });
+
+test("payment links can only be added by an import and never changed or removed", () => {
+  const b = fresh();
+  const rows = parseCSV(
+    "date,description,amount,currency,reference\n2026-10-20,Tools,-42.50,USD,P-1",
+  );
+  const map = {
+    date: "date",
+    description: "description",
+    amount: "amount",
+    currency: "currency",
+    reference: "reference",
+  };
+  const account = b.accounts[0].id;
+  const imported = commitImport(
+    b,
+    previewImport(b, rows, map, account, "negative"),
+    account,
+  );
+  const linked = imported.drafts.at(-1)!;
+  const paymentId = linked.paymentId!;
+  // A manual draft cannot claim the imported payment.
+  const claim = {
+    ...blankDraft(imported),
+    vendor: "Other",
+    description: "Other",
+    purpose: "Client work",
+    categoryId: b.categories[0].id,
+    amountMinor: 4250,
+    date: "2026-10-20",
+    accountId: account,
+    paymentId,
+  };
+  expect(() => saveDraft(imported, claim)).toThrow(
+    "A payment can only be linked by an import.",
+  );
+  const figma = imported.drafts.find(
+    (d) => d.vendor === "Figma" && d.status === "draft",
+  )!;
+  expect(() => saveDraft(imported, { ...figma, paymentId })).toThrow(
+    "A payment can only be linked by an import.",
+  );
+  // The imported draft cannot drop or swap its payment.
+  expect(() =>
+    saveDraft(imported, { ...linked, paymentId: undefined }),
+  ).toThrow("A linked payment cannot be changed or removed.");
+  expect(() => saveDraft(imported, { ...linked, paymentId: "other" })).toThrow(
+    "A linked payment cannot be changed or removed.",
+  );
+  // Editing it otherwise, posting it, and correcting it still work.
+  const ready = {
+    ...linked,
+    categoryId: b.categories[0].id,
+    purpose: "Client work",
+  };
+  const posted = approve(saveDraft(imported, ready), linked.id);
+  const original = posted.drafts.find((d) => d.id === linked.id)!;
+  const replacement = {
+    ...original,
+    id: id(),
+    status: "draft" as const,
+    description: "Tools, corrected",
+  };
+  const corrected = correct(posted, original.id, replacement, "Clarify");
+  expect(corrected.drafts.find((d) => d.id === replacement.id)).toMatchObject({
+    status: "posted",
+    paymentId,
+  });
+});

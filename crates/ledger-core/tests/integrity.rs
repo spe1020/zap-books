@@ -42,21 +42,17 @@ fn forged_correction_cannot_post_payment_or_import_source_twice() {
         let mut replacement = original.replacement(env.new_id());
         replacement.correction_of = Some(original.id.clone());
         let before = posted.clone();
-        if history {
-            // W2: a manual save cannot attach import evidence to a new draft.
-            // The approve check behind it is covered by the parity fixtures
-            // `integrity/expense-history/*: forged correction`.
-            assert_eq!(
-                save_draft(&posted, &replacement, &mut env),
-                Err(LedgerError::ImportSourceNotFromImport)
-            );
-        } else {
-            let forged = save_draft(&posted, &replacement, &mut env).unwrap();
-            assert_eq!(
-                approve(&forged, &replacement.id, &mut env),
-                Err(LedgerError::PaymentAlreadyLinked)
-            );
-        }
+        // A manual save cannot attach existing evidence to a new draft. The
+        // approve checks behind it are covered by the parity fixtures
+        // `integrity/*: forged correction`.
+        assert_eq!(
+            save_draft(&posted, &replacement, &mut env),
+            Err(if history {
+                LedgerError::ImportSourceNotFromImport
+            } else {
+                LedgerError::PaymentNotFromImport
+            })
+        );
         assert_eq!(posted, before);
         let corrected = correct(
             &posted,

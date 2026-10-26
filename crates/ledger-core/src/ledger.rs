@@ -237,7 +237,8 @@ pub fn blank_draft(b: &BusinessData, env: &mut impl Env) -> ExpenseDraft {
 }
 
 /// `saveDraft`: inserts or replaces a draft, records a new vendor name, and
-/// logs the change. Import evidence cannot be added, changed, or removed here.
+/// logs the change. Import evidence and payment links cannot be added,
+/// changed, or removed here.
 pub fn save_draft(
     business: &BusinessData,
     draft: &ExpenseDraft,
@@ -290,6 +291,17 @@ pub(crate) fn write_draft(
             LedgerError::ImportSourceChanged
         } else {
             LedgerError::ImportSourceNotFromImport
+        });
+    }
+    let payment = options
+        .evidence_of
+        .or(prior)
+        .and_then(|d| d.payment_id.as_ref());
+    if !options.allow_import_source && payment != draft.payment_id.as_ref() {
+        return Err(if payment.is_some_and(|p| !p.is_empty()) {
+            LedgerError::PaymentLinkLocked
+        } else {
+            LedgerError::PaymentNotFromImport
         });
     }
     if draft.business_id != b.profile.id

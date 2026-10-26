@@ -231,9 +231,12 @@ export function saveDraft(
  * `allowImportSource: true`; it is exported for that call alone and is not
  * part of the public ledger API.
  *
- * With `allowImportSource: false`, the draft's `importSource` must equal the
- * evidence it already had: the stored draft's, or `evidenceOf`'s when a
- * correction carries its original's evidence onto a new draft.
+ * With `allowImportSource: false`, the draft's `importSource` and `paymentId`
+ * must equal the evidence it already had: the stored draft's, or
+ * `evidenceOf`'s when a correction carries its original's evidence onto a
+ * new draft.
+ *
+ * @internal
  */
 export function writeDraft(
   business: BusinessData,
@@ -258,6 +261,13 @@ export function writeDraft(
       evidence
         ? "Imported source evidence cannot be changed."
         : "Imported source evidence can only be added by an import.",
+    );
+  const payment = (options.evidenceOf ?? prior)?.paymentId;
+  if (!options.allowImportSource && draft.paymentId !== payment)
+    throw new Error(
+      payment
+        ? "A linked payment cannot be changed or removed."
+        : "A payment can only be linked by an import.",
     );
   if (
     draft.businessId !== b.profile.id ||

@@ -160,8 +160,8 @@ const find = (b: BusinessData, vendor: string, status = "draft") => {
 };
 /**
  * Saves a draft through the import path (`allowImportSource: true`). Used only
- * to build inputs that carry import evidence on a second draft, so `approve`
- * fixtures can still reach its own duplicate-evidence check.
+ * to build inputs that carry import evidence or a payment link on a second
+ * draft, so `approve` fixtures can still reach its own duplicate checks.
  */
 const viaImport = (b: BusinessData, draft: ExpenseDraft) =>
   L.writeDraft(b, draft, { allowImportSource: true });
@@ -518,6 +518,13 @@ function drafts(ns: BusinessData, fw: BusinessData) {
       filename: "",
     },
   });
+  const notion = find(ns, "Notion");
+  save("payment link added to existing draft", ns, {
+    ...find(ns, "Figma"),
+    paymentId: notion.paymentId,
+  });
+  save("payment link removed", ns, { ...notion, paymentId: undefined });
+  save("payment link changed", ns, { ...notion, paymentId: "other" });
   // W2 (PARITY_NOTES.md): evidence can only be attached by an import.
   save("import source added to existing draft", ns, {
     ...find(ns, "Figma"),
@@ -614,7 +621,14 @@ function approvals(ns: BusinessData, fw: BusinessData) {
     vendor: "Notion Labs",
     documentIds: [],
   };
-  approve("payment already linked", L.saveDraft(posted, second), second.id);
+  record(
+    "approve",
+    "saveDraft: second draft claims a linked payment",
+    "saveDraft",
+    { business: posted, draft: second },
+    (i) => L.saveDraft(i.business, i.draft),
+  );
+  approve("payment already linked", viaImport(posted, second), second.id);
   approve(
     "category found by id in another business first",
     {

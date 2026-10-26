@@ -7565,6 +7565,107 @@
   "error": "Import source belongs to another business."
  },
  {
+  "name": "saveDraft: payment link added to existing draft",
+  "call": "saveDraft",
+  "env": {
+   "nextId": 223,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "draft": {
+    "id": "id-0003",
+    "businessId": "northstar",
+    "vendor": "Figma",
+    "date": "2026-10-22",
+    "description": "Professional plan · monthly subscription",
+    "amountMinor": 9600,
+    "currency": "USD",
+    "categoryId": "northstar-category-0",
+    "accountId": "northstar-card",
+    "purpose": "Professional plan · monthly subscription",
+    "documentIds": [
+     "id-0002"
+    ],
+    "status": "draft",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "paymentId": "id-0012"
+   }
+  },
+  "error": "A payment can only be linked by an import."
+ },
+ {
+  "name": "saveDraft: payment link removed",
+  "call": "saveDraft",
+  "env": {
+   "nextId": 223,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "draft": {
+    "id": "id-0011",
+    "businessId": "northstar",
+    "vendor": "Notion",
+    "date": "2026-10-20",
+    "description": "Notion",
+    "amountMinor": 18000,
+    "currency": "USD",
+    "categoryId": "northstar-category-0",
+    "accountId": "northstar-checking",
+    "purpose": "Team documentation and project workspace",
+    "documentIds": [
+     "id-0018"
+    ],
+    "status": "draft",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z"
+   }
+  },
+  "error": "A linked payment cannot be changed or removed."
+ },
+ {
+  "name": "saveDraft: payment link changed",
+  "call": "saveDraft",
+  "env": {
+   "nextId": 223,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "draft": {
+    "id": "id-0011",
+    "businessId": "northstar",
+    "vendor": "Notion",
+    "date": "2026-10-20",
+    "description": "Notion",
+    "amountMinor": 18000,
+    "currency": "USD",
+    "categoryId": "northstar-category-0",
+    "accountId": "northstar-checking",
+    "purpose": "Team documentation and project workspace",
+    "documentIds": [
+     "id-0018"
+    ],
+    "status": "draft",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "paymentId": "other"
+   }
+  },
+  "error": "A linked payment cannot be changed or removed."
+ },
+ {
   "name": "saveDraft: import source added to existing draft",
   "call": "saveDraft",
   "env": {
@@ -9066,7 +9167,7 @@
   "name": "blankDraft: evening before in New York",
   "call": "blankDraft",
   "env": {
-   "nextId": 596,
+   "nextId": 592,
    "now": "2026-10-15T02:00:00.000Z",
    "today": "2026-10-14"
   },
@@ -9076,7 +9177,7 @@
    }
   },
   "output": {
-   "id": "id-0596",
+   "id": "id-0592",
    "businessId": "northstar",
    "vendor": "",
    "date": "2026-10-14",
@@ -9096,7 +9197,7 @@
   "name": "currentPeriod: evening before in New York",
   "call": "currentPeriod",
   "env": {
-   "nextId": 597,
+   "nextId": 593,
    "now": "2026-10-15T02:00:00.000Z",
    "today": "2026-10-14"
   },
@@ -9107,7 +9208,7 @@
   "name": "blankDraft: last evening of October in New York",
   "call": "blankDraft",
   "env": {
-   "nextId": 597,
+   "nextId": 593,
    "now": "2026-11-01T01:30:00.000Z",
    "today": "2026-10-31"
   },
@@ -9117,7 +9218,7 @@
    }
   },
   "output": {
-   "id": "id-0597",
+   "id": "id-0593",
    "businessId": "northstar",
    "vendor": "",
    "date": "2026-10-31",
@@ -9137,7 +9238,7 @@
   "name": "currentPeriod: last evening of October in New York",
   "call": "currentPeriod",
   "env": {
-   "nextId": 598,
+   "nextId": 594,
    "now": "2026-11-01T01:30:00.000Z",
    "today": "2026-10-31"
   },
@@ -9148,7 +9249,7 @@
   "name": "currentPeriod: frozen clock",
   "call": "currentPeriod",
   "env": {
-   "nextId": 598,
+   "nextId": 594,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
