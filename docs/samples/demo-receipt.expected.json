@@ -1,0 +1,12 @@
+{
+  "vendor": "Paper & Pine",
+  "date": "2026-10-24",
+  "total": "42.50",
+  "currency": "USD",
+  "reference": "DEMO-RECEIPT-001",
+  "subtotal": "40.00",
+  "tax": "2.50",
+  "category": "northstar-category-1",
+  "clear": true,
+  "kind": "fictional sample"
+}

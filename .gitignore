@@ -4,3 +4,7 @@ dist/
 playwright-report/
 test-results/
 target/
+# Receipt benchmark output and any real-receipt corpus kept inside the repo.
+bench-results*.md
+*.details.local.md
+/corpus/

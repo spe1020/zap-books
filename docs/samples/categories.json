@@ -1,0 +1,22 @@
+[
+  {
+    "id": "northstar-category-0",
+    "name": "Software & subscriptions"
+  },
+  {
+    "id": "northstar-category-1",
+    "name": "Office & supplies"
+  },
+  {
+    "id": "northstar-category-2",
+    "name": "Travel & meals"
+  },
+  {
+    "id": "northstar-category-3",
+    "name": "Professional services"
+  },
+  {
+    "id": "northstar-category-4",
+    "name": "Marketing & design"
+  }
+]
