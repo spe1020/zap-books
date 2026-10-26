@@ -47,7 +47,11 @@ export class LocalRepository implements BusinessRepository {
   ): Promise<Workspace> {
     const db = await database();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction("workspace", "readwrite");
+      // Strict durability: `complete` fires only once the write is flushed,
+      // and callers report success only after `complete`.
+      const tx = db.transaction("workspace", "readwrite", {
+        durability: "strict",
+      });
       const store = tx.objectStore("workspace");
       const r = store.get("state");
       let conflict = false;

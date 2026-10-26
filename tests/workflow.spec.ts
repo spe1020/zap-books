@@ -100,6 +100,10 @@ test("CSV mapping, invalid rows, preview, repeated imports, and matching receipt
   await expect(page.locator('object[type="application/pdf"]')).toBeVisible();
   await expect(page.getByLabel("Amount", { exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Save draft" }).click();
+  // Success is shown only after the IndexedDB transaction commits. The row
+  // count alone is already 1 behind the open dialog, so it cannot tell that
+  // the save finished.
+  await expect(page.getByText("Draft saved.")).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(1);
   await page.reload();
   await page.getByRole("button", { name: /Expense inbox/ }).click();
