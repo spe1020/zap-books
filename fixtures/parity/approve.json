@@ -1497,7 +1497,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -2999,7 +3000,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -4495,7 +4497,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0031"
   },
@@ -5983,7 +5986,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -7407,7 +7411,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0003"
   },
@@ -8869,7 +8874,8 @@
        "detail": "Expense draft created"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0243"
   },
@@ -10398,7 +10404,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -11857,7 +11864,8 @@
        "detail": "Expense draft created"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0253"
   },
@@ -13276,7 +13284,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0011"
   },
@@ -14776,7 +14785,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "draft": {
     "id": "id-0263",
@@ -16338,7 +16348,8 @@
        "detail": "Expense draft created"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0263"
   },
@@ -17763,7 +17774,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0003"
   },
@@ -19257,7 +19269,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -20673,7 +20686,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "expenseId": "id-0011"
   },

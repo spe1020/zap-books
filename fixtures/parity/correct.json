@@ -1609,7 +1609,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -3468,7 +3469,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -5057,7 +5059,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "originalId": "id-0081",
    "replacement": {
@@ -6668,7 +6671,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "originalId": "id-0273",
    "replacement": {
@@ -8441,7 +8445,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -9938,7 +9943,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "originalId": "id-0011",
    "replacement": {
@@ -11458,7 +11464,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "originalId": "id-0011",
    "replacement": {
@@ -12979,7 +12986,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "originalId": "id-0011",
    "replacement": {
@@ -14665,7 +14673,8 @@
       "detail": "Balanced journal entry recorded"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  }
 ]

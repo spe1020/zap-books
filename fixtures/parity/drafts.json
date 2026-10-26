@@ -1472,7 +1472,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    }
   },
   "output": {
@@ -2968,7 +2969,8 @@
       "detail": "Expense draft created"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -4442,7 +4444,8 @@
       "detail": "Expense draft created"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -5916,7 +5919,8 @@
       "detail": "Expense draft created"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -7383,7 +7387,8 @@
       "detail": "Expense draft updated"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {
@@ -9160,7 +9165,8 @@
       "detail": "Changed"
      }
     }
-   ]
+   ],
+   "extractions": []
   }
  },
  {

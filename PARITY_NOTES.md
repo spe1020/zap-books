@@ -232,6 +232,9 @@ Fixture: `import/previewImport: combined amount exceeds the safe range`.
 
 ## Not ported
 
+- `src/domain/extraction.ts` (applying receipt suggestions and recording
+  their outcomes). It is Review-screen logic, not a ledger rule. Rust has the
+  `ExtractionRecord` types only (serde, `extractions` defaults to `[]`).
 - `money()` display formatting (uses `Intl`; a UI concern).
 - `seed.ts`. Rust tests load the seed recorded by the fixture generator
   (`fixtures/parity/states/seed.json`).

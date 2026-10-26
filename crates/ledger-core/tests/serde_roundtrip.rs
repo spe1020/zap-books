@@ -60,7 +60,23 @@ fn sample() -> Value {
             "events": [{ "id": "e1", "businessId": "b1", "schemaVersion": 1, "type": "settings.updated",
                          "actor": "local-demo-user", "occurredAt": "2026-10-15T12:00:00.000Z",
                          "sourceIds": ["doc"], "entityId": "d1",
-                         "payload": { "detail": "x", "count": 2, "ratio": 0.5, "ok": false } }]
+                         "payload": { "detail": "x", "count": 2, "ratio": 0.5, "ok": false } }],
+            "extractions": [{
+                "id": "x1", "businessId": "b1", "documentId": "doc", "draftId": "d1",
+                "model": "m", "promptVersion": "p1", "createdAt": "2026-10-15T12:00:00.000Z",
+                "fields": {
+                    "vendor": { "status": "found", "value": "Acme", "evidence": "ACME" },
+                    "date": { "status": "found", "value": "2026-10-01", "evidence": "10/01/2026" },
+                    "total": { "status": "found", "value": 500, "evidence": "TOTAL $5.00" },
+                    "currency": { "status": "found", "value": "USD", "evidence": "$" },
+                    "reference": { "status": "absent", "value": null, "evidence": "" },
+                    "subtotal": { "status": "unclear", "value": null, "evidence": "SUB ?" },
+                    "tax": { "status": "absent", "value": null, "evidence": "" },
+                    "category": { "status": "found", "value": "cat", "evidence": "Office" }
+                },
+                "accepted": ["vendor", "total"],
+                "outcomes": { "vendor": "accepted", "total": "edited", "date": "ignored" }
+            }]
         }]
     })
 }
@@ -110,4 +126,15 @@ fn journal_entries_build_only_through_checked_constructors() {
         "Journal entry must balance."
     );
     assert!(JournalEntry::new(b, b.journals[0].to_unchecked()).is_ok());
+}
+
+#[test]
+fn workspaces_saved_before_extractions_load_with_none() {
+    let mut input = sample();
+    input["businesses"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("extractions");
+    let workspace: Workspace = serde_json::from_value(input).unwrap();
+    assert!(workspace.businesses[0].extractions.is_empty());
 }

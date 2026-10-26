@@ -2694,7 +2694,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -6361,7 +6362,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "journal",
    "filter": {
@@ -8274,7 +8276,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -9822,7 +9825,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -11370,7 +11374,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -12918,7 +12923,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -14466,7 +14472,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -16014,7 +16021,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -17562,7 +17570,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -19110,7 +19119,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -20658,7 +20668,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -22206,7 +22217,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -23754,7 +23766,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "expenses",
    "filter": {
@@ -25302,7 +25315,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "journal",
    "filter": {
@@ -27054,7 +27068,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "journal",
    "filter": {
@@ -28806,7 +28821,8 @@
        "detail": "Balanced journal entry recorded"
       }
      }
-    ]
+    ],
+    "extractions": []
    },
    "format": "journal",
    "filter": {

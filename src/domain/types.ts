@@ -140,6 +140,7 @@ export interface BusinessData {
   rules: ClassificationRule[];
   audits: AuditEvent[];
   events: FinancialEvent[];
+  extractions: ExtractionRecord[];
 }
 export interface Workspace {
   schemaVersion: 1;
@@ -154,6 +155,72 @@ export interface AIProposal {
   uncertainty: string;
   simulated: true;
   ruleId?: string;
+}
+/** The fields a receipt reader proposes. Business purpose is never one. */
+export const extractionFields = [
+  "vendor",
+  "date",
+  "total",
+  "currency",
+  "reference",
+  "subtotal",
+  "tax",
+  "category",
+] as const;
+export type ExtractionFieldName = (typeof extractionFields)[number];
+export interface ExtractedField<T> {
+  status: "found" | "unclear" | "absent";
+  /** null unless status is "found". */
+  value: T | null;
+  /** Short text seen on the receipt; untrusted, shown as plain text. */
+  evidence: string;
+}
+export interface ExtractionFields {
+  vendor: ExtractedField<string>;
+  /** YYYY-MM-DD */
+  date: ExtractedField<string>;
+  /** Minor units. */
+  total: ExtractedField<number>;
+  currency: ExtractedField<Currency>;
+  reference: ExtractedField<string>;
+  subtotal: ExtractedField<number>;
+  tax: ExtractedField<number>;
+  /** A category id of this business. */
+  category: ExtractedField<string>;
+}
+export interface ExtractionResult {
+  fields: ExtractionFields;
+  warnings: string[];
+  model: string;
+  promptVersion: string;
+  pagesRead: number;
+  usedTextLayer: boolean;
+  durationMs: number;
+}
+export type ExtractionOutcome = "accepted" | "edited" | "ignored" | "unclear";
+/** What a receipt reader proposed for a draft, and what the user did. */
+export interface ExtractionRecord {
+  id: string;
+  businessId: string;
+  documentId: string;
+  draftId: string;
+  model: string;
+  promptVersion: string;
+  createdAt: string;
+  fields: ExtractionFields;
+  /** Fields the user clicked Accept on while editing. */
+  accepted: ExtractionFieldName[];
+  /** Per-field outcome, set when the draft is approved; null before. */
+  outcomes: Partial<Record<ExtractionFieldName, ExtractionOutcome>> | null;
+}
+export type ExtractorHealth =
+  { ready: true; model: string } | { ready: false; reason: string };
+export interface ExtractionAdapter {
+  health(): Promise<ExtractorHealth>;
+  extract(
+    document: SourceDocument,
+    categories: { id: string; name: string }[],
+  ): Promise<ExtractionResult>;
 }
 export interface AIAdapter {
   propose(business: BusinessData, expense: ExpenseDraft): AIProposal;
