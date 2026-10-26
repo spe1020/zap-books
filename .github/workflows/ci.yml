@@ -42,6 +42,12 @@ jobs:
       - name: npm run format:check
         run: npm run format:check
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: npm run test:e2e
+        run: npm run test:e2e
+
       - name: Parity fixtures match the TypeScript
         run: |
           npm run parity:fixtures

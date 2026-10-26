@@ -374,6 +374,11 @@ test("bank-linked corrections explain locked amounts and preserve payment eviden
     })),
   ).toEqual([]);
   await page.getByRole("button", { name: "Post correction" }).click();
+  // The modal keeps the page inert until the correction commits; typing
+  // before then is lost.
+  await expect(
+    page.getByText("Correction posted. Original history preserved."),
+  ).toBeVisible();
   await page.getByLabel("Search transactions").fill("Notion");
   await expect(page.locator("tbody tr")).toHaveCount(2);
   await page
