@@ -15,7 +15,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use ledger_core::{Currency, ExtractedField, FieldStatus, Minor};
+use ledger_core::{Currency, ExtractedField, ExtractedLines, FieldStatus, Minor};
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -173,6 +173,14 @@ fn status_and_value<T: serde::Serialize>(f: &ExtractedField<T>) -> (FieldStatus,
     )
 }
 
+/// A list is scored by the sum of its lines.
+fn status_and_sum(f: &ExtractedLines) -> (FieldStatus, Value) {
+    (
+        f.status,
+        f.value.map_or(Value::Null, |v| Value::from(v.get())),
+    )
+}
+
 /// Scores every labelled field of one result.
 pub fn score(expected: &Expected, result: &ExtractionResult) -> BTreeMap<&'static str, Scored> {
     let f = &result.fields;
@@ -188,7 +196,7 @@ pub fn score(expected: &Expected, result: &ExtractionResult) -> BTreeMap<&'stati
             "currency" => status_and_value(&f.currency),
             "reference" => status_and_value(&f.reference),
             "subtotal" => status_and_value(&f.subtotal),
-            "tax" => status_and_value(&f.tax),
+            "tax" => status_and_sum(&f.tax),
             "tip" => status_and_value(&f.tip),
             _ => status_and_value(&f.category),
         };

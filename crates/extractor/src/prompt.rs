@@ -4,7 +4,7 @@
 use serde_json::{json, Value};
 
 use crate::extract::Category;
-use crate::normalize::clean_text;
+use crate::normalize::{clean_text, MAX_LINES};
 
 pub const PROMPT_VERSION: &str = "receipt-v2";
 
@@ -23,13 +23,17 @@ For every field return "status", "value" and "evidence":
 - "absent": the receipt doesn't show it. "value" is null and "evidence" is "".
 If you are not sure, use "unclear". Never guess. A wrong value marked "found" is the worst possible answer; "unclear" is always acceptable.
 
+The list fields tax, fees and discounts return "status" and "lines" instead: one {"amount", "evidence"} for each printed line, "amount" copied as printed. "lines" is [] when "absent"; when "unclear", give only what you can see.
+
 Fields:
 - vendor: the business that issued the receipt, as printed.
 - date: the purchase date as YYYY-MM-DD. If the day and month could be swapped (like 03/04/2026) and nothing on the receipt settles it, use "unclear".
 - currency: USD, EUR or GBP when the receipt makes it clear (an ISO code, or the symbol $, € or £; $ alone means USD unless the receipt shows another dollar currency). If the receipt is in another currency, return that currency's ISO code. If unsure, "unclear".
 - total: the final amount paid, including any tax and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
 - subtotal: the amount before tax, as printed text.
-- tax: the tax amount, as printed text. If there are several tax lines, "unclear". A tax printed as 0.00 is "found" with value "0.00".
+- tax: every printed tax line. A tax printed as 0.00 is a line with amount "0.00".
+- fees: every surcharge, convenience fee, service fee or delivery fee line.
+- discounts: every coupon, savings, reward or markdown line shown as a deduction, with its amount as printed.
 - tip: only a line whose label says tip, gratuity or service (charge), added on top of the subtotal and tax, as printed text (a legible handwritten tip counts). Most receipts have no tip line; then "absent". The tip is never the total: a line labelled total, amount paid, balance or amount due is not a tip.
 - reference: the receipt, invoice or order number.
 - category: the id of the category below that clearly fits the purchase, or "absent" if none clearly fits. Only use an id from this list.
@@ -81,28 +85,65 @@ fn field_schema() -> Value {
     })
 }
 
+/// A list of printed lines: tax, fees, discounts.
+fn lines_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {
+            "status": { "type": "string", "enum": ["found", "unclear", "absent"] },
+            "lines": {
+                "type": "array",
+                "maxItems": MAX_LINES,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "amount": { "type": "string" },
+                        "evidence": { "type": "string", "maxLength": 120 }
+                    },
+                    "required": ["amount", "evidence"],
+                    "additionalProperties": false
+                }
+            }
+        },
+        "required": ["status", "lines"],
+        "additionalProperties": false
+    })
+}
+
 /// The fields in the order the model fills them in. Ollama constrains the
 /// answer to the schema's key order, so the total is read before the parts
 /// that are checked against it. `serde_json`'s `preserve_order` feature keeps
 /// this order when the schema is serialized.
-pub const FIELD_ORDER: [&str; 9] = [
+pub const FIELD_ORDER: [&str; 11] = [
     "vendor",
     "date",
     "currency",
     "total",
     "subtotal",
     "tax",
+    "fees",
+    "discounts",
     "tip",
     "reference",
     "category",
 ];
+
+/// The fields answered as lists of printed lines.
+pub const LIST_FIELDS: [&str; 3] = ["tax", "fees", "discounts"];
 
 /// The JSON schema passed as Ollama's structured-output `format`. The answer
 /// is still validated by `normalize`.
 pub fn answer_schema() -> Value {
     let properties: serde_json::Map<String, Value> = FIELD_ORDER
         .iter()
-        .map(|n| ((*n).to_string(), field_schema()))
+        .map(|n| {
+            let schema = if LIST_FIELDS.contains(n) {
+                lines_schema()
+            } else {
+                field_schema()
+            };
+            ((*n).to_string(), schema)
+        })
         .collect();
     json!({
         "type": "object",

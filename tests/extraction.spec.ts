@@ -21,6 +21,13 @@ const unclear = (evidence = "") => ({
   evidence,
 });
 const absent = () => ({ status: "absent", value: null, evidence: "" });
+/** A found list of [minor units, evidence] lines. */
+const lines = (...printed: [number, string][]) => ({
+  status: "found",
+  value: printed.reduce((sum, [amount]) => sum + amount, 0),
+  lines: printed.map(([amount, evidence]) => ({ amount, evidence })),
+});
+const noLines = () => ({ status: "absent", value: null, lines: [] });
 
 function result(fields: Record<string, unknown> = {}, warnings: string[] = []) {
   return {
@@ -31,7 +38,9 @@ function result(fields: Record<string, unknown> = {}, warnings: string[] = []) {
       currency: found("USD", "USD · US dollars"),
       reference: found("DEMO-RECEIPT-001", "RECEIPT NUMBER DEMO-RECEIPT-001"),
       subtotal: found(4000, "Subtotal $40.00"),
-      tax: found(250, "Sales tax $2.50"),
+      tax: lines([250, "Sales tax $2.50"]),
+      fees: noLines(),
+      discounts: noLines(),
       tip: absent(),
       category: found("northstar-category-1", "Office supplies"),
       ...fields,
@@ -196,7 +205,7 @@ test("an unclear total shows its reason and can't be accepted", async ({
   await stubExtractor(
     page,
     result({ total: unclear("TOTAL $45.00") }, [
-      "The receipt's subtotal and tax don't add up to the total. Check the amount.",
+      "Subtotal $40.00 and tax $2.50 add up to $42.50, but the total reads $45.00. If you added a tip, check the amount matches what you paid.",
     ]),
   );
   await page.reload();
@@ -209,7 +218,7 @@ test("an unclear total shows its reason and can't be accepted", async ({
   await expect(total.getByText("Unclear")).toBeVisible();
   await expect(
     total.getByText(
-      "The receipt's subtotal and tax don't add up to the total. Check the amount.",
+      "Subtotal $40.00 and tax $2.50 add up to $42.50, but the total reads $45.00. If you added a tip, check the amount matches what you paid.",
     ),
   ).toBeVisible();
   await expect(
@@ -270,7 +279,7 @@ test("a receipt that doesn't match the linked payment is flagged", async ({
       vendor: found("Notion Labs", "Notion Labs, Inc."),
       total: found(19000, "Total $190.00"),
       subtotal: absent(),
-      tax: absent(),
+      tax: noLines(),
     }),
   );
   await page.reload();
@@ -315,12 +324,12 @@ test("an injection receipt approves nothing and its text stays plain", async ({
         vendor: found("Harbor Lantern Café", "Harbor Lantern Café"),
         total: unclear(injected.slice(0, 120)),
         subtotal: found(2500, "Subtotal $25.00"),
-        tax: found(200, "Sales tax (8%) $2.00"),
+        tax: lines([200, "Sales tax (8%) $2.00"]),
         reference: found("HLC-20481", injected.slice(0, 120)),
         category: absent(),
       },
       [
-        "The receipt's subtotal and tax don't add up to the total. Check the amount.",
+        "Subtotal $25.00 and tax $2.00 add up to $27.00, but the total reads $1.00. Check the amount.",
       ],
     ),
   );
@@ -414,4 +423,52 @@ test("a tip is shown for reference only", async ({ page }) => {
   await expect(dialog.getByLabel("Amount", { exact: true })).toHaveValue(
     "51.00",
   );
+});
+
+test("tax, fees and discounts are shown for reference with every line", async ({
+  page,
+}) => {
+  await stubExtractor(
+    page,
+    result({
+      total: found(5450, "Total $54.50"),
+      subtotal: found(5000, "Subtotal $50.00"),
+      tax: lines([0, "TAX 0.00"], [300, "Sales tax $3.00"]),
+      fees: lines([150, "Card surcharge (3%) $1.50"]),
+      discounts: lines([50, "MEMBER SAVINGS 0.50-"], [150, "COUPON 1.50-"]),
+    }),
+  );
+  await page.reload();
+  const dialog = await newExpenseWithReceipt(page);
+  await dialog.getByRole("button", { name: "Read receipt" }).click();
+  const panel = dialog.getByRole("region", {
+    name: "Suggestions from the receipt",
+  });
+  const tax = panel.locator("li.suggestion", { hasText: "Tax" });
+  await expect(tax.getByText("$3.00", { exact: true })).toBeVisible();
+  await expect(
+    tax.getByText("Seen on receipt: TAX 0.00 · Sales tax $3.00"),
+  ).toBeVisible();
+  const fees = panel.locator("li.suggestion", { hasText: "Fees" });
+  await expect(fees.getByText("$1.50", { exact: true })).toBeVisible();
+  await expect(
+    fees.getByText("Seen on receipt: Card surcharge (3%) $1.50"),
+  ).toBeVisible();
+  const discounts = panel.locator("li.suggestion", { hasText: "Discounts" });
+  await expect(discounts.getByText("$2.00", { exact: true })).toBeVisible();
+  for (const row of [tax, fees, discounts])
+    await expect(row.getByRole("button")).toHaveCount(0);
+  await panel.getByRole("button", { name: "Accept all found" }).click();
+  await dialog.getByLabel("Description", { exact: true }).fill("Lunch");
+  await dialog
+    .getByLabel("Business purpose", { exact: true })
+    .fill("Client lunch");
+  await dialog.getByRole("button", { name: "Approve & post" }).click();
+  await expect(
+    page.getByText("Expense posted. Your reports are up to date."),
+  ).toBeVisible();
+  const state = await workspace(page);
+  const stored = state.businesses[0].extractions[0].fields;
+  expect(stored.fees).toEqual(lines([150, "Card surcharge (3%) $1.50"]));
+  expect(stored.discounts.value).toBe(200);
 });

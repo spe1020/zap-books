@@ -7,10 +7,17 @@ import {
   compareWithPayment,
   fieldReason,
   finalizeExtractions,
+  linesEvidence,
   recordExtraction,
+  upgradeExtractionFields,
   type FormValues,
 } from "./extraction";
-import type { ExtractedField, ExtractionResult } from "./types";
+import type {
+  ExtractedField,
+  ExtractedLines,
+  ExtractionFields,
+  ExtractionResult,
+} from "./types";
 
 const found = <T>(value: T, evidence: string): ExtractedField<T> => ({
   status: "found",
@@ -27,6 +34,11 @@ const absent = <T>(): ExtractedField<T> => ({
   value: null,
   evidence: "",
 });
+const noLines = (): ExtractedLines => ({
+  status: "absent",
+  value: null,
+  lines: [],
+});
 
 function result(
   overrides: Partial<ExtractionResult["fields"]> = {},
@@ -39,7 +51,9 @@ function result(
       currency: found("USD", "$"),
       reference: found("R-1", "Receipt R-1"),
       subtotal: absent(),
-      tax: absent(),
+      tax: noLines(),
+      fees: noLines(),
+      discounts: noLines(),
       tip: absent(),
       category: found("northstar-category-1", "Office supplies"),
       ...overrides,
@@ -135,7 +149,13 @@ describe("recording what the reader proposed", () => {
       purpose: "Client workshop",
     };
     b = saveDraft(b, draft);
-    const r = result({ tax: unclear("TAX ?") });
+    const r = result({
+      tax: {
+        status: "unclear",
+        value: null,
+        lines: [{ amount: null, evidence: "TAX ?" }],
+      },
+    });
     b = recordExtraction(b, {
       draftId: draft.id,
       documentId: "doc-1",
@@ -177,21 +197,72 @@ test("unclear fields find the warning that explains them", () => {
     ...result({ total: unclear("TOTAL $45.00"), subtotal: unclear("SUB") }),
     warnings: [
       "The subtotal couldn't be read as an exact amount. Check it on the receipt.",
-      "The receipt's subtotal and tax don't add up to the total. Check the amount.",
+      "Subtotal $50.00, tax $3.00 and fees $1.50 add up to $54.50, but the total reads $55.50. Check the amount.",
+      "The fees lines include a negative amount. Check them on the receipt.",
     ],
   };
   expect(fieldReason(r, "total")).toBe(r.warnings[1]);
   expect(fieldReason(r, "subtotal")).toBe(r.warnings[0]);
+  expect(fieldReason(r, "fees")).toBe(r.warnings[2]);
   expect(fieldReason(r, "tax")).toBeUndefined();
 });
 
-test("an unclear total explains a missing tip", () => {
-  const warning =
-    "The total is more than the subtotal plus tax. If you added a tip, check the amount matches what you paid.";
-  const r = {
-    ...result({ total: unclear("TOTAL $51.00") }),
-    warnings: [warning],
-  };
-  expect(fieldReason(r, "total")).toBe(warning);
-  expect(fieldReason(r, "tip")).toBeUndefined();
+test("an unclear total explains a missing tip or a refund line", () => {
+  for (const warning of [
+    "Subtotal $40.00 and tax $2.50 add up to $42.50, but the total reads $51.00. If you added a tip, check the amount matches what you paid.",
+    "The subtotal reads $40.00, but the total reads $45.00. If you added a tip, check the amount matches what you paid.",
+    "The only amount is a payment or refund line (−$24.00). Enter the total yourself.",
+  ]) {
+    const r = {
+      ...result({ total: unclear("TOTAL") }),
+      warnings: [warning],
+    };
+    expect(fieldReason(r, "total")).toBe(warning);
+    expect(fieldReason(r, "tip")).toBeUndefined();
+  }
+});
+
+test("records saved before tax was a list load as lists", () => {
+  const legacy = {
+    ...result().fields,
+    tax: found(250, "TAX $2.50"),
+  } as Record<string, unknown>;
+  delete legacy.fees;
+  delete legacy.discounts;
+  delete legacy.tip;
+  const fields = upgradeExtractionFields(legacy as unknown as ExtractionFields);
+  expect(fields.tax).toEqual({
+    status: "found",
+    value: 250,
+    lines: [{ amount: 250, evidence: "TAX $2.50" }],
+  });
+  expect(fields.fees).toEqual(noLines());
+  expect(fields.discounts).toEqual(noLines());
+  expect(fields.tip).toEqual(absent());
+  expect(
+    upgradeExtractionFields({
+      ...result().fields,
+      tax: unclear("TAX ?") as unknown as ExtractedLines,
+    }).tax,
+  ).toEqual({
+    status: "unclear",
+    value: null,
+    lines: [{ amount: null, evidence: "TAX ?" }],
+  });
+  // Records already in the list shape are unchanged.
+  const current = result().fields;
+  expect(upgradeExtractionFields(current)).toEqual(current);
+});
+
+test("a list's evidence joins its lines", () => {
+  expect(
+    linesEvidence({
+      status: "found",
+      value: 45,
+      lines: [
+        { amount: 0, evidence: "TAX 0.00" },
+        { amount: 45, evidence: "TAX 0.45" },
+      ],
+    }),
+  ).toBe("TAX 0.00 · TAX 0.45");
 });

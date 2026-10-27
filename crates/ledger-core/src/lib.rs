@@ -37,8 +37,8 @@ pub use money::{amount_input, parse_money, Currency, Minor, MAX_MINOR};
 pub use types::{
     Account, AccountKind, Approval, AuditEvent, Business, BusinessData, Category,
     ClassificationRule, DocumentKind, EventType, ExpenseDraft, ExpenseStatus, ExtractedField,
-    ExtractionFieldName, ExtractionFields, ExtractionOutcome, ExtractionRecord, FieldStatus,
-    FinancialEvent, ImportProvider, ImportedExpenseSource, ImportedTransaction, JournalEntry,
-    JournalKind, JournalLine, PayloadValue, SchemaVersion, SourceDocument, UncheckedJournal,
-    Vendor, Workspace,
+    ExtractedLine, ExtractedLines, ExtractionFieldName, ExtractionFields, ExtractionOutcome,
+    ExtractionRecord, FieldStatus, FinancialEvent, ImportProvider, ImportedExpenseSource,
+    ImportedTransaction, JournalEntry, JournalKind, JournalLine, PayloadValue, SchemaVersion,
+    SourceDocument, UncheckedJournal, Vendor, Workspace,
 };

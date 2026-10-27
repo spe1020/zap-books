@@ -89,6 +89,15 @@ fn absent() -> Value {
     json!({ "status": "absent", "value": null, "evidence": "" })
 }
 
+/// A found list of `(amount, evidence)` lines.
+fn lines(lines: &[(&str, &str)]) -> Value {
+    let lines: Vec<Value> = lines
+        .iter()
+        .map(|(amount, evidence)| json!({ "amount": amount, "evidence": evidence }))
+        .collect();
+    json!({ "status": "found", "lines": lines })
+}
+
 /// What a model should answer for docs/samples/demo-receipt.*.
 fn demo_answer() -> Value {
     json!({
@@ -98,7 +107,7 @@ fn demo_answer() -> Value {
         "currency": found("USD", "USD · US dollars"),
         "reference": found("DEMO-RECEIPT-001", "RECEIPT NUMBER DEMO-RECEIPT-001"),
         "subtotal": found("40.00", "Subtotal $40.00"),
-        "tax": found("2.50", "Sales tax (sample rate: 6.25%) $2.50"),
+        "tax": lines(&[("2.50", "Sales tax (sample rate: 6.25%) $2.50")]),
         "category": found("northstar-category-1", "Office supplies"),
     })
 }
@@ -158,6 +167,18 @@ async fn happy_path_reads_an_image_receipt() {
     assert_eq!(body["fields"]["date"]["value"], "2026-10-24");
     assert_eq!(body["fields"]["currency"]["value"], "USD");
     assert_eq!(body["fields"]["category"]["value"], "northstar-category-1");
+    assert_eq!(
+        body["fields"]["tax"],
+        json!({ "status": "found", "value": 250, "lines": [
+            { "amount": 250, "evidence": "Sales tax (sample rate: 6.25%) $2.50" }
+        ] })
+    );
+    for list in ["fees", "discounts"] {
+        assert_eq!(
+            body["fields"][list],
+            json!({ "status": "absent", "value": null, "lines": [] })
+        );
+    }
     assert_eq!(body["warnings"], json!([]));
     assert_eq!(body["model"], MODEL);
     assert_eq!(body["promptVersion"], extractor::prompt::PROMPT_VERSION);
@@ -204,6 +225,8 @@ async fn the_schema_is_sent_with_fields_in_declared_order() {
             "total",
             "subtotal",
             "tax",
+            "fees",
+            "discounts",
             "tip",
             "reference",
             "category"
@@ -249,7 +272,7 @@ async fn schema_valid_nonsense_becomes_unclear_or_absent() {
         "currency": found("XYZ", "XYZ"),
         "reference": found("R-1", ""),
         "subtotal": found("-3.00", "SUB"),
-        "tax": found("-1.00", "TAX"),
+        "tax": lines(&[("-1.00", "TAX")]),
         "category": found("not-a-category", "Office"),
     }))
     .await;
@@ -427,7 +450,7 @@ async fn an_injected_total_never_comes_back_as_found() {
         "currency": found("USD", "TOTAL · USD"),
         "reference": found("HLC-20481", "ORDER NUMBER HLC-20481"),
         "subtotal": found("25.00", "Subtotal $25.00"),
-        "tax": found("2.00", "Sales tax (8%) $2.00"),
+        "tax": lines(&[("2.00", "Sales tax (8%) $2.00")]),
         "category": absent(),
     }))
     .await;
@@ -437,7 +460,7 @@ async fn an_injected_total_never_comes_back_as_found() {
     assert_eq!(body["fields"]["total"]["status"], "unclear");
     assert_eq!(body["fields"]["total"]["value"], Value::Null);
     assert!(body["warnings"].as_array().unwrap().contains(&json!(
-        "The receipt's subtotal and tax don't add up to the total. Check the amount."
+        "Subtotal $25.00 and tax $2.00 add up to $27.00, but the total reads $1.00. Check the amount."
     )));
     let mut keys: Vec<&String> = body.as_object().unwrap().keys().collect();
     keys.sort();
@@ -471,7 +494,7 @@ async fn a_tipped_receipt_keeps_its_total_when_the_tip_is_read() {
         "currency": found("GBP", "GBP"),
         "reference": found("CK-7731", "BILL NUMBER CK-7731"),
         "subtotal": found("£30.00", "Subtotal £30.00"),
-        "tax": found("£6.00", "VAT (20%) £6.00"),
+        "tax": lines(&[("£6.00", "VAT (20%) £6.00")]),
         "tip": found("£4.50", "Service (12.5%, optional) £4.50"),
         "category": absent(),
     });
@@ -491,6 +514,6 @@ async fn a_tipped_receipt_keeps_its_total_when_the_tip_is_read() {
     assert_eq!(body["fields"]["total"]["status"], "unclear");
     assert_eq!(
         body["warnings"],
-        json!(["The total is more than the subtotal plus tax. If you added a tip, check the amount matches what you paid."])
+        json!(["Subtotal £30.00 and tax £6.00 add up to £36.00, but the total reads £40.50. If you added a tip, check the amount matches what you paid."])
     );
 }

@@ -12,6 +12,7 @@ import {
   compareWithPayment,
   fieldReason,
   isLocked,
+  linesEvidence,
   suggestedValue,
   type ApplicableField,
   type FormValues,
@@ -25,6 +26,8 @@ const names: Record<ExtractionFieldName, string> = {
   reference: "Receipt number",
   subtotal: "Subtotal",
   tax: "Tax",
+  fees: "Fees",
+  discounts: "Discounts",
   tip: "Tip",
   category: "Category",
 };
@@ -40,6 +43,8 @@ function display(
     case "total":
     case "subtotal":
     case "tax":
+    case "fees":
+    case "discounts":
     case "tip": {
       const v = f[field].value;
       return v === null ? "" : money(v, currency as ExpenseDraft["currency"]);
@@ -103,6 +108,7 @@ export function Suggestions({
 
   const row = (field: ExtractionFieldName) => {
     const f = result.fields[field];
+    const evidence = "lines" in f ? linesEvidence(f) : f.evidence;
     const applicable = (applicableFields as readonly string[]).includes(field);
     const comparison = comparisons.find((c) => c.field === field);
     let action: React.ReactNode = null;
@@ -151,8 +157,8 @@ export function Suggestions({
             <span className="muted small">Not on the receipt</span>
           )}
         </div>
-        {f.evidence && (
-          <p className="suggestion-evidence">Seen on receipt: {f.evidence}</p>
+        {evidence && (
+          <p className="suggestion-evidence">Seen on receipt: {evidence}</p>
         )}
         {f.status === "unclear" && (
           <p className="suggestion-reason">
@@ -198,7 +204,9 @@ export function Suggestions({
       )}
       <ul className="suggestion-list">
         {applicableFields.map(row)}
-        {(["reference", "subtotal", "tax", "tip"] as const).map(row)}
+        {(
+          ["reference", "subtotal", "tax", "fees", "discounts", "tip"] as const
+        ).map(row)}
       </ul>
       {ruleCategoryId &&
         readerCategory &&
