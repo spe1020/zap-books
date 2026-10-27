@@ -166,17 +166,28 @@ read from."
   couldn't be confirmed from the receipt."
 
 - **subtotal:** only a line labelled Subtotal or an equivalent ("Sub Total",
-  "Merchandise"). Otherwise absent; never computed or inferred.
+  "Merchandise"). Never computed or inferred, and a line whose label contains
+  Total is never a subtotal. The evidence must contain `sub` or `merchandise`,
+  or the subtotal is absent.
 - **tax:** every printed tax line. None printed means absent, not `0.00`. A
   line printed as `0.00` is a line. The tax is the sum of its lines.
 - **fees:** every surcharge or convenience, service or delivery fee (and a
   service charge) added after the subtotal. A fee listed among the items is
-  already in the subtotal and is left out.
+  already in the subtotal and is left out. A fee line that prints a
+  percentage must be that percentage of the subtotal, or of the subtotal and
+  tax (as with service charges), give or take one cent. If not, fees and tax
+  are both unclear: "The fee and tax may be swapped. Check both." Tax is never
+  checked this way, because it often applies to only some items.
 - **discounts:** every coupon, savings, reward or markdown line printed as a
   deduction. Stored as positive amounts whatever sign is printed (`0.25-`,
-  `-0.25`, `(0.25)`). A "Total saved" summary is not a discount line.
-- **tip:** only a tip the customer actually added (a filled-in tip line). A
-  table of suggested tips is not a tip.
+  `-0.25`, `(0.25)`). Each line's evidence must show a deduction (a minus
+  sign, parentheses, or a word such as disc, coupon, savings, off or promo);
+  a regular, original, clearance or sale price is not one. A savings summary
+  ("Total saved", "You saved", YTD) is never a discount line. Either problem
+  makes the whole list unclear.
+- **tip:** only a tip the customer actually added. A Tip or Gratuity line with
+  an amount, printed between the subtotal and the total, is a tip even when a
+  table of suggested tips is also printed; the table alone is not a tip.
 - **reference:** preferably a number labelled as a receipt, transaction,
   invoice or order number; never a card, account, approval or phone number.
 - **total:** the amount actually paid, including tax, fees and tip. Never a
@@ -193,6 +204,9 @@ The total stays found only if it equals either `subtotal + tax + fees + tip`
 or `subtotal − discounts + tax + fees + tip` (receipts differ on whether the
 printed subtotal is before or after savings). Anything not read counts as 0.
 Without a subtotal line there is nothing to check against, so no check runs.
+If the check fails with the fees but passes without them, the fees were
+printed among the items and are already in the subtotal: they are left out,
+the total stays found, and a warning says so.
 When the check fails, the total is unclear and the warning names what was
 read, for example "Subtotal $50.00, tax $3.00 and fees $1.50 add up to $54.50,
 but the total reads $55.50. Check the amount." When only a subtotal and tax

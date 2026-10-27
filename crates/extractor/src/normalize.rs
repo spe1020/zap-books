@@ -10,7 +10,10 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::error::ExtractError;
-use crate::evidence::{amount_in_evidence, date_in_evidence, has_label, is_thousands_grouped};
+use crate::evidence::{
+    amount_in_evidence, date_in_evidence, fits_percentage, has_label, is_thousands_grouped,
+    shows_deduction,
+};
 use crate::extract::Category;
 
 /// The longest evidence string kept, in characters.
@@ -341,6 +344,52 @@ const PAYMENT: [&str; 3] = ["payment", "paid", "charged"];
 
 /// ...unless the line also has one of these, so it may be money coming back.
 const REFUND: [&str; 4] = ["refund", "credit", "return", "reversal"];
+
+/// Words that mark a summary of savings, which repeats the deduction lines.
+pub const SUMMARY: [&str; 4] = ["total", "summary", "you saved", "ytd"];
+
+/// The warning when a fee's printed percentage doesn't match its amount.
+pub const MAYBE_SWAPPED: &str = "The fee and tax may be swapped. Check both.";
+
+/// Whether a subtotal's evidence carries a subtotal label.
+fn is_subtotal_label(evidence: &str) -> bool {
+    let e = evidence.to_lowercase();
+    e.contains("sub") || e.contains("merchandise")
+}
+
+/// The same list, unclear: its lines keep their evidence but no amounts.
+fn unclear_lines(list: ExtractedLines) -> ExtractedLines {
+    ExtractedLines {
+        status: FieldStatus::Unclear,
+        value: None,
+        lines: list
+            .lines
+            .into_iter()
+            .map(|l| ExtractedLine {
+                amount: None,
+                evidence: l.evidence,
+            })
+            .collect(),
+    }
+}
+
+/// Discount lines must each show a deduction and none may be a savings
+/// summary; otherwise the whole list is unclear.
+fn check_discounts(discounts: ExtractedLines, warnings: &mut Vec<String>) -> ExtractedLines {
+    if discounts.status != FieldStatus::Found {
+        return discounts;
+    }
+    let evidence = || discounts.lines.iter().map(|l| l.evidence.as_str());
+    if evidence().any(|e| has_label(e, &SUMMARY)) {
+        warnings.push("A savings summary was read as a discount. Check the discounts.".into());
+        return unclear_lines(discounts);
+    }
+    if !evidence().all(shows_deduction) {
+        warnings.push("A discount line doesn't show a deduction. Check the discounts.".into());
+        return unclear_lines(discounts);
+    }
+    discounts
+}
 
 /// Which amount an amount field holds.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -675,10 +724,15 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
 
     let money = currency.value;
     let mut total = amount_field(&raw.total, "total", Amount::Total, money, w);
-    let subtotal = amount_field(&raw.subtotal, "subtotal", Amount::Part, money, w);
-    let tax = line_list(&raw.tax, "tax", Sign::Positive, w);
-    let fees = line_list(&raw.fees, "fees", Sign::Positive, w);
-    let discounts = line_list(&raw.discounts, "discounts", Sign::Either, w);
+    // Only a line labelled as a subtotal is one; anything else is absent.
+    let subtotal = if is_subtotal_label(&evidence_of(&raw.subtotal)) {
+        amount_field(&raw.subtotal, "subtotal", Amount::Part, money, w)
+    } else {
+        absent()
+    };
+    let mut tax = line_list(&raw.tax, "tax", Sign::Positive, w);
+    let mut fees = line_list(&raw.fees, "fees", Sign::Positive, w);
+    let discounts = check_discounts(line_list(&raw.discounts, "discounts", Sign::Either, w), w);
     let tip = amount_field(&raw.tip, "tip", Amount::Part, money, w);
     // The total must equal subtotal + tax + fees + tip, either with or
     // without the discounts taken off the subtotal. Anything not read counts
@@ -691,10 +745,53 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             discounts: discounts.value,
             tip: tip.value,
         };
-        let (after, before) = parts.sums();
-        if after != Some(t) && before != Some(t) {
-            w.push(parts.warning(t, money));
-            total = unclear(total.evidence);
+        let adds_up = |p: &Parts| {
+            let (after, before) = p.sums();
+            after == Some(t) || before == Some(t)
+        };
+        if !adds_up(&parts) {
+            // A fee printed among the items is already in the subtotal.
+            let without_fees = Parts {
+                fees: None,
+                ..parts
+            };
+            match fees.value {
+                Some(f) if f != Minor::ZERO && adds_up(&without_fees) => {
+                    w.push(format!(
+                        "The fees ({}) were treated as part of the subtotal, because the total only adds up without them. Check them on the receipt.",
+                        shown(f, money)
+                    ));
+                    fees = ExtractedLines::default();
+                }
+                _ => {
+                    w.push(
+                        Parts {
+                            fees: fees.value,
+                            ..without_fees
+                        }
+                        .warning(t, money),
+                    );
+                    total = unclear(total.evidence);
+                }
+            }
+        }
+    }
+    // A fee that prints a percentage must be that percentage of the subtotal
+    // (or of the subtotal and tax, as with service charges). If not, it was
+    // likely read against the tax line's amount, and the other way round.
+    if let (FieldStatus::Found, Some(s)) = (fees.status, subtotal.value) {
+        let mut bases = vec![s];
+        bases.extend(tax.value.and_then(|t| s.checked_add(t).ok()));
+        let mismatched = fees.lines.iter().any(|l| {
+            l.amount
+                .is_some_and(|a| fits_percentage(a, &bases, &l.evidence) == Some(false))
+        });
+        if mismatched {
+            w.push(MAYBE_SWAPPED.into());
+            fees = unclear_lines(fees);
+            if tax.status == FieldStatus::Found {
+                tax = unclear_lines(tax);
+            }
         }
     }
 
@@ -1101,6 +1198,145 @@ mod tests {
         assert!(n.warnings.is_empty(), "{:?}", n.warnings);
         assert_eq!(n.fields.total.value, Some(minor(5450)));
         assert_eq!(n.fields.fees.value, Some(minor(150)));
+    }
+
+    #[test]
+    fn only_a_line_labelled_as_a_subtotal_is_one() {
+        // A "total" line is never a subtotal, so nothing is checked.
+        let mut answer = good();
+        answer["subtotal"] = found("30.00", "ITEMS TOTAL $30.00");
+        answer["tax"] = no_lines();
+        answer["total"] = found("30.00", "TOTAL $30.00");
+        let n = run(answer);
+        assert_eq!(
+            n.fields.subtotal,
+            ExtractedField::<Minor> {
+                status: FieldStatus::Absent,
+                value: None,
+                evidence: String::new()
+            }
+        );
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        for evidence in ["Sub-Total 40.00", "SUB TOTAL $40.00", "Merchandise 40.00"] {
+            let n = with("subtotal", found("40.00", evidence));
+            assert_eq!(n.fields.subtotal.value, Some(minor(4000)), "{evidence}");
+        }
+    }
+
+    /// A receipt with a 60.00 subtotal, one tax line and one fee line.
+    fn with_fee(tax: (&str, &str), fee: (&str, &str), total: &str) -> Normalized {
+        let mut answer = good();
+        answer["subtotal"] = found("60.00", "Subtotal $60.00");
+        answer["tax"] = lines(&[tax]);
+        answer["fees"] = lines(&[fee]);
+        answer["total"] = found(total, &format!("TOTAL ${total}"));
+        run(answer)
+    }
+
+    #[test]
+    fn a_fee_must_be_its_printed_percentage() {
+        // 2% of 60.00 is 1.20.
+        let n = with_fee(
+            ("4.20", "Tax $4.20"),
+            ("1.20", "Card surcharge (2%) $1.20"),
+            "65.40",
+        );
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.fees.value, Some(minor(120)));
+        // Swapped with the tax: both are unclear. The sum is the same, so the
+        // total still adds up and stays found.
+        let n = with_fee(
+            ("1.20", "Tax $1.20"),
+            ("4.20", "Card surcharge (2%) $4.20"),
+            "65.40",
+        );
+        assert_eq!(n.fields.fees.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.tax.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.tax.lines[0].evidence, "Tax $1.20");
+        assert_eq!(n.fields.total.value, Some(minor(6540)));
+        assert_eq!(n.warnings, vec![MAYBE_SWAPPED]);
+        // A service charge may be a percentage of the subtotal and tax:
+        // 10% of 66.00 is 6.60.
+        let n = with_fee(
+            ("6.00", "VAT (10%) $6.00"),
+            ("6.60", "Service (10%) $6.60"),
+            "72.60",
+        );
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.fees.value, Some(minor(660)));
+        // Tax is never checked against its percentage: it often covers only
+        // some items.
+        let n = with_fee(
+            ("3.00", "Sales tax (8%) $3.00"),
+            ("1.20", "Card fee $1.20"),
+            "64.20",
+        );
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.tax.value, Some(minor(300)));
+    }
+
+    #[test]
+    fn a_fee_already_in_the_subtotal_is_left_out() {
+        // The 0.60 fee is printed among the items, so 60.00 already has it.
+        let n = with_fee(
+            ("4.20", "Tax $4.20"),
+            ("0.60", "Online order fee $0.60"),
+            "64.20",
+        );
+        assert_eq!(n.fields.fees, ExtractedLines::default());
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert_eq!(n.fields.total.value, Some(minor(6420)));
+        assert_eq!(
+            n.warnings,
+            vec!["The fees ($0.60) were treated as part of the subtotal, because the total only adds up without them. Check them on the receipt."]
+        );
+        // If the total doesn't add up either way, nothing is dropped.
+        let n = with_fee(
+            ("4.20", "Tax $4.20"),
+            ("0.60", "Online order fee $0.60"),
+            "70.00",
+        );
+        assert_eq!(n.fields.fees.value, Some(minor(60)));
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(
+            n.warnings,
+            vec!["Subtotal $60.00, tax $4.20 and fees $0.60 add up to $64.80, but the total reads $70.00. Check the amount."]
+        );
+    }
+
+    #[test]
+    fn a_discount_line_must_show_a_deduction() {
+        for line in [("12.00", "CLEARANCE 12.00"), ("10.00", "ITEM PRICE 10.00")] {
+            let n = with("discounts", lines(&[("1.00", "COUPON -1.00"), line]));
+            assert_eq!(n.fields.discounts.status, FieldStatus::Unclear, "{line:?}");
+            assert_eq!(n.fields.discounts.lines.len(), 2);
+            assert_eq!(
+                n.warnings,
+                vec!["A discount line doesn't show a deduction. Check the discounts."]
+            );
+        }
+    }
+
+    #[test]
+    fn a_savings_summary_is_never_a_discount() {
+        for evidence in [
+            "Total savings 3.00",
+            "SAVINGS SUMMARY 3.00",
+            "You saved $3.00",
+            "YTD savings 3.00",
+        ] {
+            let n = with("discounts", lines(&[("3.00", evidence)]));
+            assert_eq!(
+                n.fields.discounts.status,
+                FieldStatus::Unclear,
+                "{evidence}"
+            );
+            assert_eq!(
+                n.warnings,
+                vec!["A savings summary was read as a discount. Check the discounts."]
+            );
+        }
     }
 
     #[test]

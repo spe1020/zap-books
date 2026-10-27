@@ -346,6 +346,90 @@ pub fn date_in_evidence(evidence: &str, currency: Option<Currency>) -> Option<St
     found
 }
 
+/// The percentages printed in `evidence` (`12.5%`, `3 %`), each as
+/// `(digits, decimals)`: `12.5%` is `(125, 1)`.
+fn percentages(evidence: &str) -> Vec<(i128, u32)> {
+    let chars: Vec<char> = evidence.chars().collect();
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < chars.len() {
+        if !chars.get(i).is_some_and(char::is_ascii_digit) {
+            i += 1;
+            continue;
+        }
+        let start = i;
+        while chars
+            .get(i)
+            .is_some_and(|c| c.is_ascii_digit() || *c == '.')
+        {
+            i += 1;
+        }
+        let number: String = chars.get(start..i).unwrap_or_default().iter().collect();
+        let mut j = i;
+        while chars.get(j) == Some(&' ') {
+            j += 1;
+        }
+        if chars.get(j) != Some(&'%') {
+            continue;
+        }
+        let (whole, frac) = number.split_once('.').unwrap_or((&number, ""));
+        if frac.contains('.') {
+            continue;
+        }
+        if let (Ok(n), Ok(decimals)) = (
+            format!("{whole}{frac}").parse::<i128>(),
+            u32::try_from(frac.len()),
+        ) {
+            out.push((n, decimals));
+        }
+    }
+    out
+}
+
+/// Whether `amount` is a percentage printed in `evidence` of one of `bases`,
+/// give or take one cent. `None` when the evidence prints no percentage.
+pub fn fits_percentage(amount: Minor, bases: &[Minor], evidence: &str) -> Option<bool> {
+    let printed = percentages(evidence);
+    if printed.is_empty() {
+        return None;
+    }
+    let amount = i128::from(i64::from(amount));
+    Some(printed.iter().any(|&(n, decimals)| {
+        // amount ≈ base × n / (100 × 10^decimals), in cents.
+        let Some(scale) = 10_i128
+            .checked_pow(decimals)
+            .and_then(|p| p.checked_mul(100))
+        else {
+            return false;
+        };
+        bases.iter().any(|base| {
+            let exact = i128::from(i64::from(*base)).saturating_mul(n);
+            amount.saturating_mul(scale).saturating_sub(exact).abs() <= scale
+        })
+    }))
+}
+
+/// Words that mark a line as a deduction.
+pub const DEDUCTION_WORDS: [&str; 9] = [
+    "disc", "discount", "coupon", "saving", "savings", "off", "reward", "markdown", "promo",
+];
+
+/// Whether `evidence` shows a deduction: a minus sign or an opening
+/// parenthesis next to an amount, or a deduction word. A hyphen between
+/// letters, as in `T-SHIRT`, is not a minus sign.
+pub fn shows_deduction(evidence: &str) -> bool {
+    let chars: Vec<char> = evidence.chars().collect();
+    let money = |c: Option<&char>| {
+        c.is_some_and(|c| c.is_ascii_digit() || matches!(c, '$' | '€' | '£' | '.'))
+    };
+    let signed = chars.iter().enumerate().any(|(i, c)| match c {
+        '-' | '−' => money(chars.get(i + 1)) || (i > 0 && money(chars.get(i - 1))),
+        '(' => money(chars.get(i + 1)),
+        _ => false,
+    });
+    signed || has_label(evidence, &DEDUCTION_WORDS)
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
@@ -490,5 +574,59 @@ mod tests {
             date_in_evidence("Date: 8/19/26 Cashier: 2019457", usd).as_deref(),
             Some("2026-08-19")
         );
+    }
+    #[test]
+    fn percentages_are_checked_against_each_base() {
+        let m = |n| Minor::new(n).unwrap();
+        // 12.5% of 36.00 is 4.50; of 30.00 it is 3.75.
+        let evidence = "Service (12.5%, optional) £4.50";
+        assert_eq!(fits_percentage(m(450), &[m(3000)], evidence), Some(false));
+        assert_eq!(
+            fits_percentage(m(450), &[m(3000), m(3600)], evidence),
+            Some(true)
+        );
+        // One cent either way is rounding.
+        assert_eq!(
+            fits_percentage(m(165), &[m(6580)], "Surcharge (2.50%) $1.65"),
+            Some(true)
+        );
+        assert_eq!(
+            fits_percentage(m(164), &[m(6580)], "Surcharge (2.50%) $1.64"),
+            Some(true)
+        );
+        assert_eq!(
+            fits_percentage(m(615), &[m(6580)], "Surcharge (2.50%) $6.15"),
+            Some(false)
+        );
+        assert_eq!(
+            fits_percentage(m(150), &[m(5000)], "Card fee 3 % $1.50"),
+            Some(true)
+        );
+        assert_eq!(fits_percentage(m(150), &[m(5000)], "Card fee $1.50"), None);
+    }
+
+    #[test]
+    fn deductions_show_a_sign_or_a_word() {
+        for evidence in [
+            "SALE ITEM 2.40-F",
+            "ITEM -$0.25",
+            "ITEM −0.25",
+            "ITEM ($1.50)",
+            "BAKERY DISC 0.40",
+            "Member savings 2.00",
+            "Coupon 1.00",
+            "20% OFF 3.00",
+            "Promo 0.50",
+        ] {
+            assert!(shows_deduction(evidence), "{evidence}");
+        }
+        for evidence in [
+            "CLEARANCE 13.00",
+            "T-SHIRT 9.99",
+            "SALE PRICE 4.00",
+            "Offer 2.00",
+        ] {
+            assert!(!shows_deduction(evidence), "{evidence}");
+        }
     }
 }
