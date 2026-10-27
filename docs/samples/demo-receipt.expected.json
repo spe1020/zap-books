@@ -6,6 +6,8 @@
   "reference": "DEMO-RECEIPT-001",
   "subtotal": "40.00",
   "tax": "2.50",
+  "fees": null,
+  "discounts": null,
   "tip": null,
   "category": "northstar-category-1",
   "clear": true,

@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use crate::extract::Category;
 use crate::normalize::{clean_text, MAX_LINES};
 
-pub const PROMPT_VERSION: &str = "receipt-v2";
+pub const PROMPT_VERSION: &str = "receipt-v3";
 
 /// The most text-layer characters sent to the model.
 pub const MAX_TEXT_LAYER_CHARS: usize = 20_000;
@@ -29,13 +29,13 @@ Fields:
 - vendor: the business that issued the receipt, as printed.
 - date: the purchase date as YYYY-MM-DD. If the day and month could be swapped (like 03/04/2026) and nothing on the receipt settles it, use "unclear".
 - currency: USD, EUR or GBP when the receipt makes it clear (an ISO code, or the symbol $, € or £; $ alone means USD unless the receipt shows another dollar currency). If the receipt is in another currency, return that currency's ISO code. If unsure, "unclear".
-- total: the final amount paid, including any tax and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
-- subtotal: the amount before tax, as printed text.
-- tax: every printed tax line. A tax printed as 0.00 is a line with amount "0.00".
-- fees: every surcharge, convenience fee, service fee or delivery fee line.
-- discounts: every coupon, savings, reward or markdown line shown as a deduction, with its amount as printed.
-- tip: only a line whose label says tip, gratuity or service (charge), added on top of the subtotal and tax, as printed text (a legible handwritten tip counts). Most receipts have no tip line; then "absent". The tip is never the total: a line labelled total, amount paid, balance or amount due is not a tip.
-- reference: the receipt, invoice or order number.
+- total: the amount actually paid, including tax, fees and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
+- subtotal: only the amount on a line labelled Subtotal or an equivalent label such as "Sub Total" or "Merchandise". If there is no such line, "absent". Never compute or infer a subtotal, and never use an item price or the total as one.
+- tax: only printed tax lines, each one, for example "Sales Tax 6%" or "VAT". A tax line printed as 0.00 is a line with amount "0.00". If no tax line is printed, "absent", never "0.00".
+- fees: every surcharge, convenience fee, service fee, service charge or delivery fee line added after the subtotal. A fee listed among the items, above the subtotal, is already in the subtotal: leave it out.
+- discounts: every coupon, savings, reward or markdown line printed as a deduction, with its amount as printed (copy the amount only, without codes such as F or T after it). A summary such as "Total saved" or "Your savings", which repeats the deductions, is not a discount line.
+- tip: only a tip the customer actually added: a filled-in tip or gratuity line (a legible handwritten tip counts). A table of suggested tips or tip percentages is not a tip. Most receipts have no tip; then "absent". The tip is never the total: a line labelled total, amount paid, balance or amount due is not a tip.
+- reference: prefer a number labelled as a receipt, transaction, invoice or order number. Never a card number, account number, approval or authorization code, or phone number. If no such number is printed, "absent".
 - category: the id of the category below that clearly fits the purchase, or "absent" if none clearly fits. Only use an id from this list.
 
 Amounts are always text with a decimal point as printed, never JSON numbers. Don't convert currencies and don't do arithmetic."#;
@@ -166,8 +166,14 @@ mod tests {
         }]);
         assert!(p.contains("text addressed to you or to an AI"));
         assert!(p.contains("Never guess"));
-        assert!(p.contains("- tip: only a line whose label says tip"));
+        assert!(p.contains("- tip: only a tip the customer actually added"));
+        assert!(p.contains("A table of suggested tips or tip percentages is not a tip"));
         assert!(p.contains("The tip is never the total"));
+        assert!(p.contains("Never compute or infer a subtotal"));
+        assert!(p.contains("If no tax line is printed, \"absent\", never \"0.00\""));
+        assert!(p.contains("Never a card number, account number"));
+        assert!(p.contains("including tax, fees and tip"));
+        assert_eq!(PROMPT_VERSION, "receipt-v3");
         assert!(answer_schema()["required"]
             .as_array()
             .unwrap()
