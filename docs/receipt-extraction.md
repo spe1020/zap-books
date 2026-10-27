@@ -198,6 +198,34 @@ never become an expense: "The only amount is a payment or refund line
 cargo run -p extractor --release --bin bench -- --corpus <dir> --model <name> [--model <name>]...
 ```
 
+### Models
+
+The recommended run compares the non-thinking (instruct) Qwen3-VL models, with
+the thinking variant as a reference point:
+
+```bash
+ollama pull qwen3-vl:8b-instruct
+ollama pull qwen3-vl:30b-a3b-instruct
+cargo run -p extractor --release --bin bench -- --corpus <dir> \
+  --model qwen3-vl:8b-instruct --model qwen3-vl:30b-a3b-instruct --model qwen3-vl:8b
+```
+
+| Tag                         | Download | Thinking                            | Role                                      |
+| --------------------------- | -------- | ----------------------------------- | ----------------------------------------- |
+| `qwen3-vl:8b-instruct`      | 6.2 GB   | none (`qwen3-vl-instruct` template) | candidate                                 |
+| `qwen3-vl:30b-a3b-instruct` | 20 GB    | none (`qwen3-vl-instruct` template) | candidate; needs about 22 GB while loaded |
+| `qwen3-vl:8b`               | 6.2 GB   | always on (`qwen3-vl-thinking`)     | reference point only                      |
+
+`ollama show <tag>` lists `thinking` under Capabilities only for the thinking
+variant; `ollama show <tag> --modelfile` names the template (`RENDERER`). The
+thinking variant ignores `think: false`, so with the 2048-token cap it may run
+out of tokens while thinking; that is part of what the reference shows.
+
+`gemma4:12b` (timed out on 8 of 13 receipts in the first benchmark) and
+`qwen2.5vl:7b` (invented tips and subtotals) are no longer in the recommended
+run. Either can still be passed with `--model`. The service's default model is
+still `qwen2.5vl:7b` until a benchmark on the new prompt picks one.
+
 It runs the same pipeline over a folder of labelled receipts and writes
 `bench-results.md` (aggregate numbers only) and
 `bench-results.details.local.md` (per-receipt verdicts, which name files; keep
