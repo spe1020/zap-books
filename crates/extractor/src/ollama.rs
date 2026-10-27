@@ -81,6 +81,8 @@ pub struct Chat<'a> {
     /// Base64-encoded images.
     pub images: &'a [String],
     pub schema: &'a Value,
+    /// Overrides the service's token cap; the warm-up asks for one token.
+    pub max_tokens: Option<u32>,
 }
 
 /// `name` matches an installed model, allowing Ollama's implicit `:latest`.
@@ -244,7 +246,10 @@ impl Ollama {
             "stream": false,
             "think": false,
             "format": chat.schema,
-            "options": { "temperature": 0, "num_predict": self.max_tokens },
+            "options": {
+                "temperature": 0,
+                "num_predict": chat.max_tokens.unwrap_or(self.max_tokens)
+            },
             "messages": [
                 { "role": "system", "content": chat.system },
                 { "role": "user", "content": chat.user, "images": chat.images }

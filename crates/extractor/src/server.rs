@@ -1,6 +1,7 @@
 //! The HTTP service: `GET /health` and `POST /extract`, on 127.0.0.1 only.
 
 use std::net::{Ipv4Addr, SocketAddr};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
@@ -31,6 +32,9 @@ struct AppState {
     port: u16,
     origins: Vec<String>,
     timeout: Duration,
+    /// True once the startup warm-up has finished, whether or not it worked,
+    /// or from the start when warm-up is off.
+    warmed_up: AtomicBool,
 }
 
 impl IntoResponse for ExtractError {
@@ -76,15 +80,18 @@ async fn guard(State(state): State<Arc<AppState>>, request: Request<Body>, next:
     next.run(request).await
 }
 
+/// Ready once the model is installed and the warm-up has finished.
 async fn health(State(state): State<Arc<AppState>>) -> Response {
-    let ready = state
+    let warmed_up = state.warmed_up.load(Ordering::SeqCst);
+    let installed = state
         .extractor
         .ollama
         .has_model(&state.extractor.model)
         .await
         .unwrap_or(false);
     Json(json!({
-        "ready": ready,
+        "ready": warmed_up && installed,
+        "warmingUp": !warmed_up,
         "model": state.extractor.model,
         "poppler": pdf::poppler_available().await,
     }))
@@ -199,6 +206,7 @@ pub fn check_bind_address(addr: &SocketAddr) -> Result<(), String> {
 pub struct Service {
     listener: TcpListener,
     router: Router,
+    state: Arc<AppState>,
     pub addr: SocketAddr,
 }
 
@@ -222,16 +230,42 @@ impl Service {
             port: addr.port(),
             origins: config.allowed_origins.clone(),
             timeout: config.timeout,
+            warmed_up: AtomicBool::new(!config.warm_up),
         });
         Ok(Service {
             listener,
-            router: router(state),
+            router: router(state.clone()),
+            state,
             addr,
         })
     }
 
-    /// Serves until the process ends.
+    /// Serves until the process ends. The warm-up, if on, runs alongside;
+    /// `/health` answers throughout and reports ready once it has finished.
     pub async fn run(self) -> std::io::Result<()> {
+        if !self.state.warmed_up.load(Ordering::SeqCst) {
+            tokio::spawn(warm_up(self.state.clone()));
+        }
         axum::serve(self.listener, self.router).await
     }
+}
+
+/// Sends the warm-up request, bounded by the request timeout. A failure is
+/// logged and doesn't block: the first receipt then loads the model itself.
+async fn warm_up(state: Arc<AppState>) {
+    let started = Instant::now();
+    let result = tokio::time::timeout(state.timeout, state.extractor.warm_up())
+        .await
+        .unwrap_or(Err(ExtractError::Timeout));
+    let duration_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
+    match result {
+        Ok(()) => tracing::info!(model = %state.extractor.model, duration_ms, "model warmed up"),
+        Err(e) => tracing::warn!(
+            model = %state.extractor.model,
+            duration_ms,
+            error = %e,
+            "warm-up failed; the first receipt will load the model"
+        ),
+    }
+    state.warmed_up.store(true, Ordering::SeqCst);
 }

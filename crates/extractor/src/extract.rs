@@ -66,6 +66,32 @@ pub struct Extractor {
     pub model: String,
 }
 
+/// The committed fictional sample the model is warmed up with.
+const WARM_UP_RECEIPT: &[u8] = include_bytes!("../../../docs/samples/demo-receipt.png");
+
+impl Extractor {
+    /// Loads the model before the first real receipt: the same prompt and
+    /// schema with a fictional sample, answering a single token. The answer
+    /// is discarded.
+    pub async fn warm_up(&self) -> Result<(), ExtractError> {
+        let images = vec![base64::engine::general_purpose::STANDARD.encode(WARM_UP_RECEIPT)];
+        let system = prompt::system_prompt(&[]);
+        let user = prompt::user_message(None);
+        let schema = prompt::answer_schema();
+        self.ollama
+            .chat(Chat {
+                model: &self.model,
+                system: &system,
+                user: &user,
+                images: &images,
+                schema: &schema,
+                max_tokens: Some(1),
+            })
+            .await
+            .map(|_| ())
+    }
+}
+
 fn today_utc() -> String {
     let secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -104,6 +130,7 @@ impl Extractor {
                 user: &user,
                 images: &images,
                 schema: &schema,
+                max_tokens: None,
             })
             .await?;
         let raw = parse_answer(&content)?;

@@ -10,6 +10,7 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Json, Router};
+use base64::Engine;
 use extractor::config::Config;
 use extractor::server::{check_bind_address, Service};
 use serde_json::{json, Value};
@@ -94,13 +95,19 @@ async fn spawn_fake(content: Value) -> (String, Shared) {
     (format!("http://{addr}"), fake)
 }
 
+/// The service with warm-up off, so each test counts only its own chats.
 async fn spawn_service(ollama: &str, timeout: Duration) -> SocketAddr {
-    let config = Config {
+    spawn_service_with(Config {
         ollama: ollama.to_string(),
         model: MODEL.to_string(),
         timeout,
+        warm_up: false,
         ..Config::default()
-    };
+    })
+    .await
+}
+
+async fn spawn_service_with(config: Config) -> SocketAddr {
     let service = Service::bind(&config, SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
         .await
         .unwrap();
@@ -510,6 +517,95 @@ async fn health_reports_model_and_poppler() {
         .await
         .unwrap();
     assert_eq!(body["ready"], false);
+}
+
+async fn health(addr: SocketAddr) -> Value {
+    client()
+        .get(format!("http://{addr}/health"))
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap()
+}
+
+/// At startup the service sends the model one request with the committed
+/// fictional sample, asking for a single token, and only then reports ready.
+#[tokio::test]
+async fn the_model_is_warmed_up_with_a_fictional_sample_before_health_is_ready() {
+    let (ollama, fake) = spawn_fake(demo_answer()).await;
+    fake.lock().unwrap().delay = Duration::from_millis(500);
+    let addr = spawn_service_with(Config {
+        ollama: ollama.clone(),
+        model: MODEL.to_string(),
+        timeout: Duration::from_secs(10),
+        ..Config::default()
+    })
+    .await;
+    assert!(
+        eventually(|| fake.lock().unwrap().requests.len() == 1).await,
+        "no warm-up request was sent"
+    );
+    let body = health(addr).await;
+    assert_eq!(body["ready"], false);
+    assert_eq!(body["warmingUp"], true);
+    {
+        let f = fake.lock().unwrap();
+        let warm_up = &f.requests[0];
+        assert_eq!(warm_up["model"], MODEL);
+        assert_eq!(warm_up["options"]["num_predict"], 1);
+        assert_eq!(warm_up["think"], false);
+        assert!(warm_up["format"].is_object());
+        let image = warm_up["messages"][1]["images"][0].as_str().unwrap();
+        let sample = base64::engine::general_purpose::STANDARD.encode(
+            std::fs::read(
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/samples/demo-receipt.png"),
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            image, sample,
+            "the warm-up must use the committed fictional sample"
+        );
+    }
+    let mut ready = false;
+    for _ in 0..40 {
+        if health(addr).await["ready"] == true {
+            ready = true;
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(50)).await;
+    }
+    assert!(ready, "health never reported ready after the warm-up");
+    assert_eq!(health(addr).await["warmingUp"], false);
+    // The first receipt goes straight to the warmed model.
+    let (status, _) = extract(addr, sample("demo-receipt.png")).await;
+    assert_eq!(status, 200);
+    assert_eq!(fake.lock().unwrap().requests.len(), 2);
+}
+
+/// A warm-up that fails still finishes, so the service doesn't stay "warming
+/// up" forever; readiness then depends on the model as before.
+#[tokio::test]
+async fn a_failed_warm_up_finishes_and_is_not_ready_without_a_model() {
+    let addr = spawn_service_with(Config {
+        ollama: "http://127.0.0.1:9".into(),
+        model: MODEL.to_string(),
+        timeout: Duration::from_secs(10),
+        ..Config::default()
+    })
+    .await;
+    let mut finished = false;
+    for _ in 0..40 {
+        if health(addr).await["warmingUp"] == false {
+            finished = true;
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(50)).await;
+    }
+    assert!(finished, "a failed warm-up never finished");
+    assert_eq!(health(addr).await["ready"], false);
 }
 
 #[test]
