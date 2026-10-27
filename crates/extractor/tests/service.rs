@@ -24,6 +24,8 @@ struct Fake {
     status: u16,
     /// Every chat request body received.
     requests: Vec<Value>,
+    /// The same bodies exactly as sent, to check key order.
+    raw_requests: Vec<String>,
 }
 
 type Shared = Arc<Mutex<Fake>>;
@@ -32,10 +34,11 @@ async fn tags() -> Json<Value> {
     Json(json!({ "models": [{ "name": MODEL }] }))
 }
 
-async fn chat(State(fake): State<Shared>, Json(body): Json<Value>) -> (StatusCode, Json<Value>) {
+async fn chat(State(fake): State<Shared>, body: String) -> (StatusCode, Json<Value>) {
     let (content, delay, status) = {
         let mut f = fake.lock().unwrap();
-        f.requests.push(body);
+        f.requests.push(serde_json::from_str(&body).unwrap());
+        f.raw_requests.push(body);
         (f.content.clone(), f.delay, f.status)
     };
     tokio::time::sleep(delay).await;
@@ -173,6 +176,38 @@ async fn happy_path_reads_an_image_receipt() {
     assert_eq!(
         request["messages"][1]["images"].as_array().unwrap().len(),
         1
+    );
+}
+
+/// The model fills fields in the schema's key order, so the order must
+/// survive serialization: the total before its parts, the tip after them.
+#[tokio::test]
+async fn the_schema_is_sent_with_fields_in_declared_order() {
+    let (ollama, fake) = spawn_fake(demo_answer()).await;
+    let addr = spawn_service(&ollama, Duration::from_secs(10)).await;
+    let (status, _) = extract(addr, sample("demo-receipt.png")).await;
+    assert_eq!(status, 200);
+    let raw = fake.lock().unwrap().raw_requests[0].clone();
+    let format = raw.split_once("\"format\":").unwrap().1;
+    let properties = format.split_once("\"properties\":").unwrap().1;
+    let keys: Vec<usize> = extractor::prompt::FIELD_ORDER
+        .iter()
+        .map(|k| properties.find(&format!("\"{k}\":{{")).unwrap())
+        .collect();
+    assert!(keys.windows(2).all(|w| w[0] < w[1]), "{format}");
+    assert_eq!(
+        extractor::prompt::FIELD_ORDER,
+        [
+            "vendor",
+            "date",
+            "currency",
+            "total",
+            "subtotal",
+            "tax",
+            "tip",
+            "reference",
+            "category"
+        ]
     );
 }
 
@@ -404,7 +439,8 @@ async fn an_injected_total_never_comes_back_as_found() {
     assert!(body["warnings"].as_array().unwrap().contains(&json!(
         "The receipt's subtotal and tax don't add up to the total. Check the amount."
     )));
-    let keys: Vec<&String> = body.as_object().unwrap().keys().collect();
+    let mut keys: Vec<&String> = body.as_object().unwrap().keys().collect();
+    keys.sort();
     assert_eq!(
         keys,
         [

@@ -26,12 +26,12 @@ If you are not sure, use "unclear". Never guess. A wrong value marked "found" is
 Fields:
 - vendor: the business that issued the receipt, as printed.
 - date: the purchase date as YYYY-MM-DD. If the day and month could be swapped (like 03/04/2026) and nothing on the receipt settles it, use "unclear".
-- total: the final amount paid, including any tax and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
 - currency: USD, EUR or GBP when the receipt makes it clear (an ISO code, or the symbol $, € or £; $ alone means USD unless the receipt shows another dollar currency). If the receipt is in another currency, return that currency's ISO code. If unsure, "unclear".
-- reference: the receipt, invoice or order number.
+- total: the final amount paid, including any tax and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
 - subtotal: the amount before tax, as printed text.
 - tax: the tax amount, as printed text. If there are several tax lines, "unclear". A tax printed as 0.00 is "found" with value "0.00".
 - tip: only a line whose label says tip, gratuity or service (charge), added on top of the subtotal and tax, as printed text (a legible handwritten tip counts). Most receipts have no tip line; then "absent". The tip is never the total: a line labelled total, amount paid, balance or amount due is not a tip.
+- reference: the receipt, invoice or order number.
 - category: the id of the category below that clearly fits the purchase, or "absent" if none clearly fits. Only use an id from this list.
 
 Amounts are always text with a decimal point as printed, never JSON numbers. Don't convert currencies and don't do arithmetic."#;
@@ -81,28 +81,33 @@ fn field_schema() -> Value {
     })
 }
 
+/// The fields in the order the model fills them in. Ollama constrains the
+/// answer to the schema's key order, so the total is read before the parts
+/// that are checked against it. `serde_json`'s `preserve_order` feature keeps
+/// this order when the schema is serialized.
+pub const FIELD_ORDER: [&str; 9] = [
+    "vendor",
+    "date",
+    "currency",
+    "total",
+    "subtotal",
+    "tax",
+    "tip",
+    "reference",
+    "category",
+];
+
 /// The JSON schema passed as Ollama's structured-output `format`. The answer
 /// is still validated by `normalize`.
 pub fn answer_schema() -> Value {
-    let names = [
-        "vendor",
-        "date",
-        "total",
-        "currency",
-        "reference",
-        "subtotal",
-        "tax",
-        "tip",
-        "category",
-    ];
-    let properties: serde_json::Map<String, Value> = names
+    let properties: serde_json::Map<String, Value> = FIELD_ORDER
         .iter()
         .map(|n| ((*n).to_string(), field_schema()))
         .collect();
     json!({
         "type": "object",
         "properties": properties,
-        "required": names,
+        "required": FIELD_ORDER,
         "additionalProperties": false
     })
 }
@@ -128,6 +133,48 @@ mod tests {
             .contains(&serde_json::json!("tip")));
         assert!(p.contains("- cat-1: Office & supplies"));
         assert!(!p.to_lowercase().contains("purpose"));
+    }
+
+    /// Byte offsets of each `"key"` in `text`, in `keys` order.
+    fn offsets(text: &str, keys: &[&str]) -> Vec<usize> {
+        keys.iter()
+            .map(|k| text.find(&format!("\"{k}\"")).unwrap())
+            .collect()
+    }
+
+    fn is_increasing(v: &[usize]) -> bool {
+        v.windows(2).all(|w| w[0] < w[1])
+    }
+
+    #[test]
+    fn the_schema_serializes_fields_in_declared_order() {
+        let sent = serde_json::to_string(&answer_schema()).unwrap();
+        let properties = sent.split_once("\"properties\":").unwrap().1;
+        let order = offsets(properties, &FIELD_ORDER);
+        assert!(is_increasing(&order), "{sent}");
+        assert!(sent.starts_with(
+            r#"{"type":"object","properties":{"vendor":{"type":"object","properties":{"status":"#
+        ));
+        // Inside each field: status, then value, then evidence.
+        let vendor = properties.split_once("\"date\"").unwrap().0;
+        assert!(is_increasing(&offsets(
+            vendor,
+            &["status", "value", "evidence"]
+        )));
+        assert!(sent.contains(&format!(
+            r#""required":{}"#,
+            serde_json::to_string(&FIELD_ORDER).unwrap()
+        )));
+    }
+
+    #[test]
+    fn the_prompt_lists_fields_in_the_schema_order() {
+        let p = system_prompt(&[]);
+        let order: Vec<usize> = FIELD_ORDER
+            .iter()
+            .map(|f| p.find(&format!("\n- {f}: ")).unwrap())
+            .collect();
+        assert!(is_increasing(&order));
     }
 
     #[test]
