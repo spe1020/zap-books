@@ -32,14 +32,16 @@ address that isn't on this computer.
 
    (Or open the Ollama app, or run `ollama serve` in a terminal.)
 
-3. Download the vision model (about 6 GB):
+3. Download the vision model (about 20 GB):
 
    ```bash
-   ollama pull qwen2.5vl:7b
+   ollama pull qwen3-vl:30b-a3b-instruct
    ```
 
-   This is the default until the benchmark picks a model; pass another with
-   `--model`.
+   This is the default. It uses about 22 GB of memory while loaded. On a
+   machine with less, use `qwen3-vl:8b-instruct` (about 6 GB) and pass
+   `--model qwen3-vl:8b-instruct`; in testing it once reported a wrong total
+   as found, so check its totals with extra care.
 
 4. Install Rust if you haven't: follow [rustup.rs](https://rustup.rs). The
    repository pins the toolchain, so rustup installs the right version on
@@ -77,7 +79,7 @@ else works as before.
 
 ```text
 cargo run -p extractor -- [--port 8787] [--ollama http://127.0.0.1:11434]
-                          [--model qwen2.5vl:7b] [--allowed-origin <origin>]...
+                          [--model qwen3-vl:30b-a3b-instruct] [--allowed-origin <origin>]...
                           [--timeout-seconds 90] [--max-tokens 2048]
 ```
 
@@ -256,11 +258,11 @@ cargo run -p extractor --release --bin bench -- --corpus <dir> \
   --model qwen3-vl:8b-instruct --model qwen3-vl:30b-a3b-instruct --model qwen3-vl:8b
 ```
 
-| Tag                         | Download | Thinking                            | Role                                      |
-| --------------------------- | -------- | ----------------------------------- | ----------------------------------------- |
-| `qwen3-vl:8b-instruct`      | 6.2 GB   | none (`qwen3-vl-instruct` template) | candidate                                 |
-| `qwen3-vl:30b-a3b-instruct` | 20 GB    | none (`qwen3-vl-instruct` template) | candidate; needs about 22 GB while loaded |
-| `qwen3-vl:8b`               | 6.2 GB   | always on (`qwen3-vl-thinking`)     | reference point only                      |
+| Tag                         | Download | Thinking                            | Role                                    |
+| --------------------------- | -------- | ----------------------------------- | --------------------------------------- |
+| `qwen3-vl:8b-instruct`      | 6.2 GB   | none (`qwen3-vl-instruct` template) | candidate                               |
+| `qwen3-vl:30b-a3b-instruct` | 20 GB    | none (`qwen3-vl-instruct` template) | default; needs about 22 GB while loaded |
+| `qwen3-vl:8b`               | 6.2 GB   | always on (`qwen3-vl-thinking`)     | reference point only                    |
 
 `ollama show <tag>` lists `thinking` under Capabilities only for the thinking
 variant; `ollama show <tag> --modelfile` names the template (`RENDERER`). The
@@ -270,7 +272,8 @@ out of tokens while thinking; that is part of what the reference shows.
 `gemma4:12b` (timed out on 8 of 13 receipts in the first benchmark) and
 `qwen2.5vl:7b` (invented tips and subtotals) are no longer in the recommended
 run. Either can still be passed with `--model`. The service's default model is
-still `qwen2.5vl:7b` until a benchmark on the new prompt picks one.
+`qwen3-vl:30b-a3b-instruct`: it is the only candidate with no confident-wrong
+totals in both benchmarks, and the fastest.
 
 It runs the same pipeline over a folder of labelled receipts and writes
 `bench-results.md` (aggregate numbers only) and

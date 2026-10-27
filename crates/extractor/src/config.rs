@@ -7,7 +7,7 @@ pub use crate::ollama::DEFAULT_MAX_TOKENS;
 
 pub const DEFAULT_PORT: u16 = 8787;
 pub const DEFAULT_OLLAMA: &str = "http://127.0.0.1:11434";
-pub const DEFAULT_MODEL: &str = "qwen2.5vl:7b";
+pub const DEFAULT_MODEL: &str = "qwen3-vl:30b-a3b-instruct";
 pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(90);
 
 /// The app's local origins: Vite dev (5173) and preview (4173).
@@ -42,7 +42,7 @@ impl Default for Config {
     }
 }
 
-pub const USAGE: &str = "Usage: extractor [--port 8787] [--ollama http://127.0.0.1:11434] [--model qwen2.5vl:7b] [--allowed-origin <origin>]... [--timeout-seconds 90] [--max-tokens 2048]";
+pub const USAGE: &str = "Usage: extractor [--port 8787] [--ollama http://127.0.0.1:11434] [--model qwen3-vl:30b-a3b-instruct] [--allowed-origin <origin>]... [--timeout-seconds 90] [--max-tokens 2048]";
 
 /// Ollama must be on this computer: documents never leave the machine.
 pub fn is_local_url(url: &str) -> bool {
