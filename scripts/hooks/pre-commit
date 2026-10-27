@@ -1,0 +1,10 @@
+#!/bin/sh
+# zapbooks privacy guard. Installed as both pre-commit (checks the staged
+# diff) and commit-msg (checks the message, passed as "$1") by
+# `npm run hooks:install`. See scripts/hooks/privacy-guard.mjs.
+guard="$(git rev-parse --show-toplevel)/scripts/hooks/privacy-guard.mjs"
+if [ ! -f "$guard" ]; then
+  echo "privacy guard: this checkout has no $guard; not checked." >&2
+  exit 0
+fi
+exec node "$guard" "$@"

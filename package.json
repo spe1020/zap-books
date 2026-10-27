@@ -12,6 +12,7 @@
     "check": "npm run test && npm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "hooks:install": "node scripts/hooks/install.mjs",
     "parity:fixtures": "TZ=America/New_York vitest run --config scripts/vitest.parity.config.mjs"
   },
   "dependencies": {

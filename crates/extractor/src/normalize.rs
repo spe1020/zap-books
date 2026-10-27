@@ -1602,7 +1602,7 @@ mod tests {
             );
         }
         // Not in its own evidence, or only part of a printed number.
-        for (value, evidence) in [("88412", "Trace #: 1A2-339-104"), ("4", "Order 44")] {
+        for (value, evidence) in [("88412", "Trace #: 1A2-339-104"), ("5", "Order 57")] {
             let n = with("reference", found(value, evidence));
             assert_eq!(
                 n.fields.reference.status,
