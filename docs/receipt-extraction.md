@@ -211,25 +211,62 @@ timings don't overlap the next. Label each receipt with
 
 ```json
 {
-  "vendor": "Paper & Pine",
-  "date": "2026-10-24",
-  "total": "42.50",
+  "vendor": ["Lantern & Loaf Bakery", "Lantern & Loaf"],
+  "date": "2026-09-12",
+  "total": "54.50",
   "currency": "USD",
-  "reference": "DEMO-RECEIPT-001",
-  "subtotal": "40.00",
-  "tax": "2.50",
+  "reference": "LL-4410",
+  "subtotal": "50.00",
+  "tax": "3.00",
+  "fees": "1.50",
+  "discounts": null,
   "tip": null,
-  "category": "northstar-category-1",
+  "category": "northstar-category-2",
   "clear": true,
-  "kind": "pdf"
+  "kind": "photo"
 }
 ```
 
-A missing key isn't scored; `null` means the receipt doesn't show that field
-(use `"tip": null` when there is no tip line).
-`vendor` may be a list of accepted spellings. Amounts are text as printed.
+(A made-up receipt: $50.00 subtotal, $3.00 tax and a $1.50 card surcharge.)
+
+How to label:
+
+- **A missing key isn't scored; `null` means the receipt doesn't show that
+  field.** A field labelled `null` that the model reports as found counts as
+  confident-wrong. Leave a key out only when you can't tell what's right.
+- **Amounts** are text as printed (`"3.00"`, `"$3.00"` and `"1,042.50"` all
+  work); never JSON numbers.
+- **`subtotal`:** only a line labelled Subtotal or an equivalent ("Sub
+  Total", "Merchandise"). No such line means `null`, even if an item price or
+  the total would be the same amount.
+- **`tax`:** the sum of every printed tax line (`TAX 0.00` and `TAX 0.45`
+  give `"0.45"`). A printed `0.00` tax line gives `"0.00"`; no tax line gives
+  `null`.
+- **`fees`:** the sum of surcharge, convenience, service, service-charge and
+  delivery-fee lines added after the subtotal. A fee listed among the items
+  (already in the subtotal) isn't counted. None gives `null`.
+- **`discounts`:** the sum of coupon, savings, reward and markdown lines
+  printed as deductions, as a **positive** amount (lines `1.50-` and `0.50-`
+  give `"2.00"`). A "Total saved" or "Your savings" summary isn't counted. None
+  gives `null`.
+- **`tip`:** only a tip the customer actually added. A suggested-tip table is
+  `null`.
+- **`reference`:** a number labelled as a receipt, transaction, invoice or
+  order number, never a card, account, approval or phone number. When the
+  receipt prints more than one such number, give a list of all of them; any
+  one is accepted, like `vendor`'s spellings (`"reference": ["R-1001", "77"]`).
+  None gives `null`.
+- **`vendor`** may be a list of accepted spellings.
+
 `clear: false` leaves a receipt out of "Total, clear receipts". `kind` is a
-free tag counted in the report. An optional `categories.json` at the corpus
-root lists `{ "id", "name" }` categories to send. `docs/samples/` is a small
-labelled corpus of fictional receipts. Real receipts never go in the
-repository.
+free tag counted in the report (for example `photo`, `screenshot`, `pdf` for a
+PDF with a text layer, `scanned pdf` for one without). An optional
+`categories.json` at the corpus root lists `{ "id", "name" }` categories to
+send. `docs/samples/` is a small labelled corpus of fictional receipts. Real
+receipts never go in the repository.
+
+Tax, fees and discounts are scored by the sum of their lines. The local
+per-receipt file ends with a short **Causes** section per model (for example
+"total unclear: the parts read don't add up to it: 2", "tip:
+confident-wrong: 1", "receipt not read: timed out: 1"). It names categories
+and fields only, never values, and it never appears in `bench-results.md`.
