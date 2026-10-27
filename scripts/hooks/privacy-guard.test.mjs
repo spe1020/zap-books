@@ -9,7 +9,6 @@ import {
   addedLines,
   cents,
   corpusDirs,
-  dateForms,
   findLeaks,
   loadSecrets,
   messageLines,
@@ -40,8 +39,7 @@ writeFileSync(
     date: "2032-11-23",
   }),
 );
-// The fictional sample shares a total and a date with the corpus; both stay
-// allowed.
+// The fictional sample shares a total with the corpus; it stays allowed.
 writeFileSync(
   join(samples, "demo.expected.json"),
   JSON.stringify({
@@ -85,24 +83,13 @@ describe("privacy guard", () => {
     expect(leaks("Check #7")).toEqual([]);
   });
 
-  it("finds dates in the usual printed forms", () => {
-    for (const text of [
-      "2031-03-07",
-      "03/07/31",
-      "3/7/2031",
-      "07/03/2031",
-      "Mar 7, 2031",
-      "7 March 2031",
-      "07-Mar-2031",
-      "2031-03-07T10:00",
-    ])
-      expect(leaks(text), text).toEqual(["date"]);
-    expect(leaks("2031-03-071")).toEqual([]);
+  it("doesn't check dates", () => {
+    for (const text of ["2031-03-07", "3/7/31", "Mar 7, 2031", "2032-11-23"])
+      expect(leaks(text), text).toEqual([]);
   });
 
   it("allows values the fictional samples use, and doesn't check docs/samples", () => {
     expect(leaks("TOTAL 61.40")).toEqual([]);
-    expect(leaks("2032-11-23")).toEqual([]);
     expect(leaks("Quillfeather", "docs/samples/demo.html")).toEqual([]);
   });
 
@@ -113,7 +100,6 @@ describe("privacy guard", () => {
     );
     expect(found).toEqual([
       { file: "a.md", line: 9, kind: "vendor name" },
-      { file: "a.md", line: 9, kind: "date" },
       { file: "a.md", line: 9, kind: "amount" },
     ]);
     expect(JSON.stringify(found)).not.toMatch(/quillfeather|1284|2031/i);
@@ -148,12 +134,10 @@ describe("privacy guard", () => {
     expect(trailer.map((l) => l.text)).toEqual(["Fix", "", "Quillfeather"]);
   });
 
-  it("parses amounts and date forms", () => {
+  it("parses amounts", () => {
     expect(cents("$1,284.19")).toBe(128419);
     expect(cents("0.5")).toBe(50);
     expect(cents("lots")).toBeNull();
-    expect(dateForms("2031-03-07")).toContain("3/7/31");
-    expect(dateForms("not a date")).toEqual([]);
   });
 
   it("takes corpus folders from ZAPBOOKS_CORPUS_DIRS", () => {

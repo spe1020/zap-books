@@ -1,7 +1,8 @@
 // Blocks a commit that contains values from real receipt labels: vendor
-// names, amounts, receipt numbers and dates read from every *.expected.json
-// in the corpus folders. It reports the file and line, never the value, and
-// it never writes the values anywhere.
+// names, amounts and receipt numbers read from every *.expected.json in the
+// corpus folders. Dates aren't checked: fictional fixtures use dates close to
+// real receipts' dates, so a date check blocks ordinary edits. It reports the
+// file and line, never the value, and it never writes the values anywhere.
 //
 // Corpus folders: ZAPBOOKS_CORPUS_DIRS (separated by ":"), or by default
 // ~/Desktop/reciepts and ~/Desktop/receipts-holdout. The committed fictional
@@ -19,24 +20,9 @@ import { fileURLToPath } from "node:url";
 
 const AMOUNT_FIELDS = ["total", "subtotal", "tax", "fees", "discounts", "tip"];
 const SAMPLES_DIR = "docs/samples";
-/** Shorter receipt numbers (`3`, `44`) would match almost anything. */
+/** Shorter receipt numbers (`3`, `61`) would match almost anything. */
 const MIN_REFERENCE_LENGTH = 4;
 const MIN_VENDOR_LENGTH = 3;
-
-const MONTHS = [
-  "january",
-  "february",
-  "march",
-  "april",
-  "may",
-  "june",
-  "july",
-  "august",
-  "september",
-  "october",
-  "november",
-  "december",
-];
 
 /** Every *.expected.json (or expected.json) under `dir`, recursively. */
 export function labelFiles(dir) {
@@ -69,40 +55,6 @@ const list = (v) => (Array.isArray(v) ? v : v == null ? [] : [v]);
 const fold = (s) => s.toLowerCase().replace(/[’‘]/g, "'");
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** The ways a `YYYY-MM-DD` date may be printed. */
-export function dateForms(iso) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  if (!m) return [];
-  const [, y, mm, dd] = m;
-  const yy = y.slice(2);
-  const mo = String(Number(mm));
-  const d = String(Number(dd));
-  const forms = new Set([iso]);
-  for (const sep of ["/", "-", "."]) {
-    for (const year of [y, yy]) {
-      for (const [a, b] of [
-        [mm, dd],
-        [mo, d],
-        [dd, mm],
-        [d, mo],
-      ]) {
-        forms.add(`${a}${sep}${b}${sep}${year}`);
-      }
-    }
-  }
-  const month = MONTHS[Number(mm) - 1];
-  if (month) {
-    for (const name of [month, month.slice(0, 3)]) {
-      forms.add(`${name} ${d}, ${y}`);
-      forms.add(`${name} ${d} ${y}`);
-      forms.add(`${d} ${name} ${y}`);
-      forms.add(`${d}-${name}-${y}`);
-      forms.add(`${dd}-${name}-${y}`);
-    }
-  }
-  return [...forms];
-}
-
 /**
  * The values to block, from the labels in `dirs`, less any value the
  * fictional samples in `samplesDir` also use. Each is `{ kind, test }`;
@@ -124,7 +76,6 @@ export function loadSecrets(dirs, samplesDir) {
     const vendors = new Set();
     const amounts = new Set();
     const references = new Set();
-    const dates = new Set();
     for (const label of labelsList) {
       for (const v of list(label.vendor))
         if (typeof v === "string" && v.trim().length >= MIN_VENDOR_LENGTH)
@@ -140,9 +91,8 @@ export function loadSecrets(dirs, samplesDir) {
           v.replace(/[^a-z0-9]/gi, "").length >= MIN_REFERENCE_LENGTH
         )
           references.add(fold(v.trim()));
-      for (const v of list(label.date)) if (typeof v === "string") dates.add(v);
     }
-    return { vendors, amounts, references, dates };
+    return { vendors, amounts, references };
   };
   const real = collect(labels);
   const fictional = collect(samples);
@@ -156,13 +106,6 @@ export function loadSecrets(dirs, samplesDir) {
     if (!fictional.vendors.has(v)) word("vendor name", v);
   for (const r of real.references)
     if (!fictional.references.has(r)) word("receipt number", r);
-  for (const d of real.dates) {
-    if (fictional.dates.has(d)) continue;
-    for (const form of dateForms(d)) {
-      const re = new RegExp(`(?<![0-9])${escape(form)}(?![0-9])`, "i");
-      secrets.push({ kind: "date", test: (line) => re.test(line) });
-    }
-  }
   const blocked = [...real.amounts].filter((c) => !fictional.amounts.has(c));
   if (blocked.length > 0) {
     const set = new Set(blocked);

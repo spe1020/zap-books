@@ -16,6 +16,7 @@ default `~/Desktop/reciepts` and `~/Desktop/receipts-holdout`).
   and is gitignored. Keep receipt values only in temporary files, and delete
   them when done.
 - `npm run hooks:install` installs a pre-commit and commit-msg guard that
-  blocks commits containing values from the corpus labels. It names the file
-  and line, never the value. Don't bypass it with `--no-verify`; replace the
-  value instead. It can't check PR descriptions, so check those by hand.
+  blocks commits containing vendor names, amounts or receipt numbers from the
+  corpus labels. It names the file and line, never the value. Don't bypass it
+  with `--no-verify`; replace the value instead. It doesn't check dates or PR
+  descriptions, so check those by hand.
