@@ -45,6 +45,9 @@ async fn main() -> std::process::ExitCode {
         "Receipt reading is running at http://{} with model {}. Receipts are read on this computer only.",
         service.addr, config.model
     );
+    eprintln!(
+        "Loading the model with a fictional sample receipt. Read receipt turns on when it's ready."
+    );
     match service.run().await {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(e) => {

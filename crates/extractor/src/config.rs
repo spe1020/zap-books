@@ -27,6 +27,9 @@ pub struct Config {
     pub timeout: Duration,
     /// Cap on generated tokens per receipt (`num_predict`).
     pub max_tokens: u32,
+    /// Load the model with a fictional sample at startup, before `/health`
+    /// reports ready. Always on from the command line; tests turn it off.
+    pub warm_up: bool,
 }
 
 impl Default for Config {
@@ -38,6 +41,7 @@ impl Default for Config {
             allowed_origins: DEFAULT_ORIGINS.iter().map(|o| (*o).to_string()).collect(),
             timeout: DEFAULT_TIMEOUT,
             max_tokens: DEFAULT_MAX_TOKENS,
+            warm_up: true,
         }
     }
 }

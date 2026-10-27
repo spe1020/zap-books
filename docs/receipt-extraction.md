@@ -60,7 +60,13 @@ address that isn't on this computer.
    ```
 
    It prints `Receipt reading is running at http://127.0.0.1:8787 …`. If
-   Poppler, Ollama or the model is missing, it says what to install.
+   Poppler, Ollama or the model is missing, it says what to install. It then
+   warms the model up with one request using the fictional sample
+   `docs/samples/demo-receipt.png` (a single answer token), so the first real
+   receipt doesn't wait for the model to load. `/health` reports `ready` only
+   after the warm-up finishes (and `warmingUp` until then); **Read receipt**
+   stays off until then. If the warm-up fails, it is logged and the first
+   receipt loads the model instead.
 
 7. Start the app in another terminal and open http://localhost:5173:
 
