@@ -78,7 +78,7 @@ else works as before.
 ```text
 cargo run -p extractor -- [--port 8787] [--ollama http://127.0.0.1:11434]
                           [--model qwen2.5vl:7b] [--allowed-origin <origin>]...
-                          [--timeout-seconds 90]
+                          [--timeout-seconds 90] [--max-tokens 2048]
 ```
 
 `--allowed-origin` replaces the default origins (`http://127.0.0.1:5173`,
@@ -115,8 +115,19 @@ Review ── POST /extract ─▶ check file ─ render PDF pages ────�
 
 The service only answers requests whose `Host` is `127.0.0.1:<port>` or
 `localhost:<port>` (this blocks DNS rebinding) and whose `Origin`, if any, is
-one of the app's. It listens on `127.0.0.1` only. Requests time out after
-90 seconds.
+one of the app's. It listens on `127.0.0.1` only.
+
+Every request to Ollama asks for thinking off (`think: false`) and caps the
+answer at `--max-tokens` tokens (2048 by default), so a runaway generation
+stops. Each result records whether the model reports thinking support
+(`modelSupportsThinking`, from Ollama's `/api/show`); a thinking-only model
+may ignore the request and spend its tokens thinking. Requests time out after
+90 seconds. A request that times out is cancelled: the connection to Ollama
+is closed, which makes Ollama stop generating. Before the next receipt, the
+extractor sends Ollama a one-token request to confirm the model is idle; if
+that doesn't finish within 30 seconds (or the timeout, if shorter), it
+answers "The model is still finishing an earlier receipt. Try again in a
+minute, or enter the details manually."
 
 ## What is logged
 
@@ -190,8 +201,13 @@ cargo run -p extractor --release --bin bench -- --corpus <dir> --model <name> [-
 It runs the same pipeline over a folder of labelled receipts and writes
 `bench-results.md` (aggregate numbers only) and
 `bench-results.details.local.md` (per-receipt verdicts, which name files; keep
-it local). Both are gitignored. Label each receipt with `<name>.expected.json`
-next to it:
+it local). Both are gitignored. It takes the same `--timeout-seconds` and
+`--max-tokens` flags as the service. Each model's section records its run
+settings (thinking requested off and whether the model supports it, max
+tokens, timeout, prompt version). When the bench finishes with a model it
+unloads it (`keep_alive: 0`), so models don't share memory and one model's
+timings don't overlap the next. Label each receipt with
+`<name>.expected.json` next to it:
 
 ```json
 {

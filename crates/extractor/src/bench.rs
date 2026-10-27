@@ -13,7 +13,7 @@
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use ledger_core::{Currency, ExtractedField, ExtractedLines, FieldStatus, Minor};
 use serde::Deserialize;
@@ -413,6 +413,32 @@ pub const TARGETS: [(&str, f64, f64); 4] = [
 ];
 pub const MEDIAN_TARGET_MS: u64 = 20_000;
 
+/// How a model was run, recorded in its report.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Settings {
+    /// From `/api/show`; thinking is always requested off.
+    pub thinking_supported: Option<bool>,
+    pub max_tokens: u32,
+    pub timeout: Duration,
+    pub prompt_version: &'static str,
+}
+
+impl Settings {
+    fn describe(&self) -> String {
+        let thinking = match self.thinking_supported {
+            Some(true) => "off (requested; the model supports thinking)",
+            Some(false) => "off (the model has no thinking mode)",
+            None => "off (requested; Ollama didn't report support)",
+        };
+        format!(
+            "Run settings: thinking {thinking}, max tokens {}, timeout {} s, prompt {}.\n\n",
+            self.max_tokens,
+            self.timeout.as_secs(),
+            self.prompt_version
+        )
+    }
+}
+
 /// The Markdown report for one model.
 pub fn report(
     model: &str,
@@ -420,6 +446,7 @@ pub fn report(
     runs: &[Run],
     warmup: Option<u64>,
     memory_bytes: Option<u64>,
+    settings: &Settings,
 ) -> String {
     let mut stats: BTreeMap<&str, FieldStats> = BTreeMap::new();
     let mut clear_total = FieldStats::default();
@@ -433,6 +460,7 @@ pub fn report(
         }
     }
     let mut md = format!("### {model}\n\n");
+    md.push_str(&settings.describe());
     let errors = runs.iter().filter(|r| r.error.is_some()).count();
     md.push_str(&format!(
         "{} receipts, {} could not be read at all.\n\n",
@@ -639,6 +667,24 @@ mod tests {
         );
         let e = expected(json!({ "total": "51.00", "tip": null }));
         assert_eq!(e.get("tip"), Some(&Value::Null));
+    }
+
+    #[test]
+    fn the_report_records_how_the_model_was_run() {
+        let mut settings = Settings {
+            thinking_supported: Some(true),
+            max_tokens: 2048,
+            timeout: Duration::from_secs(90),
+            prompt_version: "receipt-v3",
+        };
+        let md = report("m", &[], &[], None, None, &settings);
+        assert!(md.contains(
+            "Run settings: thinking off (requested; the model supports thinking), max tokens 2048, timeout 90 s, prompt receipt-v3."
+        ));
+        settings.thinking_supported = Some(false);
+        assert!(settings
+            .describe()
+            .contains("thinking off (the model has no thinking mode)"));
     }
 
     #[test]

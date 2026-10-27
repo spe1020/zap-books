@@ -51,6 +51,7 @@ function result(fields: Record<string, unknown> = {}, warnings: string[] = []) {
     pagesRead: 1,
     usedTextLayer: false,
     durationMs: 1200,
+    modelSupportsThinking: false,
   };
 }
 

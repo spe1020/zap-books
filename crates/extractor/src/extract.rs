@@ -30,6 +30,9 @@ pub struct ExtractionResult {
     pub pages_read: u32,
     pub used_text_layer: bool,
     pub duration_ms: u64,
+    /// Whether the model reports thinking support (`/api/show`), or `null`
+    /// if Ollama didn't say. Thinking is always requested off.
+    pub model_supports_thinking: Option<bool>,
 }
 
 /// Field statuses only, for logs: never values or evidence.
@@ -92,6 +95,7 @@ impl Extractor {
         let system = prompt::system_prompt(categories);
         let user = prompt::user_message(text.as_deref());
         let schema = prompt::answer_schema();
+        let model_supports_thinking = self.ollama.supports_thinking(&self.model).await;
         let content = self
             .ollama
             .chat(Chat {
@@ -121,6 +125,7 @@ impl Extractor {
             pages_read: u32::try_from(images.len()).unwrap_or(u32::MAX),
             used_text_layer: text.is_some(),
             duration_ms,
+            model_supports_thinking,
         };
         tracing::info!(
             model = %self.model,

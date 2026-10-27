@@ -26,12 +26,34 @@ struct Fake {
     requests: Vec<Value>,
     /// The same bodies exactly as sent, to check key order.
     raw_requests: Vec<String>,
+    /// Chats whose connection was dropped before the answer was ready, as
+    /// Ollama sees a cancelled request.
+    abandoned: usize,
 }
 
 type Shared = Arc<Mutex<Fake>>;
 
 async fn tags() -> Json<Value> {
     Json(json!({ "models": [{ "name": MODEL }] }))
+}
+
+async fn show() -> Json<Value> {
+    Json(json!({ "capabilities": ["completion", "vision"] }))
+}
+
+/// Counts a chat as abandoned if its handler is dropped before it answers,
+/// which hyper does when the client closes the connection.
+struct Answering {
+    fake: Shared,
+    done: bool,
+}
+
+impl Drop for Answering {
+    fn drop(&mut self) {
+        if !self.done {
+            self.fake.lock().unwrap().abandoned += 1;
+        }
+    }
 }
 
 async fn chat(State(fake): State<Shared>, body: String) -> (StatusCode, Json<Value>) {
@@ -41,7 +63,12 @@ async fn chat(State(fake): State<Shared>, body: String) -> (StatusCode, Json<Val
         f.raw_requests.push(body);
         (f.content.clone(), f.delay, f.status)
     };
+    let mut answering = Answering {
+        fake: fake.clone(),
+        done: false,
+    };
     tokio::time::sleep(delay).await;
+    answering.done = true;
     (
         StatusCode::from_u16(status).unwrap(),
         Json(
@@ -58,6 +85,7 @@ async fn spawn_fake(content: Value) -> (String, Shared) {
     }));
     let app = Router::new()
         .route("/api/tags", get(tags))
+        .route("/api/show", post(show))
         .route("/api/chat", post(chat))
         .with_state(fake.clone());
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -186,9 +214,14 @@ async fn happy_path_reads_an_image_receipt() {
     assert_eq!(body["usedTextLayer"], false);
     assert!(body["durationMs"].is_u64());
 
+    assert_eq!(body["modelSupportsThinking"], false);
+
     let request = fake.lock().unwrap().requests[0].clone();
     assert_eq!(request["model"], MODEL);
     assert_eq!(request["stream"], false);
+    assert_eq!(request["think"], false);
+    assert_eq!(request["options"]["num_predict"], 2048);
+    assert_eq!(request["options"]["temperature"], 0);
     assert!(request["format"]["properties"]["total"].is_object());
     assert!(request.get("tools").is_none());
     let system = request["messages"][0]["content"].as_str().unwrap();
@@ -309,6 +342,64 @@ async fn a_slow_model_times_out_with_a_clear_message() {
         body["error"],
         "The model took too long to read this receipt. Try again, or enter the details manually."
     );
+}
+
+/// Waits up to two seconds for `check` to hold.
+async fn eventually(check: impl Fn() -> bool) -> bool {
+    for _ in 0..40 {
+        if check() {
+            return true;
+        }
+        tokio::time::sleep(Duration::from_millis(50)).await;
+    }
+    false
+}
+
+/// A timed-out request is cancelled: the connection to Ollama is closed, so
+/// Ollama stops generating. The next request first confirms the model is
+/// idle with a one-token probe, and says the model is busy if it isn't.
+#[tokio::test]
+async fn a_timeout_closes_the_connection_and_the_next_request_waits_for_idle() {
+    let (ollama, fake) = spawn_fake(demo_answer()).await;
+    fake.lock().unwrap().delay = Duration::from_secs(5);
+    let addr = spawn_service(&ollama, Duration::from_secs(1)).await;
+    let (status, _) = extract(addr, sample("demo-receipt.png")).await;
+    assert_eq!(status, 504);
+    assert!(
+        eventually(|| fake.lock().unwrap().abandoned == 1).await,
+        "the timed-out chat's connection was not closed"
+    );
+
+    // Still slow: the probe can't finish within the timeout.
+    let (status, body) = extract(addr, sample("demo-receipt.png")).await;
+    assert_eq!(status, 503);
+    assert_eq!(
+        body["error"],
+        "The model is still finishing an earlier receipt. Try again in a minute, or enter the details manually."
+    );
+    {
+        let f = fake.lock().unwrap();
+        assert_eq!(f.requests.len(), 2, "no receipt is sent while busy");
+        let probe = &f.requests[1];
+        assert_eq!(probe["options"]["num_predict"], 1);
+        assert_eq!(probe["think"], false);
+        assert!(probe.get("format").is_none());
+    }
+
+    // Idle again: probe, then the receipt.
+    fake.lock().unwrap().delay = Duration::ZERO;
+    let (status, body) = extract(addr, sample("demo-receipt.png")).await;
+    assert_eq!(status, 200, "{body}");
+    {
+        let f = fake.lock().unwrap();
+        assert_eq!(f.requests.len(), 4);
+        assert_eq!(f.requests[2]["options"]["num_predict"], 1);
+        assert!(f.requests[3]["format"].is_object());
+    }
+    // Settled: the next receipt goes straight to the model.
+    let (status, _) = extract(addr, sample("demo-receipt.png")).await;
+    assert_eq!(status, 200);
+    assert_eq!(fake.lock().unwrap().requests.len(), 5);
 }
 
 #[tokio::test]
@@ -470,6 +561,7 @@ async fn an_injected_total_never_comes_back_as_found() {
             "durationMs",
             "fields",
             "model",
+            "modelSupportsThinking",
             "pagesRead",
             "promptVersion",
             "usedTextLayer",

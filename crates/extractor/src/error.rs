@@ -36,6 +36,10 @@ pub enum ExtractError {
         "The model took too long to read this receipt. Try again, or enter the details manually."
     )]
     Timeout,
+    #[error(
+        "The model is still finishing an earlier receipt. Try again in a minute, or enter the details manually."
+    )]
+    Busy,
     #[error("Receipt reading failed on this computer. Enter the details manually.")]
     Internal,
 }
@@ -48,7 +52,9 @@ impl ExtractError {
             Self::TooLarge => 413,
             Self::UnsupportedType => 415,
             Self::PdfUnreadable => 422,
-            Self::PopplerMissing | Self::OllamaUnavailable | Self::ModelMissing(_) => 503,
+            Self::PopplerMissing | Self::OllamaUnavailable | Self::ModelMissing(_) | Self::Busy => {
+                503
+            }
             Self::ModelFailed | Self::MalformedAnswer => 502,
             Self::Timeout => 504,
             Self::Internal => 500,

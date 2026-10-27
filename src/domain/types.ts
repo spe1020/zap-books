@@ -223,6 +223,8 @@ export interface ExtractionResult {
   pagesRead: number;
   usedTextLayer: boolean;
   durationMs: number;
+  /** Whether the model reports thinking support; null if unknown. Thinking is always requested off. */
+  modelSupportsThinking: boolean | null;
 }
 export type ExtractionOutcome = "accepted" | "edited" | "ignored" | "unclear";
 /** What a receipt reader proposed for a draft, and what the user did. */

@@ -64,6 +64,7 @@ function result(
     pagesRead: 1,
     usedTextLayer: false,
     durationMs: 10,
+    modelSupportsThinking: false,
   };
 }
 const blank: FormValues = {

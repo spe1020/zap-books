@@ -141,6 +141,12 @@ async fn extract(
     }
     let file = file.ok_or(ExtractError::MissingFile)?;
     detect(&file)?;
+    // A receipt that timed out earlier may still hold the model.
+    state
+        .extractor
+        .ollama
+        .wait_until_idle(&state.extractor.model)
+        .await?;
     let result = tokio::time::timeout(
         state.timeout,
         state.extractor.extract(&file, &categories, &currencies),
@@ -206,7 +212,8 @@ impl Service {
         let addr = listener
             .local_addr()
             .map_err(|e| format!("Could not read the listening address: {e}"))?;
-        let ollama = Ollama::new(&config.ollama, config.timeout).map_err(|e| e.to_string())?;
+        let ollama = Ollama::new(&config.ollama, config.timeout, config.max_tokens)
+            .map_err(|e| e.to_string())?;
         let state = Arc::new(AppState {
             extractor: Extractor {
                 ollama,
