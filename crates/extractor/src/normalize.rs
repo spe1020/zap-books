@@ -12,7 +12,7 @@ use serde_json::Value;
 use crate::error::ExtractError;
 use crate::evidence::{
     amount_in_evidence, date_in_evidence, fits_percentage, has_label, is_thousands_grouped,
-    shows_deduction,
+    numbers_in_evidence, shows_deduction,
 };
 use crate::extract::Category;
 
@@ -344,6 +344,50 @@ const PAYMENT: [&str; 3] = ["payment", "paid", "charged"];
 
 /// ...unless the line also has one of these, so it may be money coming back.
 const REFUND: [&str; 4] = ["refund", "credit", "return", "reversal"];
+
+/// Words one of which a receipt number's evidence must contain.
+pub const REFERENCE_LABELS: [&str; 11] = [
+    "receipt",
+    "rcpt",
+    "transaction",
+    "trans",
+    "tran",
+    "invoice",
+    "inv",
+    "order",
+    "check",
+    "chk",
+    "bill",
+];
+
+/// Letters and digits only, lowercase.
+fn compact(text: &str) -> String {
+    text.chars()
+        .filter(|c| c.is_alphanumeric())
+        .flat_map(char::to_lowercase)
+        .collect()
+}
+
+/// Whether a receipt number is printed in `evidence`, ignoring spaces and
+/// punctuation. A number made only of digits must be whole digit runs, so
+/// `4` is not read out of `44`, while `5103-27` matches `5103 27`.
+fn reference_in_evidence(value: &str, evidence: &str) -> bool {
+    let wanted = compact(value);
+    if wanted.is_empty() {
+        return false;
+    }
+    if !wanted.chars().all(|c| c.is_ascii_digit()) {
+        return compact(evidence).contains(&wanted);
+    }
+    let runs = numbers_in_evidence(evidence);
+    (0..runs.len()).any(|start| {
+        let mut joined = String::new();
+        runs.iter().skip(start).any(|run| {
+            joined.push_str(run);
+            joined == wanted
+        })
+    })
+}
 
 /// Words that mark a summary of savings, which repeats the deduction lines.
 pub const SUMMARY: [&str; 4] = ["total", "summary", "you saved", "ytd"];
@@ -681,7 +725,26 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     let w = &mut warnings;
 
     let vendor = field(&raw.vendor, "vendor", w, |t, _, _| text_value(t));
-    let reference = field(&raw.reference, "receipt number", w, |t, _, _| text_value(t));
+    let reference = field(
+        &raw.reference,
+        "receipt number",
+        w,
+        |t, evidence, warnings| {
+            let value = text_value(t)?;
+            if !reference_in_evidence(&value, evidence) {
+                warn(warnings, MISMATCH);
+                return None;
+            }
+            if !has_label(evidence, &REFERENCE_LABELS) {
+                warnings.push(
+                "The receipt number was read without a receipt, transaction, invoice, order or check label. Check it."
+                    .into(),
+            );
+                return None;
+            }
+            Some(value)
+        },
+    );
 
     let currency = field(&raw.currency, "currency", w, |text, _, warnings| {
         let code = clean_text(text, 12).to_uppercase();
@@ -1518,6 +1581,54 @@ mod tests {
         let n = date("2026-10-08", "DATE 2026-10-09", usd());
         assert_eq!(n.fields.date.status, FieldStatus::Unclear);
         assert_eq!(n.fields.date.evidence, "DATE 2026-10-09");
+    }
+
+    #[test]
+    fn a_receipt_number_must_be_labelled_and_in_its_evidence() {
+        for (value, evidence) in [
+            ("DEMO-RECEIPT-001", "RECEIPT NUMBER DEMO-RECEIPT-001"),
+            ("5103", "Tran# 5103"),
+            ("5103-27", "Transaction 5103 27"),
+            ("61", "Order 61"),
+            ("12", "Check #12"),
+            ("INV-88", "Inv# INV-88"),
+            ("CK-7731", "BILL NUMBER CK-7731"),
+        ] {
+            let n = with("reference", found(value, evidence));
+            assert_eq!(
+                n.fields.reference.value.as_deref(),
+                Some(value),
+                "{evidence}"
+            );
+        }
+        // Not in its own evidence, or only part of a printed number.
+        for (value, evidence) in [("88412", "Trace #: 1A2-339-104"), ("4", "Order 44")] {
+            let n = with("reference", found(value, evidence));
+            assert_eq!(
+                n.fields.reference.status,
+                FieldStatus::Unclear,
+                "{evidence}"
+            );
+            assert_eq!(n.warnings, vec![MISMATCH]);
+        }
+        // Without a receipt, transaction, invoice, order or check label.
+        for (value, evidence) in [
+            ("7f3a9c", "Terminal ID 7f3a9c"),
+            ("31-555-0190", "Survey code 31-555-0190"),
+            ("900112233", "Reference ID: 900112233"),
+            ("4410 220 17", "4410 220 17"),
+        ] {
+            let n = with("reference", found(value, evidence));
+            assert_eq!(
+                n.fields.reference.status,
+                FieldStatus::Unclear,
+                "{evidence}"
+            );
+            assert_eq!(
+                n.warnings,
+                vec!["The receipt number was read without a receipt, transaction, invoice, order or check label. Check it."]
+            );
+        }
     }
 
     #[test]

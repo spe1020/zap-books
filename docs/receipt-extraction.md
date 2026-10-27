@@ -188,8 +188,16 @@ read from."
 - **tip:** only a tip the customer actually added. A Tip or Gratuity line with
   an amount, printed between the subtotal and the total, is a tip even when a
   table of suggested tips is also printed; the table alone is not a tip.
-- **reference:** preferably a number labelled as a receipt, transaction,
-  invoice or order number; never a card, account, approval or phone number.
+- **vendor:** the business name, usually in the logo or the largest text at
+  the top; never a tagline, slogan or list of products or services.
+- **reference:** only a number labelled as a receipt, transaction, invoice,
+  order, check or bill number; never a terminal ID, trace number, payment or
+  card-slip reference ID, survey code, card, account, approval or phone
+  number, or product barcode. The value must be in its evidence (ignoring
+  spaces and punctuation; a number of digits only must be whole printed
+  numbers), and the evidence must contain one of `receipt`, `rcpt`,
+  `transaction`, `trans`, `tran`, `invoice`, `inv`, `order`, `check`, `chk`
+  or `bill`. Otherwise it is unclear.
 - **total:** the amount actually paid, including tax, fees and tip. Never a
   savings, points, rewards or year-to-date figure. Its evidence must include
   one of the labels `total`, `amount`, `paid`, `payment`, `charged`,
@@ -317,8 +325,9 @@ How to label:
   gives `null`.
 - **`tip`:** only a tip the customer actually added. A suggested-tip table is
   `null`.
-- **`reference`:** a number labelled as a receipt, transaction, invoice or
-  order number, never a card, account, approval or phone number. When the
+- **`reference`:** a number labelled as a receipt, transaction, invoice,
+  order, check or bill number, never a card, account, approval or phone
+  number, terminal ID, trace number, card-slip reference ID or survey code. When the
   receipt prints more than one such number, give a list of all of them; any
   one is accepted, like `vendor`'s spellings (`"reference": ["R-1001", "77"]`).
   None gives `null`.
