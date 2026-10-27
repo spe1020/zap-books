@@ -243,8 +243,19 @@ a payment or refund line (−$24.00). Enter the total yourself."
 ## Benchmark
 
 ```bash
-cargo run -p extractor --release --bin bench -- --corpus <dir> --model <name> [--model <name>]...
+cargo run -p extractor --release --bin bench -- --corpus <dir> [--corpus <dir>]... --model <name> [--model <name>]...
 ```
+
+`--corpus` can be given more than once. Each corpus is reported on its own
+(numbered, so the report names no folders) and then all of them combined; each
+uses its own `categories.json`.
+
+### Holdout set
+
+Keep a second folder of receipts that is never looked at when designing
+extraction rules, and judge every change by its numbers (`--corpus <design>
+--corpus <holdout>`). Rules tuned on one corpus can look better there than
+they are, and the holdout shows whether they carry over.
 
 ### Models
 
