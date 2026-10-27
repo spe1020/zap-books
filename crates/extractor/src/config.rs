@@ -3,6 +3,8 @@
 
 use std::time::Duration;
 
+pub use crate::ollama::DEFAULT_MAX_TOKENS;
+
 pub const DEFAULT_PORT: u16 = 8787;
 pub const DEFAULT_OLLAMA: &str = "http://127.0.0.1:11434";
 pub const DEFAULT_MODEL: &str = "qwen2.5vl:7b";
@@ -23,6 +25,8 @@ pub struct Config {
     pub model: String,
     pub allowed_origins: Vec<String>,
     pub timeout: Duration,
+    /// Cap on generated tokens per receipt (`num_predict`).
+    pub max_tokens: u32,
 }
 
 impl Default for Config {
@@ -33,11 +37,12 @@ impl Default for Config {
             model: DEFAULT_MODEL.to_string(),
             allowed_origins: DEFAULT_ORIGINS.iter().map(|o| (*o).to_string()).collect(),
             timeout: DEFAULT_TIMEOUT,
+            max_tokens: DEFAULT_MAX_TOKENS,
         }
     }
 }
 
-pub const USAGE: &str = "Usage: extractor [--port 8787] [--ollama http://127.0.0.1:11434] [--model qwen2.5vl:7b] [--allowed-origin <origin>]... [--timeout-seconds 90]";
+pub const USAGE: &str = "Usage: extractor [--port 8787] [--ollama http://127.0.0.1:11434] [--model qwen2.5vl:7b] [--allowed-origin <origin>]... [--timeout-seconds 90] [--max-tokens 2048]";
 
 /// Ollama must be on this computer: documents never leave the machine.
 pub fn is_local_url(url: &str) -> bool {
@@ -85,6 +90,13 @@ impl Config {
                         .map_err(|_| format!("--timeout-seconds must be a number.\n{USAGE}"))?;
                     config.timeout = Duration::from_secs(secs.max(1));
                 }
+                "--max-tokens" => {
+                    config.max_tokens = value()?
+                        .parse()
+                        .ok()
+                        .filter(|n| *n > 0)
+                        .ok_or(format!("--max-tokens must be a positive number.\n{USAGE}"))?;
+                }
                 "-h" | "--help" => return Err(USAGE.to_string()),
                 other => return Err(format!("Unknown flag {other}.\n{USAGE}")),
             }
@@ -126,6 +138,8 @@ mod tests {
             "http://localhost:3000",
             "--timeout-seconds",
             "5",
+            "--max-tokens",
+            "512",
         ])
         .unwrap();
         assert_eq!(c.port, 9000);
@@ -135,6 +149,8 @@ mod tests {
             vec!["http://127.0.0.1:3000", "http://localhost:3000"]
         );
         assert_eq!(c.timeout, Duration::from_secs(5));
+        assert_eq!(c.max_tokens, 512);
+        assert_eq!(Config::default().max_tokens, 2048);
     }
 
     #[test]
@@ -156,5 +172,7 @@ mod tests {
     fn unknown_flags_are_rejected() {
         assert!(parse(&["--host", "0.0.0.0"]).is_err());
         assert!(parse(&["--port"]).is_err());
+        assert!(parse(&["--max-tokens", "0"]).is_err());
+        assert!(parse(&["--max-tokens", "lots"]).is_err());
     }
 }

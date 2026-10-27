@@ -1,4 +1,6 @@
 //! TypeScript JSON deserializes and re-serializes to the same JSON.
+// The sample workspace is one large `json!` literal.
+#![recursion_limit = "256"]
 
 use ledger_core::{BusinessData, ExpenseStatus, JournalEntry, Workspace};
 use serde_json::{json, Value};
@@ -71,7 +73,14 @@ fn sample() -> Value {
                     "currency": { "status": "found", "value": "USD", "evidence": "$" },
                     "reference": { "status": "absent", "value": null, "evidence": "" },
                     "subtotal": { "status": "unclear", "value": null, "evidence": "SUB ?" },
-                    "tax": { "status": "absent", "value": null, "evidence": "" },
+                    "tax": { "status": "found", "value": 45, "lines": [
+                        { "amount": 0, "evidence": "TAX 0.00" },
+                        { "amount": 45, "evidence": "TAX 0.45" }
+                    ] },
+                    "fees": { "status": "unclear", "value": null, "lines": [
+                        { "amount": null, "evidence": "Surcharge ?" }
+                    ] },
+                    "discounts": { "status": "absent", "value": null, "lines": [] },
                     "tip": { "status": "found", "value": 0, "evidence": "TIP 0.00" },
                     "category": { "status": "found", "value": "cat", "evidence": "Office" }
                 },
@@ -140,6 +149,48 @@ fn extraction_records_without_a_tip_load_with_an_absent_tip() {
     let tip = &workspace.businesses[0].extractions[0].fields.tip;
     assert_eq!(tip.status, ledger_core::FieldStatus::Absent);
     assert_eq!(tip.value, None);
+}
+
+#[test]
+fn extraction_records_with_a_single_tax_and_no_fees_load_as_lists() {
+    use ledger_core::{ExtractedLine, ExtractedLines, FieldStatus, Minor};
+    let fields = |tax: Value| {
+        let mut input = sample();
+        let f = input["businesses"][0]["extractions"][0]["fields"]
+            .as_object_mut()
+            .unwrap();
+        f.insert("tax".into(), tax);
+        f.remove("fees");
+        f.remove("discounts");
+        let workspace: Workspace = serde_json::from_value(input).unwrap();
+        workspace.businesses[0].extractions[0].fields.clone()
+    };
+    let f = fields(json!({ "status": "found", "value": 250, "evidence": "TAX $2.50" }));
+    assert_eq!(
+        f.tax,
+        ExtractedLines {
+            status: FieldStatus::Found,
+            value: Some(Minor::new(250).unwrap()),
+            lines: vec![ExtractedLine {
+                amount: Some(Minor::new(250).unwrap()),
+                evidence: "TAX $2.50".into()
+            }],
+        }
+    );
+    assert_eq!(f.fees, ExtractedLines::default());
+    assert_eq!(f.discounts, ExtractedLines::default());
+    let f = fields(json!({ "status": "unclear", "value": null, "evidence": "TAX ?" }));
+    assert_eq!(f.tax.status, FieldStatus::Unclear);
+    assert_eq!(f.tax.lines[0].amount, None);
+    assert_eq!(f.tax.lines[0].evidence, "TAX ?");
+    let f = fields(json!({ "status": "absent", "value": null, "evidence": "" }));
+    assert_eq!(f.tax, ExtractedLines::default());
+    // A legacy record re-saves in the list shape.
+    let saved = serde_json::to_value(&f.tax).unwrap();
+    assert_eq!(
+        saved,
+        json!({ "status": "absent", "value": null, "lines": [] })
+    );
 }
 
 #[test]

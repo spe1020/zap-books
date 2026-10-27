@@ -5,6 +5,7 @@ import type {
   Workspace,
 } from "../domain/types";
 import { seedWorkspace } from "../domain/seed";
+import { upgradeExtractionFields } from "../domain/extraction";
 const DB = "business-finance-v1";
 /**
  * Fills fields added after a workspace was first saved, so older saved
@@ -15,7 +16,10 @@ export function upgradeWorkspace(state: Workspace): Workspace {
     ...state,
     businesses: state.businesses.map((b) => ({
       ...b,
-      extractions: b.extractions ?? [],
+      extractions: (b.extractions ?? []).map((x) => ({
+        ...x,
+        fields: upgradeExtractionFields(x.fields),
+      })),
     })),
   };
 }

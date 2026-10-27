@@ -3,7 +3,7 @@
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 use base64::Engine;
-use ledger_core::{Currency, ExtractedField, ExtractionFields, FieldStatus};
+use ledger_core::{Currency, ExtractionFields, FieldStatus};
 use serde::{Deserialize, Serialize};
 
 use crate::error::ExtractError;
@@ -30,12 +30,15 @@ pub struct ExtractionResult {
     pub pages_read: u32,
     pub used_text_layer: bool,
     pub duration_ms: u64,
+    /// Whether the model reports thinking support (`/api/show`), or `null`
+    /// if Ollama didn't say. Thinking is always requested off.
+    pub model_supports_thinking: Option<bool>,
 }
 
 /// Field statuses only, for logs: never values or evidence.
 pub fn status_summary(fields: &ExtractionFields) -> String {
-    fn s<T>(name: &str, f: &ExtractedField<T>) -> String {
-        let status = match f.status {
+    fn s(name: &str, status: FieldStatus) -> String {
+        let status = match status {
             FieldStatus::Found => "found",
             FieldStatus::Unclear => "unclear",
             FieldStatus::Absent => "absent",
@@ -43,15 +46,17 @@ pub fn status_summary(fields: &ExtractionFields) -> String {
         format!("{name}={status}")
     }
     [
-        s("vendor", &fields.vendor),
-        s("date", &fields.date),
-        s("total", &fields.total),
-        s("currency", &fields.currency),
-        s("reference", &fields.reference),
-        s("subtotal", &fields.subtotal),
-        s("tax", &fields.tax),
-        s("tip", &fields.tip),
-        s("category", &fields.category),
+        s("vendor", fields.vendor.status),
+        s("date", fields.date.status),
+        s("total", fields.total.status),
+        s("currency", fields.currency.status),
+        s("reference", fields.reference.status),
+        s("subtotal", fields.subtotal.status),
+        s("tax", fields.tax.status),
+        s("fees", fields.fees.status),
+        s("discounts", fields.discounts.status),
+        s("tip", fields.tip.status),
+        s("category", fields.category.status),
     ]
     .join(" ")
 }
@@ -90,6 +95,7 @@ impl Extractor {
         let system = prompt::system_prompt(categories);
         let user = prompt::user_message(text.as_deref());
         let schema = prompt::answer_schema();
+        let model_supports_thinking = self.ollama.supports_thinking(&self.model).await;
         let content = self
             .ollama
             .chat(Chat {
@@ -119,6 +125,7 @@ impl Extractor {
             pages_read: u32::try_from(images.len()).unwrap_or(u32::MAX),
             used_text_layer: text.is_some(),
             duration_ms,
+            model_supports_thinking,
         };
         tracing::info!(
             model = %self.model,

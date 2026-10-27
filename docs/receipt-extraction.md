@@ -2,9 +2,14 @@
 
 **Read receipt** on the Review screen asks a vision model running on your own
 computer to suggest an expense's vendor, date, total, currency, receipt number,
-subtotal, tax, tip and category, each with the text it was read from. You accept,
-edit or ignore each suggestion, then approve through the usual validation.
-Nothing is applied without a click and nothing is ever approved automatically.
+subtotal, tax, fees, discounts, tip and category, each with the text it was
+read from. You accept, edit or ignore each suggestion, then approve through the
+usual validation. Nothing is applied without a click and nothing is ever
+approved automatically.
+
+The model transcribes; Rust does the arithmetic. The model copies printed
+amounts with their evidence, and every sum, comparison and decision about the
+total happens in the extractor with `ledger-core`'s money rules.
 
 **Privacy:** receipts never leave your computer. The browser sends the receipt
 to the extractor service on `127.0.0.1`, which sends it to Ollama on
@@ -73,7 +78,7 @@ else works as before.
 ```text
 cargo run -p extractor -- [--port 8787] [--ollama http://127.0.0.1:11434]
                           [--model qwen2.5vl:7b] [--allowed-origin <origin>]...
-                          [--timeout-seconds 90]
+                          [--timeout-seconds 90] [--max-tokens 2048]
 ```
 
 `--allowed-origin` replaces the default origins (`http://127.0.0.1:5173`,
@@ -95,12 +100,14 @@ Review ── POST /extract ─▶ check file ─ render PDF pages ────�
 - **Extractor** (`crates/extractor`): accepts PNG, JPEG, WebP or PDF up to
   10 MB, identified by content. For PDFs, Poppler renders the first three
   pages and extracts the text layer when there is one. It asks the model for
-  a fixed JSON schema, then re-checks every value: amounts with
-  `ledger-core`'s exact money rules (comma decimals are never guessed;
-  zero is allowed for subtotal, tax and tip but not the total), a total that
-  doesn't equal subtotal + tax + tip becomes unclear, dates must
-  be real and not in the future, currencies must be USD, EUR or GBP, and the
-  category must be one sent in. A value without evidence is unclear.
+  a fixed JSON schema, with fields in a fixed order (vendor, date, currency,
+  total, subtotal, tax, fees, discounts, tip, reference, category; the
+  model fills them in that order). It then re-checks every value: amounts
+  with `ledger-core`'s exact money rules (comma decimals are never guessed;
+  zero is allowed for every amount but the total), dates must be real and not
+  in the future, currencies must be USD, EUR or GBP, and the category must be
+  one sent in. A value without evidence is unclear. See
+  [Fields and the total check](#fields-and-the-total-check).
 - **Model:** sees only the receipt, the category list, and the fixed prompt in
   `crates/extractor/src/prompt.rs`. It has no tools; its only output is the
   schema. The prompt tells it that text on the receipt addressed to an AI is
@@ -108,8 +115,19 @@ Review ── POST /extract ─▶ check file ─ render PDF pages ────�
 
 The service only answers requests whose `Host` is `127.0.0.1:<port>` or
 `localhost:<port>` (this blocks DNS rebinding) and whose `Origin`, if any, is
-one of the app's. It listens on `127.0.0.1` only. Requests time out after
-90 seconds.
+one of the app's. It listens on `127.0.0.1` only.
+
+Every request to Ollama asks for thinking off (`think: false`) and caps the
+answer at `--max-tokens` tokens (2048 by default), so a runaway generation
+stops. Each result records whether the model reports thinking support
+(`modelSupportsThinking`, from Ollama's `/api/show`); a thinking-only model
+may ignore the request and spend its tokens thinking. Requests time out after
+90 seconds. A request that times out is cancelled: the connection to Ollama
+is closed, which makes Ollama stop generating. Before the next receipt, the
+extractor sends Ollama a one-token request to confirm the model is idle; if
+that doesn't finish within 30 seconds (or the timeout, if shorter), it
+answers "The model is still finishing an earlier receipt. Try again in a
+minute, or enter the details manually."
 
 ## What is logged
 
@@ -125,17 +143,54 @@ expense is approved, whether you accepted, edited, ignored, or couldn't use
 each suggestion. It stays in the browser's local storage like every other
 record.
 
+## Fields and the total check
+
+The prompt (`receipt-v3`) defines each field literally, and the benchmark
+labels follow the same definitions:
+
+- **subtotal:** only a line labelled Subtotal or an equivalent ("Sub Total",
+  "Merchandise"). Otherwise absent; never computed or inferred.
+- **tax:** every printed tax line. None printed means absent, not `0.00`. A
+  line printed as `0.00` is a line. The tax is the sum of its lines.
+- **fees:** every surcharge or convenience, service or delivery fee (and a
+  service charge) added after the subtotal. A fee listed among the items is
+  already in the subtotal and is left out.
+- **discounts:** every coupon, savings, reward or markdown line printed as a
+  deduction. Stored as positive amounts whatever sign is printed (`0.25-`,
+  `-0.25`, `(0.25)`). A "Total saved" summary is not a discount line.
+- **tip:** only a tip the customer actually added (a filled-in tip line). A
+  table of suggested tips is not a tip.
+- **reference:** preferably a number labelled as a receipt, transaction,
+  invoice or order number; never a card, account, approval or phone number.
+- **total:** the amount actually paid, including tax, fees and tip.
+
+Tax, fees and discounts are lists: one amount and its evidence per printed
+line. One line that can't be read exactly makes the whole list unclear.
+
+The total stays found only if it equals either `subtotal + tax + fees + tip`
+or `subtotal − discounts + tax + fees + tip` (receipts differ on whether the
+printed subtotal is before or after savings). Anything not read counts as 0.
+Without a subtotal line there is nothing to check against, so no check runs.
+When the check fails, the total is unclear and the warning names what was
+read, for example "Subtotal $50.00, tax $3.00 and fees $1.50 add up to $54.50,
+but the total reads $55.50. Check the amount." When only a subtotal and tax
+were read and the total is higher, it ends "If you added a tip, check the
+amount matches what you paid." instead, since a tip written in by hand is the
+usual cause.
+
+A negative total stays unclear, because it may be a refund and a refund must
+never become an expense: "The only amount is a payment or refund line
+(−$24.00). Enter the total yourself."
+
 ## Known limits
 
-- Tips: when the receipt prints a tip line, the total is checked against
-  subtotal + tax + tip. If the total is more than subtotal plus tax and no tip
-  was read (for example a tip written in by hand without a tip line), the
-  total is marked unclear: "The total is more than the subtotal plus tax. If
-  you added a tip, check the amount matches what you paid."
 - Receipts in currencies other than USD, EUR and GBP are marked unclear.
 - The business purpose is never suggested; only you know why you bought it.
-- Receipt numbers, subtotals, taxes and tips are shown for checking; the
-  expense form has no fields for them.
+- Receipt numbers, subtotals, taxes, fees, discounts and tips are shown for
+  checking; the expense form has no fields for them.
+- Amounts printed on a different line from their labels (as on some
+  fast-food receipts) are often read against the wrong label. The total check
+  usually catches this and marks the total unclear.
 
 ## Benchmark
 
@@ -143,33 +198,103 @@ record.
 cargo run -p extractor --release --bin bench -- --corpus <dir> --model <name> [--model <name>]...
 ```
 
+### Models
+
+The recommended run compares the non-thinking (instruct) Qwen3-VL models, with
+the thinking variant as a reference point:
+
+```bash
+ollama pull qwen3-vl:8b-instruct
+ollama pull qwen3-vl:30b-a3b-instruct
+cargo run -p extractor --release --bin bench -- --corpus <dir> \
+  --model qwen3-vl:8b-instruct --model qwen3-vl:30b-a3b-instruct --model qwen3-vl:8b
+```
+
+| Tag                         | Download | Thinking                            | Role                                      |
+| --------------------------- | -------- | ----------------------------------- | ----------------------------------------- |
+| `qwen3-vl:8b-instruct`      | 6.2 GB   | none (`qwen3-vl-instruct` template) | candidate                                 |
+| `qwen3-vl:30b-a3b-instruct` | 20 GB    | none (`qwen3-vl-instruct` template) | candidate; needs about 22 GB while loaded |
+| `qwen3-vl:8b`               | 6.2 GB   | always on (`qwen3-vl-thinking`)     | reference point only                      |
+
+`ollama show <tag>` lists `thinking` under Capabilities only for the thinking
+variant; `ollama show <tag> --modelfile` names the template (`RENDERER`). The
+thinking variant ignores `think: false`, so with the 2048-token cap it may run
+out of tokens while thinking; that is part of what the reference shows.
+
+`gemma4:12b` (timed out on 8 of 13 receipts in the first benchmark) and
+`qwen2.5vl:7b` (invented tips and subtotals) are no longer in the recommended
+run. Either can still be passed with `--model`. The service's default model is
+still `qwen2.5vl:7b` until a benchmark on the new prompt picks one.
+
 It runs the same pipeline over a folder of labelled receipts and writes
 `bench-results.md` (aggregate numbers only) and
 `bench-results.details.local.md` (per-receipt verdicts, which name files; keep
-it local). Both are gitignored. Label each receipt with `<name>.expected.json`
-next to it:
+it local). Both are gitignored. It takes the same `--timeout-seconds` and
+`--max-tokens` flags as the service. Each model's section records its run
+settings (thinking requested off and whether the model supports it, max
+tokens, timeout, prompt version). When the bench finishes with a model it
+unloads it (`keep_alive: 0`), so models don't share memory and one model's
+timings don't overlap the next. Label each receipt with
+`<name>.expected.json` next to it:
 
 ```json
 {
-  "vendor": "Paper & Pine",
-  "date": "2026-10-24",
-  "total": "42.50",
+  "vendor": ["Lantern & Loaf Bakery", "Lantern & Loaf"],
+  "date": "2026-09-12",
+  "total": "54.50",
   "currency": "USD",
-  "reference": "DEMO-RECEIPT-001",
-  "subtotal": "40.00",
-  "tax": "2.50",
+  "reference": "LL-4410",
+  "subtotal": "50.00",
+  "tax": "3.00",
+  "fees": "1.50",
+  "discounts": null,
   "tip": null,
-  "category": "northstar-category-1",
+  "category": "northstar-category-2",
   "clear": true,
-  "kind": "pdf"
+  "kind": "photo"
 }
 ```
 
-A missing key isn't scored; `null` means the receipt doesn't show that field
-(use `"tip": null` when there is no tip line).
-`vendor` may be a list of accepted spellings. Amounts are text as printed.
+(A made-up receipt: $50.00 subtotal, $3.00 tax and a $1.50 card surcharge.)
+
+How to label:
+
+- **A missing key isn't scored; `null` means the receipt doesn't show that
+  field.** A field labelled `null` that the model reports as found counts as
+  confident-wrong. Leave a key out only when you can't tell what's right.
+- **Amounts** are text as printed (`"3.00"`, `"$3.00"` and `"1,042.50"` all
+  work); never JSON numbers.
+- **`subtotal`:** only a line labelled Subtotal or an equivalent ("Sub
+  Total", "Merchandise"). No such line means `null`, even if an item price or
+  the total would be the same amount.
+- **`tax`:** the sum of every printed tax line (`TAX 0.00` and `TAX 0.45`
+  give `"0.45"`). A printed `0.00` tax line gives `"0.00"`; no tax line gives
+  `null`.
+- **`fees`:** the sum of surcharge, convenience, service, service-charge and
+  delivery-fee lines added after the subtotal. A fee listed among the items
+  (already in the subtotal) isn't counted. None gives `null`.
+- **`discounts`:** the sum of coupon, savings, reward and markdown lines
+  printed as deductions, as a **positive** amount (lines `1.50-` and `0.50-`
+  give `"2.00"`). A "Total saved" or "Your savings" summary isn't counted. None
+  gives `null`.
+- **`tip`:** only a tip the customer actually added. A suggested-tip table is
+  `null`.
+- **`reference`:** a number labelled as a receipt, transaction, invoice or
+  order number, never a card, account, approval or phone number. When the
+  receipt prints more than one such number, give a list of all of them; any
+  one is accepted, like `vendor`'s spellings (`"reference": ["R-1001", "77"]`).
+  None gives `null`.
+- **`vendor`** may be a list of accepted spellings.
+
 `clear: false` leaves a receipt out of "Total, clear receipts". `kind` is a
-free tag counted in the report. An optional `categories.json` at the corpus
-root lists `{ "id", "name" }` categories to send. `docs/samples/` is a small
-labelled corpus of fictional receipts. Real receipts never go in the
-repository.
+free tag counted in the report (for example `photo`, `screenshot`, `pdf` for a
+PDF with a text layer, `scanned pdf` for one without). An optional
+`categories.json` at the corpus root lists `{ "id", "name" }` categories to
+send. `docs/samples/` is a small labelled corpus of fictional receipts. Real
+receipts never go in the repository.
+
+Tax, fees and discounts are scored by the sum of their lines. The local
+per-receipt file ends with a short **Causes** section per model (for example
+"total unclear: the parts read don't add up to it: 2", "tip:
+confident-wrong: 1", "receipt not read: timed out: 1"). It names categories
+and fields only, never values, and it never appears in `bench-results.md`.

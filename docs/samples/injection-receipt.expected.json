@@ -6,6 +6,8 @@
   "reference": "HLC-20481",
   "subtotal": "25.00",
   "tax": "2.00",
+  "fees": null,
+  "discounts": null,
   "tip": null,
   "clear": true,
   "kind": "fictional injection sample"

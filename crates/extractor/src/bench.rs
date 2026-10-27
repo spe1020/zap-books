@@ -13,9 +13,9 @@
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
-use ledger_core::{Currency, ExtractedField, FieldStatus, Minor};
+use ledger_core::{Currency, ExtractedField, ExtractedLines, FieldStatus, Minor};
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -23,7 +23,7 @@ use crate::error::ExtractError;
 use crate::extract::{Category, ExtractionResult, Extractor};
 use crate::normalize::parse_amount;
 
-pub const FIELDS: [&str; 9] = [
+pub const FIELDS: [&str; 11] = [
     "total",
     "date",
     "vendor",
@@ -31,6 +31,8 @@ pub const FIELDS: [&str; 9] = [
     "reference",
     "subtotal",
     "tax",
+    "fees",
+    "discounts",
     "tip",
     "category",
 ];
@@ -51,8 +53,15 @@ pub struct Expected {
     pub reference: Option<Value>,
     #[serde(default, deserialize_with = "present")]
     pub subtotal: Option<Value>,
+    /// The sum of the printed tax lines; `null` when none is printed.
     #[serde(default, deserialize_with = "present")]
     pub tax: Option<Value>,
+    /// The sum of fee lines added after the subtotal; `null` when none.
+    #[serde(default, deserialize_with = "present")]
+    pub fees: Option<Value>,
+    /// The sum of deduction lines as a positive amount; `null` when none.
+    #[serde(default, deserialize_with = "present")]
+    pub discounts: Option<Value>,
     /// `null` when the receipt has no tip line.
     #[serde(default, deserialize_with = "present")]
     pub tip: Option<Value>,
@@ -85,6 +94,8 @@ impl Expected {
             "reference" => self.reference.as_ref(),
             "subtotal" => self.subtotal.as_ref(),
             "tax" => self.tax.as_ref(),
+            "fees" => self.fees.as_ref(),
+            "discounts" => self.discounts.as_ref(),
             "tip" => self.tip.as_ref(),
             "category" => self.category.as_ref(),
             _ => None,
@@ -123,21 +134,25 @@ fn amount(v: &Value) -> Option<Minor> {
     }
 }
 
+/// A label that is one string or a list of accepted strings, normalized.
+fn accepted(expected: &Value, norm: impl Fn(&str) -> String) -> Vec<String> {
+    match expected {
+        Value::Array(list) => list.iter().filter_map(Value::as_str).map(norm).collect(),
+        Value::String(s) => vec![norm(s)],
+        _ => Vec::new(),
+    }
+}
+
 /// Whether a found value matches the label.
 fn matches(field: &str, expected: &Value, found: &Value) -> bool {
     match field {
-        "total" | "subtotal" | "tax" | "tip" => {
+        "total" | "subtotal" | "tax" | "fees" | "discounts" | "tip" => {
             let got = found.as_i64().and_then(|n| Minor::new(n).ok());
             got.is_some() && got == amount(expected)
         }
         "vendor" => {
             let got = found.as_str().map(letters);
-            let options: Vec<String> = match expected {
-                Value::Array(list) => list.iter().filter_map(Value::as_str).map(letters).collect(),
-                Value::String(s) => vec![letters(s)],
-                _ => Vec::new(),
-            };
-            got.is_some_and(|g| options.contains(&g))
+            got.is_some_and(|g| accepted(expected, letters).contains(&g))
         }
         "reference" => {
             let norm = |s: &str| {
@@ -146,7 +161,8 @@ fn matches(field: &str, expected: &Value, found: &Value) -> bool {
                     .flat_map(char::to_uppercase)
                     .collect::<String>()
             };
-            matches!((expected.as_str(), found.as_str()), (Some(e), Some(f)) if norm(e) == norm(f))
+            let got = found.as_str().map(norm);
+            got.is_some_and(|g| accepted(expected, norm).contains(&g))
         }
         _ => expected == found,
     }
@@ -173,6 +189,14 @@ fn status_and_value<T: serde::Serialize>(f: &ExtractedField<T>) -> (FieldStatus,
     )
 }
 
+/// A list is scored by the sum of its lines.
+fn status_and_sum(f: &ExtractedLines) -> (FieldStatus, Value) {
+    (
+        f.status,
+        f.value.map_or(Value::Null, |v| Value::from(v.get())),
+    )
+}
+
 /// Scores every labelled field of one result.
 pub fn score(expected: &Expected, result: &ExtractionResult) -> BTreeMap<&'static str, Scored> {
     let f = &result.fields;
@@ -188,7 +212,9 @@ pub fn score(expected: &Expected, result: &ExtractionResult) -> BTreeMap<&'stati
             "currency" => status_and_value(&f.currency),
             "reference" => status_and_value(&f.reference),
             "subtotal" => status_and_value(&f.subtotal),
-            "tax" => status_and_value(&f.tax),
+            "tax" => status_and_sum(&f.tax),
+            "fees" => status_and_sum(&f.fees),
+            "discounts" => status_and_sum(&f.discounts),
             "tip" => status_and_value(&f.tip),
             _ => status_and_value(&f.category),
         };
@@ -301,6 +327,9 @@ pub struct Run {
     pub text_pdf: bool,
     pub error: Option<ExtractError>,
     pub verdicts: BTreeMap<&'static str, Scored>,
+    /// The service's warnings. Used only to name causes; never written out,
+    /// since they quote amounts from the receipt.
+    pub warnings: Vec<String>,
 }
 
 /// Runs every receipt through the extractor, after one warm-up call that
@@ -335,6 +364,7 @@ pub async fn run_model(
                 text_pdf: result.used_text_layer,
                 error: None,
                 verdicts: score(&receipt.expected, &result),
+                warnings: result.warnings,
             },
             Err(e) => Run {
                 receipt: i,
@@ -342,6 +372,7 @@ pub async fn run_model(
                 text_pdf: false,
                 error: Some(e),
                 verdicts: score_failure(&receipt.expected),
+                warnings: Vec::new(),
             },
         });
     }
@@ -405,6 +436,32 @@ pub const TARGETS: [(&str, f64, f64); 4] = [
 ];
 pub const MEDIAN_TARGET_MS: u64 = 20_000;
 
+/// How a model was run, recorded in its report.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Settings {
+    /// From `/api/show`; thinking is always requested off.
+    pub thinking_supported: Option<bool>,
+    pub max_tokens: u32,
+    pub timeout: Duration,
+    pub prompt_version: &'static str,
+}
+
+impl Settings {
+    fn describe(&self) -> String {
+        let thinking = match self.thinking_supported {
+            Some(true) => "off (requested; the model supports thinking)",
+            Some(false) => "off (the model has no thinking mode)",
+            None => "off (requested; Ollama didn't report support)",
+        };
+        format!(
+            "Run settings: thinking {thinking}, max tokens {}, timeout {} s, prompt {}.\n\n",
+            self.max_tokens,
+            self.timeout.as_secs(),
+            self.prompt_version
+        )
+    }
+}
+
 /// The Markdown report for one model.
 pub fn report(
     model: &str,
@@ -412,6 +469,7 @@ pub fn report(
     runs: &[Run],
     warmup: Option<u64>,
     memory_bytes: Option<u64>,
+    settings: &Settings,
 ) -> String {
     let mut stats: BTreeMap<&str, FieldStats> = BTreeMap::new();
     let mut clear_total = FieldStats::default();
@@ -425,6 +483,7 @@ pub fn report(
         }
     }
     let mut md = format!("### {model}\n\n");
+    md.push_str(&settings.describe());
     let errors = runs.iter().filter(|r| r.error.is_some()).count();
     md.push_str(&format!(
         "{} receipts, {} could not be read at all.\n\n",
@@ -534,6 +593,54 @@ pub fn details(model: &str, receipts: &[Receipt], runs: &[Run]) -> String {
             verdicts.join(" ")
         ));
     }
+    let mut counts: BTreeMap<String, usize> = BTreeMap::new();
+    for cause in runs.iter().flat_map(causes) {
+        *counts.entry(cause).or_default() += 1;
+    }
+    out.push_str("\n## Causes\n\n");
+    if counts.is_empty() {
+        out.push_str("Every labelled field was right.\n");
+    }
+    for (cause, n) in &counts {
+        out.push_str(&format!("- {cause}: {n}\n"));
+    }
+    out
+}
+
+/// Why a receipt didn't come out right, as short categories. Never quotes
+/// the receipt: names categories and fields only.
+pub fn causes(run: &Run) -> Vec<String> {
+    if let Some(e) = &run.error {
+        return vec![match e {
+            ExtractError::Timeout => "receipt not read: timed out".into(),
+            ExtractError::Busy => "receipt not read: model still busy".into(),
+            _ => "receipt not read: other error".into(),
+        }];
+    }
+    let mut out = Vec::new();
+    for (field, (verdict, _)) in &run.verdicts {
+        match verdict {
+            Verdict::Correct | Verdict::RightlyAbsent => {}
+            Verdict::Unclear if *field == "total" => {
+                let w = |test: &dyn Fn(&str) -> bool| run.warnings.iter().any(|w| test(w));
+                out.push(
+                    if w(&|w| w.contains(", but the total reads ")) {
+                        "total unclear: the parts read don't add up to it"
+                    } else if w(&|w| w.starts_with("The only amount is a payment or refund line")) {
+                        "total unclear: negative (payment or refund line)"
+                    } else if w(&|w| w.starts_with("The total ")) {
+                        "total unclear: not an exact positive amount"
+                    } else {
+                        "total unclear: the model marked it unclear"
+                    }
+                    .into(),
+                );
+            }
+            Verdict::Unclear => out.push(format!("{field}: unclear")),
+            Verdict::ConfidentWrong => out.push(format!("{field}: confident-wrong")),
+            Verdict::Missed => out.push(format!("{field}: missed")),
+        }
+    }
     out
 }
 
@@ -631,6 +738,172 @@ mod tests {
         );
         let e = expected(json!({ "total": "51.00", "tip": null }));
         assert_eq!(e.get("tip"), Some(&Value::Null));
+    }
+
+    #[test]
+    fn the_report_records_how_the_model_was_run() {
+        let mut settings = Settings {
+            thinking_supported: Some(true),
+            max_tokens: 2048,
+            timeout: Duration::from_secs(90),
+            prompt_version: "receipt-v3",
+        };
+        let md = report("m", &[], &[], None, None, &settings);
+        assert!(md.contains(
+            "Run settings: thinking off (requested; the model supports thinking), max tokens 2048, timeout 90 s, prompt receipt-v3."
+        ));
+        settings.thinking_supported = Some(false);
+        assert!(settings
+            .describe()
+            .contains("thinking off (the model has no thinking mode)"));
+    }
+
+    #[test]
+    fn fees_discounts_and_list_references_are_scored() {
+        use FieldStatus::*;
+        assert_eq!(
+            verdict_for("fees", &json!("1.50"), Found, &json!(150)),
+            Verdict::Correct
+        );
+        assert_eq!(
+            verdict_for("discounts", &json!("2.00"), Found, &json!(200)),
+            Verdict::Correct
+        );
+        assert_eq!(
+            verdict_for("discounts", &Value::Null, Found, &json!(25)),
+            Verdict::ConfidentWrong
+        );
+        assert_eq!(
+            verdict_for("tax", &json!("0.45"), Found, &json!(45)),
+            Verdict::Correct
+        );
+        let both = json!(["R-1001", "77"]);
+        for found in ["R-1001", "77"] {
+            assert_eq!(
+                verdict_for("reference", &both, Found, &json!(found)),
+                Verdict::Correct
+            );
+        }
+        assert_eq!(
+            verdict_for("reference", &both, Found, &json!("12 R-1001")),
+            Verdict::ConfidentWrong
+        );
+        let e = expected(json!({ "fees": "1.50", "discounts": null }));
+        assert_eq!(e.get("fees"), Some(&json!("1.50")));
+        assert_eq!(e.get("discounts"), Some(&Value::Null));
+    }
+
+    #[test]
+    fn scoring_a_result_reads_list_sums() {
+        use ledger_core::{ExtractedLine, ExtractionFields};
+        let found_amount = |n: i64| ExtractedField {
+            status: FieldStatus::Found,
+            value: Some(Minor::new(n).unwrap()),
+            evidence: "x".into(),
+        };
+        let absent_text = || ExtractedField::<String> {
+            status: FieldStatus::Absent,
+            value: None,
+            evidence: String::new(),
+        };
+        let lines = |amounts: &[i64]| ExtractedLines {
+            status: FieldStatus::Found,
+            value: Some(Minor::new(amounts.iter().sum()).unwrap()),
+            lines: amounts
+                .iter()
+                .map(|n| ExtractedLine {
+                    amount: Some(Minor::new(*n).unwrap()),
+                    evidence: "x".into(),
+                })
+                .collect(),
+        };
+        let result = ExtractionResult {
+            fields: ExtractionFields {
+                vendor: absent_text(),
+                date: absent_text(),
+                total: found_amount(5450),
+                currency: ExtractedField {
+                    status: FieldStatus::Absent,
+                    value: None,
+                    evidence: String::new(),
+                },
+                reference: absent_text(),
+                subtotal: found_amount(5000),
+                tax: lines(&[0, 300]),
+                fees: lines(&[150]),
+                discounts: ExtractedLines::default(),
+                tip: ExtractedField {
+                    status: FieldStatus::Absent,
+                    value: None,
+                    evidence: String::new(),
+                },
+                category: absent_text(),
+            },
+            warnings: Vec::new(),
+            model: "m".into(),
+            prompt_version: "p".into(),
+            pages_read: 1,
+            used_text_layer: false,
+            duration_ms: 1,
+            model_supports_thinking: None,
+        };
+        let e = expected(json!({
+            "total": "54.50", "subtotal": "50.00", "tax": "3.00",
+            "fees": "1.50", "discounts": null, "tip": null, "reference": null
+        }));
+        let scored = score(&e, &result);
+        for field in ["total", "subtotal", "tax", "fees"] {
+            assert_eq!(scored[field].0, Verdict::Correct, "{field}");
+        }
+        for field in ["discounts", "tip", "reference"] {
+            assert_eq!(scored[field].0, Verdict::RightlyAbsent, "{field}");
+        }
+        assert!(!scored.contains_key("vendor"), "a missing key isn't scored");
+    }
+
+    #[test]
+    fn causes_name_categories_and_never_quote_the_receipt() {
+        let run = |verdicts: Vec<(&'static str, Verdict)>, warnings: &[&str]| Run {
+            receipt: 0,
+            millis: 1,
+            text_pdf: false,
+            error: None,
+            verdicts: verdicts.into_iter().map(|(f, v)| (f, (v, true))).collect(),
+            warnings: warnings.iter().map(|w| (*w).to_string()).collect(),
+        };
+        let r = run(
+            vec![
+                ("total", Verdict::Unclear),
+                ("tax", Verdict::ConfidentWrong),
+                ("date", Verdict::Correct),
+            ],
+            &["Subtotal $50.00 and tax $3.00 add up to $53.00, but the total reads $54.50. Check the amount."],
+        );
+        assert_eq!(
+            causes(&r),
+            vec![
+                "tax: confident-wrong",
+                "total unclear: the parts read don't add up to it"
+            ]
+        );
+        let r = run(
+            vec![("total", Verdict::Unclear)],
+            &["The only amount is a payment or refund line (−$24.00). Enter the total yourself."],
+        );
+        assert_eq!(
+            causes(&r),
+            vec!["total unclear: negative (payment or refund line)"]
+        );
+        let mut r = run(vec![("total", Verdict::Missed)], &[]);
+        r.error = Some(ExtractError::Timeout);
+        assert_eq!(causes(&r), vec!["receipt not read: timed out"]);
+        let receipts = vec![Receipt {
+            path: PathBuf::from("r.png"),
+            expected: Expected::default(),
+        }];
+        let text = details("m", &receipts, &[r]);
+        assert!(text.contains("## Causes\n\n- receipt not read: timed out: 1\n"));
+        assert!(!text.contains("$"));
     }
 
     #[test]

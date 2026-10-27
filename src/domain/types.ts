@@ -165,16 +165,36 @@ export const extractionFields = [
   "reference",
   "subtotal",
   "tax",
+  "fees",
+  "discounts",
   "tip",
   "category",
 ] as const;
 export type ExtractionFieldName = (typeof extractionFields)[number];
+/** Fields read as lists of printed lines. */
+export const extractionLists = ["tax", "fees", "discounts"] as const;
+export type ExtractionListName = (typeof extractionLists)[number];
 export interface ExtractedField<T> {
   status: "found" | "unclear" | "absent";
   /** null unless status is "found". */
   value: T | null;
   /** Short text seen on the receipt; untrusted, shown as plain text. */
   evidence: string;
+}
+/** One printed amount line. */
+export interface ExtractedLine {
+  /** Minor units; null unless the list is "found". */
+  amount: number | null;
+  /** Short text seen on the receipt; untrusted, shown as plain text. */
+  evidence: string;
+}
+/** Every printed line of one kind. */
+export interface ExtractedLines {
+  status: "found" | "unclear" | "absent";
+  /** The sum of the lines in minor units; null unless status is "found". */
+  value: number | null;
+  /** Empty when absent; an unclear list keeps the evidence it saw. */
+  lines: ExtractedLine[];
 }
 export interface ExtractionFields {
   vendor: ExtractedField<string>;
@@ -185,7 +205,11 @@ export interface ExtractionFields {
   currency: ExtractedField<Currency>;
   reference: ExtractedField<string>;
   subtotal: ExtractedField<number>;
-  tax: ExtractedField<number>;
+  tax: ExtractedLines;
+  /** Surcharges and convenience, service or delivery fees. */
+  fees: ExtractedLines;
+  /** Coupons, savings, rewards and markdowns, as positive amounts. */
+  discounts: ExtractedLines;
   /** A tip or gratuity line; absent when the receipt has none. */
   tip: ExtractedField<number>;
   /** A category id of this business. */
@@ -199,6 +223,8 @@ export interface ExtractionResult {
   pagesRead: number;
   usedTextLayer: boolean;
   durationMs: number;
+  /** Whether the model reports thinking support; null if unknown. Thinking is always requested off. */
+  modelSupportsThinking: boolean | null;
 }
 export type ExtractionOutcome = "accepted" | "edited" | "ignored" | "unclear";
 /** What a receipt reader proposed for a draft, and what the user did. */

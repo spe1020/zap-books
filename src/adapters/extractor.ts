@@ -3,7 +3,12 @@ import type {
   ExtractionResult,
   ExtractorHealth,
 } from "../domain/types";
-import { currencies, extractionFields } from "../domain/types";
+import {
+  currencies,
+  extractionFields,
+  extractionLists,
+  type ExtractionListName,
+} from "../domain/types";
 
 /** The local extractor (crates/extractor). Override with VITE_EXTRACTOR_URL. */
 export const extractorUrl = (
@@ -15,6 +20,27 @@ const UNAVAILABLE =
   "Receipt reading isn't running on this computer. Enter the details manually.";
 
 const statuses = ["found", "unclear", "absent"];
+
+const isList = (name: string): name is ExtractionListName =>
+  (extractionLists as readonly string[]).includes(name);
+
+/** A list's lines carry amounts only when it is found. */
+function isLines(f: Record<string, unknown>): boolean {
+  const lines = f.lines;
+  if (!Array.isArray(lines)) return false;
+  if (f.status === "absent" && lines.length > 0) return false;
+  if (f.status === "found" && lines.length === 0) return false;
+  return lines.every((line: unknown) => {
+    if (!line || typeof line !== "object") return false;
+    const l = line as Record<string, unknown>;
+    return (
+      typeof l.evidence === "string" &&
+      (f.status === "found"
+        ? Number.isSafeInteger(l.amount)
+        : l.amount === null)
+    );
+  });
+}
 
 /** The service validates everything, but its answer is still checked here. */
 export function isExtractionResult(x: unknown): x is ExtractionResult {
@@ -28,7 +54,7 @@ export function isExtractionResult(x: unknown): x is ExtractionResult {
       return (
         !!f &&
         statuses.includes(f.status as string) &&
-        typeof f.evidence === "string" &&
+        (isList(name) ? isLines(f) : typeof f.evidence === "string") &&
         (f.status === "found" ? f.value !== null : f.value === null)
       );
     }) &&

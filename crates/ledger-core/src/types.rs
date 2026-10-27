@@ -552,7 +552,16 @@ pub struct ExtractionFields {
     pub currency: ExtractedField<Currency>,
     pub reference: ExtractedField<String>,
     pub subtotal: ExtractedField<Minor>,
-    pub tax: ExtractedField<Minor>,
+    /// Every printed tax line.
+    pub tax: ExtractedLines,
+    /// Surcharges and convenience, service or delivery fees. Absent in
+    /// records made before fees were read.
+    #[serde(default)]
+    pub fees: ExtractedLines,
+    /// Coupons, savings, rewards and markdowns, as positive amounts. Absent
+    /// in records made before discounts were read.
+    #[serde(default)]
+    pub discounts: ExtractedLines,
     /// A tip or gratuity line. Absent in records made before tips were read.
     #[serde(default = "absent_amount")]
     pub tip: ExtractedField<Minor>,
@@ -568,6 +577,75 @@ fn absent_amount() -> ExtractedField<Minor> {
     }
 }
 
+/// `ExtractedLine`: one printed amount line. `amount` is `null` unless the
+/// list is `found`; `evidence` is untrusted receipt text.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExtractedLine {
+    pub amount: Option<Minor>,
+    pub evidence: String,
+}
+
+/// `ExtractedLines`: every printed line of one kind (tax, fees, discounts).
+/// `value` is the sum of the lines when `status` is `found`, else `null`.
+/// An unclear list keeps the evidence of the lines that were seen.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ExtractedLines {
+    pub status: FieldStatus,
+    pub value: Option<Minor>,
+    pub lines: Vec<ExtractedLine>,
+}
+
+impl Default for ExtractedLines {
+    fn default() -> ExtractedLines {
+        ExtractedLines {
+            status: FieldStatus::Absent,
+            value: None,
+            lines: Vec::new(),
+        }
+    }
+}
+
+/// Records made before tax was a list stored it as one `ExtractedField`.
+/// Those load as a list of at most one line.
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum StoredLines {
+    Lines {
+        status: FieldStatus,
+        value: Option<Minor>,
+        lines: Vec<ExtractedLine>,
+    },
+    Single(ExtractedField<Minor>),
+}
+
+impl<'de> Deserialize<'de> for ExtractedLines {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        Ok(match StoredLines::deserialize(d)? {
+            StoredLines::Lines {
+                status,
+                value,
+                lines,
+            } => ExtractedLines {
+                status,
+                value,
+                lines,
+            },
+            StoredLines::Single(f) => ExtractedLines {
+                status: f.status,
+                value: f.value,
+                lines: if f.status == FieldStatus::Absent {
+                    Vec::new()
+                } else {
+                    vec![ExtractedLine {
+                        amount: f.value,
+                        evidence: f.evidence,
+                    }]
+                },
+            },
+        })
+    }
+}
+
 /// `ExtractionFieldName`
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -579,6 +657,8 @@ pub enum ExtractionFieldName {
     Reference,
     Subtotal,
     Tax,
+    Fees,
+    Discounts,
     Tip,
     Category,
 }

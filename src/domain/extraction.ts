@@ -1,13 +1,63 @@
 import type {
   BusinessData,
   ExpenseDraft,
+  ExtractedField,
+  ExtractedLines,
   ExtractionFieldName,
+  ExtractionFields,
   ExtractionOutcome,
   ExtractionRecord,
   ExtractionResult,
   ImportedTransaction,
 } from "./types";
 import { amountInput, id, now } from "./ledger";
+
+const noLines = (): ExtractedLines => ({
+  status: "absent",
+  value: null,
+  lines: [],
+});
+
+/**
+ * Records saved before tax was a list stored it as one field, and had no
+ * fees, discounts or (earlier still) tip. They load as lists of at most one
+ * line, like `ExtractedLines` in ledger-core.
+ */
+export function upgradeExtractionFields(
+  fields: ExtractionFields,
+): ExtractionFields {
+  const stored = fields as unknown as Record<string, unknown>;
+  const lines = (f: unknown): ExtractedLines => {
+    if (!f) return noLines();
+    if ("lines" in (f as object)) return f as ExtractedLines;
+    const single = f as ExtractedField<number>;
+    return single.status === "absent"
+      ? noLines()
+      : {
+          status: single.status,
+          value: single.value,
+          lines: [{ amount: single.value, evidence: single.evidence }],
+        };
+  };
+  return {
+    ...fields,
+    tax: lines(stored.tax),
+    fees: lines(stored.fees),
+    discounts: lines(stored.discounts),
+    tip: (stored.tip as ExtractedField<number> | undefined) ?? {
+      status: "absent",
+      value: null,
+      evidence: "",
+    },
+  };
+}
+
+/** What the receipt showed for a list, one line's text after another. */
+export const linesEvidence = (f: ExtractedLines) =>
+  f.lines
+    .map((l) => l.evidence)
+    .filter(Boolean)
+    .join(" · ");
 
 /** Suggestions a user can apply to a draft. The rest are shown for reference. */
 export const applicableFields = [
@@ -252,13 +302,17 @@ const labels: Record<ExtractionFieldName, string> = {
   reference: "receipt number",
   subtotal: "subtotal",
   tax: "tax",
+  fees: "fees",
+  discounts: "discounts",
   tip: "tip",
   category: "category",
 };
 
 /**
  * The service's warning that explains why a field is unclear, if any.
- * Warnings are plain sentences such as "The total couldn't be read…".
+ * Warnings are plain sentences such as "The total couldn't be read…", or
+ * for a total that doesn't match its parts, "Subtotal $40.00 and tax $2.50
+ * add up to $42.50, but the total reads $45.00. …".
  */
 export function fieldReason(
   result: ExtractionResult,
@@ -268,7 +322,9 @@ export function fieldReason(
   return result.warnings.find(
     (w) =>
       w.startsWith(`The ${label} `) ||
-      (field === "total" && w.includes("add up to the total")) ||
+      (field === "total" &&
+        (w.includes(", but the total reads ") ||
+          w.startsWith("The only amount is a payment or refund line"))) ||
       (field === "date" &&
         (w.startsWith("The date ") || w.startsWith("The receipt date "))) ||
       (field === "currency" && w.startsWith("The receipt's currency ")),

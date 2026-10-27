@@ -19,7 +19,7 @@ async fn main() -> std::process::ExitCode {
             "Poppler (pdftotext, pdftoppm) was not found, so PDF receipts can't be read.\nInstall it with: brew install poppler\nImage receipts still work."
         );
     }
-    match Ollama::new(&config.ollama, config.timeout) {
+    match Ollama::new(&config.ollama, config.timeout, config.max_tokens) {
         Ok(ollama) => match ollama.has_model(&config.model).await {
             Ok(true) => {}
             Ok(false) => eprintln!(
