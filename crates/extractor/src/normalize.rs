@@ -10,7 +10,7 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::error::ExtractError;
-use crate::evidence::{amount_in_evidence, date_in_evidence, is_thousands_grouped};
+use crate::evidence::{amount_in_evidence, date_in_evidence, has_label, is_thousands_grouped};
 use crate::extract::Category;
 
 /// The longest evidence string kept, in characters.
@@ -326,39 +326,91 @@ fn shown(amount: Minor, currency: Option<Currency>) -> String {
     format!("{sign}{symbol}{}", digits.trim_start_matches('-'))
 }
 
+/// Words one of which the total's evidence must contain.
+pub const TOTAL_LABELS: [&str; 8] = [
+    "total", "amount", "paid", "payment", "charged", "balance", "due", "grand",
+];
+
+/// Words that mark a savings or loyalty figure, never the amount paid.
+pub const NOT_PAID: [&str; 8] = [
+    "saving", "savings", "saved", "points", "reward", "rewards", "ytd", "year",
+];
+
+/// A negative amount on a line with one of these words is a payment...
+const PAYMENT: [&str; 3] = ["payment", "paid", "charged"];
+
+/// ...unless the line also has one of these, so it may be money coming back.
+const REFUND: [&str; 4] = ["refund", "credit", "return", "reversal"];
+
+/// Which amount an amount field holds.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Amount {
+    /// More than zero, read from a line labelled as the amount paid.
+    Total,
+    /// The subtotal or tip: zero is valid.
+    Part,
+}
+
 /// An amount field. Only the total must be more than zero; a zero subtotal
-/// or tip is valid. A negative total may be a refund, which must never
-/// become an expense, so it stays unclear. The amount must be printed in its
-/// evidence.
+/// or tip is valid. The amount must be printed in its evidence.
+///
+/// The total's evidence must carry a payment label and no savings or
+/// loyalty words. A negative total is taken as paid only when its line says
+/// it is a payment and nothing suggests a refund; any other negative total
+/// stays unclear, so a refund never becomes an expense.
 fn amount_field(
     raw: &RawField,
     label: &str,
-    allow_zero: bool,
+    kind: Amount,
     currency: Option<Currency>,
     warnings: &mut Vec<String>,
 ) -> ExtractedField<Minor> {
-    field(
-        raw,
-        label,
-        warnings,
-        |text, evidence, warnings| match parse_amount(text) {
-            Ok(value) if value == Minor::ZERO && !allow_zero => {
+    let is_total = kind == Amount::Total;
+    field(raw, label, warnings, |text, evidence, warnings| {
+        if is_total && has_label(evidence, &NOT_PAID) {
+            warnings.push(
+                "The total looks like a savings or rewards figure, not the amount paid. Check the amount."
+                    .into(),
+            );
+            return None;
+        }
+        if is_total && !has_label(evidence, &TOTAL_LABELS) {
+            warnings.push("The total was read without its label. Check the amount.".into());
+            return None;
+        }
+        let in_evidence = |value: Minor, warnings: &mut Vec<String>| {
+            if amount_in_evidence(value, evidence) {
+                Some(value)
+            } else {
+                warn(warnings, MISMATCH);
+                None
+            }
+        };
+        match parse_amount(text) {
+            Ok(value) if value == Minor::ZERO && is_total => {
                 warnings.push(format!(
                     "The {label} isn't a positive amount. Check it on the receipt."
                 ));
                 None
             }
-            Ok(value) if !amount_in_evidence(value, evidence) => {
-                warn(warnings, MISMATCH);
-                None
+            Ok(value) => in_evidence(value, warnings),
+            Err(AmountProblem::Negative)
+                if is_total && has_label(evidence, &PAYMENT) && !has_label(evidence, &REFUND) =>
+            {
+                match parse_discount(text) {
+                    Ok(paid) => in_evidence(paid, warnings),
+                    Err(_) => {
+                        warnings.push(format!("The {label} is negative. Enter it yourself."));
+                        None
+                    }
+                }
             }
-            Ok(value) => Some(value),
             Err(problem) => {
                 warnings.push(match problem {
                     AmountProblem::CommaDecimal => format!(
                     "The {label} uses a comma as the decimal separator. Enter the amount yourself."
                 ),
-                    AmountProblem::Negative if !allow_zero => match parse_discount(text) {
+                    AmountProblem::Negative if is_total => match parse_discount(text) {
                         Ok(paid) => format!(
                             "The only amount is a payment or refund line ({}). Enter the {label} yourself.",
                             shown(-paid, currency)
@@ -374,8 +426,8 @@ fn amount_field(
                 });
                 None
             }
-        },
-    )
+        }
+    })
 }
 
 /// Which way a list's amounts are printed.
@@ -622,12 +674,12 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     });
 
     let money = currency.value;
-    let mut total = amount_field(&raw.total, "total", false, money, w);
-    let subtotal = amount_field(&raw.subtotal, "subtotal", true, money, w);
+    let mut total = amount_field(&raw.total, "total", Amount::Total, money, w);
+    let subtotal = amount_field(&raw.subtotal, "subtotal", Amount::Part, money, w);
     let tax = line_list(&raw.tax, "tax", Sign::Positive, w);
     let fees = line_list(&raw.fees, "fees", Sign::Positive, w);
     let discounts = line_list(&raw.discounts, "discounts", Sign::Either, w);
-    let tip = amount_field(&raw.tip, "tip", true, money, w);
+    let tip = amount_field(&raw.tip, "tip", Amount::Part, money, w);
     // The total must equal subtotal + tax + fees + tip, either with or
     // without the discounts taken off the subtotal. Anything not read counts
     // as 0. Without a subtotal there is nothing to check against.
@@ -819,29 +871,102 @@ mod tests {
         );
     }
 
-    #[test]
-    fn a_negative_total_stays_unclear_and_says_it_may_be_a_refund() {
+    /// The total alone: no subtotal or tax to check it against.
+    fn total(value: &str, evidence: &str) -> Normalized {
         let mut answer = good();
-        answer["total"] = found("-$24.00", "Payment (card): -$24.00");
+        answer["total"] = found(value, evidence);
         answer["subtotal"] = absent();
         answer["tax"] = no_lines();
-        let n = run(answer);
-        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
-        assert_eq!(n.fields.total.value, None);
-        assert_eq!(
-            n.warnings,
-            vec![
-                "The only amount is a payment or refund line (−$24.00). Enter the total yourself."
-            ]
-        );
+        run(answer)
+    }
+
+    #[test]
+    fn a_negative_payment_line_is_the_amount_paid() {
+        let n = total("-$24.00", "Payment (card): -$24.00");
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert_eq!(n.fields.total.value, Some(minor(2400)));
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        for evidence in ["Amount paid ($24.00)", "Charged -24.00"] {
+            assert_eq!(
+                total("-24.00", evidence).fields.total.value,
+                Some(minor(2400))
+            );
+        }
+    }
+
+    #[test]
+    fn any_other_negative_total_stays_unclear_and_says_it_may_be_a_refund() {
+        for evidence in [
+            "Payment refund: -$24.00",
+            "Payment (store credit): -$24.00",
+            "Total paid, return: -$24.00",
+            "Payment reversal -$24.00",
+            "TOTAL -$24.00",
+        ] {
+            let n = total("-$24.00", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
+            assert_eq!(n.fields.total.value, None);
+            assert_eq!(
+                n.warnings,
+                vec!["The only amount is a payment or refund line (−$24.00). Enter the total yourself."]
+            );
+        }
         // Without a currency the amount is shown bare.
         let mut answer = good();
         answer["currency"] = absent();
-        answer["total"] = found("-12.00", "REFUND -12.00");
+        answer["total"] = found("-12.00", "TOTAL REFUND -12.00");
         assert_eq!(
             run(answer).warnings,
             vec!["The only amount is a payment or refund line (−12.00). Enter the total yourself."]
         );
+    }
+
+    #[test]
+    fn the_total_must_be_read_with_its_label() {
+        let n = total("42.50", "$42.50");
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(
+            n.warnings,
+            vec!["The total was read without its label. Check the amount."]
+        );
+        // A subtotal line is not a total line.
+        assert_eq!(
+            total("42.50", "Subtotal $42.50").fields.total.status,
+            FieldStatus::Unclear
+        );
+        for evidence in [
+            "TOTAL $42.50",
+            "Grand Total 42.50",
+            "AMOUNT $42.50",
+            "Amount Due 42.50",
+            "BALANCE: $42.50",
+            "Charged to card $42.50",
+        ] {
+            assert_eq!(
+                total("42.50", evidence).fields.total.status,
+                FieldStatus::Found,
+                "{evidence}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_savings_or_rewards_figure_is_never_the_total() {
+        for evidence in [
+            "SAVINGS THIS YEAR $318.40",
+            "Total saved $318.40",
+            "Rewards balance $318.40",
+            "Points total 318.40",
+            "YTD total $318.40",
+            "This year you paid $318.40",
+        ] {
+            let n = total("$318.40", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
+            assert_eq!(
+                n.warnings,
+                vec!["The total looks like a savings or rewards figure, not the amount paid. Check the amount."]
+            );
+        }
     }
 
     #[test]

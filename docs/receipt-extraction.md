@@ -179,7 +179,12 @@ read from."
   table of suggested tips is not a tip.
 - **reference:** preferably a number labelled as a receipt, transaction,
   invoice or order number; never a card, account, approval or phone number.
-- **total:** the amount actually paid, including tax, fees and tip.
+- **total:** the amount actually paid, including tax, fees and tip. Never a
+  savings, points, rewards or year-to-date figure. Its evidence must include
+  one of the labels `total`, `amount`, `paid`, `payment`, `charged`,
+  `balance`, `due` or `grand` ("The total was read without its label. Check
+  the amount."), and a total whose evidence mentions savings, points, rewards,
+  YTD or a year is unclear.
 
 Tax, fees and discounts are lists: one amount and its evidence per printed
 line. One line that can't be read exactly makes the whole list unclear.
@@ -195,9 +200,11 @@ were read and the total is higher, it ends "If you added a tip, check the
 amount matches what you paid." instead, since a tip written in by hand is the
 usual cause.
 
-A negative total stays unclear, because it may be a refund and a refund must
-never become an expense: "The only amount is a payment or refund line
-(−$24.00). Enter the total yourself."
+A negative total is taken as the amount paid only when its evidence says
+payment, paid or charged and doesn't say refund, credit, return or reversal
+(`Payment (card): -$24.00`). Any other negative total stays unclear, because it
+may be a refund and a refund must never become an expense: "The only amount is
+a payment or refund line (−$24.00). Enter the total yourself."
 
 ## Known limits
 

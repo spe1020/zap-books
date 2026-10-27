@@ -30,7 +30,7 @@ Fields:
 - vendor: the business that issued the receipt, as printed.
 - date: the purchase date as YYYY-MM-DD. If the day and month could be swapped (like 03/04/2026) and nothing on the receipt settles it, use "unclear".
 - currency: USD, EUR or GBP when the receipt makes it clear (an ISO code, or the symbol $, € or £; $ alone means USD unless the receipt shows another dollar currency). If the receipt is in another currency, return that currency's ISO code. If unsure, "unclear".
-- total: the amount actually paid, including tax, fees and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
+- total: the amount actually paid, including tax, fees and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total. The total is the amount actually paid. Never a savings, points, rewards or year-to-date figure.
 - subtotal: only the amount on a line labelled Subtotal or an equivalent label such as "Sub Total" or "Merchandise". If there is no such line, "absent". Never compute or infer a subtotal, and never use an item price or the total as one.
 - tax: only printed tax lines, each one, for example "Sales Tax 6%" or "VAT". A tax line printed as 0.00 is a line with amount "0.00". If no tax line is printed, "absent", never "0.00".
 - fees: every surcharge, convenience fee, service fee, service charge or delivery fee line added after the subtotal. A fee listed among the items, above the subtotal, is already in the subtotal: leave it out.
@@ -175,6 +175,7 @@ mod tests {
         assert!(p.contains("If no tax line is printed, \"absent\", never \"0.00\""));
         assert!(p.contains("Never a card number, account number"));
         assert!(p.contains("including tax, fees and tip"));
+        assert!(p.contains("Never a savings, points, rewards or year-to-date figure"));
         assert_eq!(PROMPT_VERSION, "receipt-v4");
         assert!(answer_schema()["required"]
             .as_array()
