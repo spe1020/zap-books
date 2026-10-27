@@ -10,6 +10,7 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::error::ExtractError;
+use crate::evidence::{amount_in_evidence, is_thousands_grouped};
 use crate::extract::Category;
 
 /// The longest evidence string kept, in characters.
@@ -176,26 +177,6 @@ pub fn parse_discount(text: &str) -> Result<Minor, AmountProblem> {
     parse_amount(s)
 }
 
-/// `1,234` or `12,345,678.90`: comma groups of exactly three digits.
-fn is_thousands_grouped(s: &str) -> bool {
-    let (whole, cents) = match s.split_once('.') {
-        Some((w, c)) => (w, Some(c)),
-        None => (s, None),
-    };
-    if cents.is_some_and(|c| c.is_empty() || c.len() > 2 || !c.chars().all(|d| d.is_ascii_digit()))
-    {
-        return false;
-    }
-    let mut groups = whole.split(',');
-    let first_ok = groups
-        .next()
-        .is_some_and(|g| (1..=3).contains(&g.len()) && g.chars().all(|d| d.is_ascii_digit()));
-    let mut rest = groups.peekable();
-    first_ok
-        && rest.peek().is_some()
-        && rest.all(|g| g.len() == 3 && g.chars().all(|d| d.is_ascii_digit()))
-}
-
 /// Days since 1970-01-01 for a proleptic Gregorian date.
 fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
     let y = if m <= 2 { y - 1 } else { y };
@@ -237,6 +218,17 @@ pub struct Context<'a> {
     pub today: &'a str,
 }
 
+/// The warning for a value its own evidence doesn't show.
+pub const MISMATCH: &str = "The value doesn't match the text it was read from.";
+
+/// Adds a warning unless the same text is already there.
+fn warn(warnings: &mut Vec<String>, text: impl Into<String>) {
+    let text = text.into();
+    if !warnings.contains(&text) {
+        warnings.push(text);
+    }
+}
+
 /// The result of normalization: fields and plain-language warnings.
 pub struct Normalized {
     pub fields: ExtractionFields,
@@ -274,13 +266,14 @@ fn absent<T>() -> ExtractedField<T> {
     }
 }
 
-/// Applies the rules shared by every field, then `parse` for the value.
-/// `found` requires a string value and evidence; anything else is unclear.
+/// Applies the rules shared by every field, then `parse` for the value,
+/// which also gets the evidence. `found` requires a string value and
+/// evidence; anything else is unclear.
 fn field<T>(
     raw: &RawField,
     label: &str,
     warnings: &mut Vec<String>,
-    parse: impl FnOnce(&str, &mut Vec<String>) -> Option<T>,
+    parse: impl FnOnce(&str, &str, &mut Vec<String>) -> Option<T>,
 ) -> ExtractedField<T> {
     let evidence = evidence_of(raw);
     match status_of(raw) {
@@ -299,7 +292,7 @@ fn field<T>(
                 ));
                 return unclear(evidence);
             }
-            match parse(text, warnings) {
+            match parse(text, &evidence, warnings) {
                 Some(value) => ExtractedField {
                     status: FieldStatus::Found,
                     value: Some(value),
@@ -332,7 +325,8 @@ fn shown(amount: Minor, currency: Option<Currency>) -> String {
 
 /// An amount field. Only the total must be more than zero; a zero subtotal
 /// or tip is valid. A negative total may be a refund, which must never
-/// become an expense, so it stays unclear.
+/// become an expense, so it stays unclear. The amount must be printed in its
+/// evidence.
 fn amount_field(
     raw: &RawField,
     label: &str,
@@ -340,12 +334,19 @@ fn amount_field(
     currency: Option<Currency>,
     warnings: &mut Vec<String>,
 ) -> ExtractedField<Minor> {
-    field(raw, label, warnings, |text, warnings| {
-        match parse_amount(text) {
+    field(
+        raw,
+        label,
+        warnings,
+        |text, evidence, warnings| match parse_amount(text) {
             Ok(value) if value == Minor::ZERO && !allow_zero => {
                 warnings.push(format!(
                     "The {label} isn't a positive amount. Check it on the receipt."
                 ));
+                None
+            }
+            Ok(value) if !amount_in_evidence(value, evidence) => {
+                warn(warnings, MISMATCH);
                 None
             }
             Ok(value) => Some(value),
@@ -370,8 +371,8 @@ fn amount_field(
                 });
                 None
             }
-        }
-    })
+        },
+    )
 }
 
 /// Which way a list's amounts are printed.
@@ -461,6 +462,10 @@ fn line_list(
                 return unclear_list();
             }
         };
+        if !amount_in_evidence(amount, &evidence) {
+            warn(warnings, MISMATCH);
+            return unclear_list();
+        }
         let Ok(next) = sum.checked_add(amount) else {
             warnings.push(format!(
                 "The {label} lines add up to more than the app can store. Check them on the receipt."
@@ -571,10 +576,10 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     let mut warnings = Vec::new();
     let w = &mut warnings;
 
-    let vendor = field(&raw.vendor, "vendor", w, |t, _| text_value(t));
-    let reference = field(&raw.reference, "receipt number", w, |t, _| text_value(t));
+    let vendor = field(&raw.vendor, "vendor", w, |t, _, _| text_value(t));
+    let reference = field(&raw.reference, "receipt number", w, |t, _, _| text_value(t));
 
-    let date = field(&raw.date, "date", w, |text, warnings| {
+    let date = field(&raw.date, "date", w, |text, _, warnings| {
         let text = text.trim();
         if !valid_date(text) {
             warnings.push(
@@ -593,7 +598,7 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
         Some(text.to_string())
     });
 
-    let currency = field(&raw.currency, "currency", w, |text, warnings| {
+    let currency = field(&raw.currency, "currency", w, |text, _, warnings| {
         let code = clean_text(text, 12).to_uppercase();
         match Currency::from_code(&code).filter(|c| ctx.currencies.contains(c)) {
             Some(c) => Some(c),
@@ -634,7 +639,7 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     }
 
     // The category must be one of the ids sent in; anything else is absent.
-    let category = match field(&raw.category, "category", w, |t, _| {
+    let category = match field(&raw.category, "category", w, |t, _, _| {
         Some(t.trim().to_string())
     }) {
         ExtractedField {
@@ -850,6 +855,30 @@ mod tests {
         assert_eq!(n.fields.total.value, Some(minor(4000)));
         let n = with("subtotal", found("0", "SUBTOTAL 0"));
         assert_eq!(n.fields.subtotal.value, Some(Minor::ZERO));
+    }
+
+    #[test]
+    fn every_amount_must_be_printed_in_its_evidence() {
+        let n = with("total", found("42.50", "TOTAL PAID $45.20"));
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.total.value, None);
+        assert_eq!(n.warnings, vec![MISMATCH]);
+        let n = with("subtotal", found("40.00", "Subtotal"));
+        assert_eq!(n.fields.subtotal.status, FieldStatus::Unclear);
+        let n = with("tip", found("8.50", "TIP $5.80"));
+        assert_eq!(n.fields.tip.status, FieldStatus::Unclear);
+        // One line that doesn't show its amount makes the list unclear, and
+        // the warning is given once.
+        let mut answer = good();
+        answer["tax"] = lines(&[("1.25", "STATE TAX 1.25"), ("1.25", "CITY TAX 1.52")]);
+        answer["fees"] = lines(&[("0.50", "Bag fee 0.05")]);
+        let n = run(answer);
+        assert_eq!(n.fields.tax.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.fees.status, FieldStatus::Unclear);
+        assert_eq!(n.warnings.iter().filter(|w| *w == MISMATCH).count(), 1);
+        // Symbols, separators and printed signs don't matter.
+        let n = with("discounts", lines(&[("1.50", "COUPON ($1.50)")]));
+        assert_eq!(n.fields.discounts.value, Some(minor(150)));
     }
 
     #[test]

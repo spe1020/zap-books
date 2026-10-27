@@ -145,8 +145,16 @@ record.
 
 ## Fields and the total check
 
-The prompt (`receipt-v3`) defines each field literally, and the benchmark
-labels follow the same definitions:
+The prompt (`receipt-v4`) defines each field literally, and the benchmark
+labels follow the same definitions.
+
+**A field is found only if the extractor can confirm the value from its
+evidence.** The prompt asks for every evidence string to include the line's
+printed label (`TOTAL $54.50`, not `$54.50`). Every amount (total, subtotal,
+tip, and each tax, fee and discount line) must be printed in its own evidence,
+ignoring currency symbols, thousands separators, spaces and a printed sign or
+parentheses. Otherwise it is unclear: "The value doesn't match the text it was
+read from."
 
 - **subtotal:** only a line labelled Subtotal or an equivalent ("Sub Total",
   "Merchandise"). Otherwise absent; never computed or inferred.

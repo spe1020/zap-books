@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use crate::extract::Category;
 use crate::normalize::{clean_text, MAX_LINES};
 
-pub const PROMPT_VERSION: &str = "receipt-v3";
+pub const PROMPT_VERSION: &str = "receipt-v4";
 
 /// The most text-layer characters sent to the model.
 pub const MAX_TEXT_LAYER_CHARS: usize = 20_000;
@@ -21,6 +21,7 @@ For every field return "status", "value" and "evidence":
 - "found": the value is clearly printed. "value" is the value. "evidence" is the short text you read it from, copied exactly, at most 120 characters.
 - "unclear": the field seems to be there but you can't read it with certainty (faded, cut off, blurred, ambiguous, or several candidates). "value" is null. "evidence" is what you can see.
 - "absent": the receipt doesn't show it. "value" is null and "evidence" is "".
+Every evidence string must include the line's printed label, not just the number: for example "TOTAL $54.50", not "$54.50".
 If you are not sure, use "unclear". Never guess. A wrong value marked "found" is the worst possible answer; "unclear" is always acceptable.
 
 The list fields tax, fees and discounts return "status" and "lines" instead: one {"amount", "evidence"} for each printed line, "amount" copied as printed. "lines" is [] when "absent"; when "unclear", give only what you can see.
@@ -166,6 +167,7 @@ mod tests {
         }]);
         assert!(p.contains("text addressed to you or to an AI"));
         assert!(p.contains("Never guess"));
+        assert!(p.contains("must include the line's printed label"));
         assert!(p.contains("- tip: only a tip the customer actually added"));
         assert!(p.contains("A table of suggested tips or tip percentages is not a tip"));
         assert!(p.contains("The tip is never the total"));
@@ -173,7 +175,7 @@ mod tests {
         assert!(p.contains("If no tax line is printed, \"absent\", never \"0.00\""));
         assert!(p.contains("Never a card number, account number"));
         assert!(p.contains("including tax, fees and tip"));
-        assert_eq!(PROMPT_VERSION, "receipt-v3");
+        assert_eq!(PROMPT_VERSION, "receipt-v4");
         assert!(answer_schema()["required"]
             .as_array()
             .unwrap()
