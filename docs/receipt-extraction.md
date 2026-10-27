@@ -156,6 +156,15 @@ ignoring currency symbols, thousands separators, spaces and a printed sign or
 parentheses. Otherwise it is unclear: "The value doesn't match the text it was
 read from."
 
+- **date:** the extractor reads the date in the evidence itself: numeric
+  (`M/D/YY`, `D/M/YYYY`, `YYYY-MM-DD`, with `/`, `-` or `.`) or with an
+  English month name (`Oct 12, 2026`, `12 October 2026`). Two-digit years are
+  20YY. When day and month could be swapped (`03/04/26`), a USD receipt is
+  read month first and a EUR or GBP receipt day first; without a currency the
+  date is unclear. The date is found only if the evidence shows exactly one
+  date and it equals the model's value. Otherwise: "Check the date; it
+  couldn't be confirmed from the receipt."
+
 - **subtotal:** only a line labelled Subtotal or an equivalent ("Sub Total",
   "Merchandise"). Otherwise absent; never computed or inferred.
 - **tax:** every printed tax line. None printed means absent, not `0.00`. A

@@ -10,7 +10,7 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::error::ExtractError;
-use crate::evidence::{amount_in_evidence, is_thousands_grouped};
+use crate::evidence::{amount_in_evidence, date_in_evidence, is_thousands_grouped};
 use crate::extract::Category;
 
 /// The longest evidence string kept, in characters.
@@ -220,6 +220,9 @@ pub struct Context<'a> {
 
 /// The warning for a value its own evidence doesn't show.
 pub const MISMATCH: &str = "The value doesn't match the text it was read from.";
+
+/// The warning for a date its evidence doesn't confirm.
+pub const DATE_UNCONFIRMED: &str = "Check the date; it couldn't be confirmed from the receipt.";
 
 /// Adds a warning unless the same text is already there.
 fn warn(warnings: &mut Vec<String>, text: impl Into<String>) {
@@ -579,7 +582,22 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     let vendor = field(&raw.vendor, "vendor", w, |t, _, _| text_value(t));
     let reference = field(&raw.reference, "receipt number", w, |t, _, _| text_value(t));
 
-    let date = field(&raw.date, "date", w, |text, _, warnings| {
+    let currency = field(&raw.currency, "currency", w, |text, _, warnings| {
+        let code = clean_text(text, 12).to_uppercase();
+        match Currency::from_code(&code).filter(|c| ctx.currencies.contains(c)) {
+            Some(c) => Some(c),
+            None => {
+                let supported: Vec<&str> = ctx.currencies.iter().map(|c| c.code()).collect();
+                warnings.push(format!(
+                    "The receipt's currency ({code}) isn't supported. Supported: {}.",
+                    supported.join(", ")
+                ));
+                None
+            }
+        }
+    });
+
+    let date = field(&raw.date, "date", w, |text, evidence, warnings| {
         let text = text.trim();
         if !valid_date(text) {
             warnings.push(
@@ -595,22 +613,12 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             warnings.push("The receipt date is in the future. Check it.".into());
             return None;
         }
-        Some(text.to_string())
-    });
-
-    let currency = field(&raw.currency, "currency", w, |text, _, warnings| {
-        let code = clean_text(text, 12).to_uppercase();
-        match Currency::from_code(&code).filter(|c| ctx.currencies.contains(c)) {
-            Some(c) => Some(c),
-            None => {
-                let supported: Vec<&str> = ctx.currencies.iter().map(|c| c.code()).collect();
-                warnings.push(format!(
-                    "The receipt's currency ({code}) isn't supported. Supported: {}.",
-                    supported.join(", ")
-                ));
-                None
-            }
+        // Found only if the evidence shows exactly this one date.
+        if date_in_evidence(evidence, currency.value).as_deref() != Some(text) {
+            warnings.push(DATE_UNCONFIRMED.into());
+            return None;
         }
+        Some(text.to_string())
     });
 
     let money = currency.value;
@@ -1090,14 +1098,65 @@ mod tests {
     #[test]
     fn dates_must_be_real_and_not_in_the_future() {
         for bad in ["2026-02-30", "1899-12-31", "10/24/2026", "2026-10-27"] {
-            let n = with("date", found(bad, "DATE"));
+            let n = with("date", found(bad, &format!("DATE {bad}")));
             assert_eq!(n.fields.date.status, FieldStatus::Unclear, "{bad}");
             assert_eq!(n.fields.date.value, None);
         }
-        assert!(with("date", found("2026-10-27", "DATE")).warnings[0].contains("future"));
+        assert!(
+            with("date", found("2026-10-27", "DATE 2026-10-27")).warnings[0].contains("future")
+        );
         // Up to one day ahead is allowed for time zones.
-        let n = with("date", found("2026-10-26", "DATE"));
+        let n = with("date", found("2026-10-26", "DATE 2026-10-26"));
         assert_eq!(n.fields.date.value.as_deref(), Some("2026-10-26"));
+    }
+
+    /// A date answer with `currency` as the receipt's currency.
+    fn date(value: &str, evidence: &str, currency: Value) -> Normalized {
+        let mut answer = good();
+        answer["date"] = found(value, evidence);
+        answer["currency"] = currency;
+        run(answer)
+    }
+
+    #[test]
+    fn a_date_is_found_only_if_its_evidence_shows_it() {
+        let usd = || found("USD", "USD");
+        // Two-digit years are 20YY.
+        assert_eq!(
+            date("2025-11-14", "11/14/25 3:05 PM", usd())
+                .fields
+                .date
+                .value
+                .as_deref(),
+            Some("2025-11-14")
+        );
+        let n = date("2023-11-14", "11/14/25 3:05 PM", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        assert_eq!(n.warnings, vec![DATE_UNCONFIRMED]);
+        // Day and month order follows the currency, and is unclear without one.
+        let d = |v: &str, c: Value| date(v, "03/04/26", c).fields.date.status;
+        assert_eq!(d("2026-03-04", usd()), FieldStatus::Found);
+        assert_eq!(d("2026-04-03", usd()), FieldStatus::Unclear);
+        assert_eq!(d("2026-04-03", found("GBP", "£")), FieldStatus::Found);
+        assert_eq!(d("2026-04-03", found("EUR", "€")), FieldStatus::Found);
+        assert_eq!(d("2026-03-04", absent()), FieldStatus::Unclear);
+        // A time but no year.
+        let n = date("2025-12-19", "12/19 10:42 AM", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        // An unrelated number that could pass for a year.
+        let n = date("2019-08-19", "Date: 8/19/26 Cashier: 2019457", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        let n = date("2026-08-19", "Date: 8/19/26 Cashier: 2019457", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Found);
+        // Month names.
+        for evidence in ["Oct 9, 2026", "9 October 2026", "October 9 2026"] {
+            let n = date("2026-10-09", evidence, usd());
+            assert_eq!(n.fields.date.status, FieldStatus::Found, "{evidence}");
+        }
+        // Evidence and value disagree.
+        let n = date("2026-10-08", "DATE 2026-10-09", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.date.evidence, "DATE 2026-10-09");
     }
 
     #[test]
