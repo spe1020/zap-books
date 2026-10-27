@@ -22,6 +22,10 @@ pub const DEFAULT_MAX_TOKENS: u32 = 2048;
 /// never waits longer than the request timeout either.
 pub const IDLE_PROBE_TIMEOUT: Duration = Duration::from_secs(30);
 
+/// Sent with every request, with temperature 0, so the same request gets
+/// the same answer.
+pub const SEED: u64 = 7;
+
 #[derive(Debug, Clone)]
 pub struct Ollama {
     base: String,
@@ -210,7 +214,7 @@ impl Ollama {
             "model": model,
             "stream": false,
             "think": false,
-            "options": { "temperature": 0, "num_predict": 1 },
+            "options": { "temperature": 0, "seed": SEED, "num_predict": 1 },
             "messages": [{ "role": "user", "content": "ok" }]
         });
         let response = self
@@ -248,6 +252,7 @@ impl Ollama {
             "format": chat.schema,
             "options": {
                 "temperature": 0,
+                "seed": SEED,
                 "num_predict": chat.max_tokens.unwrap_or(self.max_tokens)
             },
             "messages": [

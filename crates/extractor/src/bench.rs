@@ -907,6 +907,7 @@ mod tests {
             used_text_layer: false,
             duration_ms: 1,
             model_supports_thinking: None,
+            total_confirmed_by: None,
         };
         let e = expected(json!({
             "total": "54.50", "subtotal": "50.00", "tax": "3.00",

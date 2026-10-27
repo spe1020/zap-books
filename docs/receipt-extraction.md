@@ -125,9 +125,9 @@ The service only answers requests whose `Host` is `127.0.0.1:<port>` or
 `localhost:<port>` (this blocks DNS rebinding) and whose `Origin`, if any, is
 one of the app's. It listens on `127.0.0.1` only.
 
-Every request to Ollama asks for thinking off (`think: false`) and caps the
-answer at `--max-tokens` tokens (2048 by default), so a runaway generation
-stops. Each result records whether the model reports thinking support
+Every request to Ollama asks for thinking off (`think: false`), temperature 0
+and a fixed seed, and caps the answer at `--max-tokens` tokens (2048 by
+default), so a runaway generation stops. Each result records whether the model reports thinking support
 (`modelSupportsThinking`, from Ollama's `/api/show`); a thinking-only model
 may ignore the request and spend its tokens thinking. Requests time out after
 90 seconds. A request that times out is cancelled: the connection to Ollama
@@ -207,11 +207,14 @@ read from."
   `transaction`, `trans`, `tran`, `invoice`, `inv`, `order`, `check`, `chk`
   or `bill`. Otherwise it is unclear.
 - **total:** the amount actually paid, including tax, fees and tip. Never a
-  savings, points, rewards or year-to-date figure. Its evidence must include
-  one of the labels `total`, `amount`, `paid`, `payment`, `charged`,
-  `balance`, `due` or `grand` ("The total was read without its label. Check
-  the amount."), and a total whose evidence mentions savings, points, rewards,
-  YTD or a year is unclear.
+  savings, points, rewards or year-to-date figure: a total whose evidence
+  mentions savings, points, rewards, YTD or a year is unclear. Otherwise the
+  total is found if its evidence includes one of the labels `total`,
+  `amount`, `paid`, `payment`, `charged`, `balance`, `due` or `grand`, **or**
+  a subtotal was found and the total check below passes. With neither, it is
+  unclear ("The total was read without its label. Check the amount."). The
+  result's `totalConfirmedBy` records which way it was confirmed: `label`,
+  `reconciliation` or `labelAndReconciliation`.
 
 Tax, fees and discounts are lists: one amount and its evidence per printed
 line. One line that can't be read exactly makes the whole list unclear.

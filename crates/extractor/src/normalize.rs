@@ -6,7 +6,7 @@ use ledger_core::{
     amount_input, parse_money, valid_date, Currency, ExtractedField, ExtractedLine, ExtractedLines,
     ExtractionFields, FieldStatus, Minor,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::error::ExtractError;
@@ -235,10 +235,25 @@ fn warn(warnings: &mut Vec<String>, text: impl Into<String>) {
     }
 }
 
+/// How a found total was confirmed: by a total-type label in its evidence,
+/// by adding up with the subtotal and the other parts, or both.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum TotalConfirmation {
+    Label,
+    Reconciliation,
+    LabelAndReconciliation,
+}
+
+/// The warning for a total with no label that nothing else confirms.
+pub const TOTAL_UNLABELLED: &str = "The total was read without its label. Check the amount.";
+
 /// The result of normalization: fields and plain-language warnings.
 pub struct Normalized {
     pub fields: ExtractionFields,
     pub warnings: Vec<String>,
+    /// `None` unless the total is found.
+    pub total_confirmed_by: Option<TotalConfirmation>,
 }
 
 fn status_of(raw: &RawField) -> FieldStatus {
@@ -447,8 +462,9 @@ enum Amount {
 /// An amount field. Only the total must be more than zero; a zero subtotal
 /// or tip is valid. The amount must be printed in its evidence.
 ///
-/// The total's evidence must carry a payment label and no savings or
-/// loyalty words. A negative total is taken as paid only when its line says
+/// The total's evidence must carry no savings or loyalty words; whether it
+/// has a payment label is decided with the reconciliation in `normalize`. A
+/// negative total is taken as paid only when its line says
 /// it is a payment and nothing suggests a refund; any other negative total
 /// stays unclear, so a refund never becomes an expense.
 fn amount_field(
@@ -465,10 +481,6 @@ fn amount_field(
                 "The total looks like a savings or rewards figure, not the amount paid. Check the amount."
                     .into(),
             );
-            return None;
-        }
-        if is_total && !has_label(evidence, &TOTAL_LABELS) {
-            warnings.push("The total was read without its label. Check the amount.".into());
             return None;
         }
         let in_evidence = |value: Minor, warnings: &mut Vec<String>| {
@@ -797,6 +809,8 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     let mut fees = line_list(&raw.fees, "fees", Sign::Positive, w);
     let discounts = check_discounts(line_list(&raw.discounts, "discounts", Sign::Either, w), w);
     let tip = amount_field(&raw.tip, "tip", Amount::Part, money, w);
+    let labelled = has_label(&total.evidence, &TOTAL_LABELS);
+    let mut reconciled = false;
     // The total must equal subtotal + tax + fees + tip, either with or
     // without the discounts taken off the subtotal. Anything not read counts
     // as 0. Without a subtotal there is nothing to check against.
@@ -812,7 +826,9 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             let (after, before) = p.sums();
             after == Some(t) || before == Some(t)
         };
-        if !adds_up(&parts) {
+        if adds_up(&parts) {
+            reconciled = true;
+        } else {
             // A fee printed among the items is already in the subtotal.
             let without_fees = Parts {
                 fees: None,
@@ -825,6 +841,7 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
                         shown(f, money)
                     ));
                     fees = ExtractedLines::default();
+                    reconciled = true;
                 }
                 _ => {
                     w.push(
@@ -839,6 +856,19 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             }
         }
     }
+    // A found total is confirmed by its label, by adding up, or both. One
+    // with neither (no label, and no subtotal to check it against) is unclear.
+    let total_confirmed_by = match (total.value.is_some(), labelled, reconciled) {
+        (false, _, _) => None,
+        (true, true, true) => Some(TotalConfirmation::LabelAndReconciliation),
+        (true, true, false) => Some(TotalConfirmation::Label),
+        (true, false, true) => Some(TotalConfirmation::Reconciliation),
+        (true, false, false) => {
+            w.push(TOTAL_UNLABELLED.into());
+            total = unclear(total.evidence);
+            None
+        }
+    };
     // A fee that prints a percentage must be that percentage of the subtotal
     // (or of the subtotal and tax, as with service charges). If not, it was
     // likely read against the tax line's amount, and the other way round.
@@ -889,6 +919,7 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             category,
         },
         warnings,
+        total_confirmed_by,
     }
 }
 
@@ -1108,6 +1139,77 @@ mod tests {
                 "{evidence}"
             );
         }
+    }
+
+    /// A receipt with a 25.00 subtotal, 2.50 tax and the given total.
+    fn with_total(value: &str, evidence: &str) -> Normalized {
+        let mut answer = good();
+        answer["subtotal"] = found("25.00", "Subtotal $25.00");
+        answer["tax"] = lines(&[("2.50", "Sales tax $2.50")]);
+        answer["total"] = found(value, evidence);
+        run(answer)
+    }
+
+    #[test]
+    fn an_unlabelled_total_that_adds_up_is_found_by_reconciliation() {
+        let n = with_total("27.50", "$27.50");
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert_eq!(n.fields.total.value, Some(minor(2750)));
+        assert_eq!(
+            n.total_confirmed_by,
+            Some(TotalConfirmation::Reconciliation)
+        );
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+    }
+
+    #[test]
+    fn an_unlabelled_total_that_doesnt_add_up_stays_unclear() {
+        let n = with_total("29.00", "$29.00");
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.total_confirmed_by, None);
+        assert_eq!(
+            n.warnings,
+            vec!["Subtotal $25.00 and tax $2.50 add up to $27.50, but the total reads $29.00. If you added a tip, check the amount matches what you paid."]
+        );
+    }
+
+    #[test]
+    fn the_confirmation_is_recorded() {
+        // Labelled and adding up.
+        let n = with_total("27.50", "TOTAL $27.50");
+        assert_eq!(
+            n.total_confirmed_by,
+            Some(TotalConfirmation::LabelAndReconciliation)
+        );
+        // Labelled with no subtotal to check against.
+        let n = total("27.50", "TOTAL $27.50");
+        assert_eq!(n.total_confirmed_by, Some(TotalConfirmation::Label));
+        // Unlabelled with no subtotal: nothing confirms it.
+        let n = total("27.50", "$27.50");
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.total_confirmed_by, None);
+        assert_eq!(n.warnings, vec![TOTAL_UNLABELLED]);
+    }
+
+    #[test]
+    fn savings_and_negative_rules_apply_even_when_the_total_adds_up() {
+        // The savings banner without a subtotal still fails...
+        let n = total("$318.40", "SAVINGS THIS YEAR $318.40");
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.total_confirmed_by, None);
+        // ...and so does one whose amount happens to add up.
+        let mut answer = good();
+        answer["subtotal"] = found("300.00", "Subtotal $300.00");
+        answer["tax"] = lines(&[("18.40", "Sales tax $18.40")]);
+        answer["total"] = found("$318.40", "SAVINGS THIS YEAR $318.40");
+        let n = run(answer);
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.total_confirmed_by, None);
+        // A negative amount without payment wording stays unclear, even if
+        // its size adds up.
+        let n = with_total("-27.50", "-$27.50");
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.total_confirmed_by, None);
     }
 
     #[test]
