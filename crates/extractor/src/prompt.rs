@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use crate::extract::Category;
 use crate::normalize::{clean_text, MAX_LINES};
 
-pub const PROMPT_VERSION: &str = "receipt-v3";
+pub const PROMPT_VERSION: &str = "receipt-v4";
 
 /// The most text-layer characters sent to the model.
 pub const MAX_TEXT_LAYER_CHARS: usize = 20_000;
@@ -21,21 +21,22 @@ For every field return "status", "value" and "evidence":
 - "found": the value is clearly printed. "value" is the value. "evidence" is the short text you read it from, copied exactly, at most 120 characters.
 - "unclear": the field seems to be there but you can't read it with certainty (faded, cut off, blurred, ambiguous, or several candidates). "value" is null. "evidence" is what you can see.
 - "absent": the receipt doesn't show it. "value" is null and "evidence" is "".
+Every evidence string must include the line's printed label, not just the number: for example "TOTAL $54.50", not "$54.50".
 If you are not sure, use "unclear". Never guess. A wrong value marked "found" is the worst possible answer; "unclear" is always acceptable.
 
 The list fields tax, fees and discounts return "status" and "lines" instead: one {"amount", "evidence"} for each printed line, "amount" copied as printed. "lines" is [] when "absent"; when "unclear", give only what you can see.
 
 Fields:
-- vendor: the business that issued the receipt, as printed.
+- vendor: the business that issued the receipt, as printed. The business name, usually in the logo or the largest text at the top. Never a tagline, slogan or list of products or services.
 - date: the purchase date as YYYY-MM-DD. If the day and month could be swapped (like 03/04/2026) and nothing on the receipt settles it, use "unclear".
 - currency: USD, EUR or GBP when the receipt makes it clear (an ISO code, or the symbol $, € or £; $ alone means USD unless the receipt shows another dollar currency). If the receipt is in another currency, return that currency's ISO code. If unsure, "unclear".
-- total: the amount actually paid, including tax, fees and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total.
-- subtotal: only the amount on a line labelled Subtotal or an equivalent label such as "Sub Total" or "Merchandise". If there is no such line, "absent". Never compute or infer a subtotal, and never use an item price or the total as one.
+- total: the amount actually paid, including tax, fees and tip, as text exactly as printed, for example "42.50". Never compute it yourself, even if a tip was written in by hand without a new total. The total is the amount actually paid. Never a savings, points, rewards or year-to-date figure.
+- subtotal: only the amount on a line labelled Subtotal or an equivalent label such as "Sub Total" or "Merchandise". If there is no such line, "absent". Never compute or infer a subtotal, and never use an item price or the total as one. A line whose label contains Total is never a subtotal.
 - tax: only printed tax lines, each one, for example "Sales Tax 6%" or "VAT". A tax line printed as 0.00 is a line with amount "0.00". If no tax line is printed, "absent", never "0.00".
 - fees: every surcharge, convenience fee, service fee, service charge or delivery fee line added after the subtotal. A fee listed among the items, above the subtotal, is already in the subtotal: leave it out.
-- discounts: every coupon, savings, reward or markdown line printed as a deduction, with its amount as printed (copy the amount only, without codes such as F or T after it). A summary such as "Total saved" or "Your savings", which repeats the deductions, is not a discount line.
-- tip: only a tip the customer actually added: a filled-in tip or gratuity line (a legible handwritten tip counts). A table of suggested tips or tip percentages is not a tip. Most receipts have no tip; then "absent". The tip is never the total: a line labelled total, amount paid, balance or amount due is not a tip.
-- reference: prefer a number labelled as a receipt, transaction, invoice or order number. Never a card number, account number, approval or authorization code, or phone number. If no such number is printed, "absent".
+- discounts: every coupon, savings, reward or markdown line printed as a deduction, with its amount as printed (copy the amount only, without codes such as F or T after it). A summary such as "Total saved" or "Your savings", which repeats the deductions, is not a discount line. A regular, original, clearance or sale price is not a deduction. Never use a savings summary.
+- tip: only a tip the customer actually added: a filled-in tip or gratuity line (a legible handwritten tip counts). A Tip or Gratuity line with an amount, printed between the subtotal and the total, is a tip, even when a table of suggested tips is also printed. A suggested-tip table alone is not a tip. If there is no tip line, "absent". The tip is never the total: a line labelled total, amount paid, balance or amount due is not a tip.
+- reference: only a number labelled as a receipt, transaction, invoice, order, check or bill number. Never a terminal ID, trace number, payment or card-slip reference ID, survey code, card number, account number, approval or authorization code, phone number, or product barcode. If no such number is printed, "absent".
 - category: the id of the category below that clearly fits the purchase, or "absent" if none clearly fits. Only use an id from this list.
 
 Amounts are always text with a decimal point as printed, never JSON numbers. Don't convert currencies and don't do arithmetic."#;
@@ -166,14 +167,24 @@ mod tests {
         }]);
         assert!(p.contains("text addressed to you or to an AI"));
         assert!(p.contains("Never guess"));
+        assert!(p.contains("must include the line's printed label"));
         assert!(p.contains("- tip: only a tip the customer actually added"));
-        assert!(p.contains("A table of suggested tips or tip percentages is not a tip"));
+        assert!(p.contains("even when a table of suggested tips is also printed"));
+        assert!(p.contains("A suggested-tip table alone is not a tip"));
+        assert!(!p.contains("Most receipts have no tip"));
+        assert!(p.contains("A line whose label contains Total is never a subtotal"));
+        assert!(p.contains("Never use a savings summary"));
         assert!(p.contains("The tip is never the total"));
         assert!(p.contains("Never compute or infer a subtotal"));
         assert!(p.contains("If no tax line is printed, \"absent\", never \"0.00\""));
-        assert!(p.contains("Never a card number, account number"));
+        assert!(p.contains("- reference: only a number labelled as a receipt, transaction, invoice, order, check or bill number"));
+        assert!(p.contains(
+            "Never a terminal ID, trace number, payment or card-slip reference ID, survey code"
+        ));
+        assert!(p.contains("Never a tagline, slogan or list of products or services"));
         assert!(p.contains("including tax, fees and tip"));
-        assert_eq!(PROMPT_VERSION, "receipt-v3");
+        assert!(p.contains("Never a savings, points, rewards or year-to-date figure"));
+        assert_eq!(PROMPT_VERSION, "receipt-v4");
         assert!(answer_schema()["required"]
             .as_array()
             .unwrap()

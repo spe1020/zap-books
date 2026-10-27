@@ -379,6 +379,22 @@ pub async fn run_model(
     (runs, warmup)
 }
 
+/// Several corpora's receipts and runs as one, for a combined report. Each
+/// run's receipt index is shifted to point into the joined receipt list.
+pub fn combine(parts: &[(Vec<Receipt>, Vec<Run>)]) -> (Vec<Receipt>, Vec<Run>) {
+    let mut receipts = Vec::new();
+    let mut runs = Vec::new();
+    for (part_receipts, part_runs) in parts {
+        let offset = receipts.len();
+        receipts.extend(part_receipts.iter().cloned());
+        runs.extend(part_runs.iter().cloned().map(|mut run| {
+            run.receipt += offset;
+            run
+        }));
+    }
+    (receipts, runs)
+}
+
 /// Accuracy, unclear and confident-wrong rates for one field.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct FieldStats {
@@ -738,6 +754,51 @@ mod tests {
         );
         let e = expected(json!({ "total": "51.00", "tip": null }));
         assert_eq!(e.get("tip"), Some(&Value::Null));
+    }
+
+    #[test]
+    fn corpora_combine_into_one_report() {
+        let receipt = |name: &str, clear: bool| Receipt {
+            path: PathBuf::from(name),
+            expected: Expected {
+                clear,
+                ..Expected::default()
+            },
+        };
+        let run = |receipt: usize, total: Verdict| Run {
+            receipt,
+            millis: 1000,
+            text_pdf: false,
+            error: None,
+            verdicts: BTreeMap::from([("total", (total, true))]),
+            warnings: Vec::new(),
+        };
+        let first = (vec![receipt("a", true)], vec![run(0, Verdict::Correct)]);
+        let second = (
+            vec![receipt("b", true), receipt("c", false)],
+            vec![run(0, Verdict::Unclear), run(1, Verdict::ConfidentWrong)],
+        );
+        let (receipts, runs) = combine(&[first, second]);
+        assert_eq!(receipts.len(), 3);
+        let indices: Vec<usize> = runs.iter().map(|r| r.receipt).collect();
+        assert_eq!(indices, vec![0, 1, 2]);
+        let settings = Settings {
+            thinking_supported: Some(false),
+            max_tokens: 2048,
+            timeout: Duration::from_secs(90),
+            prompt_version: "receipt-v4",
+        };
+        let md = report("m: all corpora", &receipts, &runs, None, None, &settings);
+        assert!(md.starts_with("### m: all corpora\n"));
+        assert!(
+            md.contains("| Total | 33.3% (1/3) | 33.3% (1/3) | 33.3% (1/3) |"),
+            "{md}"
+        );
+        // The unclear receipt is the only clear one that isn't right.
+        assert!(
+            md.contains("| Total, clear receipts | 50.0% (1/2) | 50.0% (1/2) | 0.0% (0/2) |"),
+            "{md}"
+        );
     }
 
     #[test]

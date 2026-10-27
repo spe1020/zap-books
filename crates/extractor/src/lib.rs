@@ -16,6 +16,7 @@
 pub mod bench;
 pub mod config;
 pub mod error;
+pub mod evidence;
 pub mod extract;
 pub mod files;
 pub mod log;

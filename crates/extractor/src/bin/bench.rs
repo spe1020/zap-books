@@ -1,20 +1,26 @@
-//! `cargo run -p extractor --bin bench -- --corpus <dir> --model <name>`
+//! `cargo run -p extractor --bin bench -- --corpus <dir> [--corpus <dir>]... --model <name>`
 //!
-//! Runs every labelled receipt in the corpus through each model and writes a
+//! Runs every labelled receipt in each corpus through each model and writes a
 //! Markdown report (aggregate numbers only) plus a local per-receipt file.
+//! With more than one corpus, each is reported on its own and then combined.
+//! The report numbers the corpora instead of naming their folders; the local
+//! file says which folder each number is.
 
 use std::path::PathBuf;
 use std::time::Duration;
 
-use extractor::bench::{details, load_categories, load_corpus, report, run_model, Settings};
+use extractor::bench::{
+    combine, details, load_categories, load_corpus, report, run_model, Receipt, Settings,
+};
 use extractor::config::{is_local_url, DEFAULT_MAX_TOKENS, DEFAULT_MODEL, DEFAULT_OLLAMA};
+use extractor::extract::Category;
 use extractor::ollama::Ollama;
 use extractor::{log, Extractor};
 
-const USAGE: &str = "Usage: bench --corpus <dir> [--model <name>]... [--ollama http://127.0.0.1:11434] [--out bench-results.md] [--timeout-seconds 90] [--max-tokens 2048]";
+const USAGE: &str = "Usage: bench --corpus <dir> [--corpus <dir>]... [--model <name>]... [--ollama http://127.0.0.1:11434] [--out bench-results.md] [--timeout-seconds 90] [--max-tokens 2048]";
 
 struct Args {
-    corpus: PathBuf,
+    corpora: Vec<PathBuf>,
     models: Vec<String>,
     ollama: String,
     out: PathBuf,
@@ -23,7 +29,7 @@ struct Args {
 }
 
 fn parse() -> Result<Args, String> {
-    let mut corpus = None;
+    let mut corpora = Vec::new();
     let mut models = Vec::new();
     let mut ollama = DEFAULT_OLLAMA.to_string();
     let mut out = PathBuf::from("bench-results.md");
@@ -33,7 +39,7 @@ fn parse() -> Result<Args, String> {
     while let Some(flag) = args.next() {
         let mut value = || args.next().ok_or(format!("{flag} needs a value.\n{USAGE}"));
         match flag.as_str() {
-            "--corpus" => corpus = Some(PathBuf::from(value()?)),
+            "--corpus" => corpora.push(PathBuf::from(value()?)),
             "--model" => models.push(value()?),
             "--ollama" => ollama = value()?,
             "--out" => out = PathBuf::from(value()?),
@@ -60,8 +66,11 @@ fn parse() -> Result<Args, String> {
     if models.is_empty() {
         models.push(DEFAULT_MODEL.to_string());
     }
+    if corpora.is_empty() {
+        return Err(format!("--corpus is required.\n{USAGE}"));
+    }
     Ok(Args {
-        corpus: corpus.ok_or(format!("--corpus is required.\n{USAGE}"))?,
+        corpora,
         models,
         ollama,
         out,
@@ -80,27 +89,33 @@ async fn main() -> std::process::ExitCode {
             return std::process::ExitCode::from(2);
         }
     };
-    let (receipts, unlabelled) = match load_corpus(&args.corpus) {
-        Ok(found) => found,
-        Err(message) => {
-            eprintln!("{message}");
+    // Each corpus keeps its own receipts and categories.
+    let mut corpora: Vec<(Vec<Receipt>, Vec<Category>)> = Vec::new();
+    for dir in &args.corpora {
+        let (receipts, unlabelled) = match load_corpus(dir) {
+            Ok(found) => found,
+            Err(message) => {
+                eprintln!("{message}");
+                return std::process::ExitCode::from(1);
+            }
+        };
+        for path in &unlabelled {
+            eprintln!("Skipping {} (no expected.json)", path.display());
+        }
+        if receipts.is_empty() {
+            eprintln!("No labelled receipts in {}.", dir.display());
             return std::process::ExitCode::from(1);
         }
-    };
-    for path in &unlabelled {
-        eprintln!("Skipping {} (no expected.json)", path.display());
+        let categories = match load_categories(dir) {
+            Ok(c) => c,
+            Err(message) => {
+                eprintln!("{message}");
+                return std::process::ExitCode::from(1);
+            }
+        };
+        corpora.push((receipts, categories));
     }
-    if receipts.is_empty() {
-        eprintln!("No labelled receipts in {}.", args.corpus.display());
-        return std::process::ExitCode::from(1);
-    }
-    let categories = match load_categories(&args.corpus) {
-        Ok(c) => c,
-        Err(message) => {
-            eprintln!("{message}");
-            return std::process::ExitCode::from(1);
-        }
-    };
+    let several = corpora.len() > 1;
     let mut markdown = String::from("## Receipt extraction benchmark\n\n");
     let mut local = String::new();
     for model in &args.models {
@@ -126,12 +141,23 @@ async fn main() -> std::process::ExitCode {
             ollama: ollama.clone(),
             model: model.clone(),
         };
-        eprintln!("{model}: {} receipts", receipts.len());
-        let (runs, warmup) = run_model(&extractor, &receipts, &categories, |i, n| {
-            eprint!("\r{model}: receipt {i}/{n}");
-        })
-        .await;
-        eprintln!();
+        let mut parts = Vec::new();
+        let mut first_warmup = None;
+        for (n, (receipts, categories)) in corpora.iter().enumerate() {
+            let label = if several {
+                format!("{model}: corpus {} of {}", n + 1, corpora.len())
+            } else {
+                model.clone()
+            };
+            eprintln!("{label}: {} receipts", receipts.len());
+            let (runs, warmup) = run_model(&extractor, receipts, categories, |i, total| {
+                eprint!("\r{label}: receipt {i}/{total}");
+            })
+            .await;
+            eprintln!();
+            first_warmup = first_warmup.or(warmup);
+            parts.push((label, warmup, receipts.clone(), runs));
+        }
         let memory = ollama.loaded_size(model).await;
         // Free the memory before the next model so runs don't overlap.
         if let Err(e) = ollama.unload(model).await {
@@ -143,10 +169,33 @@ async fn main() -> std::process::ExitCode {
             timeout: args.timeout,
             prompt_version: extractor::prompt::PROMPT_VERSION,
         };
-        markdown.push_str(&report(model, &receipts, &runs, warmup, memory, &settings));
-        markdown.push('\n');
-        local.push_str(&details(model, &receipts, &runs));
-        local.push('\n');
+        for (n, (label, warmup, receipts, runs)) in parts.iter().enumerate() {
+            markdown.push_str(&report(label, receipts, runs, *warmup, memory, &settings));
+            markdown.push('\n');
+            let local_label = match args.corpora.get(n) {
+                Some(dir) if several => format!("{label} ({})", dir.display()),
+                _ => label.clone(),
+            };
+            local.push_str(&details(&local_label, receipts, runs));
+            local.push('\n');
+        }
+        if several {
+            let joined: Vec<(Vec<Receipt>, Vec<_>)> = parts
+                .into_iter()
+                .map(|(_, _, receipts, runs)| (receipts, runs))
+                .collect();
+            let (receipts, runs) = combine(&joined);
+            let label = format!("{model}: all corpora combined");
+            markdown.push_str(&report(
+                &label,
+                &receipts,
+                &runs,
+                first_warmup,
+                memory,
+                &settings,
+            ));
+            markdown.push('\n');
+        }
     }
     let details_path = args.out.with_extension("details.local.md");
     if let Err(e) =

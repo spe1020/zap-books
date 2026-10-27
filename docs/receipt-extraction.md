@@ -32,14 +32,16 @@ address that isn't on this computer.
 
    (Or open the Ollama app, or run `ollama serve` in a terminal.)
 
-3. Download the vision model (about 6 GB):
+3. Download the vision model (about 20 GB):
 
    ```bash
-   ollama pull qwen2.5vl:7b
+   ollama pull qwen3-vl:30b-a3b-instruct
    ```
 
-   This is the default until the benchmark picks a model; pass another with
-   `--model`.
+   This is the default. It uses about 22 GB of memory while loaded. On a
+   machine with less, use `qwen3-vl:8b-instruct` (about 6 GB) and pass
+   `--model qwen3-vl:8b-instruct`; in testing it once reported a wrong total
+   as found, so check its totals with extra care.
 
 4. Install Rust if you haven't: follow [rustup.rs](https://rustup.rs). The
    repository pins the toolchain, so rustup installs the right version on
@@ -77,7 +79,7 @@ else works as before.
 
 ```text
 cargo run -p extractor -- [--port 8787] [--ollama http://127.0.0.1:11434]
-                          [--model qwen2.5vl:7b] [--allowed-origin <origin>]...
+                          [--model qwen3-vl:30b-a3b-instruct] [--allowed-origin <origin>]...
                           [--timeout-seconds 90] [--max-tokens 2048]
 ```
 
@@ -145,24 +147,65 @@ record.
 
 ## Fields and the total check
 
-The prompt (`receipt-v3`) defines each field literally, and the benchmark
-labels follow the same definitions:
+The prompt (`receipt-v4`) defines each field literally, and the benchmark
+labels follow the same definitions.
+
+**A field is found only if the extractor can confirm the value from its
+evidence.** The prompt asks for every evidence string to include the line's
+printed label (`TOTAL $54.50`, not `$54.50`). Every amount (total, subtotal,
+tip, and each tax, fee and discount line) must be printed in its own evidence,
+ignoring currency symbols, thousands separators, spaces and a printed sign or
+parentheses. Otherwise it is unclear: "The value doesn't match the text it was
+read from."
+
+- **date:** the extractor reads the date in the evidence itself: numeric
+  (`M/D/YY`, `D/M/YYYY`, `YYYY-MM-DD`, with `/`, `-` or `.`) or with an
+  English month name (`Oct 12, 2026`, `12 October 2026`). Two-digit years are
+  20YY. When day and month could be swapped (`03/04/26`), a USD receipt is
+  read month first and a EUR or GBP receipt day first; without a currency the
+  date is unclear. The date is found only if the evidence shows exactly one
+  date and it equals the model's value. Otherwise: "Check the date; it
+  couldn't be confirmed from the receipt."
 
 - **subtotal:** only a line labelled Subtotal or an equivalent ("Sub Total",
-  "Merchandise"). Otherwise absent; never computed or inferred.
+  "Merchandise"). Never computed or inferred, and a line whose label contains
+  Total is never a subtotal. The evidence must contain `sub` or `merchandise`,
+  or the subtotal is absent.
 - **tax:** every printed tax line. None printed means absent, not `0.00`. A
   line printed as `0.00` is a line. The tax is the sum of its lines.
 - **fees:** every surcharge or convenience, service or delivery fee (and a
   service charge) added after the subtotal. A fee listed among the items is
-  already in the subtotal and is left out.
+  already in the subtotal and is left out. A fee line that prints a
+  percentage must be that percentage of the subtotal, or of the subtotal and
+  tax (as with service charges), give or take one cent. If not, fees and tax
+  are both unclear: "The fee and tax may be swapped. Check both." Tax is never
+  checked this way, because it often applies to only some items.
 - **discounts:** every coupon, savings, reward or markdown line printed as a
   deduction. Stored as positive amounts whatever sign is printed (`0.25-`,
-  `-0.25`, `(0.25)`). A "Total saved" summary is not a discount line.
-- **tip:** only a tip the customer actually added (a filled-in tip line). A
-  table of suggested tips is not a tip.
-- **reference:** preferably a number labelled as a receipt, transaction,
-  invoice or order number; never a card, account, approval or phone number.
-- **total:** the amount actually paid, including tax, fees and tip.
+  `-0.25`, `(0.25)`). Each line's evidence must show a deduction (a minus
+  sign, parentheses, or a word such as disc, coupon, savings, off or promo);
+  a regular, original, clearance or sale price is not one. A savings summary
+  ("Total saved", "You saved", YTD) is never a discount line. Either problem
+  makes the whole list unclear.
+- **tip:** only a tip the customer actually added. A Tip or Gratuity line with
+  an amount, printed between the subtotal and the total, is a tip even when a
+  table of suggested tips is also printed; the table alone is not a tip.
+- **vendor:** the business name, usually in the logo or the largest text at
+  the top; never a tagline, slogan or list of products or services.
+- **reference:** only a number labelled as a receipt, transaction, invoice,
+  order, check or bill number; never a terminal ID, trace number, payment or
+  card-slip reference ID, survey code, card, account, approval or phone
+  number, or product barcode. The value must be in its evidence (ignoring
+  spaces and punctuation; a number of digits only must be whole printed
+  numbers), and the evidence must contain one of `receipt`, `rcpt`,
+  `transaction`, `trans`, `tran`, `invoice`, `inv`, `order`, `check`, `chk`
+  or `bill`. Otherwise it is unclear.
+- **total:** the amount actually paid, including tax, fees and tip. Never a
+  savings, points, rewards or year-to-date figure. Its evidence must include
+  one of the labels `total`, `amount`, `paid`, `payment`, `charged`,
+  `balance`, `due` or `grand` ("The total was read without its label. Check
+  the amount."), and a total whose evidence mentions savings, points, rewards,
+  YTD or a year is unclear.
 
 Tax, fees and discounts are lists: one amount and its evidence per printed
 line. One line that can't be read exactly makes the whole list unclear.
@@ -171,6 +214,9 @@ The total stays found only if it equals either `subtotal + tax + fees + tip`
 or `subtotal − discounts + tax + fees + tip` (receipts differ on whether the
 printed subtotal is before or after savings). Anything not read counts as 0.
 Without a subtotal line there is nothing to check against, so no check runs.
+If the check fails with the fees but passes without them, the fees were
+printed among the items and are already in the subtotal: they are left out,
+the total stays found, and a warning says so.
 When the check fails, the total is unclear and the warning names what was
 read, for example "Subtotal $50.00, tax $3.00 and fees $1.50 add up to $54.50,
 but the total reads $55.50. Check the amount." When only a subtotal and tax
@@ -178,9 +224,11 @@ were read and the total is higher, it ends "If you added a tip, check the
 amount matches what you paid." instead, since a tip written in by hand is the
 usual cause.
 
-A negative total stays unclear, because it may be a refund and a refund must
-never become an expense: "The only amount is a payment or refund line
-(−$24.00). Enter the total yourself."
+A negative total is taken as the amount paid only when its evidence says
+payment, paid or charged and doesn't say refund, credit, return or reversal
+(`Payment (card): -$24.00`). Any other negative total stays unclear, because it
+may be a refund and a refund must never become an expense: "The only amount is
+a payment or refund line (−$24.00). Enter the total yourself."
 
 ## Known limits
 
@@ -195,8 +243,19 @@ never become an expense: "The only amount is a payment or refund line
 ## Benchmark
 
 ```bash
-cargo run -p extractor --release --bin bench -- --corpus <dir> --model <name> [--model <name>]...
+cargo run -p extractor --release --bin bench -- --corpus <dir> [--corpus <dir>]... --model <name> [--model <name>]...
 ```
+
+`--corpus` can be given more than once. Each corpus is reported on its own
+(numbered, so the report names no folders) and then all of them combined; each
+uses its own `categories.json`.
+
+### Holdout set
+
+Keep a second folder of receipts that is never looked at when designing
+extraction rules, and judge every change by its numbers (`--corpus <design>
+--corpus <holdout>`). Rules tuned on one corpus can look better there than
+they are, and the holdout shows whether they carry over.
 
 ### Models
 
@@ -210,11 +269,11 @@ cargo run -p extractor --release --bin bench -- --corpus <dir> \
   --model qwen3-vl:8b-instruct --model qwen3-vl:30b-a3b-instruct --model qwen3-vl:8b
 ```
 
-| Tag                         | Download | Thinking                            | Role                                      |
-| --------------------------- | -------- | ----------------------------------- | ----------------------------------------- |
-| `qwen3-vl:8b-instruct`      | 6.2 GB   | none (`qwen3-vl-instruct` template) | candidate                                 |
-| `qwen3-vl:30b-a3b-instruct` | 20 GB    | none (`qwen3-vl-instruct` template) | candidate; needs about 22 GB while loaded |
-| `qwen3-vl:8b`               | 6.2 GB   | always on (`qwen3-vl-thinking`)     | reference point only                      |
+| Tag                         | Download | Thinking                            | Role                                    |
+| --------------------------- | -------- | ----------------------------------- | --------------------------------------- |
+| `qwen3-vl:8b-instruct`      | 6.2 GB   | none (`qwen3-vl-instruct` template) | candidate                               |
+| `qwen3-vl:30b-a3b-instruct` | 20 GB    | none (`qwen3-vl-instruct` template) | default; needs about 22 GB while loaded |
+| `qwen3-vl:8b`               | 6.2 GB   | always on (`qwen3-vl-thinking`)     | reference point only                    |
 
 `ollama show <tag>` lists `thinking` under Capabilities only for the thinking
 variant; `ollama show <tag> --modelfile` names the template (`RENDERER`). The
@@ -224,7 +283,8 @@ out of tokens while thinking; that is part of what the reference shows.
 `gemma4:12b` (timed out on 8 of 13 receipts in the first benchmark) and
 `qwen2.5vl:7b` (invented tips and subtotals) are no longer in the recommended
 run. Either can still be passed with `--model`. The service's default model is
-still `qwen2.5vl:7b` until a benchmark on the new prompt picks one.
+`qwen3-vl:30b-a3b-instruct`: it is the only candidate with no confident-wrong
+totals in both benchmarks, and the fastest.
 
 It runs the same pipeline over a folder of labelled receipts and writes
 `bench-results.md` (aggregate numbers only) and
@@ -279,8 +339,9 @@ How to label:
   gives `null`.
 - **`tip`:** only a tip the customer actually added. A suggested-tip table is
   `null`.
-- **`reference`:** a number labelled as a receipt, transaction, invoice or
-  order number, never a card, account, approval or phone number. When the
+- **`reference`:** a number labelled as a receipt, transaction, invoice,
+  order, check or bill number, never a card, account, approval or phone
+  number, terminal ID, trace number, card-slip reference ID or survey code. When the
   receipt prints more than one such number, give a list of all of them; any
   one is accepted, like `vendor`'s spellings (`"reference": ["R-1001", "77"]`).
   None gives `null`.

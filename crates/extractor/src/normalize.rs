@@ -10,6 +10,10 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::error::ExtractError;
+use crate::evidence::{
+    amount_in_evidence, date_in_evidence, fits_percentage, has_label, is_thousands_grouped,
+    numbers_in_evidence, shows_deduction,
+};
 use crate::extract::Category;
 
 /// The longest evidence string kept, in characters.
@@ -176,26 +180,6 @@ pub fn parse_discount(text: &str) -> Result<Minor, AmountProblem> {
     parse_amount(s)
 }
 
-/// `1,234` or `12,345,678.90`: comma groups of exactly three digits.
-fn is_thousands_grouped(s: &str) -> bool {
-    let (whole, cents) = match s.split_once('.') {
-        Some((w, c)) => (w, Some(c)),
-        None => (s, None),
-    };
-    if cents.is_some_and(|c| c.is_empty() || c.len() > 2 || !c.chars().all(|d| d.is_ascii_digit()))
-    {
-        return false;
-    }
-    let mut groups = whole.split(',');
-    let first_ok = groups
-        .next()
-        .is_some_and(|g| (1..=3).contains(&g.len()) && g.chars().all(|d| d.is_ascii_digit()));
-    let mut rest = groups.peekable();
-    first_ok
-        && rest.peek().is_some()
-        && rest.all(|g| g.len() == 3 && g.chars().all(|d| d.is_ascii_digit()))
-}
-
 /// Days since 1970-01-01 for a proleptic Gregorian date.
 fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
     let y = if m <= 2 { y - 1 } else { y };
@@ -237,6 +221,20 @@ pub struct Context<'a> {
     pub today: &'a str,
 }
 
+/// The warning for a value its own evidence doesn't show.
+pub const MISMATCH: &str = "The value doesn't match the text it was read from.";
+
+/// The warning for a date its evidence doesn't confirm.
+pub const DATE_UNCONFIRMED: &str = "Check the date; it couldn't be confirmed from the receipt.";
+
+/// Adds a warning unless the same text is already there.
+fn warn(warnings: &mut Vec<String>, text: impl Into<String>) {
+    let text = text.into();
+    if !warnings.contains(&text) {
+        warnings.push(text);
+    }
+}
+
 /// The result of normalization: fields and plain-language warnings.
 pub struct Normalized {
     pub fields: ExtractionFields,
@@ -274,13 +272,14 @@ fn absent<T>() -> ExtractedField<T> {
     }
 }
 
-/// Applies the rules shared by every field, then `parse` for the value.
-/// `found` requires a string value and evidence; anything else is unclear.
+/// Applies the rules shared by every field, then `parse` for the value,
+/// which also gets the evidence. `found` requires a string value and
+/// evidence; anything else is unclear.
 fn field<T>(
     raw: &RawField,
     label: &str,
     warnings: &mut Vec<String>,
-    parse: impl FnOnce(&str, &mut Vec<String>) -> Option<T>,
+    parse: impl FnOnce(&str, &str, &mut Vec<String>) -> Option<T>,
 ) -> ExtractedField<T> {
     let evidence = evidence_of(raw);
     match status_of(raw) {
@@ -299,7 +298,7 @@ fn field<T>(
                 ));
                 return unclear(evidence);
             }
-            match parse(text, warnings) {
+            match parse(text, &evidence, warnings) {
                 Some(value) => ExtractedField {
                     status: FieldStatus::Found,
                     value: Some(value),
@@ -330,31 +329,181 @@ fn shown(amount: Minor, currency: Option<Currency>) -> String {
     format!("{sign}{symbol}{}", digits.trim_start_matches('-'))
 }
 
+/// Words one of which the total's evidence must contain.
+pub const TOTAL_LABELS: [&str; 8] = [
+    "total", "amount", "paid", "payment", "charged", "balance", "due", "grand",
+];
+
+/// Words that mark a savings or loyalty figure, never the amount paid.
+pub const NOT_PAID: [&str; 8] = [
+    "saving", "savings", "saved", "points", "reward", "rewards", "ytd", "year",
+];
+
+/// A negative amount on a line with one of these words is a payment...
+const PAYMENT: [&str; 3] = ["payment", "paid", "charged"];
+
+/// ...unless the line also has one of these, so it may be money coming back.
+const REFUND: [&str; 4] = ["refund", "credit", "return", "reversal"];
+
+/// Words one of which a receipt number's evidence must contain.
+pub const REFERENCE_LABELS: [&str; 11] = [
+    "receipt",
+    "rcpt",
+    "transaction",
+    "trans",
+    "tran",
+    "invoice",
+    "inv",
+    "order",
+    "check",
+    "chk",
+    "bill",
+];
+
+/// Letters and digits only, lowercase.
+fn compact(text: &str) -> String {
+    text.chars()
+        .filter(|c| c.is_alphanumeric())
+        .flat_map(char::to_lowercase)
+        .collect()
+}
+
+/// Whether a receipt number is printed in `evidence`, ignoring spaces and
+/// punctuation. A number made only of digits must be whole digit runs, so
+/// `4` is not read out of `44`, while `5103-27` matches `5103 27`.
+fn reference_in_evidence(value: &str, evidence: &str) -> bool {
+    let wanted = compact(value);
+    if wanted.is_empty() {
+        return false;
+    }
+    if !wanted.chars().all(|c| c.is_ascii_digit()) {
+        return compact(evidence).contains(&wanted);
+    }
+    let runs = numbers_in_evidence(evidence);
+    (0..runs.len()).any(|start| {
+        let mut joined = String::new();
+        runs.iter().skip(start).any(|run| {
+            joined.push_str(run);
+            joined == wanted
+        })
+    })
+}
+
+/// Words that mark a summary of savings, which repeats the deduction lines.
+pub const SUMMARY: [&str; 4] = ["total", "summary", "you saved", "ytd"];
+
+/// The warning when a fee's printed percentage doesn't match its amount.
+pub const MAYBE_SWAPPED: &str = "The fee and tax may be swapped. Check both.";
+
+/// Whether a subtotal's evidence carries a subtotal label.
+fn is_subtotal_label(evidence: &str) -> bool {
+    let e = evidence.to_lowercase();
+    e.contains("sub") || e.contains("merchandise")
+}
+
+/// The same list, unclear: its lines keep their evidence but no amounts.
+fn unclear_lines(list: ExtractedLines) -> ExtractedLines {
+    ExtractedLines {
+        status: FieldStatus::Unclear,
+        value: None,
+        lines: list
+            .lines
+            .into_iter()
+            .map(|l| ExtractedLine {
+                amount: None,
+                evidence: l.evidence,
+            })
+            .collect(),
+    }
+}
+
+/// Discount lines must each show a deduction and none may be a savings
+/// summary; otherwise the whole list is unclear.
+fn check_discounts(discounts: ExtractedLines, warnings: &mut Vec<String>) -> ExtractedLines {
+    if discounts.status != FieldStatus::Found {
+        return discounts;
+    }
+    let evidence = || discounts.lines.iter().map(|l| l.evidence.as_str());
+    if evidence().any(|e| has_label(e, &SUMMARY)) {
+        warnings.push("A savings summary was read as a discount. Check the discounts.".into());
+        return unclear_lines(discounts);
+    }
+    if !evidence().all(shows_deduction) {
+        warnings.push("A discount line doesn't show a deduction. Check the discounts.".into());
+        return unclear_lines(discounts);
+    }
+    discounts
+}
+
+/// Which amount an amount field holds.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Amount {
+    /// More than zero, read from a line labelled as the amount paid.
+    Total,
+    /// The subtotal or tip: zero is valid.
+    Part,
+}
+
 /// An amount field. Only the total must be more than zero; a zero subtotal
-/// or tip is valid. A negative total may be a refund, which must never
-/// become an expense, so it stays unclear.
+/// or tip is valid. The amount must be printed in its evidence.
+///
+/// The total's evidence must carry a payment label and no savings or
+/// loyalty words. A negative total is taken as paid only when its line says
+/// it is a payment and nothing suggests a refund; any other negative total
+/// stays unclear, so a refund never becomes an expense.
 fn amount_field(
     raw: &RawField,
     label: &str,
-    allow_zero: bool,
+    kind: Amount,
     currency: Option<Currency>,
     warnings: &mut Vec<String>,
 ) -> ExtractedField<Minor> {
-    field(raw, label, warnings, |text, warnings| {
+    let is_total = kind == Amount::Total;
+    field(raw, label, warnings, |text, evidence, warnings| {
+        if is_total && has_label(evidence, &NOT_PAID) {
+            warnings.push(
+                "The total looks like a savings or rewards figure, not the amount paid. Check the amount."
+                    .into(),
+            );
+            return None;
+        }
+        if is_total && !has_label(evidence, &TOTAL_LABELS) {
+            warnings.push("The total was read without its label. Check the amount.".into());
+            return None;
+        }
+        let in_evidence = |value: Minor, warnings: &mut Vec<String>| {
+            if amount_in_evidence(value, evidence) {
+                Some(value)
+            } else {
+                warn(warnings, MISMATCH);
+                None
+            }
+        };
         match parse_amount(text) {
-            Ok(value) if value == Minor::ZERO && !allow_zero => {
+            Ok(value) if value == Minor::ZERO && is_total => {
                 warnings.push(format!(
                     "The {label} isn't a positive amount. Check it on the receipt."
                 ));
                 None
             }
-            Ok(value) => Some(value),
+            Ok(value) => in_evidence(value, warnings),
+            Err(AmountProblem::Negative)
+                if is_total && has_label(evidence, &PAYMENT) && !has_label(evidence, &REFUND) =>
+            {
+                match parse_discount(text) {
+                    Ok(paid) => in_evidence(paid, warnings),
+                    Err(_) => {
+                        warnings.push(format!("The {label} is negative. Enter it yourself."));
+                        None
+                    }
+                }
+            }
             Err(problem) => {
                 warnings.push(match problem {
                     AmountProblem::CommaDecimal => format!(
                     "The {label} uses a comma as the decimal separator. Enter the amount yourself."
                 ),
-                    AmountProblem::Negative if !allow_zero => match parse_discount(text) {
+                    AmountProblem::Negative if is_total => match parse_discount(text) {
                         Ok(paid) => format!(
                             "The only amount is a payment or refund line ({}). Enter the {label} yourself.",
                             shown(-paid, currency)
@@ -461,6 +610,10 @@ fn line_list(
                 return unclear_list();
             }
         };
+        if !amount_in_evidence(amount, &evidence) {
+            warn(warnings, MISMATCH);
+            return unclear_list();
+        }
         let Ok(next) = sum.checked_add(amount) else {
             warnings.push(format!(
                 "The {label} lines add up to more than the app can store. Check them on the receipt."
@@ -571,10 +724,44 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     let mut warnings = Vec::new();
     let w = &mut warnings;
 
-    let vendor = field(&raw.vendor, "vendor", w, |t, _| text_value(t));
-    let reference = field(&raw.reference, "receipt number", w, |t, _| text_value(t));
+    let vendor = field(&raw.vendor, "vendor", w, |t, _, _| text_value(t));
+    let reference = field(
+        &raw.reference,
+        "receipt number",
+        w,
+        |t, evidence, warnings| {
+            let value = text_value(t)?;
+            if !reference_in_evidence(&value, evidence) {
+                warn(warnings, MISMATCH);
+                return None;
+            }
+            if !has_label(evidence, &REFERENCE_LABELS) {
+                warnings.push(
+                "The receipt number was read without a receipt, transaction, invoice, order or check label. Check it."
+                    .into(),
+            );
+                return None;
+            }
+            Some(value)
+        },
+    );
 
-    let date = field(&raw.date, "date", w, |text, warnings| {
+    let currency = field(&raw.currency, "currency", w, |text, _, warnings| {
+        let code = clean_text(text, 12).to_uppercase();
+        match Currency::from_code(&code).filter(|c| ctx.currencies.contains(c)) {
+            Some(c) => Some(c),
+            None => {
+                let supported: Vec<&str> = ctx.currencies.iter().map(|c| c.code()).collect();
+                warnings.push(format!(
+                    "The receipt's currency ({code}) isn't supported. Supported: {}.",
+                    supported.join(", ")
+                ));
+                None
+            }
+        }
+    });
+
+    let date = field(&raw.date, "date", w, |text, evidence, warnings| {
         let text = text.trim();
         if !valid_date(text) {
             warnings.push(
@@ -590,31 +777,26 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             warnings.push("The receipt date is in the future. Check it.".into());
             return None;
         }
+        // Found only if the evidence shows exactly this one date.
+        if date_in_evidence(evidence, currency.value).as_deref() != Some(text) {
+            warnings.push(DATE_UNCONFIRMED.into());
+            return None;
+        }
         Some(text.to_string())
     });
 
-    let currency = field(&raw.currency, "currency", w, |text, warnings| {
-        let code = clean_text(text, 12).to_uppercase();
-        match Currency::from_code(&code).filter(|c| ctx.currencies.contains(c)) {
-            Some(c) => Some(c),
-            None => {
-                let supported: Vec<&str> = ctx.currencies.iter().map(|c| c.code()).collect();
-                warnings.push(format!(
-                    "The receipt's currency ({code}) isn't supported. Supported: {}.",
-                    supported.join(", ")
-                ));
-                None
-            }
-        }
-    });
-
     let money = currency.value;
-    let mut total = amount_field(&raw.total, "total", false, money, w);
-    let subtotal = amount_field(&raw.subtotal, "subtotal", true, money, w);
-    let tax = line_list(&raw.tax, "tax", Sign::Positive, w);
-    let fees = line_list(&raw.fees, "fees", Sign::Positive, w);
-    let discounts = line_list(&raw.discounts, "discounts", Sign::Either, w);
-    let tip = amount_field(&raw.tip, "tip", true, money, w);
+    let mut total = amount_field(&raw.total, "total", Amount::Total, money, w);
+    // Only a line labelled as a subtotal is one; anything else is absent.
+    let subtotal = if is_subtotal_label(&evidence_of(&raw.subtotal)) {
+        amount_field(&raw.subtotal, "subtotal", Amount::Part, money, w)
+    } else {
+        absent()
+    };
+    let mut tax = line_list(&raw.tax, "tax", Sign::Positive, w);
+    let mut fees = line_list(&raw.fees, "fees", Sign::Positive, w);
+    let discounts = check_discounts(line_list(&raw.discounts, "discounts", Sign::Either, w), w);
+    let tip = amount_field(&raw.tip, "tip", Amount::Part, money, w);
     // The total must equal subtotal + tax + fees + tip, either with or
     // without the discounts taken off the subtotal. Anything not read counts
     // as 0. Without a subtotal there is nothing to check against.
@@ -626,15 +808,58 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
             discounts: discounts.value,
             tip: tip.value,
         };
-        let (after, before) = parts.sums();
-        if after != Some(t) && before != Some(t) {
-            w.push(parts.warning(t, money));
-            total = unclear(total.evidence);
+        let adds_up = |p: &Parts| {
+            let (after, before) = p.sums();
+            after == Some(t) || before == Some(t)
+        };
+        if !adds_up(&parts) {
+            // A fee printed among the items is already in the subtotal.
+            let without_fees = Parts {
+                fees: None,
+                ..parts
+            };
+            match fees.value {
+                Some(f) if f != Minor::ZERO && adds_up(&without_fees) => {
+                    w.push(format!(
+                        "The fees ({}) were treated as part of the subtotal, because the total only adds up without them. Check them on the receipt.",
+                        shown(f, money)
+                    ));
+                    fees = ExtractedLines::default();
+                }
+                _ => {
+                    w.push(
+                        Parts {
+                            fees: fees.value,
+                            ..without_fees
+                        }
+                        .warning(t, money),
+                    );
+                    total = unclear(total.evidence);
+                }
+            }
+        }
+    }
+    // A fee that prints a percentage must be that percentage of the subtotal
+    // (or of the subtotal and tax, as with service charges). If not, it was
+    // likely read against the tax line's amount, and the other way round.
+    if let (FieldStatus::Found, Some(s)) = (fees.status, subtotal.value) {
+        let mut bases = vec![s];
+        bases.extend(tax.value.and_then(|t| s.checked_add(t).ok()));
+        let mismatched = fees.lines.iter().any(|l| {
+            l.amount
+                .is_some_and(|a| fits_percentage(a, &bases, &l.evidence) == Some(false))
+        });
+        if mismatched {
+            w.push(MAYBE_SWAPPED.into());
+            fees = unclear_lines(fees);
+            if tax.status == FieldStatus::Found {
+                tax = unclear_lines(tax);
+            }
         }
     }
 
     // The category must be one of the ids sent in; anything else is absent.
-    let category = match field(&raw.category, "category", w, |t, _| {
+    let category = match field(&raw.category, "category", w, |t, _, _| {
         Some(t.trim().to_string())
     }) {
         ExtractedField {
@@ -806,29 +1031,102 @@ mod tests {
         );
     }
 
-    #[test]
-    fn a_negative_total_stays_unclear_and_says_it_may_be_a_refund() {
+    /// The total alone: no subtotal or tax to check it against.
+    fn total(value: &str, evidence: &str) -> Normalized {
         let mut answer = good();
-        answer["total"] = found("-$24.00", "Payment (card): -$24.00");
+        answer["total"] = found(value, evidence);
         answer["subtotal"] = absent();
         answer["tax"] = no_lines();
-        let n = run(answer);
-        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
-        assert_eq!(n.fields.total.value, None);
-        assert_eq!(
-            n.warnings,
-            vec![
-                "The only amount is a payment or refund line (−$24.00). Enter the total yourself."
-            ]
-        );
+        run(answer)
+    }
+
+    #[test]
+    fn a_negative_payment_line_is_the_amount_paid() {
+        let n = total("-$24.00", "Payment (card): -$24.00");
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert_eq!(n.fields.total.value, Some(minor(2400)));
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        for evidence in ["Amount paid ($24.00)", "Charged -24.00"] {
+            assert_eq!(
+                total("-24.00", evidence).fields.total.value,
+                Some(minor(2400))
+            );
+        }
+    }
+
+    #[test]
+    fn any_other_negative_total_stays_unclear_and_says_it_may_be_a_refund() {
+        for evidence in [
+            "Payment refund: -$24.00",
+            "Payment (store credit): -$24.00",
+            "Total paid, return: -$24.00",
+            "Payment reversal -$24.00",
+            "TOTAL -$24.00",
+        ] {
+            let n = total("-$24.00", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
+            assert_eq!(n.fields.total.value, None);
+            assert_eq!(
+                n.warnings,
+                vec!["The only amount is a payment or refund line (−$24.00). Enter the total yourself."]
+            );
+        }
         // Without a currency the amount is shown bare.
         let mut answer = good();
         answer["currency"] = absent();
-        answer["total"] = found("-12.00", "REFUND -12.00");
+        answer["total"] = found("-12.00", "TOTAL REFUND -12.00");
         assert_eq!(
             run(answer).warnings,
             vec!["The only amount is a payment or refund line (−12.00). Enter the total yourself."]
         );
+    }
+
+    #[test]
+    fn the_total_must_be_read_with_its_label() {
+        let n = total("42.50", "$42.50");
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(
+            n.warnings,
+            vec!["The total was read without its label. Check the amount."]
+        );
+        // A subtotal line is not a total line.
+        assert_eq!(
+            total("42.50", "Subtotal $42.50").fields.total.status,
+            FieldStatus::Unclear
+        );
+        for evidence in [
+            "TOTAL $42.50",
+            "Grand Total 42.50",
+            "AMOUNT $42.50",
+            "Amount Due 42.50",
+            "BALANCE: $42.50",
+            "Charged to card $42.50",
+        ] {
+            assert_eq!(
+                total("42.50", evidence).fields.total.status,
+                FieldStatus::Found,
+                "{evidence}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_savings_or_rewards_figure_is_never_the_total() {
+        for evidence in [
+            "SAVINGS THIS YEAR $318.40",
+            "Total saved $318.40",
+            "Rewards balance $318.40",
+            "Points total 318.40",
+            "YTD total $318.40",
+            "This year you paid $318.40",
+        ] {
+            let n = total("$318.40", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
+            assert_eq!(
+                n.warnings,
+                vec!["The total looks like a savings or rewards figure, not the amount paid. Check the amount."]
+            );
+        }
     }
 
     #[test]
@@ -850,6 +1148,30 @@ mod tests {
         assert_eq!(n.fields.total.value, Some(minor(4000)));
         let n = with("subtotal", found("0", "SUBTOTAL 0"));
         assert_eq!(n.fields.subtotal.value, Some(Minor::ZERO));
+    }
+
+    #[test]
+    fn every_amount_must_be_printed_in_its_evidence() {
+        let n = with("total", found("42.50", "TOTAL PAID $45.20"));
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.total.value, None);
+        assert_eq!(n.warnings, vec![MISMATCH]);
+        let n = with("subtotal", found("40.00", "Subtotal"));
+        assert_eq!(n.fields.subtotal.status, FieldStatus::Unclear);
+        let n = with("tip", found("8.50", "TIP $5.80"));
+        assert_eq!(n.fields.tip.status, FieldStatus::Unclear);
+        // One line that doesn't show its amount makes the list unclear, and
+        // the warning is given once.
+        let mut answer = good();
+        answer["tax"] = lines(&[("1.25", "STATE TAX 1.25"), ("1.25", "CITY TAX 1.52")]);
+        answer["fees"] = lines(&[("0.50", "Bag fee 0.05")]);
+        let n = run(answer);
+        assert_eq!(n.fields.tax.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.fees.status, FieldStatus::Unclear);
+        assert_eq!(n.warnings.iter().filter(|w| *w == MISMATCH).count(), 1);
+        // Symbols, separators and printed signs don't matter.
+        let n = with("discounts", lines(&[("1.50", "COUPON ($1.50)")]));
+        assert_eq!(n.fields.discounts.value, Some(minor(150)));
     }
 
     #[test]
@@ -939,6 +1261,145 @@ mod tests {
         assert!(n.warnings.is_empty(), "{:?}", n.warnings);
         assert_eq!(n.fields.total.value, Some(minor(5450)));
         assert_eq!(n.fields.fees.value, Some(minor(150)));
+    }
+
+    #[test]
+    fn only_a_line_labelled_as_a_subtotal_is_one() {
+        // A "total" line is never a subtotal, so nothing is checked.
+        let mut answer = good();
+        answer["subtotal"] = found("30.00", "ITEMS TOTAL $30.00");
+        answer["tax"] = no_lines();
+        answer["total"] = found("30.00", "TOTAL $30.00");
+        let n = run(answer);
+        assert_eq!(
+            n.fields.subtotal,
+            ExtractedField::<Minor> {
+                status: FieldStatus::Absent,
+                value: None,
+                evidence: String::new()
+            }
+        );
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        for evidence in ["Sub-Total 40.00", "SUB TOTAL $40.00", "Merchandise 40.00"] {
+            let n = with("subtotal", found("40.00", evidence));
+            assert_eq!(n.fields.subtotal.value, Some(minor(4000)), "{evidence}");
+        }
+    }
+
+    /// A receipt with a 60.00 subtotal, one tax line and one fee line.
+    fn with_fee(tax: (&str, &str), fee: (&str, &str), total: &str) -> Normalized {
+        let mut answer = good();
+        answer["subtotal"] = found("60.00", "Subtotal $60.00");
+        answer["tax"] = lines(&[tax]);
+        answer["fees"] = lines(&[fee]);
+        answer["total"] = found(total, &format!("TOTAL ${total}"));
+        run(answer)
+    }
+
+    #[test]
+    fn a_fee_must_be_its_printed_percentage() {
+        // 2% of 60.00 is 1.20.
+        let n = with_fee(
+            ("4.20", "Tax $4.20"),
+            ("1.20", "Card surcharge (2%) $1.20"),
+            "65.40",
+        );
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.fees.value, Some(minor(120)));
+        // Swapped with the tax: both are unclear. The sum is the same, so the
+        // total still adds up and stays found.
+        let n = with_fee(
+            ("1.20", "Tax $1.20"),
+            ("4.20", "Card surcharge (2%) $4.20"),
+            "65.40",
+        );
+        assert_eq!(n.fields.fees.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.tax.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.tax.lines[0].evidence, "Tax $1.20");
+        assert_eq!(n.fields.total.value, Some(minor(6540)));
+        assert_eq!(n.warnings, vec![MAYBE_SWAPPED]);
+        // A service charge may be a percentage of the subtotal and tax:
+        // 10% of 66.00 is 6.60.
+        let n = with_fee(
+            ("6.00", "VAT (10%) $6.00"),
+            ("6.60", "Service (10%) $6.60"),
+            "72.60",
+        );
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.fees.value, Some(minor(660)));
+        // Tax is never checked against its percentage: it often covers only
+        // some items.
+        let n = with_fee(
+            ("3.00", "Sales tax (8%) $3.00"),
+            ("1.20", "Card fee $1.20"),
+            "64.20",
+        );
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        assert_eq!(n.fields.tax.value, Some(minor(300)));
+    }
+
+    #[test]
+    fn a_fee_already_in_the_subtotal_is_left_out() {
+        // The 0.60 fee is printed among the items, so 60.00 already has it.
+        let n = with_fee(
+            ("4.20", "Tax $4.20"),
+            ("0.60", "Online order fee $0.60"),
+            "64.20",
+        );
+        assert_eq!(n.fields.fees, ExtractedLines::default());
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert_eq!(n.fields.total.value, Some(minor(6420)));
+        assert_eq!(
+            n.warnings,
+            vec!["The fees ($0.60) were treated as part of the subtotal, because the total only adds up without them. Check them on the receipt."]
+        );
+        // If the total doesn't add up either way, nothing is dropped.
+        let n = with_fee(
+            ("4.20", "Tax $4.20"),
+            ("0.60", "Online order fee $0.60"),
+            "70.00",
+        );
+        assert_eq!(n.fields.fees.value, Some(minor(60)));
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(
+            n.warnings,
+            vec!["Subtotal $60.00, tax $4.20 and fees $0.60 add up to $64.80, but the total reads $70.00. Check the amount."]
+        );
+    }
+
+    #[test]
+    fn a_discount_line_must_show_a_deduction() {
+        for line in [("12.00", "CLEARANCE 12.00"), ("10.00", "ITEM PRICE 10.00")] {
+            let n = with("discounts", lines(&[("1.00", "COUPON -1.00"), line]));
+            assert_eq!(n.fields.discounts.status, FieldStatus::Unclear, "{line:?}");
+            assert_eq!(n.fields.discounts.lines.len(), 2);
+            assert_eq!(
+                n.warnings,
+                vec!["A discount line doesn't show a deduction. Check the discounts."]
+            );
+        }
+    }
+
+    #[test]
+    fn a_savings_summary_is_never_a_discount() {
+        for evidence in [
+            "Total savings 3.00",
+            "SAVINGS SUMMARY 3.00",
+            "You saved $3.00",
+            "YTD savings 3.00",
+        ] {
+            let n = with("discounts", lines(&[("3.00", evidence)]));
+            assert_eq!(
+                n.fields.discounts.status,
+                FieldStatus::Unclear,
+                "{evidence}"
+            );
+            assert_eq!(
+                n.warnings,
+                vec!["A savings summary was read as a discount. Check the discounts."]
+            );
+        }
     }
 
     #[test]
@@ -1061,14 +1522,113 @@ mod tests {
     #[test]
     fn dates_must_be_real_and_not_in_the_future() {
         for bad in ["2026-02-30", "1899-12-31", "10/24/2026", "2026-10-27"] {
-            let n = with("date", found(bad, "DATE"));
+            let n = with("date", found(bad, &format!("DATE {bad}")));
             assert_eq!(n.fields.date.status, FieldStatus::Unclear, "{bad}");
             assert_eq!(n.fields.date.value, None);
         }
-        assert!(with("date", found("2026-10-27", "DATE")).warnings[0].contains("future"));
+        assert!(
+            with("date", found("2026-10-27", "DATE 2026-10-27")).warnings[0].contains("future")
+        );
         // Up to one day ahead is allowed for time zones.
-        let n = with("date", found("2026-10-26", "DATE"));
+        let n = with("date", found("2026-10-26", "DATE 2026-10-26"));
         assert_eq!(n.fields.date.value.as_deref(), Some("2026-10-26"));
+    }
+
+    /// A date answer with `currency` as the receipt's currency.
+    fn date(value: &str, evidence: &str, currency: Value) -> Normalized {
+        let mut answer = good();
+        answer["date"] = found(value, evidence);
+        answer["currency"] = currency;
+        run(answer)
+    }
+
+    #[test]
+    fn a_date_is_found_only_if_its_evidence_shows_it() {
+        let usd = || found("USD", "USD");
+        // Two-digit years are 20YY.
+        assert_eq!(
+            date("2025-11-14", "11/14/25 3:05 PM", usd())
+                .fields
+                .date
+                .value
+                .as_deref(),
+            Some("2025-11-14")
+        );
+        let n = date("2023-11-14", "11/14/25 3:05 PM", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        assert_eq!(n.warnings, vec![DATE_UNCONFIRMED]);
+        // Day and month order follows the currency, and is unclear without one.
+        let d = |v: &str, c: Value| date(v, "03/04/26", c).fields.date.status;
+        assert_eq!(d("2026-03-04", usd()), FieldStatus::Found);
+        assert_eq!(d("2026-04-03", usd()), FieldStatus::Unclear);
+        assert_eq!(d("2026-04-03", found("GBP", "£")), FieldStatus::Found);
+        assert_eq!(d("2026-04-03", found("EUR", "€")), FieldStatus::Found);
+        assert_eq!(d("2026-03-04", absent()), FieldStatus::Unclear);
+        // A time but no year.
+        let n = date("2025-12-19", "12/19 10:42 AM", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        // An unrelated number that could pass for a year.
+        let n = date("2019-08-19", "Date: 8/19/26 Cashier: 2019457", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        let n = date("2026-08-19", "Date: 8/19/26 Cashier: 2019457", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Found);
+        // Month names.
+        for evidence in ["Oct 9, 2026", "9 October 2026", "October 9 2026"] {
+            let n = date("2026-10-09", evidence, usd());
+            assert_eq!(n.fields.date.status, FieldStatus::Found, "{evidence}");
+        }
+        // Evidence and value disagree.
+        let n = date("2026-10-08", "DATE 2026-10-09", usd());
+        assert_eq!(n.fields.date.status, FieldStatus::Unclear);
+        assert_eq!(n.fields.date.evidence, "DATE 2026-10-09");
+    }
+
+    #[test]
+    fn a_receipt_number_must_be_labelled_and_in_its_evidence() {
+        for (value, evidence) in [
+            ("DEMO-RECEIPT-001", "RECEIPT NUMBER DEMO-RECEIPT-001"),
+            ("5103", "Tran# 5103"),
+            ("5103-27", "Transaction 5103 27"),
+            ("61", "Order 61"),
+            ("12", "Check #12"),
+            ("INV-88", "Inv# INV-88"),
+            ("CK-7731", "BILL NUMBER CK-7731"),
+        ] {
+            let n = with("reference", found(value, evidence));
+            assert_eq!(
+                n.fields.reference.value.as_deref(),
+                Some(value),
+                "{evidence}"
+            );
+        }
+        // Not in its own evidence, or only part of a printed number.
+        for (value, evidence) in [("88412", "Trace #: 1A2-339-104"), ("4", "Order 44")] {
+            let n = with("reference", found(value, evidence));
+            assert_eq!(
+                n.fields.reference.status,
+                FieldStatus::Unclear,
+                "{evidence}"
+            );
+            assert_eq!(n.warnings, vec![MISMATCH]);
+        }
+        // Without a receipt, transaction, invoice, order or check label.
+        for (value, evidence) in [
+            ("7f3a9c", "Terminal ID 7f3a9c"),
+            ("31-555-0190", "Survey code 31-555-0190"),
+            ("900112233", "Reference ID: 900112233"),
+            ("4410 220 17", "4410 220 17"),
+        ] {
+            let n = with("reference", found(value, evidence));
+            assert_eq!(
+                n.fields.reference.status,
+                FieldStatus::Unclear,
+                "{evidence}"
+            );
+            assert_eq!(
+                n.warnings,
+                vec!["The receipt number was read without a receipt, transaction, invoice, order or check label. Check it."]
+            );
+        }
     }
 
     #[test]
