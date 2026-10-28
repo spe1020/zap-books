@@ -555,7 +555,7 @@ Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
   `effectiveAt`. Pending changes are visible to all owners and the recovery
   key.
 - **Veto:** any owner or the recovery key, except whoever proposed the
-  change.
+  change, and except the owner a `recover` names as lost (see below).
 - **Checked twice.** A pending change is checked against the state when it
   is proposed and again when it falls due. If it no longer applies (its
   member has meanwhile joined in another role, say), it **lapses**: the
@@ -567,7 +567,16 @@ Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
   bookkeeper, viewer or submitter, and changing a role between them.
 - **The recovery key** can sign only `Veto` and `recover`. Recovery replaces
   a lost owner key with a new owner key (full history), after the same
-  48-hour wait. The owner whose key was not really lost can veto it.
+  48-hour wait.
+- **Recovery outranks the owner being recovered.** The owner key a
+  `recover` names as `lost` can't veto it; every other owner still can.
+  Recovery exists for a key that is lost _or stolen_, and a thief holding a
+  stolen owner key would otherwise veto every recovery and keep the
+  business. The cost: with a single owner, a recovery key used against
+  the owner's will takes over after 48 hours, with nothing to stop it. So
+  the backup key must be kept as carefully as an owner key (offline, by
+  someone the owner trusts), or a second owner added, whose veto still
+  cancels a malicious recovery.
 - **A business always keeps at least one owner and a recovery party**: a
   backup key, or a second owner. Commands that would break this are
   rejected. The recovery key, the service key and member keys are always
@@ -587,6 +596,9 @@ Enforced by the service, and re-checked by readers.
 | Veto                                      | ✓        |            |        |           | ✓            |
 | SubmitReceiptDraft                        | ✓        | ✓          |        | ✓         |              |
 | Read acceptances and receive epoch keys   | ✓        | ✓          | ✓      |           |              |
+
+No one can veto their own change, and the owner a `recover` names as lost
+can't veto that recovery.
 
 A removed member is an outsider and is refused everything at once, before
 any key rotation completes.

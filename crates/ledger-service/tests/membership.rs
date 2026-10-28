@@ -455,13 +455,16 @@ async fn a_submitter_can_only_submit_receipt_drafts_and_receives_no_keys() {
 }
 
 #[tokio::test]
-async fn recovery_replaces_a_lost_owner_key_after_48_hours() {
+async fn a_stolen_owner_key_cant_veto_its_recovery() {
+    // The only owner's key is stolen: whoever holds `owner()` now is the
+    // thief. The owner recovers with the backup key.
     let w = World::new().await;
     w.create().await;
     w.send(&owner(), Some(0), save(w.business, "draft-1")).await; // 1
+    let thief = owner();
     let replacement = key(30);
     let recover = MembershipChange::Recover {
-        lost: pk(&owner()),
+        lost: pk(&thief),
         replacement: pk(&replacement),
     };
     // The recovery key signs only recovery and vetoes.
@@ -470,29 +473,69 @@ async fn recovery_replaces_a_lost_owner_key_after_48_hours() {
         .await;
     assert_rejected(&other, &backup(), ProtocolError::Forbidden);
 
-    // An owner whose key wasn't lost after all can veto it.
-    let first = w.change(&backup(), recover).await; // 2
-    assert_accepted(&w.send(&owner(), Some(2), veto(pending_id(&first))).await); // 3
+    let pending = w.change(&backup(), recover).await; // 2
+    assert_accepted(&pending);
+    // The thief's veto is refused: recovery outranks the owner it replaces.
+    let vetoed = w.send(&thief, Some(2), veto(pending_id(&pending))).await;
+    assert_rejected(&vetoed, &thief, ProtocolError::RecoveredVeto);
+    assert_eq!(w.membership().await.pending.len(), 1);
 
-    assert_accepted(&w.change(&backup(), recover).await); // 4
     w.clock.advance_secs(OWNER_DELAY_SECS);
-    assert_eq!(w.run_due().await, 1); // 5, epoch 1
+    assert_eq!(w.run_due().await, 1); // 3, epoch 1
     let state = w.membership().await;
     assert_eq!(state.epoch, 1);
-    assert_eq!(state.actor(&pk(&owner())), Actor::Outsider);
+    assert_eq!(state.actor(&pk(&thief)), Actor::Outsider);
     assert_eq!(state.actor(&pk(&replacement)), Actor::Member(Role::Owner));
 
-    let lost = w.send(&owner(), Some(5), save(w.business, "draft-2")).await;
-    assert_rejected(&lost, &owner(), ProtocolError::NotMember);
-    assert!(w.keys_for(&owner()).await.is_empty());
-    // The replacement owner has full history.
+    // The thief is cut off; the replacement owner has full history.
+    let lost = w.send(&thief, Some(3), save(w.business, "draft-2")).await;
+    assert_rejected(&lost, &thief, ProtocolError::NotMember);
+    assert!(w.keys_for(&thief).await.is_empty());
     let keys = w.keys_for(&replacement).await;
     assert_eq!(epochs(&keys), vec![0, 1]);
-    assert_eq!(readable(&w.chain().await, &keys), vec![0, 1, 2, 3, 4, 5]);
+    assert_eq!(readable(&w.chain().await, &keys), vec![0, 1, 2, 3]);
     assert_accepted(
-        &w.send(&replacement, Some(5), save(w.business, "draft-2"))
+        &w.send(&replacement, Some(3), save(w.business, "draft-2"))
             .await,
     );
+    w.finish().await;
+}
+
+#[tokio::test]
+async fn another_owners_veto_cancels_a_malicious_recovery() {
+    // Two owners and a backup key; the backup key is misused against the
+    // first owner.
+    let w = World::new().await;
+    w.create().await;
+    w.change(&owner(), add(&second_owner(), Role::Owner, History::Full))
+        .await; // 1
+    w.clock.advance_secs(OWNER_DELAY_SECS);
+    assert_eq!(w.run_due().await, 1); // 2
+    let attacker = key(38);
+    let pending = w
+        .change(
+            &backup(),
+            MembershipChange::Recover {
+                lost: pk(&owner()),
+                replacement: pk(&attacker),
+            },
+        )
+        .await; // 3
+    assert_accepted(&pending);
+    let id = pending_id(&pending);
+
+    // The targeted owner can't veto it, but the other owner can.
+    let own = w.send(&owner(), Some(3), veto(id)).await;
+    assert_rejected(&own, &owner(), ProtocolError::RecoveredVeto);
+    assert_accepted(&w.send(&second_owner(), Some(3), veto(id)).await); // 4
+
+    w.clock.advance_secs(OWNER_DELAY_SECS);
+    assert_eq!(w.run_due().await, 0);
+    let state = w.membership().await;
+    assert!(state.pending.is_empty());
+    assert_eq!(state.epoch, 0);
+    assert_eq!(state.actor(&pk(&owner())), Actor::Member(Role::Owner));
+    assert_eq!(state.actor(&pk(&attacker)), Actor::Outsider);
     w.finish().await;
 }
 

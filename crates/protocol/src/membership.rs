@@ -336,16 +336,20 @@ impl MembershipState {
     }
 
     /// Cancels a pending change. Any owner or the recovery key may veto,
-    /// except whoever proposed it.
+    /// except whoever proposed it, and except the owner key a `Recover`
+    /// names as lost: recovery outranks the owner being recovered, since a
+    /// thief holding that key would otherwise veto every recovery.
     pub fn veto(&self, signer: &PublicKey, pending: &EventId) -> Result<MembershipState> {
         self.authorize(signer, &Command::Veto { pending: *pending })?;
         let index = self.pending_index(pending)?;
-        if self
-            .pending
-            .get(index)
-            .is_some_and(|p| p.proposer == *signer)
-        {
+        let Some(p) = self.pending.get(index) else {
+            return Err(ProtocolError::NoSuchPending);
+        };
+        if p.proposer == *signer {
             return Err(ProtocolError::OwnVeto);
+        }
+        if matches!(p.change, MembershipChange::Recover { lost, .. } if lost == *signer) {
+            return Err(ProtocolError::RecoveredVeto);
         }
         let mut next = self.clone();
         next.pending.remove(index);

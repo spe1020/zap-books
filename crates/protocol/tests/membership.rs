@@ -508,13 +508,11 @@ fn recovery_replaces_a_lost_owner_after_the_wait() {
     let u = s.propose(id(1), &pk(&backup()), &change, T0).unwrap();
     assert!(matches!(u.outcome, Outcome::Pending { .. }));
 
-    // The owner whose key was not actually lost can veto.
-    assert!(u
-        .state
-        .veto(&pk(&owner()), &id(1))
-        .unwrap()
-        .pending
-        .is_empty());
+    // The owner named as lost can't veto it: the key may be a thief's.
+    assert_eq!(
+        u.state.veto(&pk(&owner()), &id(1)).unwrap_err(),
+        ProtocolError::RecoveredVeto
+    );
     assert_eq!(
         u.state.veto(&pk(&backup()), &id(1)).unwrap_err(),
         ProtocolError::OwnVeto

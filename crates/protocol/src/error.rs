@@ -71,6 +71,8 @@ pub enum ProtocolError {
     NoSuchPending,
     #[error("You can't veto your own change.")]
     OwnVeto,
+    #[error("The owner key being recovered can't veto its recovery.")]
+    RecoveredVeto,
     #[error("This change is not due yet.")]
     NotDue,
     #[error("This business already exists.")]
