@@ -7,8 +7,8 @@ use common::*;
 use nostr::prelude::{Event, EventId, Keys, PublicKey};
 use protocol::{
     build_acceptance, build_proposal, open_proposal, verify_chain, AcceptanceContent,
-    AcceptanceHeader, Command, EnvRecord, EpochKey, Outcome, ProposalPayload, ProtocolError,
-    PROTOCOL_VERSION,
+    AcceptanceHeader, Command, EnvRecord, EpochKey, MembershipChange, Outcome, ProposalPayload,
+    ProtocolError, PROTOCOL_VERSION,
 };
 
 fn proposal(seq: u64) -> Event {
@@ -54,6 +54,50 @@ fn accept(
     let epoch = EpochKey::generate(0);
     build_acceptance(
         signer,
+        &epoch.public_key(),
+        &acceptance,
+        &content,
+        at(200 + seq),
+    )
+    .unwrap()
+}
+
+/// The acceptance activating a replacement of the service key with `next`,
+/// signed by the current key: the only one that may carry a `service` tag.
+fn handover(next: PublicKey, seq: u64, prev: EventId) -> Event {
+    let payload = ProposalPayload {
+        v: PROTOCOL_VERSION,
+        salt: salt(),
+        business: business_id(),
+        base_seq: Some(seq - 1),
+        command: Command::ChangeMembership {
+            change: MembershipChange::ReplaceServiceKey { key: next },
+        },
+    };
+    let proposal = build_proposal(&owner(), &pk(&service()), &payload, at(100 + seq)).unwrap();
+    let (header, payload) = open_proposal(&proposal, &service()).unwrap();
+    let content = AcceptanceContent {
+        v: PROTOCOL_VERSION,
+        proposal,
+        payload,
+        env: EnvRecord {
+            ids: vec![],
+            now: "2026-01-02T03:04:05.000Z".into(),
+        },
+        changes: vec![],
+        outcome: Outcome::Activated,
+    };
+    let acceptance = AcceptanceHeader {
+        business: header.business,
+        seq,
+        prev: Some(prev),
+        proposal: header.id,
+        epoch: 0,
+        next_service: Some(next),
+    };
+    let epoch = EpochKey::generate(0);
+    build_acceptance(
+        &service(),
         &epoch.public_key(),
         &acceptance,
         &content,
@@ -174,13 +218,7 @@ fn another_business_chain_is_refused() {
 fn a_service_key_replacement_hands_over_the_chain() {
     let new_service = key(9);
     let mut events = chain(2);
-    events.push(accept(
-        &service(),
-        &proposal(1),
-        2,
-        Some(events[1].id),
-        Some(pk(&new_service)),
-    ));
+    events.push(handover(pk(&new_service), 2, events[1].id));
     events.push(accept(
         &new_service,
         &proposal(2),

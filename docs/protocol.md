@@ -398,6 +398,14 @@ key's public key**:
   waiting 48 hours); `activated` (the scheduler activating a pending
   change); or `lapsed` (a due change that could no longer apply).
 
+**The `service` tag must match the content.** It is allowed only on an
+`activated` acceptance whose command is `replaceServiceKey`, and must name
+that command's key; that acceptance must carry it. Opening an acceptance
+(`open_acceptance`, which every audit starts from) refuses any other
+combination, and the service can't build one. Without this, whoever holds
+the service key could hand the chain to another key with an ordinary
+acceptance, and `verify_chain`, which reads only tags, would follow it.
+
 An `activated` or `lapsed` acceptance repeats the original pending
 proposal and payload. One proposal id can therefore appear on two
 acceptances: `pending`, then `activated` or `lapsed`.
@@ -502,6 +510,9 @@ A **delivery** gives one epoch secret key to one member. Tags: `b`,
 ```
 
 The reader checks that the content's business and epoch match the tags.
+A delivery is signed by the business's service key when it was made, so
+after a service-key replacement a reader accepts deliveries from any key the
+chain has handed over to.
 
 **A new epoch starts** when:
 
@@ -547,9 +558,12 @@ Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
 - **Owner-level changes wait 48 hours.** They are accepted with outcome
   `pending` and `effectiveAt` = acceptance time + 48 hours. When one is due,
   the service's scheduler appends an `activated` acceptance, unless a `Veto`
-  was accepted first. Pending changes are visible to all owners.
+  was accepted first. A due change is activated before anything else the
+  service accepts for the business, so a veto must arrive before
+  `effectiveAt`. Pending changes are visible to all owners and the recovery
+  key.
 - **Veto:** any owner or the recovery key, except whoever proposed the
-  change.
+  change, and except the owner a `recover` names as lost (see below).
 - **Checked twice.** A pending change is checked against the state when it
   is proposed and again when it falls due. If it no longer applies (its
   member has meanwhile joined in another role, say), it **lapses**: the
@@ -561,7 +575,16 @@ Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
   bookkeeper, viewer or submitter, and changing a role between them.
 - **The recovery key** can sign only `Veto` and `recover`. Recovery replaces
   a lost owner key with a new owner key (full history), after the same
-  48-hour wait. The owner whose key was not really lost can veto it.
+  48-hour wait.
+- **Recovery outranks the owner being recovered.** The owner key a
+  `recover` names as `lost` can't veto it; every other owner still can.
+  Recovery exists for a key that is lost _or stolen_, and a thief holding a
+  stolen owner key would otherwise veto every recovery and keep the
+  business. The cost: with a single owner, a recovery key used against
+  the owner's will takes over after 48 hours, with nothing to stop it. So
+  the backup key must be kept as carefully as an owner key (offline, by
+  someone the owner trusts), or a second owner added, whose veto still
+  cancels a malicious recovery.
 - **A business always keeps at least one owner and a recovery party**: a
   backup key, or a second owner. Commands that would break this are
   rejected. The recovery key, the service key and member keys are always
@@ -581,6 +604,9 @@ Enforced by the service, and re-checked by readers.
 | Veto                                      | ✓        |            |        |           | ✓            |
 | SubmitReceiptDraft                        | ✓        | ✓          |        | ✓         |              |
 | Read acceptances and receive epoch keys   | ✓        | ✓          | ✓      |           |              |
+
+No one can veto their own change, and the owner a `recover` names as lost
+can't veto that recovery.
 
 A removed member is an outsider and is refused everything at once, before
 any key rotation completes.

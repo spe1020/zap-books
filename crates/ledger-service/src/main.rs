@@ -11,10 +11,10 @@ use std::sync::Arc;
 use ledger_service::clock::{uuid, SystemClock};
 use ledger_service::http::{router, AppState};
 use ledger_service::ratelimit::RateLimit;
-use ledger_service::{key, Ledger};
+use ledger_service::{key, scheduler, Ledger};
 use sqlx::postgres::PgPoolOptions;
 
-const USAGE: &str = "Usage: ledger-service --public-url <https://…> [--key-file <path>] [--database-url <url>] [--listen <addr>]
+const USAGE: &str = "Usage: ledger-service --public-url <https://…> [--key-file <path>]... [--database-url <url>] [--listen <addr>]
        ledger-service generate-key <path>
        ledger-service public-key <path>";
 
@@ -46,7 +46,9 @@ fn generate_key(path: &std::path::Path) -> ExitCode {
 }
 
 struct Config {
-    key_file: Option<PathBuf>,
+    /// The first is the primary key; more are for businesses moving to a
+    /// new service key.
+    key_files: Vec<PathBuf>,
     database_url: String,
     public_url: String,
     listen: SocketAddr,
@@ -54,7 +56,7 @@ struct Config {
 
 fn config() -> Result<Config, String> {
     let mut args = std::env::args().skip(1);
-    let mut key_file = None;
+    let mut key_files = Vec::new();
     let mut database_url = std::env::var("DATABASE_URL").ok();
     let mut public_url = None;
     let mut listen: SocketAddr = ([127, 0, 0, 1], 8787).into();
@@ -64,7 +66,7 @@ fn config() -> Result<Config, String> {
                 .ok_or_else(|| format!("{arg} needs a value.\n{USAGE}"))
         };
         match arg.as_str() {
-            "--key-file" => key_file = Some(PathBuf::from(value()?)),
+            "--key-file" => key_files.push(PathBuf::from(value()?)),
             "--database-url" => database_url = Some(value()?),
             "--public-url" => public_url = Some(value()?),
             "--listen" => {
@@ -77,7 +79,7 @@ fn config() -> Result<Config, String> {
         }
     }
     Ok(Config {
-        key_file,
+        key_files,
         database_url: database_url.ok_or_else(|| format!("Set DATABASE_URL.\n{USAGE}"))?,
         public_url: public_url.ok_or_else(|| format!("--public-url is required.\n{USAGE}"))?,
         listen,
@@ -123,12 +125,16 @@ async fn main() -> ExitCode {
             return ExitCode::from(2);
         }
     };
-    let keys = match key::load(config.key_file.as_deref()) {
-        Ok(k) => k,
+    let mut keys = match key::load_all(&config.key_files) {
+        Ok(k) => k.into_iter(),
         Err(e) => {
             eprintln!("{e}");
             return ExitCode::from(2);
         }
+    };
+    let Some(primary) = keys.next() else {
+        eprintln!("{}", key::KeyError::Missing);
+        return ExitCode::from(2);
     };
     let pool = match PgPoolOptions::new()
         .max_connections(10)
@@ -145,13 +151,14 @@ async fn main() -> ExitCode {
         eprintln!("Can't migrate the database: {e}");
         return ExitCode::from(1);
     }
-    let ledger = Arc::new(Ledger::new(
-        pool,
-        keys,
-        Arc::new(SystemClock),
-        Arc::new(uuid),
-    ));
-    tracing::info!(service = %ledger.public_key(), listen = %config.listen, "starting");
+    let ledger = keys.fold(
+        Ledger::new(pool, primary, Arc::new(SystemClock), Arc::new(uuid)),
+        Ledger::with_key,
+    );
+    let ledger = Arc::new(ledger);
+    let services: Vec<String> = ledger.public_keys().iter().map(|k| k.to_hex()).collect();
+    tracing::info!(services = ?services, listen = %config.listen, "starting");
+    let _scheduler = scheduler::spawn(ledger.clone(), scheduler::INTERVAL);
     let state = Arc::new(AppState {
         ledger,
         public_url: config.public_url,

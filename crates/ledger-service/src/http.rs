@@ -4,6 +4,8 @@
 //!   with the acknowledgment (accepted or rejected); 400 for anything that
 //!   isn't a validly signed proposal.
 //! - `GET /v1/businesses/{id}/acceptances?after=&limit=`: the chain.
+//! - `GET /v1/businesses/{id}/pending`: owner-level changes waiting out
+//!   their 48 hours, for owners and the recovery key.
 //! - `GET /v1/epoch-keys?business=`: my epoch key deliveries.
 //! - `GET /v1/rejections?after=`: my rejections.
 //! - `GET /health`.
@@ -47,6 +49,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/health", get(|| async { "ok" }))
         .route("/v1/proposals", post(submit))
         .route("/v1/businesses/{id}/acceptances", get(acceptances))
+        .route("/v1/businesses/{id}/pending", get(pending))
         .route("/v1/epoch-keys", get(epoch_keys))
         .route("/v1/rejections", get(rejections))
         .layer(DefaultBodyLimit::max(MAX_BODY_BYTES))
@@ -187,6 +190,31 @@ async fn acceptances(
         )),
         // The same answer whether the business is missing or closed to
         // this reader, so the response reveals nothing about it.
+        Ok(None) => error(StatusCode::NOT_FOUND, "No such business."),
+        Err(e) => failure(e),
+    }
+}
+
+async fn pending(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+    OriginalUri(uri): OriginalUri,
+    headers: HeaderMap,
+) -> Response {
+    let reader = match authorize(&state, &headers, &uri).await {
+        Ok(k) => k,
+        Err(r) => return *r,
+    };
+    let Ok(business) = id.parse::<BusinessId>() else {
+        return error(StatusCode::NOT_FOUND, "No such business.");
+    };
+    match state.ledger.pending(&business, &reader).await {
+        Ok(Some(pending)) => {
+            match serde_json::to_string(&serde_json::json!({ "pending": pending })) {
+                Ok(body) => json(body),
+                Err(e) => failure(LedgerError::Internal(e.to_string())),
+            }
+        }
         Ok(None) => error(StatusCode::NOT_FOUND, "No such business."),
         Err(e) => failure(e),
     }

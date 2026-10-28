@@ -10,7 +10,8 @@ use protocol::{
     build_acceptance, build_delivery, build_proposal, build_rejection, encrypt_to, kinds,
     open_acceptance, open_delivery, open_proposal, open_rejection, parse_proposal,
     AcceptanceContent, AcceptanceHeader, Command, CommandType, CommittedPayload, EnvRecord,
-    EpochKey, Outcome, ProposalPayload, ProtocolError, Reason, RejectionCode, PROTOCOL_VERSION,
+    EpochKey, MembershipChange, Outcome, ProposalPayload, ProtocolError, Reason, RejectionCode,
+    PROTOCOL_VERSION,
 };
 
 fn approve_payload(base_seq: u64) -> ProposalPayload {
@@ -320,6 +321,121 @@ fn an_acceptance_must_name_its_proposal() {
         next_service: None,
     };
     assert!(build_acceptance(&service(), &epoch0.public_key(), &header, &content, at(10)).is_err());
+}
+
+/// Re-signs an acceptance with the service key, its `service` tag removed
+/// and `next` (if any) put in its place: what whoever holds the service key
+/// could forge.
+fn with_handover(event: &Event, next: Option<&nostr::prelude::PublicKey>) -> Event {
+    let mut tags: Vec<Tag> = event
+        .tags
+        .iter()
+        .filter(|t| t.kind() != "service")
+        .cloned()
+        .collect();
+    if let Some(next) = next {
+        tags.push(Tag::parse(["service", &next.to_hex()]).unwrap());
+    }
+    EventBuilder::new(event.kind, event.content.clone())
+        .tags(tags)
+        .custom_created_at(event.created_at)
+        .finalize(&service())
+        .unwrap()
+}
+
+#[test]
+fn a_service_handover_tag_must_match_an_activated_key_replacement() {
+    let epoch0 = EpochKey::generate(0);
+    let attacker = pk(&key(90));
+    let next = pk(&key(91));
+
+    // A hand-over forged onto an ordinary acceptance. It is validly signed
+    // by the service key, so the chain alone follows it to the attacker's
+    // key, but opening it (and so auditing it) fails.
+    let genesis = acceptance_for(&genesis_event(), 0, None, &epoch0);
+    let approve = build_proposal(&owner(), &pk(&service()), &approve_payload(0), at(10)).unwrap();
+    let ordinary = acceptance_for(&approve, 1, Some(genesis.id), &epoch0);
+    assert!(open_acceptance(&ordinary, &epoch0).is_ok());
+    let forged = with_handover(&ordinary, Some(&attacker));
+    let head = protocol::verify_chain(
+        business_id(),
+        pk(&service()),
+        None,
+        &[genesis, forged.clone()],
+    )
+    .unwrap()
+    .unwrap();
+    assert_eq!(head.service, attacker);
+    assert_eq!(
+        open_acceptance(&forged, &epoch0).unwrap_err(),
+        ProtocolError::TagMismatch("service")
+    );
+
+    // The real hand-over: the activation of a ReplaceServiceKey, naming the
+    // same key.
+    let payload = ProposalPayload {
+        v: PROTOCOL_VERSION,
+        salt: salt(),
+        business: business_id(),
+        base_seq: Some(1),
+        command: Command::ChangeMembership {
+            change: MembershipChange::ReplaceServiceKey { key: next },
+        },
+    };
+    let proposal = build_proposal(&owner(), &pk(&service()), &payload, at(10)).unwrap();
+    let (_, committed) = open_proposal(&proposal, &service()).unwrap();
+    let content = |outcome| AcceptanceContent {
+        v: PROTOCOL_VERSION,
+        proposal: proposal.clone(),
+        payload: committed.clone(),
+        env: EnvRecord {
+            ids: vec![],
+            now: "2026-01-02T03:04:05.000Z".into(),
+        },
+        changes: vec![],
+        outcome,
+    };
+    let header = |next_service| AcceptanceHeader {
+        business: business_id(),
+        seq: 2,
+        prev: Some(ordinary.id),
+        proposal: proposal.id,
+        epoch: 0,
+        next_service,
+    };
+    let build = |next_service, outcome| {
+        build_acceptance(
+            &service(),
+            &epoch0.public_key(),
+            &header(next_service),
+            &content(outcome),
+            at(20),
+        )
+    };
+    let handover = build(Some(next), Outcome::Activated).unwrap();
+    assert_eq!(
+        open_acceptance(&handover, &epoch0).unwrap().0.next_service,
+        Some(next)
+    );
+
+    // The service refuses to build, and a reader to open: a tag naming
+    // another key, a tag on the pending acceptance, and an activation
+    // without its tag.
+    let mismatch = Err(ProtocolError::TagMismatch("service"));
+    let pending = Outcome::Pending { effective_at: 100 };
+    assert_eq!(build(Some(attacker), Outcome::Activated), mismatch);
+    assert_eq!(build(Some(next), pending), mismatch);
+    assert_eq!(build(None, Outcome::Activated), mismatch);
+    for forged in [
+        with_handover(&handover, Some(&attacker)),
+        with_handover(&build(None, pending).unwrap(), Some(&next)),
+        with_handover(&handover, None),
+    ] {
+        assert_eq!(
+            open_acceptance(&forged, &epoch0).unwrap_err(),
+            ProtocolError::TagMismatch("service")
+        );
+    }
 }
 
 #[test]
