@@ -1,7 +1,11 @@
 //! Test setup: a fresh Postgres database per test (from `DATABASE_URL`), a
 //! ledger with a hand-set clock, fixed keys, and a fictional business.
+//!
+//! Time-based tests move the hand-set clock and call the scheduler's work
+//! (`Ledger::activate_due`) directly: nothing waits.
 #![allow(dead_code)]
 
+use std::collections::BTreeMap;
 use std::path::Path;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -14,7 +18,7 @@ use ledger_service::{Acknowledgment, Ledger};
 use nostr::prelude::{Event, Keys, PublicKey, SecretKey, Timestamp};
 use protocol::{
     build_proposal, open_acceptance, open_delivery, open_rejection, AcceptanceContent, BusinessId,
-    Command, ProposalPayload, Recovery, Rejection,
+    Command, EpochKey, MembershipChange, MembershipState, ProposalPayload, Recovery, Rejection,
 };
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, PgPool};
@@ -33,6 +37,14 @@ pub fn key(n: u8) -> Keys {
 }
 pub fn service_keys() -> Keys {
     key(1)
+}
+/// A second key the service holds, for businesses moving to a new key.
+pub fn next_service_keys() -> Keys {
+    key(5)
+}
+/// The keys a reader accepts deliveries and rejections from.
+pub fn is_service(key: &PublicKey) -> bool {
+    *key == service_keys().public_key() || *key == next_service_keys().public_key()
 }
 pub fn owner() -> Keys {
     key(2)
@@ -80,12 +92,10 @@ impl World {
             .unwrap();
         Ledger::migrate(&pool).await.unwrap();
         let clock = Arc::new(FixedClock::new(real_now_millis()));
-        let ledger = Arc::new(Ledger::new(
-            pool.clone(),
-            service_keys(),
-            clock.clone(),
-            Arc::new(uuid),
-        ));
+        let ledger = Arc::new(
+            Ledger::new(pool.clone(), service_keys(), clock.clone(), Arc::new(uuid))
+                .with_key(next_service_keys()),
+        );
         World {
             ledger,
             clock,
@@ -108,9 +118,71 @@ impl World {
     }
 
     pub fn proposal(&self, signer: &Keys, base_seq: Option<u64>, command: Command) -> Event {
+        self.proposal_to(&service_keys().public_key(), signer, base_seq, command)
+    }
+
+    /// A proposal encrypted to `service`.
+    pub fn proposal_to(
+        &self,
+        service: &PublicKey,
+        signer: &Keys,
+        base_seq: Option<u64>,
+        command: Command,
+    ) -> Event {
         let payload = ProposalPayload::new(self.business, base_seq, command);
         let at = Timestamp::from_secs(self.clock.now_millis() / 1000);
-        build_proposal(signer, &service_keys().public_key(), &payload, at).unwrap()
+        build_proposal(signer, service, &payload, at).unwrap()
+    }
+
+    /// Proposes a membership change from the current head.
+    pub async fn change(&self, signer: &Keys, change: MembershipChange) -> Acknowledgment {
+        let head = self.head().await;
+        self.send(signer, Some(head), Command::ChangeMembership { change })
+            .await
+    }
+
+    /// Runs the scheduler's work once at the clock's current time.
+    pub async fn run_due(&self) -> usize {
+        self.ledger.activate_due().await.unwrap()
+    }
+
+    /// The membership as stored after the head acceptance.
+    pub async fn membership(&self) -> MembershipState {
+        let text: String =
+            sqlx::query_scalar("select membership::text from businesses where id = $1")
+                .bind(self.business.to_string())
+                .fetch_one(&self.pool)
+                .await
+                .unwrap();
+        serde_json::from_str(&text).unwrap()
+    }
+
+    /// The epoch keys the service delivers to `reader` now, opened.
+    pub async fn keys_for(&self, reader: &Keys) -> BTreeMap<u64, EpochKey> {
+        self.ledger
+            .deliveries(&reader.public_key(), Some(&self.business))
+            .await
+            .unwrap()
+            .iter()
+            .map(|d| {
+                let event = Event::from_json(d).unwrap();
+                assert!(is_service(&event.pubkey));
+                let key = open_delivery(&event, reader, &event.pubkey).unwrap().key;
+                (key.epoch, key)
+            })
+            .collect()
+    }
+
+    /// The whole chain as stored, for checks that don't depend on who may
+    /// read it.
+    pub async fn chain(&self) -> Vec<Event> {
+        let rows: Vec<String> =
+            sqlx::query_scalar("select event from acceptances where business_id = $1 order by seq")
+                .bind(self.business.to_string())
+                .fetch_all(&self.pool)
+                .await
+                .unwrap();
+        rows.iter().map(|e| Event::from_json(e).unwrap()).collect()
     }
 
     pub async fn send(
@@ -163,28 +235,12 @@ impl World {
             .iter()
             .map(|e| Event::from_json(e).unwrap())
             .collect();
-        let keys: Vec<protocol::EpochKey> = self
-            .ledger
-            .deliveries(&reader.public_key(), Some(&self.business))
-            .await
-            .unwrap()
-            .iter()
-            .map(|d| {
-                open_delivery(
-                    &Event::from_json(d).unwrap(),
-                    reader,
-                    &service_keys().public_key(),
-                )
-                .unwrap()
-                .key
-            })
-            .collect();
+        let keys = self.keys_for(reader).await;
         let contents = events
             .iter()
             .map(|e| {
                 let epoch = protocol::parse_acceptance(e).unwrap().epoch;
-                let key = keys.iter().find(|k| k.epoch == epoch).unwrap();
-                open_acceptance(e, key).unwrap().1
+                open_acceptance(e, &keys[&epoch]).unwrap().1
             })
             .collect();
         (events, contents)
@@ -277,7 +333,8 @@ pub fn rejection(ack: &Acknowledgment, author: &Keys) -> Rejection {
     let value: serde_json::Value = serde_json::from_str(&ack.text).unwrap();
     assert_eq!(value["status"], "rejected", "{}", ack.text);
     let event = Event::from_json(value["event"].to_string()).unwrap();
-    open_rejection(&event, author, &service_keys().public_key()).unwrap()
+    assert!(is_service(&event.pubkey));
+    open_rejection(&event, author, &event.pubkey).unwrap()
 }
 
 pub fn acceptance_event(ack: &Acknowledgment) -> Event {

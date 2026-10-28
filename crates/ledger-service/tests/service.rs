@@ -1,17 +1,16 @@
 //! The service's required tests (stage 2 brief, PR 2), against Postgres.
+//! Membership and keys (PR 3) are in `membership.rs`.
 //! Every one is a merge gate; CI runs them with a Postgres service.
 
 mod common;
 
 use common::*;
-use ledger_service::ledger::MEMBERSHIP_LATER;
 use ledger_service::Status;
 use nostr::nips::nip98::{HttpData, HttpMethod};
 use nostr::prelude::Event;
 use nostr::types::url::Url;
 use protocol::{
-    audit, rebuild, verify_chain, Command, History, MembershipChange, RejectionCode, Role,
-    CHANGED_SINCE_OPENED, MAX_EVENT_BYTES,
+    audit, rebuild, verify_chain, Command, RejectionCode, CHANGED_SINCE_OPENED, MAX_EVENT_BYTES,
 };
 
 #[tokio::test]
@@ -312,16 +311,6 @@ async fn permissions_are_enforced() {
         rejection(&recovery, &backup()).reason.message,
         "Your role can't make this change."
     );
-    // Membership changes arrive in PR 3.
-    let change = Command::ChangeMembership {
-        change: MembershipChange::Add {
-            member: pk(&key(30)),
-            role: Role::Viewer,
-            history: History::Full,
-        },
-    };
-    let later = w.send(&owner(), Some(0), change).await;
-    assert_eq!(rejection(&later, &owner()).reason.message, MEMBERSHIP_LATER);
     assert_eq!(w.head().await, 0);
     // Only members who read get the chain.
     assert!(w

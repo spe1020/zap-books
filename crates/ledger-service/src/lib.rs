@@ -14,5 +14,6 @@ pub mod key;
 pub mod ledger;
 pub mod nip98;
 pub mod ratelimit;
+pub mod scheduler;
 
 pub use ledger::{Acknowledgment, Ledger, LedgerError, Page, Status};
