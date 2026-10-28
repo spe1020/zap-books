@@ -4,9 +4,11 @@
 //!
 //! The checks themselves are `nostr`'s `verify_auth_header`. Replay
 //! protection needs the auth event's id, which that function doesn't return,
-//! so the header is decoded here too (base64 is an encoding, not
-//! cryptography, and `base64` isn't an allowed dependency).
+//! so the header is decoded here too.
 
+use base64::alphabet;
+use base64::engine::general_purpose::{GeneralPurpose, GeneralPurposeConfig};
+use base64::engine::{DecodePaddingMode, Engine};
 use nostr::nips::nip98::{verify_auth_header, HttpMethod};
 use nostr::prelude::{Event, EventId, PublicKey, Timestamp};
 use nostr::types::url::Url;
@@ -35,43 +37,23 @@ pub fn check(header: &str, url: &Url, method: HttpMethod, now: Timestamp) -> Opt
     })
 }
 
-/// Strict standard base64 with padding. Anything else is refused, so every
-/// header has one decoding.
+/// Standard base64, padding required and canonical, no stray trailing bits:
+/// every header has one decoding.
+const STRICT: GeneralPurpose = GeneralPurpose::new(
+    &alphabet::STANDARD,
+    GeneralPurposeConfig::new()
+        .with_encode_padding(true)
+        .with_decode_padding_mode(DecodePaddingMode::RequireCanonical)
+        .with_decode_allow_trailing_bits(false),
+);
+
+/// Strict standard base64 with padding. Anything else, including an empty
+/// string, is refused.
 pub fn decode_base64(text: &str) -> Option<Vec<u8>> {
-    fn value(c: u8) -> Option<u32> {
-        Some(match c {
-            b'A'..=b'Z' => c - b'A',
-            b'a'..=b'z' => c - b'a' + 26,
-            b'0'..=b'9' => c - b'0' + 52,
-            b'+' => 62,
-            b'/' => 63,
-            _ => return None,
-        } as u32)
-    }
-    let (quads, rest) = text.as_bytes().as_chunks::<4>();
-    if quads.is_empty() || !rest.is_empty() {
+    if text.is_empty() {
         return None;
     }
-    let mut out = Vec::with_capacity(quads.len() * 3);
-    let last = quads.len() - 1;
-    for (i, quad) in quads.iter().enumerate() {
-        let pad = quad.iter().rev().take_while(|&&c| c == b'=').count();
-        if pad > 2 || (pad > 0 && i != last) {
-            return None;
-        }
-        let mut n = 0u32;
-        for &c in quad.iter().take(4 - pad) {
-            n = (n << 6) | value(c)?;
-        }
-        n <<= 6 * pad as u32;
-        // Non-canonical: bits below the last byte must be zero.
-        if (pad == 1 && n & 0xff != 0) || (pad == 2 && n & 0xffff != 0) {
-            return None;
-        }
-        let decoded = [(n >> 16) as u8, (n >> 8) as u8, n as u8];
-        out.extend(decoded.iter().take(3 - pad));
-    }
-    Some(out)
+    STRICT.decode(text).ok()
 }
 
 #[cfg(test)]

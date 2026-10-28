@@ -437,7 +437,7 @@
      "vendor": "Atlas Creative",
      "date": "2026-10-08",
      "description": "Project services · initial record",
-     "amountMinor": 125000,
+     "amountMinor": 128725,
      "currency": "USD",
      "categoryId": "northstar-category-4",
      "accountId": "northstar-card",
@@ -495,7 +495,7 @@
      "vendor": "Common Ground",
      "date": "2026-10-03",
      "description": "Client project planning meeting",
-     "amountMinor": 6800,
+     "amountMinor": 3860,
      "currency": "USD",
      "categoryId": "northstar-category-2",
      "accountId": "northstar-card",
@@ -608,13 +608,13 @@
       {
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       }
      ],
      "kind": "expense",
@@ -632,17 +632,17 @@
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       },
       {
        "accountId": "northstar-card",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       }
      ],
      "kind": "reversal",
      "expenseId": "id-0057",
-     "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "reversesId": "id-0061"
     },
@@ -701,13 +701,13 @@
       {
        "accountId": "northstar-expense-2",
        "categoryId": "northstar-category-2",
-       "debit": 6800,
+       "debit": 3860,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 6800
+       "credit": 3860
       }
      ],
      "kind": "expense",
@@ -1021,7 +1021,7 @@
      "entityId": "id-0057",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
-     "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+     "detail": "Supplier issued a corrected invoice: reduced by $137.25."
     },
     {
      "id": "id-0073",
@@ -1409,7 +1409,7 @@
      ],
      "entityId": "id-0057",
      "payload": {
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      }
     },
     {
@@ -2297,7 +2297,7 @@
      "vendor": "Atlas Creative",
      "date": "2026-10-08",
      "description": "Project services · initial record",
-     "amountMinor": 125000,
+     "amountMinor": 128725,
      "currency": "USD",
      "categoryId": "northstar-category-4",
      "accountId": "northstar-card",
@@ -2355,7 +2355,7 @@
      "vendor": "Common Ground",
      "date": "2026-10-03",
      "description": "Client project planning meeting",
-     "amountMinor": 6800,
+     "amountMinor": 3860,
      "currency": "USD",
      "categoryId": "northstar-category-2",
      "accountId": "northstar-card",
@@ -2468,13 +2468,13 @@
       {
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       }
      ],
      "kind": "expense",
@@ -2492,17 +2492,17 @@
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       },
       {
        "accountId": "northstar-card",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       }
      ],
      "kind": "reversal",
      "expenseId": "id-0057",
-     "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "reversesId": "id-0061"
     },
@@ -2561,13 +2561,13 @@
       {
        "accountId": "northstar-expense-2",
        "categoryId": "northstar-category-2",
-       "debit": 6800,
+       "debit": 3860,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 6800
+       "credit": 3860
       }
      ],
      "kind": "expense",
@@ -2881,7 +2881,7 @@
      "entityId": "id-0057",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
-     "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+     "detail": "Supplier issued a corrected invoice: reduced by $137.25."
     },
     {
      "id": "id-0073",
@@ -3269,7 +3269,7 @@
      ],
      "entityId": "id-0057",
      "payload": {
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      }
     },
     {
@@ -3887,7 +3887,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -3945,7 +3945,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -4058,13 +4058,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -4082,17 +4082,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -4151,13 +4151,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -4471,7 +4471,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -4859,7 +4859,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -5499,7 +5499,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -5557,7 +5557,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -5670,13 +5670,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -5694,17 +5694,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -5763,13 +5763,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -6083,7 +6083,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -6471,7 +6471,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -7100,7 +7100,7 @@
      "vendor": "Atlas Creative",
      "date": "2026-10-08",
      "description": "Project services · initial record",
-     "amountMinor": 125000,
+     "amountMinor": 128725,
      "currency": "USD",
      "categoryId": "northstar-category-4",
      "accountId": "northstar-card",
@@ -7158,7 +7158,7 @@
      "vendor": "Common Ground",
      "date": "2026-10-03",
      "description": "Client project planning meeting",
-     "amountMinor": 6800,
+     "amountMinor": 3860,
      "currency": "USD",
      "categoryId": "northstar-category-2",
      "accountId": "northstar-card",
@@ -7291,13 +7291,13 @@
       {
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       }
      ],
      "kind": "expense",
@@ -7315,17 +7315,17 @@
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       },
       {
        "accountId": "northstar-card",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       }
      ],
      "kind": "reversal",
      "expenseId": "id-0057",
-     "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "reversesId": "id-0061"
     },
@@ -7384,13 +7384,13 @@
       {
        "accountId": "northstar-expense-2",
        "categoryId": "northstar-category-2",
-       "debit": 6800,
+       "debit": 3860,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 6800
+       "credit": 3860
       }
      ],
      "kind": "expense",
@@ -7759,7 +7759,7 @@
      "entityId": "id-0057",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
-     "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+     "detail": "Supplier issued a corrected invoice: reduced by $137.25."
     },
     {
      "id": "id-0073",
@@ -8183,7 +8183,7 @@
      ],
      "entityId": "id-0057",
      "payload": {
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      }
     },
     {
@@ -8864,7 +8864,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -8922,7 +8922,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -9015,13 +9015,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -9039,17 +9039,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -9108,13 +9108,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -9404,7 +9404,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -9774,7 +9774,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -10385,7 +10385,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -10443,7 +10443,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -10536,13 +10536,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -10560,17 +10560,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -10629,13 +10629,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -10925,7 +10925,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -11295,7 +11295,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -11907,7 +11907,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -11965,7 +11965,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -12058,13 +12058,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -12082,17 +12082,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -12151,13 +12151,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -12447,7 +12447,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -12817,7 +12817,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -13418,7 +13418,7 @@
      "vendor": "Atlas Creative",
      "date": "2026-10-08",
      "description": "Project services · initial record",
-     "amountMinor": 125000,
+     "amountMinor": 128725,
      "currency": "USD",
      "categoryId": "northstar-category-4",
      "accountId": "northstar-card",
@@ -13476,7 +13476,7 @@
      "vendor": "Common Ground",
      "date": "2026-10-03",
      "description": "Client project planning meeting",
-     "amountMinor": 6800,
+     "amountMinor": 3860,
      "currency": "USD",
      "categoryId": "northstar-category-2",
      "accountId": "northstar-card",
@@ -13590,13 +13590,13 @@
       {
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       }
      ],
      "kind": "expense",
@@ -13614,17 +13614,17 @@
        "accountId": "northstar-expense-4",
        "categoryId": "northstar-category-4",
        "debit": 0,
-       "credit": 125000
+       "credit": 128725
       },
       {
        "accountId": "northstar-card",
-       "debit": 125000,
+       "debit": 128725,
        "credit": 0
       }
      ],
      "kind": "reversal",
      "expenseId": "id-0057",
-     "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "reversesId": "id-0061"
     },
@@ -13683,13 +13683,13 @@
       {
        "accountId": "northstar-expense-2",
        "categoryId": "northstar-category-2",
-       "debit": 6800,
+       "debit": 3860,
        "credit": 0
       },
       {
        "accountId": "northstar-card",
        "debit": 0,
-       "credit": 6800
+       "credit": 3860
       }
      ],
      "kind": "expense",
@@ -14034,7 +14034,7 @@
      "entityId": "id-0057",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
-     "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+     "detail": "Supplier issued a corrected invoice: reduced by $137.25."
     },
     {
      "id": "id-0073",
@@ -14440,7 +14440,7 @@
      ],
      "entityId": "id-0057",
      "payload": {
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      }
     },
     {

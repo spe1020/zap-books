@@ -255,7 +255,7 @@ function business(
   );
   const corrected = add(
     landscape ? "Field Crew Co." : "Atlas Creative",
-    125000,
+    128725,
     8,
     4,
     "Project services · initial record",
@@ -279,7 +279,7 @@ function business(
       description: "Project services · corrected invoice amount",
       status: "draft",
     },
-    "Supplier issued a corrected invoice: reduced by $100.00.",
+    "Supplier issued a corrected invoice: reduced by $137.25.",
   );
   add(
     landscape ? "Sprout Software" : "Adobe",
@@ -291,7 +291,7 @@ function business(
   );
   add(
     landscape ? "Route Coffee" : "Common Ground",
-    6800,
+    3860,
     3,
     2,
     "Client project planning meeting",

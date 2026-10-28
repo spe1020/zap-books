@@ -174,7 +174,7 @@ test("a read receipt is reviewed, accepted, and posted exactly once", async ({
   await expect(
     page.getByText("Expense posted. Your reports are up to date."),
   ).toBeVisible();
-  await expect(page.locator(".principal .stat-value")).toHaveText("$4,657.49");
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,628.09");
   const state = await workspace(page);
   const northstar = state.businesses[0];
   const posted = northstar.drafts.filter(
@@ -267,7 +267,7 @@ test("without the extractor, Read receipt is disabled and manual approval works"
   await expect(
     page.getByText("Expense posted. Your reports are up to date."),
   ).toBeVisible();
-  await expect(page.locator(".principal .stat-value")).toHaveText("$4,657.49");
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,628.09");
   expect((await workspace(page)).businesses[0].extractions).toEqual([]);
 });
 

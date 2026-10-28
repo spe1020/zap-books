@@ -243,7 +243,7 @@ describe("expense-history migration", () => {
       { kind: "expense-history" },
     );
     expect(preview.every((r) => !r.error)).toBe(true);
-    expect(preview.reduce((n, r) => n + r.amountMinor, 0)).toBe(461499);
+    expect(preview.reduce((n, r) => n + r.amountMinor, 0)).toBe(458559);
   });
 });
 

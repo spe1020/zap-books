@@ -41,9 +41,9 @@ test("create, preview, post once, reload, and keep businesses isolated", async (
     .toBeGreaterThan(0);
   await dialog.getByRole("button", { name: "Approve & post" }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.locator(".principal .stat-value")).toHaveText("$4,657.49");
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,628.09");
   await page.reload();
-  await expect(page.locator(".principal .stat-value")).toHaveText("$4,657.49");
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,628.09");
   await page.getByRole("button", { name: "Transactions", exact: true }).click();
   await page.getByLabel("Search transactions").fill("Paper Crane");
   await expect(page.locator("tbody tr")).toHaveCount(1);
@@ -139,7 +139,7 @@ test("correction preserves original and changes report by the difference", async
   ).toBeVisible();
   await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Overview", exact: true }).click();
-  await expect(page.locator(".principal .stat-value")).toHaveText("$4,595.00");
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,565.60");
 });
 test("validation, attachment errors, explicit rules, and empty report", async ({
   page,
@@ -282,7 +282,7 @@ test("stale tabs cannot overwrite newer records or post an expense twice", async
   );
   await second.reload();
   await expect(second.locator(".principal .stat-value")).toHaveText(
-    "$4,710.99",
+    "$4,681.59",
   );
   await second
     .getByRole("button", { name: "Transactions", exact: true })

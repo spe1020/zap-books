@@ -20,7 +20,7 @@ test("expense and journal CSV downloads contain accurate, scoped records", async
   expect(download.suggestedFilename()).toContain("northstar-studio-expenses");
   const rows = parseCSV(await readFile((await download.path())!, "utf8"));
   expect(rows.slice(1).every((r) => r[0] === "northstar")).toBe(true);
-  expect(rows.slice(1).reduce((n, r) => n + parseMoney(r[6]), 0)).toBe(461499);
+  expect(rows.slice(1).reduce((n, r) => n + parseMoney(r[6]), 0)).toBe(458559);
   expect(rows.slice(1).some((r) => r[4] === "Figma")).toBe(false);
   await page
     .getByRole("combobox", { name: "Export format" })
@@ -93,7 +93,7 @@ test("mapped expense history becomes a reviewable draft and re-import skips the 
   ).toHaveValue("northstar-category-1");
   await page.getByRole("button", { name: "Approve & post" }).click();
   await page.getByRole("button", { name: "Overview", exact: true }).click();
-  await expect(page.locator(".principal .stat-value")).toHaveText("$4,657.49");
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,628.09");
   await page.getByRole("button", { name: "Transactions", exact: true }).click();
   await page
     .getByRole("button", { name: "View Maple Supply", exact: true })
@@ -106,7 +106,7 @@ test("mapped expense history becomes a reviewable draft and re-import skips the 
     .fill("Updated historical expense total");
   await page.getByRole("button", { name: "Post correction" }).click();
   await page.getByRole("button", { name: "Overview", exact: true }).click();
-  await expect(page.locator(".principal .stat-value")).toHaveText("$4,654.99");
+  await expect(page.locator(".principal .stat-value")).toHaveText("$4,625.59");
   await openImport();
   await expect(page.getByText("0 new · 1 repeated · 0 invalid")).toBeVisible();
   await expect(
