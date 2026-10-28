@@ -13,7 +13,9 @@ use ledger_core::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::command::{Command, SettingsChange};
+use ledger_core::SettingsChange;
+
+use crate::command::Command;
 use crate::error::{ProtocolError, Result};
 
 /// The rejection message for a `baseSeq` conflict.
@@ -99,10 +101,6 @@ pub enum Record {
     Extraction(ExtractionRecord),
 }
 
-/// `{ "type": "draft", "record": { … } }`. There are no deletions: the
-/// ledger never removes a record.
-pub type RecordChange = Record;
-
 impl Record {
     pub fn key(&self) -> RecordKey {
         let (t, id) = match self {
@@ -124,89 +122,171 @@ impl Record {
     }
 }
 
-/// Appends the changes for one collection: every record in `after` that is
-/// new or differs from its `before` copy, in `after`'s order.
-fn collection<T: PartialEq + Clone>(
+/// `{"type": "remove", "of": "extraction", "id": …}`. Only extraction records
+/// are ever removed: saving a new reading replaces an unapproved one.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "type", rename = "remove")]
+pub struct Removal {
+    pub of: RecordType,
+    pub id: String,
+}
+
+/// `{"type": "order", "of": "rule", "ids": […]}`: the collection's records,
+/// in this order. Saving a rule moves it to the end.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "type", rename = "order")]
+pub struct Reordering {
+    pub of: RecordType,
+    pub ids: Vec<String>,
+}
+
+/// One step of an acceptance's record changes.
+#[allow(clippy::large_enum_variant)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum RecordChange {
+    /// `{"type": "draft", "record": {…}}`: created or replaced.
+    Put(Record),
+    Remove(Removal),
+    Order(Reordering),
+}
+
+impl RecordChange {
+    /// The record this change creates, replaces or removes. A reordering
+    /// changes no record.
+    pub fn key(&self) -> Option<RecordKey> {
+        match self {
+            RecordChange::Put(r) => Some(r.key()),
+            RecordChange::Remove(r) => Some(RecordKey::new(r.of, r.id.clone())),
+            RecordChange::Order(_) => None,
+        }
+    }
+}
+
+trait Keyed {
+    fn key_id(&self) -> &str;
+}
+
+macro_rules! keyed {
+    ($($t:ty),*) => {
+        $(impl Keyed for $t {
+            fn key_id(&self) -> &str {
+                &self.id
+            }
+        })*
+    };
+}
+keyed!(
+    Account,
+    Category,
+    Vendor,
+    SourceDocument,
+    ImportedTransaction,
+    ExpenseDraft,
+    JournalEntry,
+    UncheckedJournal,
+    Approval,
+    ClassificationRule,
+    AuditEvent,
+    FinancialEvent,
+    ExtractionRecord
+);
+
+/// Appends the changes for one collection: removals, then every record in
+/// `after` that is new or differs from its `before` copy (in `after`'s
+/// order), then a reordering if those alone would leave a different order.
+fn collection<T: Keyed + PartialEq + Clone>(
     before: &[T],
     after: &[T],
-    id: impl Fn(&T) -> &str,
     wrap: impl Fn(T) -> Record,
-    record_type: RecordType,
-    out: &mut Vec<Record>,
+    of: RecordType,
+    out: &mut Vec<RecordChange>,
 ) -> Result<()> {
     // The first record with an id is the one `apply_changes` replaces.
     let mut old: HashMap<&str, &T> = HashMap::with_capacity(before.len());
     for b in before {
-        old.entry(id(b)).or_insert(b);
+        old.entry(b.key_id()).or_insert(b);
     }
-    let new: HashSet<&str> = after.iter().map(&id).collect();
-    if old.keys().any(|k| !new.contains(k)) {
-        return Err(ProtocolError::RecordRemoved(record_type.name()));
+    let new: HashSet<&str> = after.iter().map(Keyed::key_id).collect();
+    let mut order: Vec<&str> = Vec::with_capacity(after.len());
+    for b in before {
+        if new.contains(b.key_id()) {
+            order.push(b.key_id());
+        } else if of == RecordType::Extraction {
+            out.push(RecordChange::Remove(Removal {
+                of,
+                id: b.key_id().to_string(),
+            }));
+        } else {
+            return Err(ProtocolError::RecordRemoved(of.name()));
+        }
     }
     for a in after {
-        if old.get(id(a)) != Some(&a) {
-            out.push(wrap(a.clone()));
+        match old.get(a.key_id()) {
+            Some(b) if *b == a => {}
+            Some(_) => out.push(RecordChange::Put(wrap(a.clone()))),
+            None => {
+                out.push(RecordChange::Put(wrap(a.clone())));
+                order.push(a.key_id());
+            }
         }
+    }
+    let wanted: Vec<&str> = after.iter().map(Keyed::key_id).collect();
+    if order != wanted {
+        out.push(RecordChange::Order(Reordering {
+            of,
+            ids: wanted.into_iter().map(String::from).collect(),
+        }));
     }
     Ok(())
 }
 
-/// The record changes that turn `before` into `after`. Fails if a record was
-/// removed, or if replaying the changes would not give exactly `after` (for
-/// example, if a command reordered records).
+/// The record changes that turn `before` into `after`. Fails if a record
+/// other than an extraction record was removed, or if replaying the changes
+/// would not give exactly `after`.
 pub fn diff(before: &BusinessData, after: &BusinessData) -> Result<Vec<RecordChange>> {
+    use RecordType as T;
     let mut out = Vec::new();
     if before.profile != after.profile {
-        out.push(Record::Profile(after.profile.clone()));
+        out.push(RecordChange::Put(Record::Profile(after.profile.clone())));
     }
+    let o = &mut out;
     collection(
         &before.accounts,
         &after.accounts,
-        |r| &r.id,
         Record::Account,
-        RecordType::Account,
-        &mut out,
+        T::Account,
+        o,
     )?;
     collection(
         &before.categories,
         &after.categories,
-        |r| &r.id,
         Record::Category,
-        RecordType::Category,
-        &mut out,
+        T::Category,
+        o,
     )?;
     collection(
         &before.vendors,
         &after.vendors,
-        |r| &r.id,
         Record::Vendor,
-        RecordType::Vendor,
-        &mut out,
+        T::Vendor,
+        o,
     )?;
     collection(
         &before.documents,
         &after.documents,
-        |r| &r.id,
         Record::Document,
-        RecordType::Document,
-        &mut out,
+        T::Document,
+        o,
     )?;
     collection(
         &before.payments,
         &after.payments,
-        |r| &r.id,
         Record::Payment,
-        RecordType::Payment,
-        &mut out,
+        T::Payment,
+        o,
     )?;
-    collection(
-        &before.drafts,
-        &after.drafts,
-        |r| &r.id,
-        Record::Draft,
-        RecordType::Draft,
-        &mut out,
-    )?;
+    collection(&before.drafts, &after.drafts, Record::Draft, T::Draft, o)?;
     let journals = |b: &BusinessData| {
         b.journals
             .iter()
@@ -216,50 +296,26 @@ pub fn diff(before: &BusinessData, after: &BusinessData) -> Result<Vec<RecordCha
     collection(
         &journals(before),
         &journals(after),
-        |r| &r.id,
         Record::Journal,
-        RecordType::Journal,
-        &mut out,
+        T::Journal,
+        o,
     )?;
     collection(
         &before.approvals,
         &after.approvals,
-        |r| &r.id,
         Record::Approval,
-        RecordType::Approval,
-        &mut out,
+        T::Approval,
+        o,
     )?;
-    collection(
-        &before.rules,
-        &after.rules,
-        |r| &r.id,
-        Record::Rule,
-        RecordType::Rule,
-        &mut out,
-    )?;
-    collection(
-        &before.audits,
-        &after.audits,
-        |r| &r.id,
-        Record::Audit,
-        RecordType::Audit,
-        &mut out,
-    )?;
-    collection(
-        &before.events,
-        &after.events,
-        |r| &r.id,
-        Record::Event,
-        RecordType::Event,
-        &mut out,
-    )?;
+    collection(&before.rules, &after.rules, Record::Rule, T::Rule, o)?;
+    collection(&before.audits, &after.audits, Record::Audit, T::Audit, o)?;
+    collection(&before.events, &after.events, Record::Event, T::Event, o)?;
     collection(
         &before.extractions,
         &after.extractions,
-        |r| &r.id,
         Record::Extraction,
-        RecordType::Extraction,
-        &mut out,
+        T::Extraction,
+        o,
     )?;
     if apply_changes(before, &out)? != *after {
         return Err(ProtocolError::ChangesIncomplete);
@@ -267,22 +323,69 @@ pub fn diff(before: &BusinessData, after: &BusinessData) -> Result<Vec<RecordCha
     Ok(out)
 }
 
-fn upsert<T>(list: &mut Vec<T>, record: T, id: impl Fn(&T) -> &str) {
-    let key = id(&record).to_string();
-    match list.iter_mut().find(|x| id(x) == key) {
+fn upsert<T: Keyed>(list: &mut Vec<T>, record: T) {
+    match list.iter_mut().find(|x| x.key_id() == record.key_id()) {
         Some(slot) => *slot = record,
         None => list.push(record),
     }
 }
 
+fn remove<T: Keyed>(list: &mut Vec<T>, id: &str) -> Result<()> {
+    let index = list
+        .iter()
+        .position(|x| x.key_id() == id)
+        .ok_or_else(|| ProtocolError::BadChange(format!("no record {id} to remove")))?;
+    list.remove(index);
+    Ok(())
+}
+
+/// Puts `list` in the order of `ids`, which must name each record exactly once.
+fn reorder<T: Keyed>(list: &mut Vec<T>, ids: &[String]) -> Result<()> {
+    let mismatch = || ProtocolError::BadChange("a reordering must name every record once".into());
+    if ids.len() != list.len() {
+        return Err(mismatch());
+    }
+    let mut rest: Vec<Option<T>> = std::mem::take(list).into_iter().map(Some).collect();
+    for id in ids {
+        let slot = rest
+            .iter_mut()
+            .find(|x| x.as_ref().is_some_and(|r| r.key_id() == id.as_str()))
+            .ok_or_else(mismatch)?;
+        list.extend(slot.take());
+    }
+    Ok(())
+}
+
+/// Runs `$f` on the collection `$of` names in `$b`.
+macro_rules! on_list {
+    ($b:expr, $of:expr, $f:ident $(, $arg:expr)*) => {
+        match $of {
+            RecordType::Profile => Err(ProtocolError::BadChange("the profile is not a list".into())),
+            RecordType::Account => $f(&mut $b.accounts $(, $arg)*),
+            RecordType::Category => $f(&mut $b.categories $(, $arg)*),
+            RecordType::Vendor => $f(&mut $b.vendors $(, $arg)*),
+            RecordType::Document => $f(&mut $b.documents $(, $arg)*),
+            RecordType::Payment => $f(&mut $b.payments $(, $arg)*),
+            RecordType::Draft => $f(&mut $b.drafts $(, $arg)*),
+            RecordType::Journal => $f(&mut $b.journals $(, $arg)*),
+            RecordType::Approval => $f(&mut $b.approvals $(, $arg)*),
+            RecordType::Rule => $f(&mut $b.rules $(, $arg)*),
+            RecordType::Audit => $f(&mut $b.audits $(, $arg)*),
+            RecordType::Event => $f(&mut $b.events $(, $arg)*),
+            RecordType::Extraction => $f(&mut $b.extractions $(, $arg)*),
+        }
+    };
+}
+
 /// Applies record changes in order: a record replaces the one with its id,
-/// or is appended. Journals are checked against the business as it stands
-/// when they are applied.
+/// or is appended; a removal drops an extraction record; a reordering puts a
+/// collection in the given order. Journals are checked against the business
+/// as it stands when they are applied.
 pub fn apply_changes(business: &BusinessData, changes: &[RecordChange]) -> Result<BusinessData> {
     let mut b = business.clone();
     for change in changes {
         match change.clone() {
-            Record::Profile(r) => {
+            RecordChange::Put(Record::Profile(r)) => {
                 if r.id != b.profile.id {
                     return Err(ProtocolError::BadChange(
                         "the profile id cannot change".into(),
@@ -290,22 +393,29 @@ pub fn apply_changes(business: &BusinessData, changes: &[RecordChange]) -> Resul
                 }
                 b.profile = r;
             }
-            Record::Account(r) => upsert(&mut b.accounts, r, |x| &x.id),
-            Record::Category(r) => upsert(&mut b.categories, r, |x| &x.id),
-            Record::Vendor(r) => upsert(&mut b.vendors, r, |x| &x.id),
-            Record::Document(r) => upsert(&mut b.documents, r, |x| &x.id),
-            Record::Payment(r) => upsert(&mut b.payments, r, |x| &x.id),
-            Record::Draft(r) => upsert(&mut b.drafts, r, |x| &x.id),
-            Record::Journal(r) => {
+            RecordChange::Put(Record::Account(r)) => upsert(&mut b.accounts, r),
+            RecordChange::Put(Record::Category(r)) => upsert(&mut b.categories, r),
+            RecordChange::Put(Record::Vendor(r)) => upsert(&mut b.vendors, r),
+            RecordChange::Put(Record::Document(r)) => upsert(&mut b.documents, r),
+            RecordChange::Put(Record::Payment(r)) => upsert(&mut b.payments, r),
+            RecordChange::Put(Record::Draft(r)) => upsert(&mut b.drafts, r),
+            RecordChange::Put(Record::Journal(r)) => {
                 let entry = JournalEntry::new(&b, r)
                     .map_err(|e| ProtocolError::BadChange(e.to_string()))?;
-                upsert(&mut b.journals, entry, |x| &x.id);
+                upsert(&mut b.journals, entry);
             }
-            Record::Approval(r) => upsert(&mut b.approvals, r, |x| &x.id),
-            Record::Rule(r) => upsert(&mut b.rules, r, |x| &x.id),
-            Record::Audit(r) => upsert(&mut b.audits, r, |x| &x.id),
-            Record::Event(r) => upsert(&mut b.events, r, |x| &x.id),
-            Record::Extraction(r) => upsert(&mut b.extractions, r, |x| &x.id),
+            RecordChange::Put(Record::Approval(r)) => upsert(&mut b.approvals, r),
+            RecordChange::Put(Record::Rule(r)) => upsert(&mut b.rules, r),
+            RecordChange::Put(Record::Audit(r)) => upsert(&mut b.audits, r),
+            RecordChange::Put(Record::Event(r)) => upsert(&mut b.events, r),
+            RecordChange::Put(Record::Extraction(r)) => upsert(&mut b.extractions, r),
+            RecordChange::Remove(r) => {
+                if r.of != RecordType::Extraction {
+                    return Err(ProtocolError::RecordRemoved(r.of.name()));
+                }
+                remove(&mut b.extractions, &r.id)?;
+            }
+            RecordChange::Order(r) => on_list!(b, r.of, reorder, &r.ids)?,
         }
     }
     Ok(b)

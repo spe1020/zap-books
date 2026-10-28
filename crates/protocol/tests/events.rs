@@ -10,7 +10,7 @@ use protocol::{
     build_acceptance, build_delivery, build_proposal, build_rejection, encrypt_to, kinds,
     open_acceptance, open_delivery, open_proposal, open_rejection, parse_proposal,
     AcceptanceContent, AcceptanceHeader, Command, CommandType, CommittedPayload, EnvRecord,
-    EpochKey, Outcome, ProposalPayload, ProtocolError, RejectionCode, PROTOCOL_VERSION,
+    EpochKey, Outcome, ProposalPayload, ProtocolError, Reason, RejectionCode, PROTOCOL_VERSION,
 };
 
 fn approve_payload(base_seq: u64) -> ProposalPayload {
@@ -329,16 +329,22 @@ fn a_rejection_reaches_only_its_proposer() {
     let event = build_rejection(
         &service(),
         &header,
-        RejectionCode::Rejected,
-        "Your role can't make this change.",
+        &Reason::rejected("Your role can't make this change."),
         at(6),
     )
     .unwrap();
     assert_eq!(u16::from(event.kind), kinds::REJECTION);
     let rejection = open_rejection(&event, &viewer(), &pk(&service())).unwrap();
     assert_eq!(rejection.proposal, proposal.id);
-    assert_eq!(rejection.code, RejectionCode::Rejected);
-    assert_eq!(rejection.message, "Your role can't make this change.");
+    assert_eq!(rejection.reason.code, RejectionCode::Rejected);
+    assert_eq!(
+        rejection.reason.message,
+        "Your role can't make this change."
+    );
+    assert_eq!(
+        (rejection.reason.size, rejection.reason.limit),
+        (None, None)
+    );
     assert!(open_rejection(&event, &bookkeeper(), &pk(&service())).is_err());
     assert_eq!(
         open_rejection(&event, &viewer(), &pk(&outsider())).unwrap_err(),

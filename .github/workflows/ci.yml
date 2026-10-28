@@ -8,6 +8,19 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    # The ledger service's tests each create and drop their own database.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -37,6 +50,8 @@ jobs:
 
       - name: cargo test
         run: cargo test
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
 
       - name: npm test
         run: npm test

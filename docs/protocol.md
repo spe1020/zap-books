@@ -204,23 +204,40 @@ Records use `ledger-core`'s JSON shapes (`src/domain/types.ts`).
 | `type`               | Fields                                                                                           | Applied with                  |
 | -------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------- |
 | `CreateBusiness`     | `service`, `recovery`, `profile`, `accounts`, `categories`                                       | Genesis (see below)           |
-| `SaveDraft`          | `draft`, `documents` (document references, see below)                                            | `save_draft`                  |
+| `SaveDraft`          | `draft`, `documents` (document references, see below), `extraction` (optional receipt reading)   | `save_draft`                  |
 | `Approve`            | `expenseId`                                                                                      | `approve`                     |
 | `Correct`            | `originalId`, `replacement`, `reason`                                                            | `correct`                     |
 | `CommitImport`       | `accountId`, `rows` (previewed rows)                                                             | `commit_import`               |
-| `UpdateSettings`     | `change`: `profile`, `addAccount`, `renameAccount`, `addCategory`, `renameCategory` (`op` field) | Not in `ledger-core` yet      |
-| `SaveRule`           | `rule`: `id` (absent for a new rule), `vendorIncludes`, `categoryId`, `purpose`, `enabled`       | Not in `ledger-core` yet      |
+| `UpdateSettings`     | `change`: `profile`, `addAccount`, `renameAccount`, `addCategory`, `renameCategory` (`op` field) | `update_settings`             |
+| `SaveRule`           | `rule`: `id` (absent for a new rule), `vendorIncludes`, `categoryId`, `purpose`, `enabled`       | `save_rule`                   |
 | `ChangeMembership`   | `change` (see Membership)                                                                        | The membership rules          |
 | `Veto`               | `pending`: the proposal id of a pending change                                                   | The membership rules          |
 | `SubmitReceiptDraft` | `draft`, `documents`                                                                             | `save_draft`, for a new draft |
 
-`UpdateSettings` and `SaveRule` are applied in the browser today
-(`src/components/Settings.tsx`, `Review.tsx`), not by a domain function.
-PR 2 adds them to `ledger-core` as a parity change (TypeScript first).
+`update_settings` and `save_rule` port `src/domain/settings.ts`, which holds
+the Settings screen's rules: names unique within their list ignoring case,
+a new category with its own expense account, and a saved rule moving to the
+end of the list.
+
+Every command is applied by one function, `protocol::apply_command`, which
+the service runs and auditors re-run:
+
+- `SaveDraft` first adds a document record for each new reference (its
+  `sha256`, the service's time), then calls `save_draft`, which refuses a
+  draft that points at a document the business doesn't have. Then it stores
+  the receipt reading, if there is one.
+- **A receipt reading** (`extraction`, an `ExtractionRecord`) must belong to
+  this business, this draft and one of the draft's documents, and must not
+  be approved yet. The service gives it its own id and time. Like the
+  browser, it replaces an earlier unapproved reading of the same draft and
+  document.
+- `SubmitReceiptDraft` does the same as `SaveDraft` without a reading, and
+  only for a draft id the business doesn't have yet.
 
 New records get ids from the service's environment, never from the
 proposal, except where `ledger-core` already takes the id from its input
-(a draft's own id, a rule being replaced).
+(a draft's own id, a document's id from its reference, a rule being
+replaced).
 
 ### Large imports
 
@@ -233,11 +250,18 @@ that its acceptance fits:
   the previous one is acknowledged, with the `baseSeq` it has seen.
   `CommitImport` has no target records, so one batch never makes the next
   one stale.
-- **Halve on `tooLarge`.** On a `tooLarge` rejection, or if its own builder
-  refuses the proposal as too large, the client halves the batch (25, 12, 6,
-  3, 1) and sends the same rows again. It keeps the smaller size for the rest
-  of the file. If a single row is still too large, that row can't be
-  imported, and the client stops and says so.
+- **Resize on `tooLarge`.** A `tooLarge` rejection carries the `size` the
+  acceptance would have been and the `limit`; so does the builder's own
+  error when the proposal itself is too large. The client sends the same rows
+  again in a batch of
+
+  > current rows × limit ÷ size × 0.9, rounded down, at least 1
+
+  (`protocol::next_batch`), and keeps that size for the rest of the file.
+  The 10% margin covers rows longer than the batch's average. If a single
+  row is still too large, it can't be imported, and the client stops and
+  says so.
+
 - **Each batch is atomic.** `commit_import` applies all of a batch's rows or
   none of them. The file as a whole is no longer all-or-nothing: if a batch
   is rejected for any other reason, the client stops and shows the message
@@ -258,18 +282,23 @@ _Long_ text means about 110 and 60, plus a long category and purpose.
 
 | Text    | Form            | Accepted proposals | `tooLarge` rejections | Batch size | Largest acceptance |
 | ------- | --------------- | ------------------ | --------------------- | ---------- | ------------------ |
-| Typical | Payments        | 334                | 2                     | 6          | 33,447 bytes (51%) |
-| Typical | Expense history | 334                | 2                     | 6          | 44,367 bytes (68%) |
-| Long    | Payments        | 334                | 2                     | 6          | 38,907 bytes (59%) |
-| Long    | Expense history | 334                | 2                     | 6          | 55,291 bytes (84%) |
+| Typical | Payments        | 182                | 1                     | 11         | 55,291 bytes (84%) |
+| Typical | Expense history | 250                | 1                     | 8          | 55,291 bytes (84%) |
+| Long    | Payments        | 223                | 1                     | 9          | 55,291 bytes (84%) |
+| Long    | Expense history | 334                | 1                     | 6          | 55,291 bytes (84%) |
 
-In every case the first 25-row batch and the 12-row retry are too large, and
-6 rows fit for the rest of the file. The text matters less than one might
-expect: most of an acceptance is fixed overhead per row. It carries each row
-three times: inside the member's signed proposal (encrypted), in the
-plaintext payload, and as the records the row created (draft, payment or
-import source, vendor, event and audit entry, each with UUIDs, fingerprints
-and timestamps). Then the whole acceptance is encrypted again.
+In every case the first 25-row batch is too large, and the next batch, sized
+from the reported size, fits for the rest of the file. (Halving instead took
+334 proposals and 2 rejections in all four cases.) The largest acceptance is
+the same in every case because NIP-44 pads plaintext to fixed steps, and the
+batches land on the same step.
+
+Most of an acceptance is fixed overhead per row, so text length matters less
+than one might expect. It carries each row three times: inside the member's
+signed proposal (encrypted), in the plaintext payload, and as the records the
+row created (draft, payment or import source, vendor, event and audit entry,
+each with UUIDs, fingerprints and timestamps). Then the whole acceptance is
+encrypted again.
 
 ### Documents
 
@@ -354,11 +383,17 @@ key's public key**:
   in the order `ledger-core` asked for them, and the timestamp. The
   service's `today()` is the UTC date of `now`, so it is not recorded
   separately.
-- `changes`: the **resulting record changes**, records created or replaced,
-  each as `{"type": <record type>, "record": <record>}`. Types: `profile`,
-  `account`, `category`, `vendor`, `document`, `payment`, `draft`,
-  `journal`, `approval`, `rule`, `audit`, `event`, `extraction`. There are no
-  deletions, because the ledger never removes a record.
+- `changes`: the **resulting record changes**, in order. Each is one of:
+  - `{"type": <record type>, "record": <record>}`: a record created or
+    replaced. Types: `profile`, `account`, `category`, `vendor`, `document`,
+    `payment`, `draft`, `journal`, `approval`, `rule`, `audit`, `event`,
+    `extraction`;
+  - `{"type": "order", "of": <record type>, "ids": [...]}`: the collection's
+    records in this order. Saving a rule moves it to the end, which matters
+    because the first matching rule wins;
+  - `{"type": "remove", "of": "extraction", "id": ...}`: an unapproved
+    receipt reading replaced by a new one. No other record is ever removed,
+    and a removal of any other type is refused.
 - `outcome`: `applied`; `pending` with `effectiveAt` (an owner-level change
   waiting 48 hours); `activated` (the scheduler activating a pending
   change); or `lapsed` (a due change that could no longer apply).
@@ -373,15 +408,19 @@ acceptance that removed them, nor anything after it.
 
 ### Two kinds of verification
 
-- **Rebuild.** Apply each acceptance's `changes` in order. A record replaces
-  the record with the same id in its collection, or is appended. Journals are
-  validated against the business as it stands (`JournalEntry::new`). The
+- **Rebuild.** Apply each acceptance's `changes` in order (`rebuild`). A
+  record replaces the record with the same id in its collection, or is
+  appended; an `order` change must name every record of its collection
+  exactly once. Journals are validated against the business as it stands
+  (`JournalEntry::new`). The genesis acceptance's first change is the
+  profile, which a rebuild starts from. The
   service computes `changes` with `diff`, which fails unless applying them
   reproduces the new state exactly, so rebuilding always gives the stored
   snapshot.
-- **Audit.** Re-run each command through `ledger-core` with an environment
-  that hands back the recorded ids and time (`ReplayEnv`), and check that it
-  produces the same `changes` and uses exactly the recorded number of ids.
+- **Audit.** Re-run each command through `apply_command` with an
+  environment that hands back the recorded ids and time (`ReplayEnv`), and
+  check that it produces the same `changes` and uses exactly the recorded
+  number of ids (`audit`).
   Anyone holding the business key can confirm that the service applied the
   rules correctly.
 
@@ -423,6 +462,22 @@ is `ledger-core`'s error message or a protocol message:
   "message": "This record changed since you opened it. Reload it and try again."
 }
 ```
+
+A `tooLarge` rejection also says how large the event would have been and the
+limit, so the client can size its next batch:
+
+```json
+{
+  "v": 1,
+  "code": "tooLarge",
+  "message": "The event is 70210 bytes, over the 65536-byte limit relays accept. Send it as smaller proposals.",
+  "size": 70210,
+  "limit": 65536
+}
+```
+
+When the content is longer than NIP-44 can encrypt at all, `size` is what
+the event would have been, worked out from NIP-44's padding rule.
 
 | `code`     | Meaning                                                                                                                                                         |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -551,11 +606,24 @@ A `baseSeq` later than the chain head is malformed. So when two members
 approve the same expense from the same `baseSeq`, the first acceptance
 changes the expense and the second is rejected as stale.
 
-## Decided for PR 2
+## Future options
 
-- **Document hashes.** `SourceDocument` gains an optional `sha256` field, as
-  a parity change (TypeScript first), so a stored document carries the hash
-  its reference names.
-- **Receipt readings.** `SaveDraft` gains an optional `extraction` (an
-  `ExtractionRecord`), and the service checks that it belongs to the
-  business.
+Not planned. They would cut event sizes further if imports or relays need it.
+
+- **Compress before encrypting.** The acceptance's JSON is highly
+  repetitive (field names, ids, timestamps) and would shrink several-fold,
+  so far fewer import batches would be needed. The costs: NIP-44 has no
+  compression, so it would be our own format inside the payload, and every
+  client and auditor would need the same decompressor. Compressed length
+  also leaks information about the plaintext (the CRIME and BREACH class of
+  attacks) when attacker-influenced text, such as an imported description,
+  sits next to secret data. Padding hides some of this, but not all.
+- **Drop record changes and rebuild by re-execution.** An acceptance could
+  carry only the command and its environment values, and a reader would
+  rebuild by re-running every command, as an audit does today. Acceptances
+  would be roughly half the size. The costs: every reader must run exactly
+  the rules each acceptance was made under. Any later change to
+  `ledger-core` (a bug fix, say) would change how old history replays, so
+  every version of the rules would have to be kept and selected per
+  acceptance. Rebuild and audit would also become the same check, losing
+  the independent comparison of recorded changes against re-execution.

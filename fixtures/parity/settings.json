@@ -1,0 +1,1814 @@
+[
+ {
+  "name": "profile: trimmed and logged",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 594,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "profile",
+    "name": "  Northstar Studio Two ",
+    "industry": " Design "
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio Two",
+    "industry": "Design",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0595",
+     "businessId": "northstar",
+     "action": "settings.updated",
+     "entityId": "northstar",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Business profile updated"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0594",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "settings.updated",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "northstar",
+     "payload": {
+      "detail": "Business profile updated"
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "profile: empty name",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 596,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "profile",
+    "name": "  ",
+    "industry": "Design"
+   }
+  },
+  "error": "Enter a business name and industry."
+ },
+ {
+  "name": "profile: empty industry",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 596,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "profile",
+    "name": "Northstar",
+    "industry": ""
+   }
+  },
+  "error": "Enter a business name and industry."
+ },
+ {
+  "name": "addAccount: card",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 596,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "addAccount",
+    "name": " Travel card ",
+    "kind": "card",
+    "currency": "GBP"
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "id-0596",
+     "businessId": "northstar",
+     "name": "Travel card",
+     "kind": "card",
+     "currency": "GBP"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0598",
+     "businessId": "northstar",
+     "action": "settings.updated",
+     "entityId": "northstar",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "account saved: Travel card"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0597",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "settings.updated",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "northstar",
+     "payload": {
+      "detail": "account saved: Travel card"
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "addAccount: name taken, ignoring case",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 599,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "addAccount",
+    "name": "OPERATING ACCOUNT",
+    "kind": "bank",
+    "currency": "USD"
+   }
+  },
+  "error": "That name is already in use."
+ },
+ {
+  "name": "addAccount: a category's expense account name is taken",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 599,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "addAccount",
+    "name": "Software & subscriptions",
+    "kind": "bank",
+    "currency": "USD"
+   }
+  },
+  "error": "That name is already in use."
+ },
+ {
+  "name": "addAccount: expense kind",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 599,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "addAccount",
+    "name": "Sneaky",
+    "kind": "expense",
+    "currency": "USD"
+   }
+  },
+  "error": "Choose a bank or card account."
+ },
+ {
+  "name": "addAccount: empty name",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 599,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "addAccount",
+    "name": " ",
+    "kind": "bank",
+    "currency": "USD"
+   }
+  },
+  "error": "Enter a name."
+ },
+ {
+  "name": "renameAccount: own name in another case",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 599,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameAccount",
+    "id": "northstar-checking",
+    "name": "operating account"
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0600",
+     "businessId": "northstar",
+     "action": "settings.updated",
+     "entityId": "northstar",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "account saved: operating account"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0599",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "settings.updated",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "northstar",
+     "payload": {
+      "detail": "account saved: operating account"
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "renameAccount: another business's account",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 601,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameAccount",
+    "id": "fieldwork-checking",
+    "name": "Borrowed"
+   }
+  },
+  "error": "Account not found in this business."
+ },
+ {
+  "name": "addCategory: with its expense account",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 601,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "addCategory",
+    "name": "Field trips",
+    "currency": "EUR"
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "id-0601",
+     "businessId": "northstar",
+     "name": "Field trips",
+     "kind": "expense",
+     "currency": "EUR"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    },
+    {
+     "id": "id-0602",
+     "businessId": "northstar",
+     "name": "Field trips",
+     "accountId": "id-0601"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0604",
+     "businessId": "northstar",
+     "action": "settings.updated",
+     "entityId": "northstar",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "category saved: Field trips"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0603",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "settings.updated",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "northstar",
+     "payload": {
+      "detail": "category saved: Field trips"
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "renameCategory: name taken",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 605,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameCategory",
+    "id": "northstar-category-0",
+    "name": "Office & supplies"
+   }
+  },
+  "error": "That name is already in use."
+ },
+ {
+  "name": "renameCategory: renamed, its account unchanged",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 605,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameCategory",
+    "id": "northstar-category-0",
+    "name": "Renamed category"
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Renamed category",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0606",
+     "businessId": "northstar",
+     "action": "settings.updated",
+     "entityId": "northstar",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "category saved: Renamed category"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0605",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "settings.updated",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "northstar",
+     "payload": {
+      "detail": "category saved: Renamed category"
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "renameCategory: unknown id",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 607,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameCategory",
+    "id": "missing",
+    "name": "Nothing"
+   }
+  },
+  "error": "Category not found in this business."
+ },
+ {
+  "name": "saveRule: new rule, trimmed",
+  "call": "saveRule",
+  "env": {
+   "nextId": 607,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "input": {
+    "vendorIncludes": "  Paper Shop ",
+    "categoryId": "northstar-category-0",
+    "purpose": " Supplies ",
+    "enabled": true
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    },
+    {
+     "id": "id-0607",
+     "businessId": "northstar",
+     "vendorIncludes": "Paper Shop",
+     "categoryId": "northstar-category-0",
+     "purpose": "Supplies",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0609",
+     "businessId": "northstar",
+     "action": "rule.saved",
+     "entityId": "id-0607",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Classification rule saved:   Paper Shop "
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0608",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "rule.saved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0607",
+     "payload": {
+      "detail": "Classification rule saved:   Paper Shop "
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "saveRule: edited rule moves to the end",
+  "call": "saveRule",
+  "env": {
+   "nextId": 610,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "profile": {
+     "id": "northstar",
+     "businessId": "northstar",
+     "name": "Northstar Studio",
+     "industry": "Design & creative services",
+     "initials": "NS",
+     "color": "#c8da78",
+     "currency": "USD"
+    },
+    "accounts": [
+     {
+      "id": "northstar-checking",
+      "businessId": "northstar",
+      "name": "Operating account",
+      "kind": "bank",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-card",
+      "businessId": "northstar",
+      "name": "Business card",
+      "kind": "card",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-reserve",
+      "businessId": "northstar",
+      "name": "Reserve account",
+      "kind": "bank",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-eur",
+      "businessId": "northstar",
+      "name": "Euro account",
+      "kind": "bank",
+      "currency": "EUR"
+     },
+     {
+      "id": "northstar-expense-0",
+      "businessId": "northstar",
+      "name": "Software & subscriptions",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-1",
+      "businessId": "northstar",
+      "name": "Office & supplies",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-2",
+      "businessId": "northstar",
+      "name": "Travel & meals",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-3",
+      "businessId": "northstar",
+      "name": "Professional services",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-4",
+      "businessId": "northstar",
+      "name": "Marketing & design",
+      "kind": "expense",
+      "currency": "USD"
+     }
+    ],
+    "categories": [
+     {
+      "id": "northstar-category-0",
+      "businessId": "northstar",
+      "name": "Software & subscriptions",
+      "accountId": "northstar-expense-0"
+     },
+     {
+      "id": "northstar-category-1",
+      "businessId": "northstar",
+      "name": "Office & supplies",
+      "accountId": "northstar-expense-1"
+     },
+     {
+      "id": "northstar-category-2",
+      "businessId": "northstar",
+      "name": "Travel & meals",
+      "accountId": "northstar-expense-2"
+     },
+     {
+      "id": "northstar-category-3",
+      "businessId": "northstar",
+      "name": "Professional services",
+      "accountId": "northstar-expense-3"
+     },
+     {
+      "id": "northstar-category-4",
+      "businessId": "northstar",
+      "name": "Marketing & design",
+      "accountId": "northstar-expense-4"
+     }
+    ],
+    "vendors": [],
+    "documents": [],
+    "payments": [],
+    "drafts": [],
+    "journals": [],
+    "approvals": [],
+    "rules": [
+     {
+      "id": "id-0001",
+      "businessId": "northstar",
+      "vendorIncludes": "Figma",
+      "categoryId": "northstar-category-0",
+      "purpose": "Design collaboration for client projects",
+      "enabled": true
+     },
+     {
+      "id": "id-0607",
+      "businessId": "northstar",
+      "vendorIncludes": "Paper Shop",
+      "categoryId": "northstar-category-0",
+      "purpose": "Supplies",
+      "enabled": true
+     }
+    ],
+    "audits": [
+     {
+      "id": "id-0609",
+      "businessId": "northstar",
+      "action": "rule.saved",
+      "entityId": "id-0607",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Classification rule saved:   Paper Shop "
+     }
+    ],
+    "events": [
+     {
+      "id": "id-0608",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "rule.saved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0607",
+      "payload": {
+       "detail": "Classification rule saved:   Paper Shop "
+      }
+     }
+    ],
+    "extractions": []
+   },
+   "input": {
+    "id": "id-0001",
+    "businessId": "northstar",
+    "vendorIncludes": "Figma",
+    "categoryId": "northstar-category-0",
+    "purpose": "Edited purpose",
+    "enabled": false
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0607",
+     "businessId": "northstar",
+     "vendorIncludes": "Paper Shop",
+     "categoryId": "northstar-category-0",
+     "purpose": "Supplies",
+     "enabled": true
+    },
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Edited purpose",
+     "enabled": false
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0609",
+     "businessId": "northstar",
+     "action": "rule.saved",
+     "entityId": "id-0607",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Classification rule saved:   Paper Shop "
+    },
+    {
+     "id": "id-0611",
+     "businessId": "northstar",
+     "action": "rule.saved",
+     "entityId": "id-0001",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Classification rule saved: Figma"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0608",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "rule.saved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0607",
+     "payload": {
+      "detail": "Classification rule saved:   Paper Shop "
+     }
+    },
+    {
+     "id": "id-0610",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "rule.saved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0001",
+     "payload": {
+      "detail": "Classification rule saved: Figma"
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "saveRule: vendor taken, ignoring case",
+  "call": "saveRule",
+  "env": {
+   "nextId": 612,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "profile": {
+     "id": "northstar",
+     "businessId": "northstar",
+     "name": "Northstar Studio",
+     "industry": "Design & creative services",
+     "initials": "NS",
+     "color": "#c8da78",
+     "currency": "USD"
+    },
+    "accounts": [
+     {
+      "id": "northstar-checking",
+      "businessId": "northstar",
+      "name": "Operating account",
+      "kind": "bank",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-card",
+      "businessId": "northstar",
+      "name": "Business card",
+      "kind": "card",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-reserve",
+      "businessId": "northstar",
+      "name": "Reserve account",
+      "kind": "bank",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-eur",
+      "businessId": "northstar",
+      "name": "Euro account",
+      "kind": "bank",
+      "currency": "EUR"
+     },
+     {
+      "id": "northstar-expense-0",
+      "businessId": "northstar",
+      "name": "Software & subscriptions",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-1",
+      "businessId": "northstar",
+      "name": "Office & supplies",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-2",
+      "businessId": "northstar",
+      "name": "Travel & meals",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-3",
+      "businessId": "northstar",
+      "name": "Professional services",
+      "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-expense-4",
+      "businessId": "northstar",
+      "name": "Marketing & design",
+      "kind": "expense",
+      "currency": "USD"
+     }
+    ],
+    "categories": [
+     {
+      "id": "northstar-category-0",
+      "businessId": "northstar",
+      "name": "Software & subscriptions",
+      "accountId": "northstar-expense-0"
+     },
+     {
+      "id": "northstar-category-1",
+      "businessId": "northstar",
+      "name": "Office & supplies",
+      "accountId": "northstar-expense-1"
+     },
+     {
+      "id": "northstar-category-2",
+      "businessId": "northstar",
+      "name": "Travel & meals",
+      "accountId": "northstar-expense-2"
+     },
+     {
+      "id": "northstar-category-3",
+      "businessId": "northstar",
+      "name": "Professional services",
+      "accountId": "northstar-expense-3"
+     },
+     {
+      "id": "northstar-category-4",
+      "businessId": "northstar",
+      "name": "Marketing & design",
+      "accountId": "northstar-expense-4"
+     }
+    ],
+    "vendors": [],
+    "documents": [],
+    "payments": [],
+    "drafts": [],
+    "journals": [],
+    "approvals": [],
+    "rules": [
+     {
+      "id": "id-0001",
+      "businessId": "northstar",
+      "vendorIncludes": "Figma",
+      "categoryId": "northstar-category-0",
+      "purpose": "Design collaboration for client projects",
+      "enabled": true
+     },
+     {
+      "id": "id-0607",
+      "businessId": "northstar",
+      "vendorIncludes": "Paper Shop",
+      "categoryId": "northstar-category-0",
+      "purpose": "Supplies",
+      "enabled": true
+     }
+    ],
+    "audits": [
+     {
+      "id": "id-0609",
+      "businessId": "northstar",
+      "action": "rule.saved",
+      "entityId": "id-0607",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Classification rule saved:   Paper Shop "
+     }
+    ],
+    "events": [
+     {
+      "id": "id-0608",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "rule.saved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0607",
+      "payload": {
+       "detail": "Classification rule saved:   Paper Shop "
+      }
+     }
+    ],
+    "extractions": []
+   },
+   "input": {
+    "vendorIncludes": "paper shop",
+    "categoryId": "northstar-category-0",
+    "purpose": "Again",
+    "enabled": true
+   }
+  },
+  "error": "A rule for this vendor already exists."
+ },
+ {
+  "name": "saveRule: empty purpose",
+  "call": "saveRule",
+  "env": {
+   "nextId": 612,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "input": {
+    "vendorIncludes": "Somewhere",
+    "categoryId": "northstar-category-0",
+    "purpose": "  ",
+    "enabled": true
+   }
+  },
+  "error": "Vendor and purpose are required."
+ },
+ {
+  "name": "saveRule: another business's category",
+  "call": "saveRule",
+  "env": {
+   "nextId": 612,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "input": {
+    "vendorIncludes": "Somewhere",
+    "categoryId": "fieldwork-category-0",
+    "purpose": "Supplies",
+    "enabled": true
+   }
+  },
+  "error": "Choose a category in this business."
+ }
+]

@@ -5,10 +5,10 @@
 mod common;
 
 use common::*;
-use ledger_core::{approve, save_draft, BusinessData, ExpenseStatus};
+use ledger_core::{approve, save_draft, save_rule, BusinessData, ExpenseStatus, RuleInput};
 use protocol::{
     apply_changes, check_base_seq, diff, targets, Command, ProtocolError, Record, RecordChange,
-    RecordKey, RecordType, RecordingEnv, ReplayEnv, CHANGED_SINCE_OPENED,
+    RecordKey, RecordType, RecordingEnv, Removal, Reordering, ReplayEnv, CHANGED_SINCE_OPENED,
 };
 
 const NOW: &str = "2026-05-06T07:08:09.000Z";
@@ -49,7 +49,11 @@ fn approval_changes_rebuild_the_state_and_audit_exactly() {
     assert!(!record.ids.is_empty());
 
     let changes = diff(&before, &after).unwrap();
-    let types: Vec<RecordType> = changes.iter().map(|c| c.key().record_type).collect();
+    let types: Vec<RecordType> = changes
+        .iter()
+        .filter_map(|c| c.key())
+        .map(|k| k.record_type)
+        .collect();
     assert!(types.contains(&RecordType::Draft));
     assert!(types.contains(&RecordType::Journal));
     assert!(types.contains(&RecordType::Approval));
@@ -105,15 +109,110 @@ fn a_removed_record_cannot_be_expressed() {
 }
 
 #[test]
-fn a_reordering_cannot_be_expressed() {
+fn a_reordering_is_recorded_and_replays() {
     let (before, _) = seed_business();
     let mut after = before.clone();
     assert!(after.drafts.len() > 1);
     after.drafts.reverse();
+    let changes = diff(&before, &after).unwrap();
+    assert_eq!(changes.len(), 1);
+    assert!(matches!(&changes[0], RecordChange::Order(o) if o.of == RecordType::Draft));
+    assert_eq!(apply_changes(&before, &changes).unwrap(), after);
+}
+
+#[test]
+fn an_edited_rule_moves_to_the_end_through_its_changes() {
+    let (b, _) = seed_business();
+    let mut env = RecordingEnv::new(generator(), NOW);
+    let input = |vendor: &str| RuleInput {
+        id: None,
+        vendor_includes: vendor.into(),
+        category_id: b.categories[0].id.clone(),
+        purpose: "Invented purpose".into(),
+        enabled: true,
+    };
+    let two = save_rule(&b, &input("Invented Vendor A"), &mut env).unwrap();
+    let three = save_rule(&two, &input("Invented Vendor B"), &mut env).unwrap();
+    let first = three.rules[0].clone();
+    let edited = save_rule(
+        &three,
+        &RuleInput {
+            id: Some(first.id.clone()),
+            enabled: false,
+            ..input(&first.vendor_includes)
+        },
+        &mut env,
+    )
+    .unwrap();
+    assert_eq!(edited.rules.last().unwrap().id, first.id);
+    let changes = diff(&three, &edited).unwrap();
+    assert!(changes
+        .iter()
+        .any(|c| matches!(c, RecordChange::Order(o) if o.of == RecordType::Rule)));
+    assert_eq!(apply_changes(&three, &changes).unwrap(), edited);
+}
+
+#[test]
+fn only_extraction_records_can_be_removed() {
+    let (before, _) = seed_business();
+    let mut after = before.clone();
+    after.drafts.pop();
     assert_eq!(
         diff(&before, &after).unwrap_err(),
-        ProtocolError::ChangesIncomplete
+        ProtocolError::RecordRemoved("draft")
     );
+    let removal = RecordChange::Remove(Removal {
+        of: RecordType::Draft,
+        id: before.drafts[0].id.clone(),
+    });
+    assert_eq!(
+        apply_changes(&before, &[removal]).unwrap_err(),
+        ProtocolError::RecordRemoved("draft")
+    );
+}
+
+#[test]
+fn a_reordering_must_name_every_record_once() {
+    let (before, _) = seed_business();
+    let ids: Vec<String> = before.drafts.iter().map(|d| d.id.clone()).collect();
+    for bad in [
+        ids[1..].to_vec(),
+        [ids[..ids.len() - 1].to_vec(), vec![ids[0].clone()]].concat(),
+        [ids[1..].to_vec(), vec!["missing".into()]].concat(),
+    ] {
+        let change = RecordChange::Order(Reordering {
+            of: RecordType::Draft,
+            ids: bad,
+        });
+        assert!(matches!(
+            apply_changes(&before, &[change]).unwrap_err(),
+            ProtocolError::BadChange(_)
+        ));
+    }
+}
+
+#[test]
+fn record_changes_have_their_documented_json() {
+    let remove = RecordChange::Remove(Removal {
+        of: RecordType::Extraction,
+        id: "x1".into(),
+    });
+    let order = RecordChange::Order(Reordering {
+        of: RecordType::Rule,
+        ids: vec!["r2".into(), "r1".into()],
+    });
+    assert_eq!(
+        serde_json::to_value(&remove).unwrap(),
+        serde_json::json!({"type": "remove", "of": "extraction", "id": "x1"})
+    );
+    assert_eq!(
+        serde_json::to_value(&order).unwrap(),
+        serde_json::json!({"type": "order", "of": "rule", "ids": ["r2", "r1"]})
+    );
+    for change in [remove, order] {
+        let text = serde_json::to_string(&change).unwrap();
+        assert_eq!(serde_json::from_str::<RecordChange>(&text).unwrap(), change);
+    }
 }
 
 #[test]
@@ -122,7 +221,7 @@ fn an_unbalanced_journal_change_is_refused() {
     let mut journal = before.journals[0].to_unchecked();
     journal.id = "j-new".into();
     journal.lines.pop();
-    let err = apply_changes(&before, &[Record::Journal(journal)]).unwrap_err();
+    let err = apply_changes(&before, &[RecordChange::Put(Record::Journal(journal))]).unwrap_err();
     assert!(matches!(err, ProtocolError::BadChange(_)));
 }
 

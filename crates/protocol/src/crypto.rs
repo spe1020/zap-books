@@ -28,6 +28,27 @@ pub fn encrypt_to(sender: &SecretKey, recipient: &PublicKey, plaintext: &str) ->
     nip44::encrypt(sender, recipient, plaintext, Version::V2).map_err(|_| ProtocolError::Encrypt)
 }
 
+/// The length of the base64 NIP-44 v2 payload for `plaintext_len` bytes:
+/// version, nonce, length prefix, padded plaintext and MAC (NIP-44's
+/// `calc_padded_len`). Above [`MAX_PLAINTEXT`] there is no standard payload;
+/// the same rule gives the size one would have had.
+pub fn encrypted_len(plaintext_len: usize) -> usize {
+    let padded = if plaintext_len <= 32 {
+        32
+    } else {
+        let below = plaintext_len - 1;
+        let next_power = 1usize << (usize::BITS - below.leading_zeros());
+        let chunk = if next_power <= 256 {
+            32
+        } else {
+            next_power / 8
+        };
+        chunk * (below / chunk + 1)
+    };
+    let payload = 1 + 32 + 2 + padded + 32;
+    4 * payload.div_ceil(3)
+}
+
 /// Decrypts content written by [`encrypt_to`]. NIP-44's conversation key is
 /// symmetric, so either party's secret key with the other's public key works.
 pub fn decrypt_from(recipient: &SecretKey, sender: &PublicKey, content: &str) -> Result<String> {
@@ -106,6 +127,31 @@ mod tests {
             decrypt_from(a.secret_key(), &b.public_key(), &sealed)?,
             "hello"
         );
+        Ok(())
+    }
+
+    #[test]
+    fn encrypted_len_matches_real_payloads() -> Result<()> {
+        let a = Keys::generate();
+        let b = Keys::generate();
+        for n in [
+            1,
+            31,
+            32,
+            33,
+            64,
+            65,
+            255,
+            256,
+            257,
+            1000,
+            4097,
+            30_000,
+            MAX_PLAINTEXT,
+        ] {
+            let sealed = encrypt_to(a.secret_key(), &b.public_key(), &"x".repeat(n))?;
+            assert_eq!(encrypted_len(n), sealed.len(), "{n} bytes");
+        }
         Ok(())
     }
 

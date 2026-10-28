@@ -1,7 +1,7 @@
 //! Event size limits. A full-size import is sent the way `docs/protocol.md`
-//! specifies: batches start at [`IMPORT_BATCH_START`] rows and halve on a
-//! `tooLarge` rejection. Every proposal and acceptance that results fits
-//! under [`MAX_EVENT_BYTES`].
+//! specifies: batches start at [`IMPORT_BATCH_START`] rows, and a `tooLarge`
+//! rejection sizes the next one from the reported size and limit. Every
+//! proposal and acceptance that results fits under [`MAX_EVENT_BYTES`].
 
 mod common;
 
@@ -12,10 +12,10 @@ use ledger_core::{
 };
 use nostr::prelude::{Event, EventId};
 use protocol::{
-    build_acceptance, build_proposal, build_rejection, diff, open_proposal, open_rejection,
-    AcceptanceContent, AcceptanceHeader, Command, EpochKey, Outcome, ProposalPayload,
-    ProtocolError, RecordingEnv, RejectionCode, IMPORT_BATCH_START, MAX_EVENT_BYTES,
-    PROTOCOL_VERSION,
+    build_acceptance, build_proposal, build_rejection, diff, next_batch, open_proposal,
+    open_rejection, AcceptanceContent, AcceptanceHeader, Command, EpochKey, Outcome,
+    ProposalPayload, ProtocolError, Reason, RecordingEnv, RejectionCode, IMPORT_BATCH_START,
+    MAX_EVENT_BYTES, PROTOCOL_VERSION,
 };
 
 /// The most rows one CSV import may hold (`ledger-core`'s "Import up to
@@ -192,8 +192,7 @@ impl Service {
                 build_rejection(
                     &service(),
                     &header,
-                    RejectionCode::of(&e),
-                    &e.to_string(),
+                    &Reason::from_error(&e),
                     at(self.seq + 1),
                 )
                 .unwrap(),
@@ -212,7 +211,8 @@ struct Report {
 }
 
 /// The client: sends `rows` in order, starting at [`IMPORT_BATCH_START`] rows
-/// a batch, halving on `tooLarge` and sending the same rows again.
+/// a batch. On `tooLarge` it sends the same rows again in a batch sized from
+/// the reported size, and keeps that size for the rest of the file.
 fn send(books: &mut Service, rows: &[ImportRow]) -> Report {
     let account = books.business.accounts[0].id.clone();
     let mut report = Report {
@@ -224,9 +224,12 @@ fn send(books: &mut Service, rows: &[ImportRow]) -> Report {
     };
     let mut size = IMPORT_BATCH_START;
     let mut next = 0;
-    let halve = |size: usize| {
-        assert!(size > 1, "a single row is over the limit");
-        size / 2
+    // `docs/protocol.md`: rows × limit ÷ size × 0.9, rounded down.
+    let shrink = |rows: usize, size: Option<u64>, limit: Option<u64>| {
+        assert!(rows > 1, "a single row is over the limit");
+        let (size, limit) = (size.unwrap(), limit.unwrap());
+        assert!(size > limit);
+        next_batch(rows, size, limit)
     };
     while next < rows.len() {
         let batch = &rows[next..rows.len().min(next + size)];
@@ -242,7 +245,8 @@ fn send(books: &mut Service, rows: &[ImportRow]) -> Report {
         let proposal = match build_proposal(&bookkeeper(), &pk(&service()), &payload, at(1)) {
             Ok(p) => p,
             Err(e) if RejectionCode::of(&e) == RejectionCode::TooLarge => {
-                size = halve(size);
+                let reason = Reason::from_error(&e);
+                size = shrink(batch.len(), reason.size, reason.limit);
                 report.too_large += 1;
                 continue;
             }
@@ -259,16 +263,13 @@ fn send(books: &mut Service, rows: &[ImportRow]) -> Report {
             }
             Answer::Rejected(rejection) => {
                 let rejection = open_rejection(&rejection, &bookkeeper(), &pk(&service())).unwrap();
-                assert_eq!(
-                    rejection.code,
-                    RejectionCode::TooLarge,
-                    "{}",
-                    rejection.message
-                );
-                assert!(rejection.message.contains("Send it as smaller proposals."));
+                let reason = rejection.reason;
+                assert_eq!(reason.code, RejectionCode::TooLarge, "{}", reason.message);
+                assert!(reason.message.contains("Send it as smaller proposals."));
+                assert_eq!(reason.limit, Some(MAX_EVENT_BYTES as u64));
                 // Nothing was stored.
                 assert_eq!(books.seq, seq_before);
-                size = halve(size);
+                size = shrink(batch.len(), reason.size, reason.limit);
                 report.too_large += 1;
             }
         }

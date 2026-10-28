@@ -31,6 +31,8 @@ export interface SourceDocument extends Scoped {
   kind: "receipt";
   createdAt: string;
   demo: boolean;
+  /** SHA-256 of the file bytes, lowercase hex, when known. */
+  sha256?: string;
 }
 export interface ImportedTransaction extends Scoped {
   date: string;

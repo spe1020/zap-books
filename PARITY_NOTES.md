@@ -58,6 +58,8 @@ message. The affected checks are always true in Rust:
   The `>= 0` part is still checked.
 - `src/domain/import.ts:414`: the `Number.isSafeInteger` part of "Invalid
   import row." is unreachable.
+- `src/domain/settings.ts` (`updateSettings`): "Choose a supported currency."
+  is unreachable for a new account or category.
 - `src/domain/ledger.ts:36` and `:52` (`parseMoney`, `sum`) and
   `src/domain/import.ts:311` (combined import amount) are ported as explicit
   range checks against `MAX_MINOR`, with the same messages.

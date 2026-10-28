@@ -14,7 +14,8 @@ import type {
   Currency,
 } from "../domain/types";
 import { currencies } from "../domain/types";
-import { event, id } from "../domain/ledger";
+import { id } from "../domain/ledger";
+import { saveRule, updateSettings } from "../domain/settings";
 import type { Mutation } from "./Review";
 import { Modal } from "./common";
 export function Settings({
@@ -46,52 +47,19 @@ export function Settings({
     }
     const { type, name, currency, kind } = editor;
     const ok = await mutate(
-      (current) => {
-        const next = structuredClone(current);
-        const list = type === "account" ? next.accounts : next.categories;
-        if (
-          list.some(
-            (x) =>
-              x.id !== editor.id &&
-              x.name.toLowerCase() === name.trim().toLowerCase(),
-          )
-        )
-          throw new Error("That name is already in use.");
-        if (editor.id) {
-          const record = list.find((x) => x.id === editor.id)!;
-          record.name = name.trim();
-        } else if (type === "account")
-          next.accounts.push({
-            id: id(),
-            businessId: b.profile.id,
-            name: name.trim(),
-            kind,
-            currency,
-          });
-        else {
-          const accountId = id();
-          next.accounts.push({
-            id: accountId,
-            businessId: b.profile.id,
-            name: name.trim(),
-            kind: "expense",
-            currency,
-          });
-          next.categories.push({
-            id: id(),
-            businessId: b.profile.id,
-            name: name.trim(),
-            accountId,
-          });
-        }
-        event(
-          next,
-          "settings.updated",
-          b.profile.id,
-          `${type} saved: ${name.trim()}`,
-        );
-        return next;
-      },
+      (current) =>
+        updateSettings(
+          current,
+          editor.id
+            ? {
+                op: type === "account" ? "renameAccount" : "renameCategory",
+                id: editor.id,
+                name,
+              }
+            : type === "account"
+              ? { op: "addAccount", name, kind, currency }
+              : { op: "addCategory", name, currency },
+        ),
       `${type === "account" ? "Account" : "Category"} saved.`,
     );
     if (ok) setEditor(undefined);
@@ -109,18 +77,11 @@ export function Settings({
             onSubmit={async (e) => {
               e.preventDefault();
               if (!name.trim() || !industry.trim()) return;
-              await mutate((current) => {
-                const next = structuredClone(current);
-                next.profile.name = name.trim();
-                next.profile.industry = industry.trim();
-                event(
-                  next,
-                  "settings.updated",
-                  next.profile.id,
-                  "Business profile updated",
-                );
-                return next;
-              }, "Business profile saved.");
+              await mutate(
+                (current) =>
+                  updateSettings(current, { op: "profile", name, industry }),
+                "Business profile saved.",
+              );
             }}
           >
             <label>
@@ -329,33 +290,10 @@ export function Settings({
                 setError("Vendor and purpose are required.");
                 return;
               }
-              const ok = await mutate((current) => {
-                if (
-                  current.rules.some(
-                    (r) =>
-                      r.id !== rule.id &&
-                      r.vendorIncludes.toLowerCase() ===
-                        rule.vendorIncludes.trim().toLowerCase(),
-                  )
-                )
-                  throw new Error("A rule for this vendor already exists.");
-                const next = structuredClone(current);
-                next.rules = [
-                  ...next.rules.filter((r) => r.id !== rule.id),
-                  {
-                    ...rule,
-                    vendorIncludes: rule.vendorIncludes.trim(),
-                    purpose: rule.purpose.trim(),
-                  },
-                ];
-                event(
-                  next,
-                  "rule.saved",
-                  rule.id,
-                  `Classification rule saved: ${rule.vendorIncludes}`,
-                );
-                return next;
-              }, "Classification rule saved.");
+              const ok = await mutate(
+                (current) => saveRule(current, rule),
+                "Classification rule saved.",
+              );
               if (ok) setRule(null);
             }}
           >

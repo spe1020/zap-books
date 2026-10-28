@@ -1,0 +1,26 @@
+[package]
+name = "ledger-service"
+version = "0.1.0"
+description = "Zap Books ledger service: the signer of record for each business's books."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+axum = "0.8.9"
+hex = "0.4"
+ledger-core = { path = "../ledger-core" }
+nostr = { version = "0.45.5", default-features = false, features = ["std", "nip44", "nip98", "os-rng"] }
+protocol = { path = "../protocol" }
+rand = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.11"
+sqlx = { version = "0.9", default-features = false, features = ["postgres", "runtime-tokio", "tls-rustls", "migrate", "macros", "json"] }
+thiserror = "2"
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal", "time"] }
+tower-http = { version = "0.7.1", features = ["limit"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["json", "env-filter"] }
+
