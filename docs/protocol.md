@@ -398,6 +398,14 @@ key's public key**:
   waiting 48 hours); `activated` (the scheduler activating a pending
   change); or `lapsed` (a due change that could no longer apply).
 
+**The `service` tag must match the content.** It is allowed only on an
+`activated` acceptance whose command is `replaceServiceKey`, and must name
+that command's key; that acceptance must carry it. Opening an acceptance
+(`open_acceptance`, which every audit starts from) refuses any other
+combination, and the service can't build one. Without this, whoever holds
+the service key could hand the chain to another key with an ordinary
+acceptance, and `verify_chain`, which reads only tags, would follow it.
+
 An `activated` or `lapsed` acceptance repeats the original pending
 proposal and payload. One proposal id can therefore appear on two
 acceptances: `pending`, then `activated` or `lapsed`.

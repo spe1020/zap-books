@@ -10,7 +10,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::business_id::BusinessId;
 use crate::command::{
-    is_lower_hex, Command, CommandType, CommittedPayload, ProposalPayload, PROTOCOL_VERSION,
+    is_lower_hex, Command, CommandType, CommittedPayload, MembershipChange, ProposalPayload,
+    PROTOCOL_VERSION,
 };
 use crate::crypto::{decrypt_from, encrypt_to, encrypted_len, EpochKey, MAX_PLAINTEXT};
 use crate::env::EnvRecord;
@@ -319,6 +320,27 @@ pub struct AcceptanceContent {
     pub outcome: Outcome,
 }
 
+/// The `service` tag hands the chain to a new key, so it must be exactly
+/// what the content says: present on the acceptance that activates a
+/// `ReplaceServiceKey` and naming that key, and on no other acceptance.
+/// Otherwise whoever holds the service key could hand the chain to any key
+/// with an ordinary acceptance.
+fn check_handover(header: &AcceptanceHeader, content: &AcceptanceContent) -> Result<()> {
+    let activated = match (&content.payload.command, content.outcome) {
+        (
+            Command::ChangeMembership {
+                change: MembershipChange::ReplaceServiceKey { key },
+            },
+            Outcome::Activated,
+        ) => Some(*key),
+        _ => None,
+    };
+    if activated != header.next_service {
+        return Err(ProtocolError::TagMismatch(tag::SERVICE));
+    }
+    Ok(())
+}
+
 /// Signs an acceptance, encrypting `content` to the epoch key `epoch`.
 pub fn build_acceptance(
     service: &Keys,
@@ -333,6 +355,7 @@ pub fn build_acceptance(
     if content.proposal.id != header.proposal || content.payload.business != header.business {
         return Err(ProtocolError::TagMismatch(tag::EVENT));
     }
+    check_handover(header, content)?;
     let mut tags = vec![
         custom(tag::BUSINESS, header.business.to_string()),
         custom(tag::SEQ, header.seq.to_string()),
@@ -385,7 +408,9 @@ pub fn parse_acceptance(event: &Event) -> Result<AcceptanceHeader> {
 }
 
 /// A reader's view: decrypts an acceptance with the epoch key its `epoch`
-/// tag names, and checks the embedded proposal against the tags. The caller
+/// tag names, and checks the embedded proposal against the tags, and a
+/// `service` tag against the content. Auditing starts from what this
+/// returns, so a forged hand-over fails before any audit. The caller
 /// verifies the chain and the signer first.
 pub fn open_acceptance(
     event: &Event,
@@ -403,6 +428,7 @@ pub fn open_acceptance(
     }
     let proposal = parse_proposal(&content.proposal)?;
     check_payload(&proposal, &content.payload)?;
+    check_handover(&header, &content)?;
     Ok((header, content))
 }
 
