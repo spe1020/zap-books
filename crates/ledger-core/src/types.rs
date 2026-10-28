@@ -99,6 +99,9 @@ pub struct SourceDocument {
     pub kind: DocumentKind,
     pub created_at: String,
     pub demo: bool,
+    /// SHA-256 of the file bytes, lowercase hex, when known.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
