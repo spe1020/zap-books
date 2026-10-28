@@ -19,6 +19,7 @@ import type {
 import * as L from "../src/domain/ledger";
 import * as I from "../src/domain/import";
 import * as X from "../src/domain/export";
+import * as S from "../src/domain/settings";
 import { seedWorkspace } from "../src/domain/seed";
 
 const NOW = "2026-10-15T12:00:00.000Z";
@@ -1742,6 +1743,140 @@ function paymentOwner(ns: BusinessData) {
   );
 }
 
+/**
+ * `updateSettings` and `saveRule`. Recorded last, so no earlier ids shift.
+ * They run on Northstar's setup without its history: the outputs are whole
+ * businesses, and the history adds nothing to these rules.
+ */
+function settings(seeded: BusinessData, fw: BusinessData) {
+  const ns = state("northstar-setup", {
+    ...seeded,
+    vendors: [],
+    documents: [],
+    payments: [],
+    drafts: [],
+    journals: [],
+    approvals: [],
+    audits: [],
+    events: [],
+    extractions: [],
+  });
+  const update = (name: string, b: BusinessData, change: unknown) =>
+    record("settings", name, "updateSettings", { business: b, change }, (i) =>
+      S.updateSettings(i.business, i.change),
+    );
+  update("profile: trimmed and logged", ns, {
+    op: "profile",
+    name: "  Northstar Studio Two ",
+    industry: " Design ",
+  });
+  update("profile: empty name", ns, {
+    op: "profile",
+    name: "  ",
+    industry: "Design",
+  });
+  update("profile: empty industry", ns, {
+    op: "profile",
+    name: "Northstar",
+    industry: "",
+  });
+  update("addAccount: card", ns, {
+    op: "addAccount",
+    name: " Travel card ",
+    kind: "card",
+    currency: "GBP",
+  });
+  update("addAccount: name taken, ignoring case", ns, {
+    op: "addAccount",
+    name: ns.accounts[0].name.toUpperCase(),
+    kind: "bank",
+    currency: "USD",
+  });
+  update("addAccount: a category's expense account name is taken", ns, {
+    op: "addAccount",
+    name: ns.accounts.find((a) => a.kind === "expense")!.name,
+    kind: "bank",
+    currency: "USD",
+  });
+  update("addAccount: expense kind", ns, {
+    op: "addAccount",
+    name: "Sneaky",
+    kind: "expense",
+    currency: "USD",
+  });
+  update("addAccount: empty name", ns, {
+    op: "addAccount",
+    name: " ",
+    kind: "bank",
+    currency: "USD",
+  });
+  update("renameAccount: own name in another case", ns, {
+    op: "renameAccount",
+    id: ns.accounts[0].id,
+    name: ns.accounts[0].name.toLowerCase(),
+  });
+  update("renameAccount: another business's account", ns, {
+    op: "renameAccount",
+    id: fw.accounts[0].id,
+    name: "Borrowed",
+  });
+  update("addCategory: with its expense account", ns, {
+    op: "addCategory",
+    name: "Field trips",
+    currency: "EUR",
+  });
+  update("renameCategory: name taken", ns, {
+    op: "renameCategory",
+    id: ns.categories[0].id,
+    name: ns.categories[1].name,
+  });
+  update("renameCategory: renamed, its account unchanged", ns, {
+    op: "renameCategory",
+    id: ns.categories[0].id,
+    name: "Renamed category",
+  });
+  update("renameCategory: unknown id", ns, {
+    op: "renameCategory",
+    id: "missing",
+    name: "Nothing",
+  });
+
+  const rule = (name: string, b: BusinessData, input: unknown) =>
+    record("settings", name, "saveRule", { business: b, input }, (i) =>
+      S.saveRule(i.business, i.input),
+    );
+  const added = rule("saveRule: new rule, trimmed", ns, {
+    vendorIncludes: "  Paper Shop ",
+    categoryId: ns.categories[0].id,
+    purpose: " Supplies ",
+    enabled: true,
+  });
+  const first = ns.rules[0];
+  rule("saveRule: edited rule moves to the end", added, {
+    ...first,
+    purpose: "Edited purpose",
+    enabled: false,
+  });
+  rule("saveRule: vendor taken, ignoring case", added, {
+    vendorIncludes: "paper shop",
+    categoryId: ns.categories[0].id,
+    purpose: "Again",
+    enabled: true,
+  });
+  rule("saveRule: empty purpose", ns, {
+    vendorIncludes: "Somewhere",
+    categoryId: ns.categories[0].id,
+    purpose: "  ",
+    enabled: true,
+  });
+  rule("saveRule: another business's category", ns, {
+    vendorIncludes: "Somewhere",
+    categoryId: fw.categories[0].id,
+    purpose: "Supplies",
+    enabled: true,
+  });
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -1775,6 +1910,7 @@ test("generate parity fixtures", () => {
     clock(ns);
     earlyDates(ns);
     paymentOwner(ns);
+    settings(ns, fw);
     write();
   } finally {
     vi.useRealTimers();
