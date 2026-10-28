@@ -58,6 +58,7 @@ fn every_command() -> Vec<(&'static str, Command)> {
             Command::SaveDraft {
                 draft: draft.clone(),
                 documents: vec![],
+                extraction: None,
             },
         ),
         (

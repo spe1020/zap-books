@@ -12,7 +12,7 @@ use crate::business_id::BusinessId;
 use crate::command::{
     is_lower_hex, Command, CommandType, CommittedPayload, ProposalPayload, PROTOCOL_VERSION,
 };
-use crate::crypto::{decrypt_from, encrypt_to, EpochKey};
+use crate::crypto::{decrypt_from, encrypt_to, encrypted_len, EpochKey, MAX_PLAINTEXT};
 use crate::env::EnvRecord;
 use crate::error::{ProtocolError, Result};
 use crate::kinds::{self, tag};
@@ -27,6 +27,33 @@ fn sign(keys: &Keys, kind: u16, content: String, tags: Vec<Tag>, at: Timestamp) 
         .map_err(|_| ProtocolError::Encrypt)?;
     check_size(&event)?;
     Ok(event)
+}
+
+/// Encrypts `plaintext` to `recipient` and signs the event. Content too long
+/// for one NIP-44 payload is reported as the event size it would have had,
+/// so the caller always learns the size and the limit.
+fn seal_and_sign(
+    keys: &Keys,
+    recipient: &PublicKey,
+    plaintext: &str,
+    kind: u16,
+    tags: Vec<Tag>,
+    at: Timestamp,
+) -> Result<Event> {
+    if plaintext.len() > MAX_PLAINTEXT {
+        let placeholder = "A".repeat(encrypted_len(plaintext.len()));
+        let would_be = EventBuilder::new(kinds::kind(kind), placeholder)
+            .tags(tags)
+            .custom_created_at(at)
+            .finalize(keys)
+            .map_err(|_| ProtocolError::Encrypt)?;
+        return Err(ProtocolError::EventTooLarge {
+            size: would_be.as_json().len(),
+            max: MAX_EVENT_BYTES,
+        });
+    }
+    let content = encrypt_to(keys.secret_key(), recipient, plaintext)?;
+    sign(keys, kind, content, tags, at)
 }
 
 /// Every event this crate builds or accepts fits on a public relay.
@@ -154,8 +181,7 @@ pub fn build_proposal(
         tags.push(custom(tag::SERVICE, service.to_hex()));
     }
     tags.push(custom(tag::PAYLOAD, committed.hash()));
-    let content = encrypt_to(member.secret_key(), service, committed.text())?;
-    sign(member, kinds::PROPOSAL, content, tags, at)
+    seal_and_sign(member, service, committed.text(), kinds::PROPOSAL, tags, at)
 }
 
 /// Checks a proposal's signature and tags without decrypting it.
@@ -319,8 +345,14 @@ pub fn build_acceptance(
     if let Some(next) = header.next_service {
         tags.push(custom(tag::SERVICE, next.to_hex()));
     }
-    let text = encrypt_to(service.secret_key(), epoch, &to_json(content)?)?;
-    sign(service, kinds::ACCEPTANCE, text, tags, at)
+    seal_and_sign(
+        service,
+        epoch,
+        &to_json(content)?,
+        kinds::ACCEPTANCE,
+        tags,
+        at,
+    )
 }
 
 /// Checks an acceptance's signature and tags without decrypting it. The
@@ -401,22 +433,65 @@ impl RejectionCode {
     }
 }
 
-/// A rejection's decrypted content: a code and the `ledger-core` or
-/// protocol message.
+/// Why a proposal was rejected: a code, the message, and for `tooLarge`
+/// the size the acceptance (or proposal) would have been and the limit.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reason {
+    pub code: RejectionCode,
+    pub message: String,
+    pub size: Option<u64>,
+    pub limit: Option<u64>,
+}
+
+impl Reason {
+    /// A `rejected` reason with a `ledger-core` or other message.
+    pub fn rejected(message: impl Into<String>) -> Reason {
+        Reason {
+            code: RejectionCode::Rejected,
+            message: message.into(),
+            size: None,
+            limit: None,
+        }
+    }
+
+    /// The reason for a protocol error, with the sizes for `tooLarge`.
+    pub fn from_error(error: &ProtocolError) -> Reason {
+        let (size, limit) = match error {
+            ProtocolError::EventTooLarge { size, max }
+            | ProtocolError::ContentTooLarge { size, max } => {
+                (Some(*size as u64), Some(*max as u64))
+            }
+            _ => (None, None),
+        };
+        Reason {
+            code: RejectionCode::of(error),
+            message: error.to_string(),
+            size,
+            limit,
+        }
+    }
+}
+
+/// A rejection's decrypted content.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RejectionContent {
     pub v: u32,
     pub code: RejectionCode,
     pub message: String,
+    /// `tooLarge` only: the size in bytes the event would have been.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<u64>,
+    /// `tooLarge` only: the limit it exceeded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u64>,
 }
 
 /// A rejection as its proposer reads it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Rejection {
     pub proposal: EventId,
-    pub code: RejectionCode,
-    pub message: String,
+    pub reason: Reason,
 }
 
 /// Signs a rejection of `proposal`, encrypted to its author only. Rejections
@@ -424,8 +499,7 @@ pub struct Rejection {
 pub fn build_rejection(
     service: &Keys,
     proposal: &ProposalHeader,
-    code: RejectionCode,
-    message: &str,
+    reason: &Reason,
     at: Timestamp,
 ) -> Result<Event> {
     let tags = vec![
@@ -435,11 +509,19 @@ pub fn build_rejection(
     ];
     let content = RejectionContent {
         v: PROTOCOL_VERSION,
-        code,
-        message: message.to_string(),
+        code: reason.code,
+        message: reason.message.clone(),
+        size: reason.size,
+        limit: reason.limit,
     };
-    let text = encrypt_to(service.secret_key(), &proposal.author, &to_json(&content)?)?;
-    sign(service, kinds::REJECTION, text, tags, at)
+    seal_and_sign(
+        service,
+        &proposal.author,
+        &to_json(&content)?,
+        kinds::REJECTION,
+        tags,
+        at,
+    )
 }
 
 /// The proposer's view of a rejection. Fails unless `service` signed it and
@@ -458,8 +540,12 @@ pub fn open_rejection(event: &Event, member: &Keys, service: &PublicKey) -> Resu
     check_version(content.v)?;
     Ok(Rejection {
         proposal,
-        code: content.code,
-        message: content.message,
+        reason: Reason {
+            code: content.code,
+            message: content.message,
+            size: content.size,
+            limit: content.limit,
+        },
     })
 }
 
@@ -501,8 +587,14 @@ pub fn build_delivery(
         epoch: key.epoch,
         secret: key.secret_key().to_secret_hex(),
     };
-    let text = encrypt_to(service.secret_key(), member, &to_json(&content)?)?;
-    sign(service, kinds::EPOCH_KEY_DELIVERY, text, tags, at)
+    seal_and_sign(
+        service,
+        member,
+        &to_json(&content)?,
+        kinds::EPOCH_KEY_DELIVERY,
+        tags,
+        at,
+    )
 }
 
 /// The member's view: decrypts a delivery from `service`.

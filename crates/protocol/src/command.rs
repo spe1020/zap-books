@@ -2,7 +2,8 @@
 
 use std::ops::Deref;
 
-use ledger_core::{Account, AccountKind, Business, Category, Currency, ExpenseDraft, ImportRow};
+use ledger_core::{Account, Business, Category, ExpenseDraft, ExtractionRecord, ImportRow};
+pub use ledger_core::{RuleInput, SettingsChange};
 use nostr::prelude::{EventId, PublicKey};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sha2::{Digest, Sha256};
@@ -112,6 +113,10 @@ impl<'de> Deserialize<'de> for CommittedPayload {
     }
 }
 
+/// Variants differ a lot in size (a draft with a receipt reading against an
+/// approval's id); commands are short-lived wire values, so boxing would only
+/// add noise.
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum Command {
@@ -132,6 +137,12 @@ pub enum Command {
         /// References to documents first attached in this save.
         #[serde(default)]
         documents: Vec<DocumentRef>,
+        /// What the receipt reader proposed for this draft and which
+        /// suggestions were accepted. The service gives it its own id and
+        /// time, and checks that it belongs to this business, draft and one
+        /// of the draft's documents.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        extraction: Option<ExtractionRecord>,
     },
     #[serde(rename_all = "camelCase")]
     Approve { expense_id: String },
@@ -318,37 +329,4 @@ impl DocumentRef {
                 .bytes()
                 .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
     }
-}
-
-/// The Settings screen's edits. New records get service-generated ids.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "op", rename_all = "camelCase")]
-pub enum SettingsChange {
-    #[serde(rename_all = "camelCase")]
-    Profile { name: String, industry: String },
-    #[serde(rename_all = "camelCase")]
-    AddAccount {
-        name: String,
-        kind: AccountKind,
-        currency: Currency,
-    },
-    #[serde(rename_all = "camelCase")]
-    RenameAccount { id: String, name: String },
-    /// Creates the category and its expense account.
-    #[serde(rename_all = "camelCase")]
-    AddCategory { name: String, currency: Currency },
-    #[serde(rename_all = "camelCase")]
-    RenameCategory { id: String, name: String },
-}
-
-/// A classification rule to save. Without an `id` it is a new rule.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RuleInput {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
-    pub vendor_includes: String,
-    pub category_id: String,
-    pub purpose: String,
-    pub enabled: bool,
 }

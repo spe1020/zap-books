@@ -80,6 +80,18 @@ pub enum ProtocolError {
     #[error("The service key in this proposal is not this service's key.")]
     WrongService,
 
+    // Applying commands
+    #[error("This business can't be created: {0}.")]
+    InvalidGenesis(String),
+    #[error("A document reference needs a new id, a size and a SHA-256 hash.")]
+    BadDocument,
+    #[error("The receipt reading must belong to this business, this draft and one of its documents, and not be approved yet.")]
+    ExtractionScope,
+    #[error("Submitters can only add new drafts.")]
+    SubmitterNewDraftsOnly,
+    #[error("Re-running the command did not reproduce the recorded changes.")]
+    AuditMismatch,
+
     // Records
     /// [`crate::CHANGED_SINCE_OPENED`].
     #[error("This record changed since you opened it. Reload it and try again.")]
