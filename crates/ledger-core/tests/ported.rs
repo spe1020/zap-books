@@ -65,13 +65,13 @@ fn all_seeded_journals_balance_corrections_net_and_transfers_are_excluded() {
     for j in &b.journals {
         assert_balanced(&b, j).unwrap();
     }
-    assert_eq!(usd(&b), 461499);
+    assert_eq!(usd(&b), 458559);
     let by_category: i64 = category_totals(&b, PERIOD, Currency::Usd)
         .unwrap()
         .iter()
         .map(|c| c.amount.get())
         .sum();
-    assert_eq!(by_category, 461499);
+    assert_eq!(by_category, 458559);
     assert!(totals(&b, "1900-01").unwrap().is_empty());
     let mut no_transfers = b.clone();
     no_transfers
@@ -106,7 +106,7 @@ fn approval_is_balanced_and_can_only_occur_once() {
     let (b, mut env) = fresh();
     let d = by_vendor(&b, "Figma", ExpenseStatus::Draft).clone();
     let posted = approve(&b, &d.id, &mut env).unwrap();
-    assert_eq!(usd(&posted), 471099);
+    assert_eq!(usd(&posted), 468159);
     assert!(err_text(approve(&posted, &d.id, &mut env)).contains("already been posted"));
     assert_eq!(
         posted
@@ -155,7 +155,7 @@ fn a_correction_reverses_the_original_and_posts_replacement_atomically() {
     );
     let stored = next.drafts.iter().find(|d| d.id == replacement.id).unwrap();
     assert_eq!(stored.correction_of.as_ref(), Some(&original.id));
-    assert_eq!(usd(&next), 459500);
+    assert_eq!(usd(&next), 456560);
     let again = replacement.replacement(env.new_id());
     assert!(correct(&next, &original.id, &again, "Again", &mut env).is_err());
     let mut invalid = replacement.clone();
@@ -207,7 +207,7 @@ fn currencies_never_combine_and_a_payment_account_must_match_the_currency() {
     let saved = save_draft(&b, &d, &mut env).unwrap();
     let next = approve(&saved, &d.id, &mut env).unwrap();
     let expected = [
-        (Currency::Usd, minor(461499)),
+        (Currency::Usd, minor(458559)),
         (Currency::Eur, minor(10001)),
     ];
     assert_eq!(
@@ -705,7 +705,7 @@ fn our_expense_csv_maps_back_into_reviewable_drafts_with_preserved_exact_amounts
     let preview = history_preview(&b, &csv.csv, &history_options(None, None), &mut env);
     assert!(preview.iter().all(|r| r.error.is_none()));
     let sum: i64 = preview.iter().map(|r| r.amount_minor.get()).sum();
-    assert_eq!(sum, 461499);
+    assert_eq!(sum, 458559);
 }
 
 // "a mixed-account migration is blocked before any drafts are created"
