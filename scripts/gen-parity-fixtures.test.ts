@@ -1748,7 +1748,7 @@ function paymentOwner(ns: BusinessData) {
  * They run on Northstar's setup without its history: the outputs are whole
  * businesses, and the history adds nothing to these rules.
  */
-function settings(seeded: BusinessData, fw: BusinessData) {
+function settings(seeded: BusinessData, fw: BusinessData): BusinessData {
   const ns = state("northstar-setup", {
     ...seeded,
     vendors: [],
@@ -1875,6 +1875,37 @@ function settings(seeded: BusinessData, fw: BusinessData) {
     purpose: "Supplies",
     enabled: true,
   });
+  return ns;
+}
+
+/** A document's optional `sha256` is kept as stored. Recorded last. */
+function documentHashes(setup: BusinessData) {
+  const withDoc = state("northstar-setup-hashed-document", {
+    ...setup,
+    documents: [
+      {
+        id: "doc-hashed",
+        businessId: setup.profile.id,
+        name: "receipt.pdf",
+        mime: "application/pdf",
+        size: 2048,
+        kind: "receipt",
+        createdAt: NOW,
+        demo: false,
+        sha256: "5e".repeat(32),
+      },
+    ],
+  });
+  record(
+    "documents",
+    "saveDraft: a draft referring to a document with a hash",
+    "saveDraft",
+    {
+      business: withDoc,
+      draft: ready(withDoc, { documentIds: ["doc-hashed"] }),
+    },
+    (i) => L.saveDraft(i.business, i.draft),
+  );
 }
 
 test("generate parity fixtures", () => {
@@ -1910,7 +1941,8 @@ test("generate parity fixtures", () => {
     clock(ns);
     earlyDates(ns);
     paymentOwner(ns);
-    settings(ns, fw);
+    const setup = settings(ns, fw);
+    documentHashes(setup);
     write();
   } finally {
     vi.useRealTimers();
