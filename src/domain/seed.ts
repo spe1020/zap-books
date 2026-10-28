@@ -291,7 +291,7 @@ function business(
   );
   add(
     landscape ? "Route Coffee" : "Common Ground",
-    6800,
+    3860,
     3,
     2,
     "Client project planning meeting",

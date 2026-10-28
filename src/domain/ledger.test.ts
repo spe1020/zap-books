@@ -34,13 +34,13 @@ describe("financial invariants", () => {
   test("all seeded journals balance, corrections net and transfers are excluded", () => {
     const b = fresh();
     b.journals.forEach((j) => expect(() => assertBalanced(b, j)).not.toThrow());
-    expect(totals(b, currentPeriod()).USD).toBe(461499);
+    expect(totals(b, currentPeriod()).USD).toBe(458559);
     expect(
       categoryTotals(b, currentPeriod(), "USD").reduce(
         (sum, c) => sum + c.amount,
         0,
       ),
-    ).toBe(461499);
+    ).toBe(458559);
     expect(totals(b, "1900-01")).toEqual({});
     expect(
       totals(
@@ -64,7 +64,7 @@ describe("financial invariants", () => {
     const b = fresh(),
       d = b.drafts.find((d) => d.vendor === "Figma")!;
     const posted = approve(b, d.id);
-    expect(totals(posted, currentPeriod()).USD).toBe(471099);
+    expect(totals(posted, currentPeriod()).USD).toBe(468159);
     expect(() => approve(posted, d.id)).toThrow("already been posted");
     expect(posted.approvals.filter((a) => a.expenseId === d.id)).toHaveLength(
       1,
@@ -92,7 +92,7 @@ describe("financial invariants", () => {
     expect(next.drafts.find((d) => d.id === replacement.id)?.correctionOf).toBe(
       original.id,
     );
-    expect(totals(next, currentPeriod()).USD).toBe(459500);
+    expect(totals(next, currentPeriod()).USD).toBe(456560);
     expect(() =>
       correct(next, original.id, { ...replacement, id: id() }, "Again"),
     ).toThrow();
@@ -126,7 +126,7 @@ describe("financial invariants", () => {
       accountId: b.accounts.find((a) => a.currency === "EUR")!.id,
     };
     const next = approve(saveDraft(b, d), d.id);
-    expect(totals(next, currentPeriod())).toEqual({ USD: 461499, EUR: 10001 });
+    expect(totals(next, currentPeriod())).toEqual({ USD: 458559, EUR: 10001 });
     expect(validation(b, { ...d, accountId: b.accounts[0].id })).toContain(
       "Payment account currency must match the expense.",
     );
