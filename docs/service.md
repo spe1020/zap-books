@@ -21,6 +21,9 @@ DATABASE_URL=postgres://… cargo run -p ledger-service -- \
   --listen 127.0.0.1:8787
 ```
 
+- `--key-file` may be given more than once: the first is the primary key,
+  the others are keys businesses can move to (see Replacing the service
+  key).
 - `--public-url` is the address clients use. NIP-98 auth events must name
   it exactly, so set it to what the TLS-terminating proxy in front of the
   service serves.
@@ -33,7 +36,8 @@ DATABASE_URL=postgres://… cargo run -p ledger-service -- \
 ## The service key
 
 - **Loading.** From the systemd credential `service-key` when the service
-  runs with `LoadCredential=service-key:/path/to/key`, or else from
+  runs with `LoadCredential=service-key:/path/to/key` (plus any credentials
+  named `service-key.<name>`, as further keys), or else from each
   `--key-file`. A key file must have permissions exactly `0600`; with any
   other mode the service refuses to start and says how to fix it. The file
   holds a 64-character hex secret or an `nsec`.
@@ -65,9 +69,28 @@ Do this once, when the key is created, and again whenever it is replaced.
 If the key is lost, the service can't sign further acceptances, and the
 books are frozen until owners declare a new service key. If it leaks,
 whoever holds it can sign a different history. The hash chain and the
-members' signed proposals expose that, and owners replace the key. Replacing
-the service key is an owner-level change (48 hours, vetoable). It arrives
-with membership in the service, PR 3.
+members' signed proposals expose that, and owners replace the key.
+
+### Replacing the service key
+
+Replacing the key a business uses is an owner-level change
+(`replaceServiceKey`: 48 hours, vetoable), per business.
+
+1. Generate the new key with `generate-key` and back it up as above.
+2. Restart the service with both keys: the current one first, then
+   `--key-file <new key>` (or a `service-key.next` credential).
+3. An owner proposes `replaceServiceKey` naming the new public key. The
+   service refuses a key it doesn't hold, since it could sign nothing for
+   the business afterwards.
+4. When the change activates, the **old** key signs the hand-over
+   acceptance, which carries the new key in its `service` tag and starts a
+   new epoch. Every later acceptance, delivery and rejection for the
+   business is signed by the new key, and proposals must be encrypted to
+   it. The business's epoch secrets are resealed to the new key in the same
+   transaction.
+5. Once no business uses the old key, it can leave the service's
+   configuration. If one still names it and it is missing, that business's
+   requests fail (500) and nothing is stored until the key is back.
 
 ## API
 
@@ -75,7 +98,8 @@ with membership in the service, PR 3.
 | --------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `POST /v1/proposals`, a proposal event as the body  | The proposal itself | 200 `{"status": "accepted" \| "rejected", "event": …}`; 400 if not a validly signed proposal; 413 over the body limit |
 | `GET /v1/businesses/{id}/acceptances?after=&limit=` | NIP-98              | `{"head": seq, "acceptances": [...]}`, in seq order; 404 unless the caller reads this business                        |
-| `GET /v1/epoch-keys?business=`                      | NIP-98              | `{"deliveries": [...]}`: the caller's epoch key deliveries                                                            |
+| `GET /v1/businesses/{id}/pending`                   | NIP-98              | `{"pending": [{proposal, proposer, change, effectiveAt}]}`; 404 unless the caller is an owner or the recovery key     |
+| `GET /v1/epoch-keys?business=`                      | NIP-98              | `{"deliveries": [...]}`: the deliveries the caller is entitled to now                                                 |
 | `GET /v1/rejections?after=`                         | NIP-98              | `{"cursor": n, "rejections": [...]}`: the caller's rejections, oldest first                                           |
 | `GET /health`                                       | None                | `ok`                                                                                                                  |
 
@@ -86,6 +110,9 @@ with membership in the service, PR 3.
   signature, and the time (at most 60 seconds old, 30 seconds ahead). Each
   auth event is accepted once; its id is remembered for 120 seconds, longer
   than any event stays valid.
+- **Epoch keys.** A member who reads receives every epoch their history
+  choice covers. A removed member, or one demoted to submitter, gets none,
+  not even the ones delivered to them before.
 - **Limits.** The request body is at most 65,536 + 4,096 bytes (one event).
   Each public key gets a token bucket: 60 proposals at once and 10 a second
   after that, and 120 reads at once and 20 a second. The buckets are in
@@ -104,13 +131,19 @@ Each proposal is handled in one database transaction:
    business are handled one at a time; different businesses in parallel.
 4. Check again for a stored acknowledgment (a concurrent copy may have
    just finished).
-5. Decrypt and check the payload commitment; check permissions; check
-   `baseSeq` against the record versions; apply the command with
-   `protocol::apply_command` and the service's environment; compute the
-   record changes; build and sign the acceptance under the current epoch
-   key.
-6. Store the acceptance, the new snapshot, the record versions, the
-   acknowledgment and an outbox row, and commit. All or nothing.
+5. Activate the business's owner-level changes that are due (see The
+   scheduler).
+6. Decrypt with the business's service key and check the payload
+   commitment; check permissions; check `baseSeq` against the record
+   versions; apply the command with `protocol::apply_command` and the
+   service's environment; compute the record changes; for `ChangeMembership`
+   and `Veto`, compute the new membership (`MembershipState::propose` and
+   `veto`); build and sign the acceptance, under a new epoch key if the
+   change starts an epoch.
+7. Store the acceptance, the new snapshot and membership, the record
+   versions, the acknowledgment and outbox rows, and, when the membership
+   changed, the members, pending changes, any new epoch key and the
+   deliveries now owed; then commit. All or nothing.
 
 Any rejection in step 5 is signed, stored as the acknowledgment and in the
 `audit` table, and committed. A rejection stores no acceptance, seq, snapshot
@@ -120,6 +153,45 @@ acceptance would have been.
 Genesis does the same, creating the business row, epoch 0 (its secret NIP-44
 encrypted from the service key to itself), the members and one epoch key
 delivery per member who reads.
+
+## Membership and keys
+
+- **Immediate changes** (adding, removing or changing the role of a
+  bookkeeper, viewer or submitter) take effect in their own acceptance.
+- **A new epoch** starts when a member who reads is removed or demoted to
+  submitter, when someone starts reading with from-join-date history, on
+  recovery, and on a service-key replacement. The acceptance that starts it
+  is the first encrypted under it, so a removed member can't read their own
+  removal. The service generates the keypair, stores its secret sealed to
+  the business's service key, and delivers it to every member who reads.
+- **Deliveries** go to everyone who reads, for every epoch their history
+  covers: a full-history member receives every past epoch key, a
+  from-join-date member those from the epoch their joining started.
+  Submitters, the recovery key and removed members receive nothing.
+- **Revocation is immediate.** Permissions are checked against the
+  membership after the head acceptance, inside the business's lock, so the
+  first proposal after a removal is already refused, and reads check the
+  same state.
+
+### The scheduler
+
+Owner-level changes are accepted as `pending` with `effectiveAt` 48 hours
+after the acceptance. `Ledger::activate_due` appends, for each pending
+change whose time has come, an `activated` acceptance, or `lapsed` when the
+change no longer applies (`MembershipState::activate` fails), in the order
+the changes were accepted. Each business is one transaction under its lock.
+
+- **The loop** (`scheduler::spawn`) runs it every 30 seconds.
+- **Before anything else** for a business (a proposal, a read of its
+  acceptances, its pending changes or its epoch keys) the service activates
+  that business's due changes. So a change takes effect at its time, not at
+  the next tick, and a veto that arrives after `effectiveAt` is refused
+  ("There is no pending change with this id."): the change has already
+  activated.
+- **Time** comes from the ledger's clock. The tests set it by hand and run
+  `activate_due` directly; none waits.
+- **A pending change** is stored with its proposal event and plaintext
+  payload, which the activating acceptance repeats.
 
 ## Storage
 
@@ -133,7 +205,7 @@ signed, so it is served byte for byte.
 | `proposals`                  | Each proposal's acknowledgment, by event id                                                                              |
 | `record_versions`            | The seq that last changed each record, for `baseSeq`                                                                     |
 | `members`                    | Members and their roles                                                                                                  |
-| `pending_changes`            | Owner-level changes waiting out 48 hours (PR 3)                                                                          |
+| `pending_changes`            | Owner-level changes waiting out 48 hours, with their proposal and payload                                                |
 | `epochs`, `epoch_deliveries` | Epoch keys (secrets sealed to the service key) and their deliveries                                                      |
 | `outbox`                     | Every acceptance and delivery, to publish to relays in stage 4                                                           |
 | `audit`                      | Signed rejections                                                                                                        |
@@ -157,6 +229,9 @@ whether it ever reaches a stored value. It doesn't:
 - **None of the others** (`save_draft`, `approve`, `correct`,
   `update_settings`, `save_rule`, nor the protocol's document and receipt
   reading steps) read `today()`.
+- **Membership** commands leave the books unchanged in `apply_command`, and
+  activations, lapses and the membership rules don't call `ledger-core` at
+  all. Their times are Unix seconds from the clock, never `today()`.
 
 `today_never_reaches_the_books` (`crates/protocol/tests/apply.rs`) runs every
 command type under two environments that differ only in `today()`, ten years
@@ -164,9 +239,4 @@ apart, and requires identical books.
 
 ## Not yet
 
-- **Membership changes, epochs after 0, the 48-hour scheduler, vetoes,
-  recovery and revocation** come in PR 3. Until then `ChangeMembership` and
-  `Veto` are rejected ("Membership changes are not available yet."), so the
-  members are the genesis members.
-- **Pending owner-level changes** have a table but no endpoint yet (PR 3).
 - **The outbox** is written but not published (stage 4).

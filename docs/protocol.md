@@ -502,6 +502,9 @@ A **delivery** gives one epoch secret key to one member. Tags: `b`,
 ```
 
 The reader checks that the content's business and epoch match the tags.
+A delivery is signed by the business's service key when it was made, so
+after a service-key replacement a reader accepts deliveries from any key the
+chain has handed over to.
 
 **A new epoch starts** when:
 
@@ -547,7 +550,10 @@ Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
 - **Owner-level changes wait 48 hours.** They are accepted with outcome
   `pending` and `effectiveAt` = acceptance time + 48 hours. When one is due,
   the service's scheduler appends an `activated` acceptance, unless a `Veto`
-  was accepted first. Pending changes are visible to all owners.
+  was accepted first. A due change is activated before anything else the
+  service accepts for the business, so a veto must arrive before
+  `effectiveAt`. Pending changes are visible to all owners and the recovery
+  key.
 - **Veto:** any owner or the recovery key, except whoever proposed the
   change.
 - **Checked twice.** A pending change is checked against the state when it
