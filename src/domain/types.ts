@@ -225,6 +225,9 @@ export interface ExtractionResult {
   durationMs: number;
   /** Whether the model reports thinking support; null if unknown. Thinking is always requested off. */
   modelSupportsThinking: boolean | null;
+  /** How the total was confirmed; null when it isn't found. Absent from older extractors. */
+  totalConfirmedBy?:
+    "label" | "reconciliation" | "labelAndReconciliation" | null;
 }
 export type ExtractionOutcome = "accepted" | "edited" | "ignored" | "unclear";
 /** What a receipt reader proposed for a draft, and what the user did. */

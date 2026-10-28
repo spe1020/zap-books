@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::ExtractError;
 use crate::files::{detect, FileKind};
-use crate::normalize::{normalize, parse_answer, utc_date, Context};
+use crate::normalize::{normalize, parse_answer, utc_date, Context, TotalConfirmation};
 use crate::ollama::{Chat, Ollama};
 use crate::{pdf, prompt};
 
@@ -33,6 +33,10 @@ pub struct ExtractionResult {
     /// Whether the model reports thinking support (`/api/show`), or `null`
     /// if Ollama didn't say. Thinking is always requested off.
     pub model_supports_thinking: Option<bool>,
+    /// How the total was confirmed (`label`, `reconciliation` or
+    /// `labelAndReconciliation`), or `null` when it isn't found.
+    #[serde(default)]
+    pub total_confirmed_by: Option<TotalConfirmation>,
 }
 
 /// Field statuses only, for logs: never values or evidence.
@@ -153,6 +157,7 @@ impl Extractor {
             used_text_layer: text.is_some(),
             duration_ms,
             model_supports_thinking,
+            total_confirmed_by: normalized.total_confirmed_by,
         };
         tracing::info!(
             model = %self.model,

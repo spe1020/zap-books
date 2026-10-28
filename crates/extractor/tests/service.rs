@@ -389,6 +389,7 @@ async fn a_timeout_closes_the_connection_and_the_next_request_waits_for_idle() {
         assert_eq!(f.requests.len(), 2, "no receipt is sent while busy");
         let probe = &f.requests[1];
         assert_eq!(probe["options"]["num_predict"], 1);
+        assert_eq!(probe["options"]["seed"], extractor::ollama::SEED);
         assert_eq!(probe["think"], false);
         assert!(probe.get("format").is_none());
     }
@@ -402,6 +403,8 @@ async fn a_timeout_closes_the_connection_and_the_next_request_waits_for_idle() {
         assert_eq!(f.requests.len(), 4);
         assert_eq!(f.requests[2]["options"]["num_predict"], 1);
         assert!(f.requests[3]["format"].is_object());
+        assert_eq!(f.requests[3]["options"]["temperature"], 0);
+        assert_eq!(f.requests[3]["options"]["seed"], extractor::ollama::SEED);
     }
     // Settled: the next receipt goes straight to the model.
     let (status, _) = extract(addr, sample("demo-receipt.png")).await;
@@ -555,6 +558,8 @@ async fn the_model_is_warmed_up_with_a_fictional_sample_before_health_is_ready()
         let warm_up = &f.requests[0];
         assert_eq!(warm_up["model"], MODEL);
         assert_eq!(warm_up["options"]["num_predict"], 1);
+        assert_eq!(warm_up["options"]["temperature"], 0);
+        assert_eq!(warm_up["options"]["seed"], extractor::ollama::SEED);
         assert_eq!(warm_up["think"], false);
         assert!(warm_up["format"].is_object());
         let image = warm_up["messages"][1]["images"][0].as_str().unwrap();
@@ -660,6 +665,7 @@ async fn an_injected_total_never_comes_back_as_found() {
             "modelSupportsThinking",
             "pagesRead",
             "promptVersion",
+            "totalConfirmedBy",
             "usedTextLayer",
             "warnings"
         ]
