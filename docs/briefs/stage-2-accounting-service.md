@@ -183,7 +183,7 @@ Do these as separate PRs, in order. **Stop after each one is open and wait for S
 
 ## Allowed dependencies
 
-- **Rust:** `nostr` (rust-nostr, with the NIP-44 feature), `axum`, `tokio`, `tower-http`, `sqlx` (Postgres, runtime tokio, rustls), `serde`, `serde_json`, `thiserror`, `tracing`, `tracing-subscriber`, `rand`, `sha2`, `hex`.
+- **Rust:** `nostr` (rust-nostr, with the NIP-44 feature), `axum`, `tokio`, `tower-http`, `sqlx` (Postgres, runtime tokio, rustls), `serde`, `serde_json`, `thiserror`, `tracing`, `tracing-subscriber`, `rand`, `sha2`, `hex`, `base64`.
 - **Frontend:** `nostr-tools`.
 - **Anything else:** stop and ask. **No hand-written cryptography:** signing, hashing and encryption come from these libraries only.
 
