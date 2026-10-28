@@ -10,9 +10,9 @@ use common::*;
 use nostr::prelude::{Event, Keys};
 use protocol::{
     build_acceptance, build_delivery, build_proposal, open_acceptance, open_delivery,
-    open_proposal, verify_chain, AcceptanceContent, AcceptanceHeader, Command, EnvRecord, EpochKey,
-    History, MembershipChange, MembershipState, Outcome, ProposalPayload, Role, OWNER_DELAY_SECS,
-    PROTOCOL_VERSION,
+    open_proposal, verify_chain, AcceptanceContent, AcceptanceHeader, Command, CommittedPayload,
+    EnvRecord, EpochKey, History, MembershipChange, MembershipState, Outcome, ProposalPayload,
+    Role, OWNER_DELAY_SECS, PROTOCOL_VERSION,
 };
 
 const T0: u64 = 1_800_000_000;
@@ -38,7 +38,7 @@ impl Books {
         books
     }
 
-    fn append(&mut self, proposal: Event, payload: ProposalPayload, outcome: Outcome, now: u64) {
+    fn append(&mut self, proposal: Event, payload: CommittedPayload, outcome: Outcome, now: u64) {
         let epoch = self.epochs.last().unwrap();
         let header = AcceptanceHeader {
             business: business_id(),
@@ -68,6 +68,7 @@ impl Books {
     fn change(&mut self, signer: &Keys, change: MembershipChange, now: u64) -> Event {
         let payload = ProposalPayload {
             v: PROTOCOL_VERSION,
+            salt: salt(),
             business: business_id(),
             base_seq: Some(self.chain.len() as u64 - 1),
             command: Command::ChangeMembership { change },
@@ -208,6 +209,7 @@ fn a_reader_refuses_a_change_the_service_should_have_rejected() {
     // the chain catches it.
     let payload = ProposalPayload {
         v: PROTOCOL_VERSION,
+        salt: salt(),
         business: business_id(),
         base_seq: Some(0),
         command: Command::ChangeMembership {
@@ -218,7 +220,7 @@ fn a_reader_refuses_a_change_the_service_should_have_rejected() {
     let content = AcceptanceContent {
         v: PROTOCOL_VERSION,
         proposal,
-        payload,
+        payload: CommittedPayload::new(payload.clone()).unwrap(),
         env: EnvRecord {
             ids: vec![],
             now: "2027-01-15T08:00:00.000Z".into(),
@@ -229,10 +231,16 @@ fn a_reader_refuses_a_change_the_service_should_have_rejected() {
     assert!(books.state.follow(&content, T0).is_err());
 
     // Or an owner-level change applied without its wait.
-    let mut content = content;
-    content.proposal = build_proposal(&owner(), &pk(&service()), &content.payload, at(T0)).unwrap();
-    content.payload.command = Command::ChangeMembership {
-        change: add(&key(80), Role::Owner, History::Full),
+    let owner_level = ProposalPayload {
+        command: Command::ChangeMembership {
+            change: add(&key(80), Role::Owner, History::Full),
+        },
+        ..payload
+    };
+    let content = AcceptanceContent {
+        proposal: build_proposal(&owner(), &pk(&service()), &owner_level, at(T0)).unwrap(),
+        payload: CommittedPayload::new(owner_level).unwrap(),
+        ..content
     };
     assert!(books.state.follow(&content, T0).is_err());
 }

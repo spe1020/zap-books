@@ -9,19 +9,36 @@ use nostr::prelude::{Event, EventBuilder, EventId, Keys, PublicKey, SecretKey, T
 use serde::{Deserialize, Serialize};
 
 use crate::business_id::BusinessId;
-use crate::command::{Command, CommandType, ProposalPayload, PROTOCOL_VERSION};
+use crate::command::{
+    is_lower_hex, Command, CommandType, CommittedPayload, ProposalPayload, PROTOCOL_VERSION,
+};
 use crate::crypto::{decrypt_from, encrypt_to, EpochKey};
 use crate::env::EnvRecord;
 use crate::error::{ProtocolError, Result};
 use crate::kinds::{self, tag};
+use crate::limits::MAX_EVENT_BYTES;
 use crate::records::RecordChange;
 
 fn sign(keys: &Keys, kind: u16, content: String, tags: Vec<Tag>, at: Timestamp) -> Result<Event> {
-    EventBuilder::new(kinds::kind(kind), content)
+    let event = EventBuilder::new(kinds::kind(kind), content)
         .tags(tags)
         .custom_created_at(at)
         .finalize(keys)
-        .map_err(|_| ProtocolError::Encrypt)
+        .map_err(|_| ProtocolError::Encrypt)?;
+    check_size(&event)?;
+    Ok(event)
+}
+
+/// Every event this crate builds or accepts fits on a public relay.
+fn check_size(event: &Event) -> Result<()> {
+    let size = event.as_json().len();
+    if size > MAX_EVENT_BYTES {
+        return Err(ProtocolError::EventTooLarge {
+            size,
+            max: MAX_EVENT_BYTES,
+        });
+    }
+    Ok(())
 }
 
 fn custom(name: &str, value: impl Into<String>) -> Tag {
@@ -71,6 +88,7 @@ fn public_key(value: &str, name: &'static str) -> Result<PublicKey> {
 }
 
 fn verified(event: &Event, kind: u16) -> Result<()> {
+    check_size(event)?;
     event.verify().map_err(|_| ProtocolError::BadSignature)?;
     let found = u16::from(event.kind);
     if found != kind {
@@ -107,6 +125,10 @@ pub struct ProposalHeader {
     pub base_seq: Option<u64>,
     /// The service the proposal is encrypted to; required on genesis.
     pub service: Option<PublicKey>,
+    /// SHA-256 of the exact plaintext payload, lowercase hex: the signed
+    /// commitment that lets readers check the command without decrypting
+    /// the proposal.
+    pub payload_hash: String,
     pub created_at: Timestamp,
 }
 
@@ -117,6 +139,10 @@ pub fn build_proposal(
     payload: &ProposalPayload,
     at: Timestamp,
 ) -> Result<Event> {
+    if !payload.valid_salt() {
+        return Err(ProtocolError::BadContent("invalid salt".into()));
+    }
+    let committed = CommittedPayload::new(payload.clone())?;
     let mut tags = vec![
         custom(tag::BUSINESS, payload.business.to_string()),
         custom(tag::COMMAND, payload.command.command_type().as_str()),
@@ -127,7 +153,8 @@ pub fn build_proposal(
     if let Command::CreateBusiness { service, .. } = &payload.command {
         tags.push(custom(tag::SERVICE, service.to_hex()));
     }
-    let content = encrypt_to(member.secret_key(), service, &to_json(payload)?)?;
+    tags.push(custom(tag::PAYLOAD, committed.hash()));
+    let content = encrypt_to(member.secret_key(), service, committed.text())?;
     sign(member, kinds::PROPOSAL, content, tags, at)
 }
 
@@ -145,6 +172,10 @@ pub fn parse_proposal(event: &Event) -> Result<ProposalHeader> {
     let service = single(event, tag::SERVICE)?
         .map(|v| public_key(v, tag::SERVICE))
         .transpose()?;
+    let payload_hash = required(event, tag::PAYLOAD)?;
+    if !is_lower_hex(payload_hash, 64) {
+        return Err(ProtocolError::BadTag(tag::PAYLOAD));
+    }
     let genesis = command == CommandType::CreateBusiness;
     if genesis && base_seq.is_some() {
         return Err(ProtocolError::BadTag(tag::BASE_SEQ));
@@ -165,12 +196,22 @@ pub fn parse_proposal(event: &Event) -> Result<ProposalHeader> {
         command,
         base_seq,
         service,
+        payload_hash: payload_hash.to_string(),
         created_at: event.created_at,
     })
 }
 
-fn check_payload(header: &ProposalHeader, payload: &ProposalPayload) -> Result<()> {
+/// Checks a decrypted payload against its proposal's signed tags: the
+/// payload hash first, then what the tags say about the command.
+fn check_payload(header: &ProposalHeader, committed: &CommittedPayload) -> Result<()> {
+    if committed.hash() != header.payload_hash {
+        return Err(ProtocolError::PayloadMismatch);
+    }
+    let payload = committed.payload();
     check_version(payload.v)?;
+    if !payload.valid_salt() {
+        return Err(ProtocolError::BadContent("invalid salt".into()));
+    }
     if payload.business != header.business {
         return Err(ProtocolError::TagMismatch(tag::BUSINESS));
     }
@@ -190,13 +231,13 @@ fn check_payload(header: &ProposalHeader, payload: &ProposalPayload) -> Result<(
 
 /// The service's view: checks and decrypts a proposal. A genesis proposal
 /// must name this service's key.
-pub fn open_proposal(event: &Event, service: &Keys) -> Result<(ProposalHeader, ProposalPayload)> {
+pub fn open_proposal(event: &Event, service: &Keys) -> Result<(ProposalHeader, CommittedPayload)> {
     let header = parse_proposal(event)?;
     if header.service.is_some_and(|s| s != service.public_key()) {
         return Err(ProtocolError::WrongService);
     }
     let text = decrypt_from(service.secret_key(), &header.author, &event.content)?;
-    let payload: ProposalPayload = from_json(&text)?;
+    let payload = CommittedPayload::from_text(text)?;
     check_payload(&header, &payload)?;
     Ok((header, payload))
 }
@@ -242,8 +283,9 @@ pub struct AcceptanceContent {
     /// The member's signed proposal, as received. Anyone can check its
     /// signature and tags; only the proposer and the service can decrypt it.
     pub proposal: Event,
-    /// The decrypted command.
-    pub payload: ProposalPayload,
+    /// The decrypted payload, as the exact text the proposer encrypted.
+    /// Its SHA-256 matches the proposal's signed `payload` tag.
+    pub payload: CommittedPayload,
     /// The environment values the service used.
     pub env: EnvRecord,
     /// The records created or replaced, in order.
@@ -334,11 +376,46 @@ pub fn open_acceptance(
 
 // Rejections
 
-/// A rejection's decrypted content: the `ledger-core` or protocol message.
+/// Why a proposal was rejected, so a client can react without parsing the
+/// message.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RejectionCode {
+    /// The proposal, or the acceptance it would produce, is over
+    /// [`MAX_EVENT_BYTES`]. Nothing was stored; split it into smaller
+    /// batches and send again.
+    TooLarge,
+    /// Any other reason; the message says which.
+    Rejected,
+}
+
+impl RejectionCode {
+    /// The code for a protocol error.
+    pub fn of(error: &ProtocolError) -> RejectionCode {
+        match error {
+            ProtocolError::EventTooLarge { .. } | ProtocolError::ContentTooLarge { .. } => {
+                RejectionCode::TooLarge
+            }
+            _ => RejectionCode::Rejected,
+        }
+    }
+}
+
+/// A rejection's decrypted content: a code and the `ledger-core` or
+/// protocol message.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RejectionContent {
     pub v: u32,
+    pub code: RejectionCode,
+    pub message: String,
+}
+
+/// A rejection as its proposer reads it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Rejection {
+    pub proposal: EventId,
+    pub code: RejectionCode,
     pub message: String,
 }
 
@@ -347,6 +424,7 @@ pub struct RejectionContent {
 pub fn build_rejection(
     service: &Keys,
     proposal: &ProposalHeader,
+    code: RejectionCode,
     message: &str,
     at: Timestamp,
 ) -> Result<Event> {
@@ -357,19 +435,16 @@ pub fn build_rejection(
     ];
     let content = RejectionContent {
         v: PROTOCOL_VERSION,
+        code,
         message: message.to_string(),
     };
     let text = encrypt_to(service.secret_key(), &proposal.author, &to_json(&content)?)?;
     sign(service, kinds::REJECTION, text, tags, at)
 }
 
-/// The proposer's view: the rejected proposal's id and the message. Fails
-/// unless `service` signed it and it is addressed to `member`.
-pub fn open_rejection(
-    event: &Event,
-    member: &Keys,
-    service: &PublicKey,
-) -> Result<(EventId, String)> {
+/// The proposer's view of a rejection. Fails unless `service` signed it and
+/// it is addressed to `member`.
+pub fn open_rejection(event: &Event, member: &Keys, service: &PublicKey) -> Result<Rejection> {
     verified(event, kinds::REJECTION)?;
     if event.pubkey != *service {
         return Err(ProtocolError::WrongService);
@@ -381,7 +456,11 @@ pub fn open_rejection(
     let text = decrypt_from(member.secret_key(), service, &event.content)?;
     let content: RejectionContent = from_json(&text)?;
     check_version(content.v)?;
-    Ok((proposal, content.message))
+    Ok(Rejection {
+        proposal,
+        code: content.code,
+        message: content.message,
+    })
 }
 
 // Epoch key deliveries

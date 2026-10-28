@@ -20,12 +20,17 @@ pub fn kind(number: u16) -> Kind {
 
 /// Tag names. `e` and `p` keep their NIP-01 meanings; the rest are ours.
 pub mod tag {
-    /// `["business", <business id>]`
-    pub const BUSINESS: &str = "business";
+    /// `["b", <business id>]`, on every event. Single-letter, so relays index
+    /// it and clients can filter by business (`#b`). No NIP assigns `b`; see
+    /// `docs/protocol.md`.
+    pub const BUSINESS: &str = "b";
     /// `["cmd", <command type>]`, on proposals.
     pub const COMMAND: &str = "cmd";
     /// `["base_seq", <decimal>]`, on proposals other than genesis.
     pub const BASE_SEQ: &str = "base_seq";
+    /// `["payload", <SHA-256 hex>]`, on proposals: the hash of the exact
+    /// plaintext payload, salt included.
+    pub const PAYLOAD: &str = "payload";
     /// `["service", <hex public key>]`, on genesis and service-key proposals.
     pub const SERVICE: &str = "service";
     /// `["seq", <decimal>]`, on acceptances.

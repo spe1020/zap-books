@@ -1,6 +1,6 @@
 //! The JSON names `docs/protocol.md` documents.
 
-use protocol::{History, MembershipChange, Outcome, Recovery, Role, SettingsChange};
+use protocol::{History, MembershipChange, Outcome, Recovery, RejectionCode, Role, SettingsChange};
 use serde_json::{json, to_value};
 
 mod common;
@@ -65,5 +65,13 @@ fn json_names_match_the_spec() {
         })
         .unwrap(),
         json!({"op": "renameCategory", "id": "c", "name": "n"})
+    );
+    assert_eq!(
+        to_value(RejectionCode::TooLarge).unwrap(),
+        json!("tooLarge")
+    );
+    assert_eq!(
+        to_value(RejectionCode::Rejected).unwrap(),
+        json!("rejected")
     );
 }

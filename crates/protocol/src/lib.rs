@@ -21,23 +21,26 @@ mod env;
 mod error;
 mod events;
 pub mod kinds;
+mod limits;
 mod membership;
 mod records;
 
 pub use business_id::BusinessId;
 pub use chain::{verify_chain, ChainHead};
 pub use command::{
-    Command, CommandType, DocumentRef, History, MembershipChange, ProposalPayload, Recovery, Role,
-    RuleInput, SettingsChange, PROTOCOL_VERSION,
+    Command, CommandType, CommittedPayload, DocumentRef, History, MembershipChange,
+    ProposalPayload, Recovery, Role, RuleInput, SettingsChange, PROTOCOL_VERSION,
 };
-pub use crypto::{decrypt_from, encrypt_to, EpochKey, MAX_CHUNK};
+pub use crypto::{decrypt_from, encrypt_to, EpochKey, MAX_PLAINTEXT};
 pub use env::{EnvRecord, RecordingEnv, ReplayEnv};
 pub use error::{ProtocolError, Result};
 pub use events::{
     build_acceptance, build_delivery, build_proposal, build_rejection, open_acceptance,
     open_delivery, open_proposal, open_rejection, parse_acceptance, parse_proposal,
-    AcceptanceContent, AcceptanceHeader, Delivery, Outcome, ProposalHeader, RejectionContent,
+    AcceptanceContent, AcceptanceHeader, Delivery, Outcome, ProposalHeader, Rejection,
+    RejectionCode, RejectionContent,
 };
+pub use limits::{IMPORT_BATCH_START, MAX_EVENT_BYTES};
 pub use membership::{
     Actor, Member, MembershipState, MembershipUpdate, PendingChange, OWNER_DELAY_SECS,
 };

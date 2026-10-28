@@ -9,6 +9,14 @@ use thiserror::Error;
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum ProtocolError {
     // Event shape
+    #[error(
+        "The event is {size} bytes, over the {max}-byte limit relays accept. Send it as smaller proposals."
+    )]
+    EventTooLarge { size: usize, max: usize },
+    #[error(
+        "The content is {size} bytes, over the {max}-byte limit NIP-44 encrypts. Send it as smaller proposals."
+    )]
+    ContentTooLarge { size: usize, max: usize },
     #[error("The event signature or id is invalid.")]
     BadSignature,
     #[error("Unexpected event kind {0}.")]
@@ -17,6 +25,8 @@ pub enum ProtocolError {
     MissingTag(&'static str),
     #[error("The {0} tag is malformed.")]
     BadTag(&'static str),
+    #[error("The command does not match the hash its proposal signed.")]
+    PayloadMismatch,
     #[error("The event's tags don't match its encrypted content ({0}).")]
     TagMismatch(&'static str),
     #[error("Invalid business id: use 64 lowercase hex characters.")]

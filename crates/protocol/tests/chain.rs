@@ -14,6 +14,7 @@ use protocol::{
 fn proposal(seq: u64) -> Event {
     let payload = ProposalPayload {
         v: PROTOCOL_VERSION,
+        salt: salt(),
         business: business_id(),
         base_seq: Some(seq),
         command: Command::Approve {

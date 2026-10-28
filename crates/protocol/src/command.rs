@@ -1,10 +1,14 @@
 //! The typed command inside a proposal's encrypted content.
 
+use std::ops::Deref;
+
 use ledger_core::{Account, AccountKind, Business, Category, Currency, ExpenseDraft, ImportRow};
 use nostr::prelude::{EventId, PublicKey};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use sha2::{Digest, Sha256};
 
 use crate::business_id::BusinessId;
+use crate::error::{ProtocolError, Result};
 
 /// The `v` of every encrypted payload this crate writes.
 pub const PROTOCOL_VERSION: u32 = 1;
@@ -18,7 +22,94 @@ pub struct ProposalPayload {
     /// The last acceptance seq the proposer had seen. Absent only on genesis.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub base_seq: Option<u64>,
+    /// 32 random bytes, hex. Without it, anyone could test guesses of a
+    /// short command (an approval of a known expense, say) against the
+    /// proposal's public payload hash.
+    pub salt: String,
     pub command: Command,
+}
+
+impl ProposalPayload {
+    /// A payload with a fresh salt from the operating system's random source.
+    pub fn new(business: BusinessId, base_seq: Option<u64>, command: Command) -> ProposalPayload {
+        ProposalPayload {
+            v: PROTOCOL_VERSION,
+            business,
+            base_seq,
+            salt: hex::encode(rand::random::<[u8; 32]>()),
+            command,
+        }
+    }
+
+    pub(crate) fn valid_salt(&self) -> bool {
+        is_lower_hex(&self.salt, 64)
+    }
+}
+
+pub(crate) fn is_lower_hex(s: &str, len: usize) -> bool {
+    s.len() == len && s.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
+}
+
+/// SHA-256 of `text`, lowercase hex.
+pub(crate) fn sha256_hex(text: &str) -> String {
+    hex::encode(Sha256::digest(text.as_bytes()))
+}
+
+/// A payload with the exact JSON text the proposer encrypted. The
+/// proposal's signed `payload` tag is the SHA-256 of these bytes, so they
+/// travel unchanged: re-serializing could reorder keys or change escaping.
+/// It serializes as that text, a JSON string.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CommittedPayload {
+    text: String,
+    payload: ProposalPayload,
+}
+
+impl CommittedPayload {
+    pub fn new(payload: ProposalPayload) -> Result<CommittedPayload> {
+        let text = serde_json::to_string(&payload)
+            .map_err(|e| ProtocolError::BadContent(e.to_string()))?;
+        Ok(CommittedPayload { text, payload })
+    }
+
+    pub fn from_text(text: String) -> Result<CommittedPayload> {
+        let payload =
+            serde_json::from_str(&text).map_err(|e| ProtocolError::BadContent(e.to_string()))?;
+        Ok(CommittedPayload { text, payload })
+    }
+
+    pub fn text(&self) -> &str {
+        &self.text
+    }
+
+    pub fn payload(&self) -> &ProposalPayload {
+        &self.payload
+    }
+
+    /// The value of the proposal's `payload` tag.
+    pub fn hash(&self) -> String {
+        sha256_hex(&self.text)
+    }
+}
+
+impl Deref for CommittedPayload {
+    type Target = ProposalPayload;
+
+    fn deref(&self) -> &ProposalPayload {
+        &self.payload
+    }
+}
+
+impl Serialize for CommittedPayload {
+    fn serialize<S: Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
+        s.serialize_str(&self.text)
+    }
+}
+
+impl<'de> Deserialize<'de> for CommittedPayload {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        CommittedPayload::from_text(String::deserialize(d)?).map_err(serde::de::Error::custom)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

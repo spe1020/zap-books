@@ -9,13 +9,14 @@ use nostr::prelude::{Event, EventBuilder, Kind, Tag};
 use protocol::{
     build_acceptance, build_delivery, build_proposal, build_rejection, encrypt_to, kinds,
     open_acceptance, open_delivery, open_proposal, open_rejection, parse_proposal,
-    AcceptanceContent, AcceptanceHeader, Command, CommandType, EnvRecord, EpochKey, Outcome,
-    ProposalPayload, ProtocolError, PROTOCOL_VERSION,
+    AcceptanceContent, AcceptanceHeader, Command, CommandType, CommittedPayload, EnvRecord,
+    EpochKey, Outcome, ProposalPayload, ProtocolError, RejectionCode, PROTOCOL_VERSION,
 };
 
 fn approve_payload(base_seq: u64) -> ProposalPayload {
     ProposalPayload {
         v: PROTOCOL_VERSION,
+        salt: salt(),
         business: business_id(),
         base_seq: Some(base_seq),
         command: Command::Approve {
@@ -24,9 +25,13 @@ fn approve_payload(base_seq: u64) -> ProposalPayload {
     }
 }
 
-/// Re-signs `event` with its tags replaced, keeping the content.
+/// Re-signs `event` with its tags replaced, keeping the content and, unless
+/// `tags` names one, its `payload` tag.
 fn with_tags(keys: &nostr::prelude::Keys, event: &Event, tags: Vec<Vec<&str>>) -> Event {
-    let tags = tags.into_iter().map(|t| Tag::parse(t).unwrap());
+    let mut tags: Vec<Tag> = tags.into_iter().map(|t| Tag::parse(t).unwrap()).collect();
+    if !tags.iter().any(|t| t.kind() == "payload") {
+        tags.extend(event.tags.iter().filter(|t| t.kind() == "payload").cloned());
+    }
     EventBuilder::new(event.kind, event.content.clone())
         .tags(tags)
         .custom_created_at(event.created_at)
@@ -43,8 +48,12 @@ fn a_proposal_round_trips_and_its_tags_route_it() {
     assert_eq!(header.base_seq, Some(4));
     assert_eq!(header.business, business_id());
     assert_eq!(header.author, pk(&bookkeeper()));
+    // The business tag is single-letter, so relays index it (NIP-01 `#b`).
+    let business = event.tags.iter().find(|t| t.kind() == "b").unwrap();
+    assert!(business.single_letter_tag().is_some());
+    assert_eq!(business.content(), Some(business_id().to_string().as_str()));
     let (_, payload) = open_proposal(&event, &service()).unwrap();
-    assert_eq!(payload, approve_payload(4));
+    assert_eq!(*payload.payload(), approve_payload(4));
 }
 
 #[test]
@@ -85,7 +94,7 @@ fn tags_must_match_the_encrypted_command() {
         &keys,
         &event,
         vec![
-            vec!["business", &business],
+            vec!["b", &business],
             vec!["cmd", "Approve"],
             vec!["base_seq", "3"],
         ],
@@ -99,7 +108,7 @@ fn tags_must_match_the_encrypted_command() {
         &keys,
         &event,
         vec![
-            vec!["business", &business],
+            vec!["b", &business],
             vec!["cmd", "SaveRule"],
             vec!["base_seq", "4"],
         ],
@@ -114,14 +123,14 @@ fn tags_must_match_the_encrypted_command() {
         &keys,
         &event,
         vec![
-            vec!["business", &other],
+            vec!["b", &other],
             vec!["cmd", "Approve"],
             vec!["base_seq", "4"],
         ],
     );
     assert_eq!(
         open_proposal(&wrong_business, &service()).unwrap_err(),
-        ProtocolError::TagMismatch("business")
+        ProtocolError::TagMismatch("b")
     );
 }
 
@@ -133,15 +142,15 @@ fn malformed_tags_are_refused() {
     let cases: Vec<(Vec<Vec<&str>>, ProtocolError)> = vec![
         (
             vec![vec!["cmd", "Approve"], vec!["base_seq", "4"]],
-            ProtocolError::MissingTag("business"),
+            ProtocolError::MissingTag("b"),
         ),
         (
-            vec![vec!["business", &business], vec!["cmd", "Approve"]],
+            vec![vec!["b", &business], vec!["cmd", "Approve"]],
             ProtocolError::MissingTag("base_seq"),
         ),
         (
             vec![
-                vec!["business", &business],
+                vec!["b", &business],
                 vec!["cmd", "Approve"],
                 vec!["base_seq", "04"],
             ],
@@ -149,7 +158,7 @@ fn malformed_tags_are_refused() {
         ),
         (
             vec![
-                vec!["business", &business],
+                vec!["b", &business],
                 vec!["cmd", "Approve"],
                 vec!["base_seq", "4"],
                 vec!["base_seq", "4"],
@@ -158,7 +167,7 @@ fn malformed_tags_are_refused() {
         ),
         (
             vec![
-                vec!["business", &business],
+                vec!["b", &business],
                 vec!["cmd", "Delete"],
                 vec!["base_seq", "4"],
             ],
@@ -166,11 +175,11 @@ fn malformed_tags_are_refused() {
         ),
         (
             vec![
-                vec!["business", "AB"],
+                vec!["b", "AB"],
                 vec!["cmd", "Approve"],
                 vec!["base_seq", "4"],
             ],
-            ProtocolError::BadTag("business"),
+            ProtocolError::BadTag("b"),
         ),
     ];
     for (tags, expected) in cases {
@@ -209,19 +218,17 @@ fn genesis_declares_the_service_key() {
     if let Command::CreateBusiness { service, .. } = &mut payload.command {
         *service = pk(&outsider());
     }
-    let content = encrypt_to(
-        owner().secret_key(),
-        &pk(&service()),
-        &serde_json::to_string(&payload).unwrap(),
-    )
-    .unwrap();
+    let committed = CommittedPayload::new(payload).unwrap();
+    let content = encrypt_to(owner().secret_key(), &pk(&service()), committed.text()).unwrap();
     let business = business_id().to_string();
     let service_hex = pk(&service()).to_hex();
+    let hash = committed.hash();
     let forged = EventBuilder::new(Kind::from(kinds::PROPOSAL), content)
         .tags([
-            Tag::parse(["business", business.as_str()]).unwrap(),
+            Tag::parse(["b", business.as_str()]).unwrap(),
             Tag::parse(["cmd", "CreateBusiness"]).unwrap(),
             Tag::parse(["service", service_hex.as_str()]).unwrap(),
+            Tag::parse(["payload", hash.as_str()]).unwrap(),
         ])
         .finalize(&owner())
         .unwrap();
@@ -322,14 +329,16 @@ fn a_rejection_reaches_only_its_proposer() {
     let event = build_rejection(
         &service(),
         &header,
+        RejectionCode::Rejected,
         "Your role can't make this change.",
         at(6),
     )
     .unwrap();
     assert_eq!(u16::from(event.kind), kinds::REJECTION);
-    let (id, message) = open_rejection(&event, &viewer(), &pk(&service())).unwrap();
-    assert_eq!(id, proposal.id);
-    assert_eq!(message, "Your role can't make this change.");
+    let rejection = open_rejection(&event, &viewer(), &pk(&service())).unwrap();
+    assert_eq!(rejection.proposal, proposal.id);
+    assert_eq!(rejection.code, RejectionCode::Rejected);
+    assert_eq!(rejection.message, "Your role can't make this change.");
     assert!(open_rejection(&event, &bookkeeper(), &pk(&service())).is_err());
     assert_eq!(
         open_rejection(&event, &viewer(), &pk(&outsider())).unwrap_err(),

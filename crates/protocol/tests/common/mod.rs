@@ -57,10 +57,16 @@ pub fn seed_business() -> (BusinessData, SequentialEnv) {
     (workspace.businesses.remove(0), env)
 }
 
+/// A fixed salt, so test payloads are reproducible.
+pub fn salt() -> String {
+    "5a".repeat(32)
+}
+
 pub fn genesis_payload(recovery: Recovery) -> ProposalPayload {
     let (b, _) = seed_business();
     ProposalPayload {
         v: PROTOCOL_VERSION,
+        salt: salt(),
         business: business_id(),
         base_seq: None,
         command: Command::CreateBusiness {

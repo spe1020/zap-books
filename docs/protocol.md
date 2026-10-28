@@ -49,11 +49,11 @@ publishes to public relays.
 
 ## Common rules
 
-- **Tags.** `e` and `p` keep their NIP-01 meanings. The others are ours:
-  `business`, `cmd`, `base_seq`, `service`, `seq`, `prev`, `epoch`. Each tag
-  this document lists appears at most once; a repeated tag is malformed, so
-  two readers can never disagree about which value counts. Other tags are
-  ignored.
+- **Tags.** `e` and `p` keep their NIP-01 meanings. `b` carries the business
+  id (see below). The others are ours: `cmd`, `base_seq`, `service`,
+  `payload`, `seq`, `prev`, `epoch`. Each tag this document lists appears at most once; a
+  repeated tag is malformed, so two readers can never disagree about which
+  value counts. Other tags are ignored.
 - **Numbers** in tags are decimal with no sign and no leading zeros (`0`,
   `17`), so each has one spelling.
 - **Business id:** 32 random bytes chosen by the founding owner, written as
@@ -62,25 +62,69 @@ publishes to public relays.
 - **Times.** `created_at` is Unix seconds. Inside `ledger-core` records,
   times stay ISO-8601 strings, as today.
 
+### The business tag
+
+Every event carries `["b", <business id>]`. NIP-01 relays index
+single-letter tags, so a client or the service's outbox can ask a relay for
+one business's events with a `#b` filter, and a relay's policy plugin can
+gate reads by business without decrypting anything. It is defined once, as
+`kinds::tag::BUSINESS`.
+
+**Collision check (2026-10-27).** No NIP assigns `b`. It appears as a tag
+name in:
+
+- no NIP text in `nostr-protocol/nips`, at commit
+  `400d157c53264b8e58c7b3cdbd21ef546fb7a157`. The single-letter tags in use
+  there are `a`, `c` to `i`, `k` to `n`, `p` to `u`, `x` to `z`, and the
+  upper-case `A`, `D`, `E`, `F`, `I`, `K`, `L`, `N`, `P`, `R`, `S`, `T`;
+- no tag definition in `nostr-protocol/registry-of-kinds` `schema.yaml`, at
+  commit `836a60984e44a2269ec2636f2a32b2d04a14da69`;
+- no standardized tag in `nostr` (rust-nostr) 0.45.5.
+
+The other unassigned lower-case letters were `j`, `o`, `v` and `w`. Repeat
+this check with the kinds check before stage 4.
+
 ### Encryption
 
-All content is NIP-44 version 2, through the `nostr` crate (no
-hand-written cryptography). NIP-44 v2 encrypts 1 to 65,535 bytes. Longer
-content (a large import, or the acceptance that records it) is split at
-character boundaries into chunks of at most 65,535 bytes. Each chunk is
-encrypted on its own, and the content is the JSON array of the chunk
-payloads, in order:
-
-```json
-["Ak9u…", "AuRf…", "AqYx…"]
-```
-
-A base64 payload never starts with `[`, so the two forms can't be confused.
-A one-element array is refused, so a plaintext has exactly one encoding.
+All content is a single NIP-44 version 2 payload, through the `nostr` crate
+(no hand-written cryptography). NIP-44 v2 encrypts 1 to 65,535 bytes of
+plaintext. The `nostr` crate also accepts an extended length that other
+implementations can't read, so longer plaintext is refused ("The content is
+… bytes, over the 65535-byte limit NIP-44 encrypts."). It could not fit in
+an event anyway (see Size limits).
 
 NIP-44's conversation key is symmetric: content from key A to key B is read
 with B's secret key and A's public key, or with A's secret key and B's
 public key.
+
+### Size limits
+
+Every event a builder produces, and every event a parser accepts, is at
+most **65,536 bytes** as compact NIP-01 JSON (`MAX_EVENT_BYTES`). A builder
+asked for a larger event fails with:
+
+> The event is 70210 bytes, over the 65536-byte limit relays accept. Send it
+> as smaller proposals.
+
+**Why 65,536.** It is the lowest default among the common relay
+implementations (checked 2026-10-27):
+
+| Relay          | Setting                                      | Default | Commit    |
+| -------------- | -------------------------------------------- | ------- | --------- |
+| strfry         | `events.maxEventSize`, normalised event JSON | 65,536  | `4cd3cf6` |
+| nostr-rs-relay | `max_event_bytes`                            | 131,072 | `b5c1f64` |
+| khatru         | `MaxMessageSize`, a whole websocket message  | 512,000 | `9f99b98` |
+
+strfry runs on many public relays, so an event under its default is accepted
+almost everywhere. Stage 4 publishes these same events to relays, so stage 2
+enforces the limit from the start.
+
+**The service checks the acceptance's size before storing anything.** It
+builds and signs the acceptance inside the proposal's transaction, before
+any write. If that acceptance would be over the limit, the service rejects
+the proposal with the code `tooLarge` (see Rejection), and nothing is
+stored: no acceptance, no seq, no record changes. A client whose own builder
+refuses an oversized proposal treats that the same way.
 
 ## Proposal (kind 4130)
 
@@ -93,9 +137,10 @@ the business key. That is what makes the write-only submitter role possible.
   "kind": 4130,
   "pubkey": "<member>",
   "tags": [
-    ["business", "abab…ab"],
+    ["b", "abab…ab"],
     ["cmd", "Approve"],
-    ["base_seq", "41"]
+    ["base_seq", "41"],
+    ["payload", "<SHA-256 of the plaintext payload>"]
   ],
   "content": "<NIP-44 to the service>"
 }
@@ -103,10 +148,11 @@ the business key. That is what makes the write-only submitter role possible.
 
 | Tag        | Value                                                        | Required                     |
 | ---------- | ------------------------------------------------------------ | ---------------------------- |
-| `business` | The business id                                              | Always                       |
+| `b`        | The business id                                              | Always                       |
 | `cmd`      | The command type, so the service can route before decrypting | Always                       |
 | `base_seq` | The last acceptance seq the proposer had seen                | Every command except genesis |
 | `service`  | The service's public key                                     | Genesis only, and only there |
+| `payload`  | SHA-256 of the exact plaintext payload, lowercase hex        | Always                       |
 
 The decrypted content is the **payload**:
 
@@ -115,14 +161,35 @@ The decrypted content is the **payload**:
   "v": 1,
   "business": "abab…ab",
   "baseSeq": 41,
+  "salt": "<32 random bytes, hex>",
   "command": { "type": "Approve", "expenseId": "draft-7" }
 }
 ```
 
 The service refuses a proposal unless its signature is valid, its tags are
-well formed, and the payload agrees with the tags: same business, same
-command type, same `baseSeq`, and for genesis, the same service key, which
-must be this service's key.
+well formed, its plaintext hashes to its `payload` tag, and the payload
+agrees with the tags: same business, same command type, same `baseSeq`, and
+for genesis, the same service key, which must be this service's key.
+
+### Payload commitment
+
+The `payload` tag is the SHA-256 of the exact plaintext the member
+encrypted, and the member's signature covers it. **This lets members verify
+the command without being able to decrypt the proposal.** The proposal is
+encrypted to the service, so only the proposer and the service can read it.
+Every acceptance carries the same plaintext, and a reader with the epoch key
+checks that it hashes to the tag on the embedded signed proposal. So the
+service can't record a different command under a member's proposal: a
+substituted command, or the right command with a changed salt, fails.
+
+- **The salt** is 32 random bytes, fresh for each proposal (`salt`, 64
+  lowercase hex). The tag is public, so without it anyone could test guesses
+  of a short command, such as approving a known expense, against the hash. A
+  missing or malformed salt is refused.
+- **The exact text is committed, not its meaning.** The acceptance carries
+  the plaintext unchanged, as a JSON string (see Acceptance), because
+  re-serializing could reorder keys or change escaping. The same payload
+  with its keys in another order doesn't match.
 
 **The proposal's event id is its idempotency key.** Sending the same event
 again returns the original acknowledgment (its acceptance or rejection) and
@@ -148,13 +215,61 @@ Records use `ledger-core`'s JSON shapes (`src/domain/types.ts`).
 | `SubmitReceiptDraft` | `draft`, `documents`                                                                             | `save_draft`, for a new draft |
 
 `UpdateSettings` and `SaveRule` are applied in the browser today
-(`src/components/Settings.tsx`, `Review.tsx`), not by a domain function. The
-service needs them in `ledger-core`, which is a parity change (TypeScript
-first). That is raised with PR 2.
+(`src/components/Settings.tsx`, `Review.tsx`), not by a domain function.
+PR 2 adds them to `ledger-core` as a parity change (TypeScript first).
 
 New records get ids from the service's environment, never from the
 proposal, except where `ledger-core` already takes the id from its input
 (a draft's own id, a rule being replaced).
+
+### Large imports
+
+A CSV import can hold 2,000 rows, far more than fits in one event. The
+client sends it as consecutive `CommitImport` proposals, each batch sized so
+that its acceptance fits:
+
+- **Start at 25 rows** (`IMPORT_BATCH_START`). The client previews the whole
+  file once, then sends its rows in file order. It sends each batch after
+  the previous one is acknowledged, with the `baseSeq` it has seen.
+  `CommitImport` has no target records, so one batch never makes the next
+  one stale.
+- **Halve on `tooLarge`.** On a `tooLarge` rejection, or if its own builder
+  refuses the proposal as too large, the client halves the batch (25, 12, 6,
+  3, 1) and sends the same rows again. It keeps the smaller size for the rest
+  of the file. If a single row is still too large, that row can't be
+  imported, and the client stops and says so.
+- **Each batch is atomic.** `commit_import` applies all of a batch's rows or
+  none of them. The file as a whole is no longer all-or-nothing: if a batch
+  is rejected for any other reason, the client stops and shows the message
+  and how many rows were imported. Earlier batches stay imported, and later
+  ones are not sent.
+- **Retries are safe.** Resending the same event returns its original
+  acknowledgment (it is the idempotency key). A batch re-signed after a lost
+  acknowledgment, or the whole file sent again, imports nothing twice:
+  `commit_import` skips any row whose fingerprint is already imported with
+  the same date, amount and currency. It rejects one whose details differ
+  ("Existing reference has conflicting transaction details."). A `tooLarge`
+  rejection stored nothing, so its rows are simply sent again.
+
+**How many proposals.** `crates/protocol/tests/limits.rs` sends a 2,000-row
+import of invented rows this way, with a new vendor on every row. _Typical_
+text means descriptions of about 20 characters and vendor names of about 20.
+_Long_ text means about 110 and 60, plus a long category and purpose.
+
+| Text    | Form            | Accepted proposals | `tooLarge` rejections | Batch size | Largest acceptance |
+| ------- | --------------- | ------------------ | --------------------- | ---------- | ------------------ |
+| Typical | Payments        | 334                | 2                     | 6          | 33,447 bytes (51%) |
+| Typical | Expense history | 334                | 2                     | 6          | 44,367 bytes (68%) |
+| Long    | Payments        | 334                | 2                     | 6          | 38,907 bytes (59%) |
+| Long    | Expense history | 334                | 2                     | 6          | 55,291 bytes (84%) |
+
+In every case the first 25-row batch and the 12-row retry are too large, and
+6 rows fit for the rest of the file. The text matters less than one might
+expect: most of an acceptance is fixed overhead per row. It carries each row
+three times: inside the member's signed proposal (encrypted), in the
+plaintext payload, and as the records the row created (draft, payment or
+import source, vendor, event and audit entry, each with UUIDs, fingerprints
+and timestamps). Then the whole acceptance is encrypted again.
 
 ### Documents
 
@@ -204,14 +319,14 @@ it and verifies every later acceptance against that key.
 
 Signed by the service. This is the books.
 
-| Tag        | Value                                                                        |
-| ---------- | ---------------------------------------------------------------------------- |
-| `business` | The business id                                                              |
-| `seq`      | Contiguous from 0                                                            |
-| `prev`     | The previous acceptance's event id; absent only at seq 0                     |
-| `e`        | The proposal's event id                                                      |
-| `epoch`    | The epoch whose key the content is encrypted to                              |
-| `service`  | Only on the acceptance that activates a service-key replacement: the new key |
+| Tag       | Value                                                                        |
+| --------- | ---------------------------------------------------------------------------- |
+| `b`       | The business id                                                              |
+| `seq`     | Contiguous from 0                                                            |
+| `prev`    | The previous acceptance's event id; absent only at seq 0                     |
+| `e`       | The proposal's event id                                                      |
+| `epoch`   | The epoch whose key the content is encrypted to                              |
+| `service` | Only on the acceptance that activates a service-key replacement: the new key |
 
 The content is NIP-44 encrypted from the service key to **the current epoch
 key's public key**:
@@ -220,7 +335,7 @@ key's public key**:
 {
   "v": 1,
   "proposal": { "id": "…", "kind": 4130, "sig": "…" },
-  "payload": { "v": 1, "business": "abab…ab", "baseSeq": 41, "command": {} },
+  "payload": "{\"v\":1,\"business\":\"abab…ab\",\"baseSeq\":41,\"salt\":\"…\",\"command\":{…}}",
   "env": { "ids": ["…", "…"], "now": "2027-01-15T08:00:00.000Z" },
   "changes": [{ "type": "draft", "record": {} }],
   "outcome": { "type": "applied" }
@@ -229,9 +344,12 @@ key's public key**:
 
 - `proposal`: the member's signed proposal event, exactly as received.
   Anyone can check that the member signed a proposal with this id, command
-  type and `baseSeq`. Only the member and the service can decrypt its
-  content, so `payload` carries the decrypted command; a reader checks that
-  its business, type and `baseSeq` agree with the signed tags.
+  type, `baseSeq` and payload hash. Only the member and the service can
+  decrypt its content.
+- `payload`: the proposal's plaintext payload, as the exact text the member
+  encrypted (a JSON string). A reader checks that it hashes to the
+  proposal's signed `payload` tag (see Payload commitment), and that its
+  business, type and `baseSeq` agree with the other signed tags.
 - `env`: the **environment values the service used**: every generated id,
   in the order `ledger-core` asked for them, and the timestamp. The
   service's `today()` is the UTC date of `now`, so it is not recorded
@@ -287,23 +405,29 @@ valid but short, so a reader compares its head with the head the service
 reports (and, in stage 4, with each relay).
 
 The limit is the one decision 0001 names: whoever holds the service key can
-sign a different history. Embedding members' signed proposals means it
-can't invent a proposal from a member, and comparing heads across copies
-detects a fork.
+sign a different history. Embedding members' signed proposals, with their
+payload commitments, means it can't invent a proposal from a member or
+change what one said, and comparing heads across copies detects a fork.
 
 ## Rejection (kind 4132)
 
 Signed by the service, addressed to the proposer only, and **not** part of
-the chain. Tags: `business`, `e` (the proposal), `p` (the proposer). The
-content is encrypted to the proposer and holds the message, which is
-`ledger-core`'s error message or a protocol message:
+the chain. Tags: `b`, `e` (the proposal), `p` (the proposer). The
+content is encrypted to the proposer and holds a code and the message, which
+is `ledger-core`'s error message or a protocol message:
 
 ```json
 {
   "v": 1,
+  "code": "rejected",
   "message": "This record changed since you opened it. Reload it and try again."
 }
 ```
+
+| `code`     | Meaning                                                                                                                                                         |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tooLarge` | The proposal, or the acceptance it would produce, is over the size limit. Nothing was stored. Split it into smaller batches and send again (see Large imports). |
+| `rejected` | Any other reason. The message says which.                                                                                                                       |
 
 Only a proposal whose signature and tags are valid gets a signed rejection.
 A malformed request gets an HTTP error.
@@ -315,7 +439,7 @@ for epoch _n_ is encrypted from the service key to epoch _n_'s public key.
 A member holding epoch _n_'s secret key decrypts it with the service's
 public key.
 
-A **delivery** gives one epoch secret key to one member. Tags: `business`,
+A **delivery** gives one epoch secret key to one member. Tags: `b`,
 `p` (the member), `epoch`. The content is encrypted to the member:
 
 ```json
@@ -427,20 +551,11 @@ A `baseSeq` later than the chain head is malformed. So when two members
 approve the same expense from the same `baseSeq`, the first acceptance
 changes the expense and the second is rejected as stale.
 
-## Limits and open questions
+## Decided for PR 2
 
-- **Event size.** A 2,000-row import makes a proposal and an acceptance of
-  roughly a megabyte. NIP-44 chunking handles encryption, and HTTPS handles
-  the size in stage 2, but many relays refuse events that large. Stage 4
-  needs either relays configured for it or imports split into several
-  proposals (which would change `commit_import`'s all-or-nothing rule).
-- **Relay filtering.** Our tags are multi-letter, which relays don't index.
-  Stage 4's read-side policy plugin can still read them, but if clients need
-  to filter by business on relays, a single-letter tag would have to be
-  added then.
-- **Document hashes.** `SourceDocument` has no hash field. PR 2 decides
-  whether the service keeps references in its own table or `ledger-core`
-  gains the field (a parity change).
-- **Receipt readings.** The browser stores an `ExtractionRecord` when a
-  draft is saved after reading a receipt. `SaveDraft` doesn't carry one yet,
-  and `recordExtraction` isn't in `ledger-core`.
+- **Document hashes.** `SourceDocument` gains an optional `sha256` field, as
+  a parity change (TypeScript first), so a stored document carries the hash
+  its reference names.
+- **Receipt readings.** `SaveDraft` gains an optional `extraction` (an
+  `ExtractionRecord`), and the service checks that it belongs to the
+  business.
