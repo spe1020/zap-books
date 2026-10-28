@@ -19,6 +19,7 @@ mod import;
 mod js;
 mod ledger;
 mod money;
+mod settings;
 mod types;
 
 pub use date::{normalize_import_date, valid_date, DateFormat};
@@ -34,6 +35,7 @@ pub use ledger::{
     event, missing_details, save_draft, totals, validation, CategoryTotal, ACTOR,
 };
 pub use money::{amount_input, parse_money, Currency, Minor, MAX_MINOR};
+pub use settings::{save_rule, update_settings, RuleInput, SettingsChange};
 pub use types::{
     Account, AccountKind, Approval, AuditEvent, Business, BusinessData, Category,
     ClassificationRule, DocumentKind, EventType, ExpenseDraft, ExpenseStatus, ExtractedField,

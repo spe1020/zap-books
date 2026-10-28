@@ -130,6 +130,28 @@ pub enum LedgerError {
     )]
     InvalidImportScope,
 
+    // settings.ts updateSettings
+    #[error("Enter a business name and industry.")]
+    ProfileRequired,
+    #[error("Enter a name.")]
+    NameRequired,
+    #[error("That name is already in use.")]
+    NameInUse,
+    #[error("Account not found in this business.")]
+    AccountNotFound,
+    #[error("Category not found in this business.")]
+    CategoryNotFound,
+    #[error("Choose a bank or card account.")]
+    AccountKindInvalid,
+
+    // settings.ts saveRule
+    #[error("Vendor and purpose are required.")]
+    RuleFieldsRequired,
+    #[error("Choose a category in this business.")]
+    RuleCategory,
+    #[error("A rule for this vendor already exists.")]
+    DuplicateRule,
+
     // export.ts exportRecords
     #[error("Choose valid export dates.")]
     InvalidExportDates,
