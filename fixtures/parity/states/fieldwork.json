@@ -403,7 +403,7 @@
    "vendor": "Field Crew Co.",
    "date": "2026-10-08",
    "description": "Project services · initial record",
-   "amountMinor": 125000,
+   "amountMinor": 128725,
    "currency": "USD",
    "categoryId": "fieldwork-category-4",
    "accountId": "fieldwork-card",
@@ -461,7 +461,7 @@
    "vendor": "Route Coffee",
    "date": "2026-10-03",
    "description": "Client project planning meeting",
-   "amountMinor": 6800,
+   "amountMinor": 3860,
    "currency": "USD",
    "categoryId": "fieldwork-category-2",
    "accountId": "fieldwork-card",
@@ -554,13 +554,13 @@
     {
      "accountId": "fieldwork-expense-4",
      "categoryId": "fieldwork-category-4",
-     "debit": 125000,
+     "debit": 128725,
      "credit": 0
     },
     {
      "accountId": "fieldwork-card",
      "debit": 0,
-     "credit": 125000
+     "credit": 128725
     }
    ],
    "kind": "expense",
@@ -578,17 +578,17 @@
      "accountId": "fieldwork-expense-4",
      "categoryId": "fieldwork-category-4",
      "debit": 0,
-     "credit": 125000
+     "credit": 128725
     },
     {
      "accountId": "fieldwork-card",
-     "debit": 125000,
+     "debit": 128725,
      "credit": 0
     }
    ],
    "kind": "reversal",
    "expenseId": "id-0159",
-   "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+   "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
    "createdAt": "2026-10-15T12:00:00.000Z",
    "reversesId": "id-0163"
   },
@@ -647,13 +647,13 @@
     {
      "accountId": "fieldwork-expense-2",
      "categoryId": "fieldwork-category-2",
-     "debit": 6800,
+     "debit": 3860,
      "credit": 0
     },
     {
      "accountId": "fieldwork-card",
      "debit": 0,
-     "credit": 6800
+     "credit": 3860
     }
    ],
    "kind": "expense",
@@ -912,7 +912,7 @@
    "entityId": "id-0159",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
-   "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+   "detail": "Supplier issued a corrected invoice: reduced by $137.25."
   },
   {
    "id": "id-0175",
@@ -1264,7 +1264,7 @@
    ],
    "entityId": "id-0159",
    "payload": {
-    "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+    "detail": "Supplier issued a corrected invoice: reduced by $137.25."
    }
   },
   {

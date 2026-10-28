@@ -44,7 +44,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -141,7 +141,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -189,7 +189,7 @@
      "2026-10-03",
      "Route Coffee",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -286,7 +286,7 @@
     ]
    ],
    "filename": "fieldwork-landscapes-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0194\",\"2026-10-03\",\"Route Coffee\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0183\",\"2026-10-05\",\"Sprout Software\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0170\",\"2026-10-08\",\"Field Crew Co.\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Equipment & materials\",\"Business card\",\"Project services · initial record\",\"id-0159\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0148\",\"2026-10-12\",\"Clearwater Insurance\",\"Business liability insurance\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Business liability insurance\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0137\",\"2026-10-16\",\"Cedar Equipment\",\"Commercial mower maintenance\",\"1450.00\",\"USD\",\"Equipment & materials\",\"Business card\",\"Commercial mower maintenance\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0122\",\"2026-10-18\",\"Trail Fuel\",\"Fuel for field equipment\",\"32.00\",\"USD\",\"Equipment & materials\",\"Business card\",\"Fuel for field equipment\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0194\",\"2026-10-03\",\"Route Coffee\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0183\",\"2026-10-05\",\"Sprout Software\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0170\",\"2026-10-08\",\"Field Crew Co.\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Equipment & materials\",\"Business card\",\"Project services · initial record\",\"id-0159\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0148\",\"2026-10-12\",\"Clearwater Insurance\",\"Business liability insurance\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Business liability insurance\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0137\",\"2026-10-16\",\"Cedar Equipment\",\"Commercial mower maintenance\",\"1450.00\",\"USD\",\"Equipment & materials\",\"Business card\",\"Commercial mower maintenance\",\"\",\"\",\"\",\"1\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0122\",\"2026-10-18\",\"Trail Fuel\",\"Fuel for field equipment\",\"32.00\",\"USD\",\"Equipment & materials\",\"Business card\",\"Fuel for field equipment\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -641,7 +641,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -704,7 +704,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-2026-10-12-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -1168,7 +1168,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -1226,7 +1226,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -1390,7 +1390,7 @@
       "vendor": "Field Crew Co.",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "fieldwork-category-4",
       "accountId": "fieldwork-card",
@@ -1448,7 +1448,7 @@
       "vendor": "Route Coffee",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "fieldwork-category-2",
       "accountId": "fieldwork-card",
@@ -1541,13 +1541,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -1565,17 +1565,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -1634,13 +1634,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -1770,13 +1770,13 @@
        {
         "accountId": "fieldwork-expense-4",
         "categoryId": "fieldwork-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "fieldwork-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -1794,17 +1794,17 @@
         "accountId": "fieldwork-expense-4",
         "categoryId": "fieldwork-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "fieldwork-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0159",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0163"
      },
@@ -1863,13 +1863,13 @@
        {
         "accountId": "fieldwork-expense-2",
         "categoryId": "fieldwork-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "fieldwork-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -2136,7 +2136,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -2515,7 +2515,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -2734,7 +2734,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -2848,7 +2848,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0340\",\"2026-10-15\",\"Euro vendor\",\"Client brochures\",\"100.01\",\"EUR\",\"Office & supplies\",\"Euro account\",\"Client deliverable\",\"\",\"\",\"\",\"0\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Adobe\",\"Monthly creative tools subscription\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Monthly creative tools subscription\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0340\",\"2026-10-15\",\"Euro vendor\",\"Client brochures\",\"100.01\",\"EUR\",\"Office & supplies\",\"Euro account\",\"Client deliverable\",\"\",\"\",\"\",\"0\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -2900,7 +2900,7 @@
      "northstar-expense-2",
      "Travel & meals",
      "Travel & meals",
-     "68.00",
+     "38.60",
      "0.00",
      "USD",
      "Common Ground · Client project planning meeting",
@@ -2918,7 +2918,7 @@
      "Business card",
      "",
      "0.00",
-     "68.00",
+     "38.60",
      "USD",
      "Common Ground · Client project planning meeting",
      "2026-10-15T12:00:00.000Z"
@@ -2968,7 +2968,7 @@
      "northstar-expense-4",
      "Marketing & design",
      "Marketing & design",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Atlas Creative · Project services · initial record",
@@ -2986,7 +2986,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Atlas Creative · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -3003,9 +3003,9 @@
      "Marketing & design",
      "Marketing & design",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -3019,10 +3019,10 @@
      "northstar-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -3197,7 +3197,7 @@
     ]
    ],
    "filename": "northstar-studio-journal-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"38.60\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"38.60\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1287.25\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
@@ -3249,7 +3249,7 @@
      "fieldwork-expense-2",
      "Travel & meals",
      "Travel & meals",
-     "68.00",
+     "38.60",
      "0.00",
      "USD",
      "Route Coffee · Client project planning meeting",
@@ -3267,7 +3267,7 @@
      "Business card",
      "",
      "0.00",
-     "68.00",
+     "38.60",
      "USD",
      "Route Coffee · Client project planning meeting",
      "2026-10-15T12:00:00.000Z"
@@ -3317,7 +3317,7 @@
      "fieldwork-expense-4",
      "Equipment & materials",
      "Equipment & materials",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Field Crew Co. · Project services · initial record",
@@ -3335,7 +3335,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Field Crew Co. · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -3352,9 +3352,9 @@
      "Equipment & materials",
      "Equipment & materials",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -3368,10 +3368,10 @@
      "fieldwork-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -3546,7 +3546,7 @@
     ]
    ],
    "filename": "fieldwork-landscapes-journal-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0198\",\"2026-10-03\",\"expense\",\"id-0194\",\"\",\"fieldwork-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Route Coffee · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0198\",\"2026-10-03\",\"expense\",\"id-0194\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Route Coffee · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0187\",\"2026-10-05\",\"expense\",\"id-0183\",\"\",\"fieldwork-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Sprout Software · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0187\",\"2026-10-05\",\"expense\",\"id-0183\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Sprout Software · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0163\",\"2026-10-08\",\"expense\",\"id-0159\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"1250.00\",\"0.00\",\"USD\",\"Field Crew Co. · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0163\",\"2026-10-08\",\"expense\",\"id-0159\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Field Crew Co. · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0171\",\"2026-10-08\",\"reversal\",\"id-0159\",\"id-0163\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0171\",\"2026-10-08\",\"reversal\",\"id-0159\",\"id-0163\",\"fieldwork-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0176\",\"2026-10-08\",\"expense\",\"id-0170\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"1150.00\",\"0.00\",\"USD\",\"Field Crew Co. · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0176\",\"2026-10-08\",\"expense\",\"id-0170\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Field Crew Co. · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0204\",\"2026-10-10\",\"transfer\",\"\",\"\",\"fieldwork-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0204\",\"2026-10-10\",\"transfer\",\"\",\"\",\"fieldwork-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0152\",\"2026-10-12\",\"expense\",\"id-0148\",\"\",\"fieldwork-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Clearwater Insurance · Business liability insurance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0152\",\"2026-10-12\",\"expense\",\"id-0148\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Clearwater Insurance · Business liability insurance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0141\",\"2026-10-16\",\"expense\",\"id-0137\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"1450.00\",\"0.00\",\"USD\",\"Cedar Equipment · Commercial mower maintenance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0141\",\"2026-10-16\",\"expense\",\"id-0137\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"1450.00\",\"USD\",\"Cedar Equipment · Commercial mower maintenance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0126\",\"2026-10-18\",\"expense\",\"id-0122\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"32.00\",\"0.00\",\"USD\",\"Trail Fuel · Fuel for field equipment\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0126\",\"2026-10-18\",\"expense\",\"id-0122\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Trail Fuel · Fuel for field equipment\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0198\",\"2026-10-03\",\"expense\",\"id-0194\",\"\",\"fieldwork-expense-2\",\"Travel & meals\",\"Travel & meals\",\"38.60\",\"0.00\",\"USD\",\"Route Coffee · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0198\",\"2026-10-03\",\"expense\",\"id-0194\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"38.60\",\"USD\",\"Route Coffee · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0187\",\"2026-10-05\",\"expense\",\"id-0183\",\"\",\"fieldwork-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Sprout Software · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0187\",\"2026-10-05\",\"expense\",\"id-0183\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Sprout Software · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0163\",\"2026-10-08\",\"expense\",\"id-0159\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"1287.25\",\"0.00\",\"USD\",\"Field Crew Co. · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0163\",\"2026-10-08\",\"expense\",\"id-0159\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Field Crew Co. · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0171\",\"2026-10-08\",\"reversal\",\"id-0159\",\"id-0163\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0171\",\"2026-10-08\",\"reversal\",\"id-0159\",\"id-0163\",\"fieldwork-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0176\",\"2026-10-08\",\"expense\",\"id-0170\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"1150.00\",\"0.00\",\"USD\",\"Field Crew Co. · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0176\",\"2026-10-08\",\"expense\",\"id-0170\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Field Crew Co. · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0204\",\"2026-10-10\",\"transfer\",\"\",\"\",\"fieldwork-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0204\",\"2026-10-10\",\"transfer\",\"\",\"\",\"fieldwork-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0152\",\"2026-10-12\",\"expense\",\"id-0148\",\"\",\"fieldwork-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Clearwater Insurance · Business liability insurance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0152\",\"2026-10-12\",\"expense\",\"id-0148\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Clearwater Insurance · Business liability insurance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0141\",\"2026-10-16\",\"expense\",\"id-0137\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"1450.00\",\"0.00\",\"USD\",\"Cedar Equipment · Commercial mower maintenance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0141\",\"2026-10-16\",\"expense\",\"id-0137\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"1450.00\",\"USD\",\"Cedar Equipment · Commercial mower maintenance\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0126\",\"2026-10-18\",\"expense\",\"id-0122\",\"\",\"fieldwork-expense-4\",\"Equipment & materials\",\"Equipment & materials\",\"32.00\",\"0.00\",\"USD\",\"Trail Fuel · Fuel for field equipment\",\"2026-10-15T12:00:00.000Z\"\r\n\"fieldwork\",\"Fieldwork Landscapes\",\"id-0126\",\"2026-10-18\",\"expense\",\"id-0122\",\"\",\"fieldwork-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Trail Fuel · Fuel for field equipment\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
@@ -3751,7 +3751,7 @@
      "northstar-expense-4",
      "Marketing & design",
      "Marketing & design",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Atlas Creative · Project services · initial record",
@@ -3769,7 +3769,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Atlas Creative · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -3786,9 +3786,9 @@
      "Marketing & design",
      "Marketing & design",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -3802,10 +3802,10 @@
      "northstar-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -3946,7 +3946,7 @@
     ]
    ],
    "filename": "northstar-studio-journal-2026-10-05-to-2026-10-16-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1287.25\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
@@ -4143,7 +4143,7 @@
      "northstar-expense-2",
      "Travel & meals",
      "Travel & meals",
-     "68.00",
+     "38.60",
      "0.00",
      "USD",
      "Common Ground · Client project planning meeting",
@@ -4161,7 +4161,7 @@
      "Business card",
      "",
      "0.00",
-     "68.00",
+     "38.60",
      "USD",
      "Common Ground · Client project planning meeting",
      "2026-10-15T12:00:00.000Z"
@@ -4211,7 +4211,7 @@
      "northstar-expense-4",
      "Marketing & design",
      "Marketing & design",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Atlas Creative · Project services · initial record",
@@ -4229,7 +4229,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Atlas Creative · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -4246,9 +4246,9 @@
      "Marketing & design",
      "Marketing & design",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -4262,10 +4262,10 @@
      "northstar-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -4372,7 +4372,7 @@
     ]
    ],
    "filename": "northstar-studio-journal-start-to-2026-10-12-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"38.60\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"38.60\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1287.25\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
@@ -4836,7 +4836,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -4894,7 +4894,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -5058,7 +5058,7 @@
       "vendor": "Field Crew Co.",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "fieldwork-category-4",
       "accountId": "fieldwork-card",
@@ -5116,7 +5116,7 @@
       "vendor": "Route Coffee",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "fieldwork-category-2",
       "accountId": "fieldwork-card",
@@ -5209,13 +5209,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -5233,17 +5233,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -5302,13 +5302,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -5438,13 +5438,13 @@
        {
         "accountId": "fieldwork-expense-4",
         "categoryId": "fieldwork-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "fieldwork-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -5462,17 +5462,17 @@
         "accountId": "fieldwork-expense-4",
         "categoryId": "fieldwork-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "fieldwork-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0159",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0163"
      },
@@ -5531,13 +5531,13 @@
        {
         "accountId": "fieldwork-expense-2",
         "categoryId": "fieldwork-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "fieldwork-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -5804,7 +5804,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -6183,7 +6183,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -6406,7 +6406,7 @@
      "northstar-expense-2",
      "Travel & meals",
      "Travel & meals",
-     "68.00",
+     "38.60",
      "0.00",
      "USD",
      "Common Ground · Client project planning meeting",
@@ -6424,7 +6424,7 @@
      "Business card",
      "",
      "0.00",
-     "68.00",
+     "38.60",
      "USD",
      "Common Ground · Client project planning meeting",
      "2026-10-15T12:00:00.000Z"
@@ -6474,7 +6474,7 @@
      "northstar-expense-4",
      "Marketing & design",
      "Marketing & design",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Atlas Creative · Project services · initial record",
@@ -6492,7 +6492,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Atlas Creative · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -6509,9 +6509,9 @@
      "Marketing & design",
      "Marketing & design",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -6525,10 +6525,10 @@
      "northstar-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -6737,7 +6737,7 @@
     ]
    ],
    "filename": "northstar-studio-journal-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0344\",\"2026-10-15\",\"expense\",\"id-0340\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"100.01\",\"0.00\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0344\",\"2026-10-15\",\"expense\",\"id-0340\",\"\",\"northstar-eur\",\"Euro account\",\"\",\"0.00\",\"100.01\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"38.60\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"38.60\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1287.25\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0344\",\"2026-10-15\",\"expense\",\"id-0340\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"100.01\",\"0.00\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0344\",\"2026-10-15\",\"expense\",\"id-0340\",\"\",\"northstar-eur\",\"Euro account\",\"\",\"0.00\",\"100.01\",\"EUR\",\"Euro vendor · Client brochures\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Northstar Studio\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
@@ -7277,7 +7277,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -7335,7 +7335,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -7428,13 +7428,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -7452,17 +7452,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -7521,13 +7521,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -7786,7 +7786,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -8138,7 +8138,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -8312,7 +8312,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -8409,7 +8409,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'=HYPERLINK(\"\"https://invalid.example\"\", \"\"open\"\")\",\"'=HYPERLINK(\"\"https://invalid.example\"\", \"\"open\"\")\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'=HYPERLINK(\"\"https://invalid.example\"\", \"\"open\"\")\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'=HYPERLINK(\"\"https://invalid.example\"\", \"\"open\"\")\",\"'=HYPERLINK(\"\"https://invalid.example\"\", \"\"open\"\")\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'=HYPERLINK(\"\"https://invalid.example\"\", \"\"open\"\")\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -8826,7 +8826,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -8884,7 +8884,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -8977,13 +8977,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -9001,17 +9001,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -9070,13 +9070,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -9335,7 +9335,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -9687,7 +9687,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -9861,7 +9861,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -9958,7 +9958,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'+1\",\"'+1\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'+1\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'+1\",\"'+1\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'+1\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -10375,7 +10375,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -10433,7 +10433,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -10526,13 +10526,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -10550,17 +10550,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -10619,13 +10619,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -10884,7 +10884,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -11236,7 +11236,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -11410,7 +11410,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -11507,7 +11507,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'-2\",\"'-2\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'-2\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'-2\",\"'-2\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'-2\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -11924,7 +11924,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -11982,7 +11982,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -12075,13 +12075,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -12099,17 +12099,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -12168,13 +12168,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -12433,7 +12433,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -12785,7 +12785,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -12959,7 +12959,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -13056,7 +13056,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'@SUM(A1)\",\"'@SUM(A1)\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'@SUM(A1)\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'@SUM(A1)\",\"'@SUM(A1)\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'@SUM(A1)\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -13473,7 +13473,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -13531,7 +13531,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -13624,13 +13624,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -13648,17 +13648,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -13717,13 +13717,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -13982,7 +13982,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -14334,7 +14334,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -14508,7 +14508,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -14605,7 +14605,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'  =x\",\"'  =x\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'  =x\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'  =x\",\"'  =x\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'  =x\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -15022,7 +15022,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -15080,7 +15080,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -15173,13 +15173,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -15197,17 +15197,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -15266,13 +15266,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -15531,7 +15531,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -15883,7 +15883,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -16057,7 +16057,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -16154,7 +16154,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'﻿=x\",\"'﻿=x\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'﻿=x\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'﻿=x\",\"'﻿=x\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'﻿=x\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -16571,7 +16571,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -16629,7 +16629,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -16722,13 +16722,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -16746,17 +16746,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -16815,13 +16815,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -17080,7 +17080,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -17432,7 +17432,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -17606,7 +17606,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -17703,7 +17703,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'\tTabbed\",\"'\tTabbed\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'\tTabbed\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'\tTabbed\",\"'\tTabbed\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'\tTabbed\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -18120,7 +18120,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -18178,7 +18178,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -18271,13 +18271,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -18295,17 +18295,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -18364,13 +18364,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -18629,7 +18629,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -18981,7 +18981,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -19155,7 +19155,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -19252,7 +19252,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'\rReturn\",\"'\rReturn\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'\rReturn\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'\rReturn\",\"'\rReturn\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'\rReturn\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -19669,7 +19669,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -19727,7 +19727,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -19820,13 +19820,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -19844,17 +19844,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -19913,13 +19913,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -20178,7 +20178,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -20530,7 +20530,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -20704,7 +20704,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -20801,7 +20801,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'\nNewline\",\"'\nNewline\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'\nNewline\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"'\nNewline\",\"'\nNewline\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"'\nNewline\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -21218,7 +21218,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -21276,7 +21276,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -21369,13 +21369,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -21393,17 +21393,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -21462,13 +21462,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -21727,7 +21727,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -22079,7 +22079,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -22253,7 +22253,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -22350,7 +22350,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Quoted \"\"receipt\"\", with\nnewline\",\"Quoted \"\"receipt\"\", with\nnewline\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Quoted \"\"receipt\"\", with\nnewline\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Quoted \"\"receipt\"\", with\nnewline\",\"Quoted \"\"receipt\"\", with\nnewline\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Quoted \"\"receipt\"\", with\nnewline\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -22767,7 +22767,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -22825,7 +22825,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -22918,13 +22918,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -22942,17 +22942,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -23011,13 +23011,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -23276,7 +23276,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -23628,7 +23628,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -23802,7 +23802,7 @@
      "2026-10-03",
      "Common Ground",
      "Client project planning meeting",
-     "68.00",
+     "38.60",
      "USD",
      "Travel & meals",
      "Business card",
@@ -23899,7 +23899,7 @@
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"68.00\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Plain\",\"Plain\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Plain\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\"\r\n\"northstar\",\"Northstar Studio\",\"id-0092\",\"2026-10-03\",\"Common Ground\",\"Client project planning meeting\",\"38.60\",\"USD\",\"Travel & meals\",\"Business card\",\"Client project planning meeting\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0081\",\"2026-10-05\",\"Plain\",\"Plain\",\"89.99\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Plain\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0068\",\"2026-10-08\",\"Atlas Creative\",\"Project services · corrected invoice amount\",\"1150.00\",\"USD\",\"Marketing & design\",\"Business card\",\"Project services · initial record\",\"id-0057\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0046\",\"2026-10-12\",\"Meridian Legal\",\"Client contract review\",\"2400.00\",\"USD\",\"Professional services\",\"Business card\",\"Client contract review\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0035\",\"2026-10-16\",\"Studio Supply Co.\",\"Workspace equipment and supplies\",\"875.00\",\"USD\",\"Office & supplies\",\"Business card\",\"Workspace equipment and supplies\",\"\",\"\",\"\",\"1\"\r\n\"northstar\",\"Northstar Studio\",\"id-0020\",\"2026-10-18\",\"Linear\",\"Issue tracking subscription\",\"32.00\",\"USD\",\"Software & subscriptions\",\"Business card\",\"Issue tracking subscription\",\"\",\"\",\"\",\"1\"\r\n"
   }
  },
  {
@@ -24316,7 +24316,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -24374,7 +24374,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -24467,13 +24467,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -24491,17 +24491,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -24560,13 +24560,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -24825,7 +24825,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -25177,7 +25177,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -25355,7 +25355,7 @@
      "northstar-expense-2",
      "Travel & meals",
      "Travel & meals",
-     "68.00",
+     "38.60",
      "0.00",
      "USD",
      "Common Ground · Client project planning meeting",
@@ -25373,7 +25373,7 @@
      "Business card",
      "",
      "0.00",
-     "68.00",
+     "38.60",
      "USD",
      "Common Ground · Client project planning meeting",
      "2026-10-15T12:00:00.000Z"
@@ -25423,7 +25423,7 @@
      "northstar-expense-4",
      "Marketing & design",
      "Marketing & design",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Atlas Creative · Project services · initial record",
@@ -25441,7 +25441,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Atlas Creative · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -25458,9 +25458,9 @@
      "Marketing & design",
      "Marketing & design",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -25474,10 +25474,10 @@
      "northstar-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -25652,7 +25652,7 @@
     ]
    ],
    "filename": "caf-n-code-co-journal-start-to-latest-USD.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"38.60\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"38.60\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1287.25\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"Café Ünïcode & Co.\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
@@ -26069,7 +26069,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -26127,7 +26127,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -26220,13 +26220,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -26244,17 +26244,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -26313,13 +26313,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -26578,7 +26578,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -26930,7 +26930,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -27108,7 +27108,7 @@
      "northstar-expense-2",
      "Travel & meals",
      "Travel & meals",
-     "68.00",
+     "38.60",
      "0.00",
      "USD",
      "Common Ground · Client project planning meeting",
@@ -27126,7 +27126,7 @@
      "Business card",
      "",
      "0.00",
-     "68.00",
+     "38.60",
      "USD",
      "Common Ground · Client project planning meeting",
      "2026-10-15T12:00:00.000Z"
@@ -27176,7 +27176,7 @@
      "northstar-expense-4",
      "Marketing & design",
      "Marketing & design",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Atlas Creative · Project services · initial record",
@@ -27194,7 +27194,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Atlas Creative · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -27211,9 +27211,9 @@
      "Marketing & design",
      "Marketing & design",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -27227,10 +27227,10 @@
      "northstar-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -27405,7 +27405,7 @@
     ]
    ],
    "filename": "business-journal-start-to-latest-USD.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"!!!\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"!!!\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"38.60\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"38.60\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1287.25\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"!!!\",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
@@ -27822,7 +27822,7 @@
       "vendor": "Atlas Creative",
       "date": "2026-10-08",
       "description": "Project services · initial record",
-      "amountMinor": 125000,
+      "amountMinor": 128725,
       "currency": "USD",
       "categoryId": "northstar-category-4",
       "accountId": "northstar-card",
@@ -27880,7 +27880,7 @@
       "vendor": "Common Ground",
       "date": "2026-10-03",
       "description": "Client project planning meeting",
-      "amountMinor": 6800,
+      "amountMinor": 3860,
       "currency": "USD",
       "categoryId": "northstar-category-2",
       "accountId": "northstar-card",
@@ -27973,13 +27973,13 @@
        {
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        }
       ],
       "kind": "expense",
@@ -27997,17 +27997,17 @@
         "accountId": "northstar-expense-4",
         "categoryId": "northstar-category-4",
         "debit": 0,
-        "credit": 125000
+        "credit": 128725
        },
        {
         "accountId": "northstar-card",
-        "debit": 125000,
+        "debit": 128725,
         "credit": 0
        }
       ],
       "kind": "reversal",
       "expenseId": "id-0057",
-      "memo": "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+      "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "reversesId": "id-0061"
      },
@@ -28066,13 +28066,13 @@
        {
         "accountId": "northstar-expense-2",
         "categoryId": "northstar-category-2",
-        "debit": 6800,
+        "debit": 3860,
         "credit": 0
        },
        {
         "accountId": "northstar-card",
         "debit": 0,
-        "credit": 6800
+        "credit": 3860
        }
       ],
       "kind": "expense",
@@ -28331,7 +28331,7 @@
       "entityId": "id-0057",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
-      "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+      "detail": "Supplier issued a corrected invoice: reduced by $137.25."
      },
      {
       "id": "id-0073",
@@ -28683,7 +28683,7 @@
       ],
       "entityId": "id-0057",
       "payload": {
-       "detail": "Supplier issued a corrected invoice: reduced by $100.00."
+       "detail": "Supplier issued a corrected invoice: reduced by $137.25."
       }
      },
      {
@@ -28861,7 +28861,7 @@
      "northstar-expense-2",
      "Travel & meals",
      "Travel & meals",
-     "68.00",
+     "38.60",
      "0.00",
      "USD",
      "Common Ground · Client project planning meeting",
@@ -28879,7 +28879,7 @@
      "Business card",
      "",
      "0.00",
-     "68.00",
+     "38.60",
      "USD",
      "Common Ground · Client project planning meeting",
      "2026-10-15T12:00:00.000Z"
@@ -28929,7 +28929,7 @@
      "northstar-expense-4",
      "Marketing & design",
      "Marketing & design",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
      "Atlas Creative · Project services · initial record",
@@ -28947,7 +28947,7 @@
      "Business card",
      "",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
      "Atlas Creative · Project services · initial record",
      "2026-10-15T12:00:00.000Z"
@@ -28964,9 +28964,9 @@
      "Marketing & design",
      "Marketing & design",
      "0.00",
-     "1250.00",
+     "1287.25",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -28980,10 +28980,10 @@
      "northstar-card",
      "Business card",
      "",
-     "1250.00",
+     "1287.25",
      "0.00",
      "USD",
-     "Correction: Supplier issued a corrected invoice: reduced by $100.00.",
+     "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
      "2026-10-15T12:00:00.000Z"
     ],
     [
@@ -29158,7 +29158,7 @@
     ]
    ],
    "filename": "northstar-journal-start-to-latest-USD.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"68.00\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"68.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1250.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1250.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1250.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1250.00\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $100.00.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-expense-2\",\"Travel & meals\",\"Travel & meals\",\"38.60\",\"0.00\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0096\",\"2026-10-03\",\"expense\",\"id-0092\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"38.60\",\"USD\",\"Common Ground · Client project planning meeting\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"89.99\",\"0.00\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0085\",\"2026-10-05\",\"expense\",\"id-0081\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"89.99\",\"USD\",\"Adobe · Monthly creative tools subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1287.25\",\"0.00\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0061\",\"2026-10-08\",\"expense\",\"id-0057\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1287.25\",\"USD\",\"Atlas Creative · Project services · initial record\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"0.00\",\"1287.25\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0069\",\"2026-10-08\",\"reversal\",\"id-0057\",\"id-0061\",\"northstar-card\",\"Business card\",\"\",\"1287.25\",\"0.00\",\"USD\",\"Correction: Supplier issued a corrected invoice: reduced by $137.25.\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-expense-4\",\"Marketing & design\",\"Marketing & design\",\"1150.00\",\"0.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0074\",\"2026-10-08\",\"expense\",\"id-0068\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"1150.00\",\"USD\",\"Atlas Creative · Project services · corrected invoice amount\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-reserve\",\"Reserve account\",\"\",\"2000.00\",\"0.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0102\",\"2026-10-10\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"2000.00\",\"USD\",\"Operating account → Reserve account\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-expense-3\",\"Professional services\",\"Professional services\",\"2400.00\",\"0.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0050\",\"2026-10-12\",\"expense\",\"id-0046\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"2400.00\",\"USD\",\"Meridian Legal · Client contract review\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"875.00\",\"0.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0039\",\"2026-10-16\",\"expense\",\"id-0035\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"875.00\",\"USD\",\"Studio Supply Co. · Workspace equipment and supplies\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-expense-0\",\"Software & subscriptions\",\"Software & subscriptions\",\"32.00\",\"0.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n\"northstar\",\"'  --Northstar--  \",\"id-0024\",\"2026-10-18\",\"expense\",\"id-0020\",\"\",\"northstar-card\",\"Business card\",\"\",\"0.00\",\"32.00\",\"USD\",\"Linear · Issue tracking subscription\",\"2026-10-15T12:00:00.000Z\"\r\n"
   }
  },
  {
