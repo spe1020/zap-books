@@ -349,3 +349,114 @@ fn a_chain_of_commands_rebuilds_and_audits() {
     reids.env.ids.reverse();
     assert!(audit(Some(&before), &reids).is_err());
 }
+
+/// The service's `today()` reaches no stored value: every command type the
+/// service runs gives identical books under two environments that differ
+/// only in `today()`.
+#[test]
+fn today_never_reaches_the_books() {
+    use ledger_core::{
+        parse_csv, preview_import, CsvMapping, ImportOptions, SequentialEnv, SignConvention,
+    };
+    let base = genesis_business(business_id(), &genesis_command()).unwrap();
+    let envs = || {
+        (
+            SequentialEnv::new(1, NOW, "2016-01-01"),
+            SequentialEnv::new(1, NOW, "2026-12-31"),
+        )
+    };
+    let run_both = |b: &BusinessData, command: &Command| {
+        let (mut early, mut late) = envs();
+        let x = apply_command(b, command, &mut early).unwrap();
+        let y = apply_command(b, command, &mut late).unwrap();
+        assert_eq!(x, y, "today() changed the result of {:?}", command);
+        x
+    };
+    let saved = run_both(
+        &base,
+        &Command::SaveDraft {
+            draft: draft(&base, "draft-1", &["doc-1"]),
+            documents: vec![document("doc-1")],
+            extraction: Some(reading(&base, "draft-1", "doc-1")),
+        },
+    );
+    let approved = run_both(
+        &saved,
+        &Command::Approve {
+            expense_id: "draft-1".into(),
+        },
+    );
+    let mut replacement = approved.drafts[0].replacement("draft-1b");
+    replacement.amount_minor = ledger_core::Minor::new(999).unwrap();
+    let corrected = run_both(
+        &approved,
+        &Command::Correct {
+            original_id: "draft-1".into(),
+            replacement,
+            reason: "Invented correction".into(),
+        },
+    );
+    let settings = run_both(
+        &corrected,
+        &Command::UpdateSettings {
+            change: SettingsChange::AddCategory {
+                name: "Invented travel".into(),
+                currency: ledger_core::Currency::Usd,
+            },
+        },
+    );
+    let ruled = run_both(
+        &settings,
+        &Command::SaveRule {
+            rule: RuleInput {
+                id: None,
+                vendor_includes: "Invented Vendor".into(),
+                category_id: settings.categories[0].id.clone(),
+                purpose: "Office use".into(),
+                enabled: true,
+            },
+        },
+    );
+    let submitted = run_both(
+        &ruled,
+        &Command::SubmitReceiptDraft {
+            draft: draft(&ruled, "draft-2", &[]),
+            documents: vec![],
+        },
+    );
+    // commit_import starts each draft from blank_draft, dated today(), and
+    // then sets the row's date.
+    let account = submitted.accounts[0].id.clone();
+    let csv = "date,description,amount,currency,reference\n2023-02-10,Invented card purchase,-12.34,USD,R1\n";
+    let map = CsvMapping {
+        date: "date".into(),
+        description: "description".into(),
+        amount: "amount".into(),
+        currency: "currency".into(),
+        reference: "reference".into(),
+        vendor: None,
+        category: None,
+        purpose: None,
+        transaction_type: None,
+        source_account: None,
+    };
+    let (mut env, _) = envs();
+    let rows = preview_import(
+        &submitted,
+        &parse_csv(csv).unwrap(),
+        &map,
+        &account,
+        SignConvention::Negative,
+        &ImportOptions::default(),
+        &mut env,
+    )
+    .unwrap();
+    let imported = run_both(
+        &submitted,
+        &Command::CommitImport {
+            account_id: account,
+            rows,
+        },
+    );
+    assert_eq!(imported.drafts.last().unwrap().date, "2023-02-10");
+}
