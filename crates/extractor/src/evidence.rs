@@ -669,7 +669,7 @@ mod tests {
     #[test]
     fn labels_match_whole_words_ignoring_case() {
         assert!(has_label("TOTAL PAID · USD $42.50", &["total"]));
-        assert!(has_label("Grand-Total: $9.00", &["grand"]));
+        assert!(has_label("Grand-Total: $63.18", &["grand"]));
         assert!(has_label("Tran# 4471", &["tran"]));
         assert!(!has_label("Subtotal $40.00", &["total"]));
         assert!(!has_label("Transaction 4471", &["tran"]));
