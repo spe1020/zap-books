@@ -406,6 +406,16 @@ combination, and the service can't build one. Without this, whoever holds
 the service key could hand the chain to another key with an ordinary
 acceptance, and `verify_chain`, which reads only tags, would follow it.
 
+**An acceptance is opened against its signer and its business.**
+`open_acceptance` takes the key the chain says signs that seq (from genesis,
+or the last hand-over) and refuses any other signer, as `open_rejection` and
+`open_delivery` do; anyone holding an epoch key could otherwise sign an
+acceptance of their own that readers would decrypt. It also refuses an
+acceptance whose embedded proposal names another business, so a member's
+genuine, signed proposal for one business can't be recorded in another's
+chain under their name. `MembershipState::follow` and `audit` check the
+business again, against the state and the books they are given.
+
 An `activated` or `lapsed` acceptance repeats the original pending
 proposal and payload. One proposal id can therefore appear on two
 acceptances: `pending`, then `activated` or `lapsed`.

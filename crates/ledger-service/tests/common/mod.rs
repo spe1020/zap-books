@@ -236,13 +236,18 @@ impl World {
             .map(|e| Event::from_json(e).unwrap())
             .collect();
         let keys = self.keys_for(reader).await;
-        let contents = events
-            .iter()
-            .map(|e| {
-                let epoch = protocol::parse_acceptance(e).unwrap().epoch;
-                open_acceptance(e, &keys[&epoch]).unwrap().1
-            })
-            .collect();
+        // As a reader does: each acceptance must be signed by the key the
+        // chain says signs it, from genesis or the last hand-over.
+        let mut signer = service_keys().public_key();
+        let mut contents = Vec::new();
+        for e in &events {
+            let epoch = protocol::parse_acceptance(e).unwrap().epoch;
+            let (header, content) = open_acceptance(e, &keys[&epoch], &signer).unwrap();
+            if let Some(next) = header.next_service {
+                signer = next;
+            }
+            contents.push(content);
+        }
         (events, contents)
     }
 

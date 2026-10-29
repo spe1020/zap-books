@@ -280,19 +280,19 @@ fn an_acceptance_opens_only_with_its_epoch_key() {
     let epoch0 = EpochKey::generate(0);
     let genesis = genesis_event();
     let event = acceptance_for(&genesis, 0, None, &epoch0);
-    let (header, content) = open_acceptance(&event, &epoch0).unwrap();
+    let (header, content) = open_acceptance(&event, &epoch0, &pk(&service())).unwrap();
     assert_eq!(header.seq, 0);
     assert_eq!(content.proposal.id, genesis.id);
 
     // Another key labelled epoch 0, and the right key under another number.
     let other = EpochKey::generate(0);
     assert_eq!(
-        open_acceptance(&event, &other).unwrap_err(),
+        open_acceptance(&event, &other, &pk(&service())).unwrap_err(),
         ProtocolError::Decrypt
     );
     let renumbered = EpochKey::from_secret(1, epoch0.secret_key().clone());
     assert_eq!(
-        open_acceptance(&event, &renumbered).unwrap_err(),
+        open_acceptance(&event, &renumbered, &pk(&service())).unwrap_err(),
         ProtocolError::Decrypt
     );
 }
@@ -355,7 +355,7 @@ fn a_service_handover_tag_must_match_an_activated_key_replacement() {
     let genesis = acceptance_for(&genesis_event(), 0, None, &epoch0);
     let approve = build_proposal(&owner(), &pk(&service()), &approve_payload(0), at(10)).unwrap();
     let ordinary = acceptance_for(&approve, 1, Some(genesis.id), &epoch0);
-    assert!(open_acceptance(&ordinary, &epoch0).is_ok());
+    assert!(open_acceptance(&ordinary, &epoch0, &pk(&service())).is_ok());
     let forged = with_handover(&ordinary, Some(&attacker));
     let head = protocol::verify_chain(
         business_id(),
@@ -367,7 +367,7 @@ fn a_service_handover_tag_must_match_an_activated_key_replacement() {
     .unwrap();
     assert_eq!(head.service, attacker);
     assert_eq!(
-        open_acceptance(&forged, &epoch0).unwrap_err(),
+        open_acceptance(&forged, &epoch0, &pk(&service())).unwrap_err(),
         ProtocolError::TagMismatch("service")
     );
 
@@ -414,7 +414,10 @@ fn a_service_handover_tag_must_match_an_activated_key_replacement() {
     };
     let handover = build(Some(next), Outcome::Activated).unwrap();
     assert_eq!(
-        open_acceptance(&handover, &epoch0).unwrap().0.next_service,
+        open_acceptance(&handover, &epoch0, &pk(&service()))
+            .unwrap()
+            .0
+            .next_service,
         Some(next)
     );
 
@@ -432,7 +435,7 @@ fn a_service_handover_tag_must_match_an_activated_key_replacement() {
         with_handover(&handover, None),
     ] {
         assert_eq!(
-            open_acceptance(&forged, &epoch0).unwrap_err(),
+            open_acceptance(&forged, &epoch0, &pk(&service())).unwrap_err(),
             ProtocolError::TagMismatch("service")
         );
     }

@@ -57,7 +57,7 @@ fn the_command_the_member_signed_verifies() {
     let (_, payload) = open_proposal(&proposal, &service()).unwrap();
     let event = accept(&proposal, payload, &epoch);
 
-    let (_, content) = open_acceptance(&event, &epoch).unwrap();
+    let (_, content) = open_acceptance(&event, &epoch, &pk(&service())).unwrap();
     assert_eq!(content.payload.command, approve("draft-1"));
     assert_eq!(
         content.payload.hash(),
@@ -86,7 +86,7 @@ fn a_substituted_command_fails() {
     .unwrap();
     let event = accept(&proposal, substituted, &epoch);
     assert_eq!(
-        open_acceptance(&event, &epoch).unwrap_err(),
+        open_acceptance(&event, &epoch, &pk(&service())).unwrap_err(),
         ProtocolError::PayloadMismatch
     );
 }
@@ -103,7 +103,7 @@ fn a_changed_salt_fails() {
     .unwrap();
     let event = accept(&proposal, resalted, &epoch);
     assert_eq!(
-        open_acceptance(&event, &epoch).unwrap_err(),
+        open_acceptance(&event, &epoch, &pk(&service())).unwrap_err(),
         ProtocolError::PayloadMismatch
     );
 }
@@ -124,7 +124,7 @@ fn the_exact_text_is_committed_not_its_meaning() {
     assert_eq!(same_meaning.payload(), genuine.payload());
     let event = accept(&proposal, same_meaning, &epoch);
     assert_eq!(
-        open_acceptance(&event, &epoch).unwrap_err(),
+        open_acceptance(&event, &epoch, &pk(&service())).unwrap_err(),
         ProtocolError::PayloadMismatch
     );
 }

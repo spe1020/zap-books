@@ -26,7 +26,13 @@ fn add(keys: &Keys, role: Role, history: History) -> MembershipChange {
 /// Owner plus backup key, with a bookkeeper, a viewer and a submitter, all
 /// with full history.
 fn team() -> MembershipState {
-    let mut s = MembershipState::genesis(pk(&owner()), pk(&service()), backup_recovery()).unwrap();
+    let mut s = MembershipState::genesis(
+        business_id(),
+        pk(&owner()),
+        pk(&service()),
+        backup_recovery(),
+    )
+    .unwrap();
     for (n, (keys, role)) in [
         (bookkeeper(), Role::Bookkeeper),
         (viewer(), Role::Viewer),
@@ -396,6 +402,7 @@ fn a_business_keeps_an_owner_and_a_recovery_key() {
     // Genesis without a usable recovery party.
     assert_eq!(
         MembershipState::genesis(
+            business_id(),
             pk(&owner()),
             pk(&service()),
             Recovery::BackupKey {
@@ -407,6 +414,7 @@ fn a_business_keeps_an_owner_and_a_recovery_key() {
     );
     assert_eq!(
         MembershipState::genesis(
+            business_id(),
             pk(&owner()),
             pk(&service()),
             Recovery::SecondOwner {
@@ -420,6 +428,7 @@ fn a_business_keeps_an_owner_and_a_recovery_key() {
     // With a second owner instead of a backup key, neither owner can leave
     // while the other is the only recovery party.
     let two = MembershipState::genesis(
+        business_id(),
         pk(&owner()),
         pk(&service()),
         Recovery::SecondOwner {
@@ -446,6 +455,7 @@ fn a_business_keeps_an_owner_and_a_recovery_key() {
 fn an_owner_level_change_is_checked_again_when_due() {
     // Two pending removals that together would leave no recovery party.
     let s = MembershipState::genesis(
+        business_id(),
         pk(&owner()),
         pk(&service()),
         Recovery::SecondOwner {

@@ -368,10 +368,11 @@ impl Ledger {
         else {
             return reject(&ProtocolError::NotGenesis);
         };
-        let membership = match MembershipState::genesis(header.author, *service, *recovery) {
-            Ok(m) => m,
-            Err(e) => return reject(&e),
-        };
+        let membership =
+            match MembershipState::genesis(header.business, header.author, *service, *recovery) {
+                Ok(m) => m,
+                Err(e) => return reject(&e),
+            };
         let books = match genesis_business(header.business, &payload.command) {
             Ok(b) => b,
             Err(refusal) => return Ok(Decision::Reject(Reason::rejected(refusal.to_string()))),
