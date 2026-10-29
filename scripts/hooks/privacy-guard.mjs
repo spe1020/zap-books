@@ -6,8 +6,9 @@
 //
 // Corpus folders: ZAPBOOKS_CORPUS_DIRS (separated by ":"), or by default
 // ~/Desktop/reciepts and ~/Desktop/receipts-holdout. The committed fictional
-// samples in docs/samples/ are exempt: their values are allowed, and changes
-// under docs/samples/ aren't checked.
+// samples in docs/samples/ are exempt: their values are allowed (label fields
+// and every amount printed on a sample page), and changes under docs/samples/
+// aren't checked.
 //
 // Run as a pre-commit hook it checks the staged diff; run as a commit-msg
 // hook (with the message file as its argument) it checks the message.
@@ -23,6 +24,7 @@ const SAMPLES_DIR = "docs/samples";
 /** Shorter receipt numbers (`3`, `61`) would match almost anything. */
 const MIN_REFERENCE_LENGTH = 4;
 const MIN_VENDOR_LENGTH = 3;
+const AMOUNT = /(?<![\d.,])\d[\d,]*\.\d{2}(?!\d|\.\d)/g;
 
 /** Every *.expected.json (or expected.json) under `dir`, recursively. */
 export function labelFiles(dir) {
@@ -38,6 +40,14 @@ export function labelFiles(dir) {
       out.push(path);
   }
   return out;
+}
+
+/** The text of every sample page (*.html) in `dir`. */
+function samplePages(dir) {
+  if (!existsSync(dir) || !statSync(dir).isDirectory()) return [];
+  return readdirSync(dir)
+    .filter((name) => name.endsWith(".html"))
+    .map((name) => readFileSync(join(dir, name), "utf8"));
 }
 
 /** An amount as whole cents, or null: `"$1,042.50"` → 104250. */
@@ -96,6 +106,13 @@ export function loadSecrets(dirs, samplesDir) {
   };
   const real = collect(labels);
   const fictional = collect(samples);
+  // A line item on a sample page is as fictional as its total, so quoting the
+  // sample never trips the guard.
+  for (const page of samplePages(samplesDir))
+    for (const amount of page.match(AMOUNT) ?? []) {
+      const c = cents(amount);
+      if (c) fictional.amounts.add(c);
+    }
 
   const secrets = [];
   const word = (kind, text) => {
@@ -112,9 +129,7 @@ export function loadSecrets(dirs, samplesDir) {
     secrets.push({
       kind: "amount",
       test: (line) =>
-        [...line.matchAll(/(?<![\d.,])\d[\d,]*\.\d{2}(?!\d|\.\d)/g)].some((m) =>
-          set.has(cents(m[0])),
-        ),
+        [...line.matchAll(AMOUNT)].some((m) => set.has(cents(m[0]))),
     });
   }
   return { secrets, labelCount: labels.length };

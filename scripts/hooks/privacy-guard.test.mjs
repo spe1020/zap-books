@@ -36,10 +36,16 @@ writeFileSync(
   JSON.stringify({
     vendor: "Brindle Bay Ferry",
     total: "61.40",
+    tip: "6.00",
     date: "2032-11-23",
   }),
 );
-// The fictional sample shares a total with the corpus; it stays allowed.
+// The fictional sample shares a total with the corpus, and prints a line item
+// equal to a corpus tip; both stay allowed.
+writeFileSync(
+  join(samples, "demo.html"),
+  '<td>Index cards</td><td class="number">$6.00</td>',
+);
 writeFileSync(
   join(samples, "demo.expected.json"),
   JSON.stringify({
@@ -90,6 +96,7 @@ describe("privacy guard", () => {
 
   it("allows values the fictional samples use, and doesn't check docs/samples", () => {
     expect(leaks("TOTAL 61.40")).toEqual([]);
+    expect(leaks('has_label("Cards $6.00", &["cards"])')).toEqual([]);
     expect(leaks("Quillfeather", "docs/samples/demo.html")).toEqual([]);
   });
 
