@@ -237,7 +237,16 @@ A negative total is taken as the amount paid only when its evidence says
 payment, paid or charged and doesn't say refund, credit, return or reversal
 (`Payment (card): -$24.00`). Any other negative total stays unclear, because it
 may be a refund and a refund must never become an expense: "The only amount is
-a payment or refund line (−$24.00). Enter the total yourself."
+a payment or refund line (−$24.00). Enter the total yourself." The receipt's
+own sign counts as much as the model's: a total the evidence prints with a
+minus or in parentheses (`TOTAL -42.50`, `Total (42.50)`, `42.50-`) is judged
+the same way even when the model reports it as positive. A total whose line
+says refund, return, reverse or credit in any of their common forms
+(`refunded`, `returned`, `reversal`, `credited`, `credits`…), or prints `CR`
+right after the amount (`TOTAL 42.50 CR`), is never found, whatever its sign:
+"The total looks like a refund or return ($42.50). Enter the total yourself."
+(`Credit card` only names the card and doesn't count, only a `CR` after the
+amount is a marker, and only the listed forms match, so `returnable` doesn't.)
 
 ## Known limits
 

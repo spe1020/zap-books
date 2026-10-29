@@ -23,6 +23,18 @@ pub fn has_label(evidence: &str, labels: &[&str]) -> bool {
     })
 }
 
+/// True if `word` appears in `evidence` as a whole word other than directly
+/// before `next`, ignoring case. With `credit` and `card`: `STORE CREDIT`
+/// and `Store credit to credit card` are true, `CREDIT CARD TOTAL` is false.
+pub fn has_word_outside_phrase(evidence: &str, word: &str, next: &str) -> bool {
+    let words = words(evidence);
+    let (word, next) = (word.to_lowercase(), next.to_lowercase());
+    words
+        .iter()
+        .enumerate()
+        .any(|(i, w)| *w == word && words.get(i + 1).is_none_or(|n| *n != next))
+}
+
 /// The runs of digits in `evidence`. Spaces and punctuation separate runs
 /// and are never part of one: `"Tran# 5103-27"` gives `["5103", "27"]`.
 pub fn numbers_in_evidence(evidence: &str) -> Vec<String> {
@@ -53,11 +65,27 @@ pub(crate) fn is_thousands_grouped(s: &str) -> bool {
         && rest.all(|g| g.len() == 3 && g.chars().all(|d| d.is_ascii_digit()))
 }
 
+/// An amount printed in evidence, and whether it is printed as negative: a
+/// minus sign before it (`-42.50`, `-$42.50`, `$-42.50`, past spaces and
+/// currency symbols), a minus right after it (`42.50-`), or parentheses
+/// around it (`(42.50)`). The hyphen in `T-SHIRT 42.50` or `SUB-TOTAL 42.50`
+/// is not a sign, nor is the dash in `42.50 - thank you`.
+///
+/// `credit_marked` is a `CR` marker right after the amount (`42.50CR`,
+/// `42.50 CR`), the way card statements print a credit without a sign.
+struct PrintedAmount {
+    amount: Minor,
+    negative: bool,
+    credit_marked: bool,
+}
+
 /// The amounts printed in `evidence`: each run of digits, commas and points,
-/// read exactly. Currency symbols, spaces, signs and parentheses around a
-/// number are ignored. A comma that isn't a thousands separator splits runs.
-fn amounts_in(evidence: &str) -> Vec<Minor> {
+/// read exactly, with the sign the receipt prints around it. Currency
+/// symbols and spaces are ignored. A comma that isn't a thousands separator
+/// splits runs.
+fn printed_amounts(evidence: &str) -> Vec<PrintedAmount> {
     let chars: Vec<char> = evidence.chars().collect();
+    let is_money_symbol = |c: &char| matches!(c, '$' | '€' | '£');
     let mut amounts = Vec::new();
     let mut i = 0;
     while let Some(&c) = chars.get(i) {
@@ -77,30 +105,106 @@ fn amounts_in(evidence: &str) -> Vec<Minor> {
             i += 1;
         }
         let run: String = chars.get(start..i).unwrap_or_default().iter().collect();
-        let run = run.trim_end_matches([',', '.']);
+        let trimmed = run.trim_end_matches([',', '.']);
+        // The character before the number, past spaces and currency symbols
+        // (and the point of `.99`), and the one after it, past spaces.
+        let number_start = if point_before { start - 1 } else { start };
+        let before = chars
+            .get(..number_start)
+            .unwrap_or_default()
+            .iter()
+            .rev()
+            .find(|c| !c.is_whitespace() && !is_money_symbol(c));
+        // A trailing minus is printed against the number (`42.50-`); with a
+        // space it is a dash, not a sign. A closing parenthesis may follow
+        // a space.
+        let rest = chars
+            .get(start + trimmed.chars().count()..)
+            .unwrap_or_default();
+        let after_adjacent = rest.first();
+        let after = rest.iter().find(|c| !c.is_whitespace());
+        let minus = |c: Option<&char>| matches!(c, Some('-' | '−'));
+        let negative =
+            minus(before) || minus(after_adjacent) || (before == Some(&'(') && after == Some(&')'));
+        // `CR` as a whole word right after the number, past spaces only:
+        // `42.50CR` and `42.50 CR`, not `42.50 CREDIT` (a word, handled by
+        // the refund words) and not a `CR` before the number.
+        let after_word: Vec<char> = rest
+            .iter()
+            .skip_while(|c| c.is_whitespace())
+            .take(3)
+            .copied()
+            .collect();
+        let credit_marked = matches!(
+            (after_word.first(), after_word.get(1)),
+            (Some(c), Some(r)) if c.eq_ignore_ascii_case(&'c') && r.eq_ignore_ascii_case(&'r')
+        ) && after_word.get(2).is_none_or(|c| !c.is_alphanumeric());
         let run = if point_before {
-            format!("0.{run}")
+            format!("0.{trimmed}")
         } else {
-            run.to_string()
+            trimmed.to_string()
         };
         let pieces: Vec<String> = if is_thousands_grouped(&run) {
             vec![run.replace(',', "")]
         } else {
             run.split(',').map(str::to_string).collect()
         };
-        amounts.extend(pieces.iter().filter_map(|p| parse_money(p).ok()));
+        amounts.extend(
+            pieces
+                .iter()
+                .filter_map(|p| parse_money(p).ok())
+                .map(|amount| PrintedAmount {
+                    amount,
+                    negative,
+                    credit_marked,
+                }),
+        );
     }
     amounts
+}
+
+/// The amounts printed in `evidence`, signs ignored.
+fn amounts_in(evidence: &str) -> Vec<Minor> {
+    printed_amounts(evidence)
+        .into_iter()
+        .map(|p| p.amount)
+        .collect()
 }
 
 /// True if `evidence` prints `value`, ignoring currency symbols, thousands
 /// separators, spaces, and a leading or trailing minus or parentheses:
 /// `TOTAL $1,042.50`, `COUPON 0.25-` and `(0.25)` all contain their amounts.
+/// Discount, tax and fee lines rely on this; for the total, which must not
+/// be a refund, see `amount_shown_negative`.
 pub fn amount_in_evidence(value: Minor, evidence: &str) -> bool {
     let wanted = i64::from(value).abs();
     amounts_in(evidence)
         .iter()
         .any(|a| i64::from(*a).abs() == wanted)
+}
+
+/// True if `evidence` prints `value` as a negative amount: with a minus
+/// sign before or after it, or in parentheses. `TOTAL -42.50`,
+/// `Total (42.50)` and `Paid 42.50-` all do; `TOTAL $42.50`, `T-SHIRT 42.50`
+/// and `(3%) $1.50` do not. The sign is compared ignoring the sign of
+/// `value` itself, so a positive value the receipt prints negative is caught.
+pub fn amount_shown_negative(value: Minor, evidence: &str) -> bool {
+    let wanted = i64::from(value).abs();
+    printed_amounts(evidence)
+        .iter()
+        .any(|p| p.negative && i64::from(p.amount).abs() == wanted)
+}
+
+/// True if `evidence` prints `value` with a `CR` credit marker right after
+/// it: `TOTAL 42.50 CR` and `TOTAL 42.50CR` do; `CR 42.50` (a marker before
+/// the amount), `42.50 CREDIT` (a word) and `42.50 CRN` do not. Scoped to
+/// the amount, not the line, so initials and product codes elsewhere on the
+/// line don't count. The sign of `value` is ignored.
+pub fn amount_marked_credit(value: Minor, evidence: &str) -> bool {
+    let wanted = i64::from(value).abs();
+    printed_amounts(evidence)
+        .iter()
+        .any(|p| p.credit_marked && i64::from(p.amount).abs() == wanted)
 }
 
 /// One piece of date evidence: a run of digits, a run of letters
@@ -474,6 +578,92 @@ mod tests {
         assert!(!amount_in_evidence(minor(4250), "REF 1242.50"));
         // A comma that isn't a thousands separator splits two amounts.
         assert!(amount_in_evidence(minor(150), "1.50,2.00"));
+    }
+
+    #[test]
+    fn a_printed_sign_is_seen_for_the_amount_it_belongs_to() {
+        for evidence in [
+            "TOTAL -42.50",
+            "TOTAL -$42.50",
+            "TOTAL $-42.50",
+            "Total −42.50",
+            "TOTAL (42.50)",
+            "Total ($42.50)",
+            "REFUND TOTAL ( 42.50 )",
+            "Paid 42.50-",
+            "Payment (card): -$42.50",
+            "TOTAL-42.50",
+        ] {
+            assert!(amount_shown_negative(minor(4250), evidence), "{evidence}");
+            assert!(amount_in_evidence(minor(4250), evidence), "{evidence}");
+        }
+        for evidence in [
+            "TOTAL $42.50",
+            "TOTAL 42.50",
+            "T-SHIRT 42.50",
+            "SUB-TOTAL 42.50",
+            "(2 items) TOTAL 42.50",
+            "TOTAL 42.50 (incl. tax)",
+            "Card surcharge (3%) $42.50",
+            "10-28 TOTAL 42.50",
+            "TOTAL 42.50 - thank you",
+            "TOTAL 42.50)",
+            "(TOTAL 42.50",
+        ] {
+            assert!(!amount_shown_negative(minor(4250), evidence), "{evidence}");
+            assert!(amount_in_evidence(minor(4250), evidence), "{evidence}");
+        }
+        // The sign belongs to the amount it is printed on, not to others.
+        assert!(amount_shown_negative(
+            minor(25),
+            "Subtotal 42.50 Coupon -0.25"
+        ));
+        assert!(!amount_shown_negative(
+            minor(4250),
+            "Subtotal 42.50 Coupon -0.25"
+        ));
+        assert!(amount_shown_negative(minor(99), "SAVINGS -.99"));
+        // A value's own sign doesn't matter; only the receipt's does.
+        assert!(amount_shown_negative(minor(-4250), "TOTAL (42.50)"));
+        assert!(!amount_shown_negative(minor(-4250), "TOTAL 42.50"));
+        // A different amount printed negative doesn't count.
+        assert!(!amount_shown_negative(minor(4250), "TOTAL -42.05"));
+    }
+
+    #[test]
+    fn a_cr_marker_right_after_the_amount_is_a_credit() {
+        for evidence in [
+            "TOTAL 42.50 CR",
+            "TOTAL 42.50CR",
+            "Total $42.50 cr",
+            "TOTAL 42.50 CR.",
+            "TOTAL 42.50  Cr  ",
+            "TOTAL 42.50 CR THANK YOU",
+        ] {
+            assert!(amount_marked_credit(minor(4250), evidence), "{evidence}");
+            assert!(amount_in_evidence(minor(4250), evidence), "{evidence}");
+            // A marker is not a sign.
+            assert!(!amount_shown_negative(minor(4250), evidence), "{evidence}");
+        }
+        for evidence in [
+            "TOTAL 42.50",
+            "CR 42.50",
+            "CR TOTAL 42.50",
+            "TOTAL 42.50 CREDIT",
+            "TOTAL 42.50 CRN",
+            "TOTAL 42.50 C R",
+            "TOTAL 42.50 - CR",
+            "SUBTOTAL 40.00 CR TOTAL 42.50",
+            "C.R. SMITH 42.50",
+        ] {
+            assert!(!amount_marked_credit(minor(4250), evidence), "{evidence}");
+        }
+        // The marker belongs to the amount it follows.
+        assert!(amount_marked_credit(
+            minor(4000),
+            "SUBTOTAL 40.00 CR TOTAL 42.50"
+        ));
+        assert!(amount_marked_credit(minor(-4250), "TOTAL 42.50 CR"));
     }
 
     #[test]
