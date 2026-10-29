@@ -43,6 +43,16 @@ pub enum LedgerError {
     /// Nothing was stored.
     #[error("internal error: {0}")]
     Internal(String),
+    /// The business doesn't exist, or the proposer isn't one of its members
+    /// or its recovery key. The answer is unsigned, nothing is stored, and
+    /// the two cases look the same.
+    #[error("No such business.")]
+    NoSuchBusiness,
+    /// A refused genesis (or another business's genesis id), answered
+    /// unsigned with nothing stored: there is no business yet whose key
+    /// would sign it.
+    #[error("{}", .0.message)]
+    Refused(Reason),
 }
 
 impl LedgerError {
@@ -93,10 +103,10 @@ pub struct Page {
 
 pub struct Ledger {
     pool: PgPool,
-    /// The key the service is started with: it signs rejections for
-    /// businesses it doesn't know.
+    /// The key the service is started with: every new business starts on
+    /// it.
     primary: Keys,
-    /// Further keys, so businesses can move to one (`ReplaceServiceKey`).
+    /// Further keys, only for businesses moving to one (`ReplaceServiceKey`).
     others: Vec<Keys>,
     clock: Arc<dyn Clock>,
     ids: Arc<dyn Fn() -> String + Send + Sync>,
@@ -113,7 +123,10 @@ struct Head {
 /// What a proposal turned into, before anything is written.
 enum Decision {
     Accept(Box<Accepted>),
-    Reject(Reason),
+    /// A signed rejection, by the business's own service key.
+    Reject(Reason, PublicKey),
+    /// An unsigned refusal: nothing is signed or stored.
+    Refuse(LedgerError),
 }
 
 /// The next acceptance, before it is signed.
@@ -195,8 +208,8 @@ impl Ledger {
         }
     }
 
-    /// Also holds `keys`: a business can then name it in `CreateBusiness`
-    /// or move to it with `ReplaceServiceKey`.
+    /// Also holds `keys`: a business can then move to it with
+    /// `ReplaceServiceKey`. Genesis names the primary key only.
     pub fn with_key(mut self, keys: Keys) -> Ledger {
         if self.key(&keys.public_key()).is_none() {
             self.others.push(keys);
@@ -259,7 +272,15 @@ impl Ledger {
                 record_ack(&mut tx, &header, &ack).await?;
                 ack
             }
-            Decision::Reject(reason) => self.store_rejection(&mut tx, &header, &reason).await?,
+            Decision::Reject(reason, service) => {
+                self.store_rejection(&mut tx, &header, &reason, &service)
+                    .await?
+            }
+            Decision::Refuse(e) => {
+                // Keep any activation that came first; store nothing else.
+                tx.commit().await?;
+                return Err(e);
+            }
         };
         tx.commit().await?;
         Ok(ack)
@@ -271,16 +292,34 @@ impl Ledger {
         header: &ProposalHeader,
         proposal: &Event,
     ) -> Result<Decision, LedgerError> {
-        let reject = |e: &ProtocolError| Ok(Decision::Reject(Reason::from_error(e)));
         let head = load_head(tx, &header.business).await?;
+        // Only a member or the recovery key of a business that exists gets a
+        // signed rejection, which is stored. Anyone else is answered without
+        // a signature, and nothing is stored, so keys that cost nothing to
+        // make can't grow the tables or spend the service's signatures.
+        let insider = head
+            .as_ref()
+            .is_some_and(|h| h.membership.actor(&header.author) != Actor::Outsider);
         if header.command == CommandType::CreateBusiness {
-            if head.is_some() {
-                return reject(&ProtocolError::AlreadyCreated);
-            }
-            return self.decide_genesis(tx, header, proposal).await;
+            return match head {
+                None => self.decide_genesis(tx, header, proposal).await,
+                Some(head) if insider => Ok(Decision::Reject(
+                    Reason::from_error(&ProtocolError::AlreadyCreated),
+                    head.membership.service,
+                )),
+                Some(_) => Ok(Decision::Refuse(LedgerError::Refused(Reason::from_error(
+                    &ProtocolError::AlreadyCreated,
+                )))),
+            };
         }
-        let Some(head) = head else {
-            return reject(&ProtocolError::NotGenesis);
+        let Some(head) = head.filter(|_| insider) else {
+            return Ok(Decision::Refuse(LedgerError::NoSuchBusiness));
+        };
+        let reject = |e: &ProtocolError| {
+            Ok(Decision::Reject(
+                Reason::from_error(e),
+                head.membership.service,
+            ))
         };
         // Proposals are encrypted to the business's current service key.
         let service = self.business_key(&head.membership.service)?;
@@ -305,14 +344,22 @@ impl Ledger {
         let mut env = RecordingEnv::new(move || ids(), iso_millis(now));
         let books = match apply_command(&head.books, command, &mut env) {
             Ok(after) => after,
-            Err(refusal) => return Ok(Decision::Reject(Reason::rejected(refusal.to_string()))),
+            Err(refusal) => {
+                return Ok(Decision::Reject(
+                    Reason::rejected(refusal.to_string()),
+                    head.membership.service,
+                ))
+            }
         };
         let changes = diff(&head.books, &books).map_err(LedgerError::internal)?;
         let (membership, outcome) = match command {
             Command::ChangeMembership { change } => {
                 if let MembershipChange::ReplaceServiceKey { key } = change {
                     if self.key(key).is_none() {
-                        return Ok(Decision::Reject(Reason::rejected(KEY_NOT_HELD)));
+                        return Ok(Decision::Reject(
+                            Reason::rejected(KEY_NOT_HELD),
+                            head.membership.service,
+                        ));
                     }
                 }
                 match head
@@ -352,12 +399,19 @@ impl Ledger {
         header: &ProposalHeader,
         proposal: &Event,
     ) -> Result<Decision, LedgerError> {
-        let reject = |e: &ProtocolError| Ok(Decision::Reject(Reason::from_error(e)));
-        // Genesis names its service key in a signed tag: any key this
-        // service holds will do.
-        let Some(service) = header.service.as_ref().and_then(|s| self.key(s)) else {
-            return reject(&ProtocolError::WrongService);
+        // No business exists yet to sign a rejection for, so a refused
+        // genesis is answered unsigned and stores nothing.
+        let reject = |e: &ProtocolError| {
+            Ok(Decision::Refuse(LedgerError::Refused(Reason::from_error(
+                e,
+            ))))
         };
+        // Genesis names its service key in a signed tag, and it must be the
+        // primary: the other keys are only for businesses moving to them.
+        if header.service != Some(self.primary.public_key()) {
+            return reject(&ProtocolError::WrongService);
+        }
+        let service = &self.primary;
         let payload = match open_proposal(proposal, service) {
             Ok((_, payload)) => payload,
             Err(e) => return reject(&e),
@@ -375,7 +429,11 @@ impl Ledger {
             };
         let books = match genesis_business(header.business, &payload.command) {
             Ok(b) => b,
-            Err(refusal) => return Ok(Decision::Reject(Reason::rejected(refusal.to_string()))),
+            Err(refusal) => {
+                return Ok(Decision::Refuse(LedgerError::Refused(Reason::rejected(
+                    refusal.to_string(),
+                ))))
+            }
         };
         let now = self.clock.now_millis();
         let next = Next {
@@ -701,26 +759,31 @@ impl Ledger {
         Ok(())
     }
 
+    /// Signs a rejection with `service`, the business's own service key (an
+    /// error, storing nothing, if it isn't loaded), and stores it. The
+    /// `audit` row keeps the code, never the message, which can quote the
+    /// decrypted payload; the message travels only inside the rejection,
+    /// encrypted to the proposer.
     async fn store_rejection(
         &self,
         tx: &mut Transaction<'_, Postgres>,
         header: &ProposalHeader,
         reason: &Reason,
+        service: &PublicKey,
     ) -> Result<Acknowledgment, LedgerError> {
         let at = Timestamp::from_secs(self.clock.now_secs());
-        let signer = self.rejection_key(tx, &header.business).await?;
+        let signer = self.business_key(service)?;
         let event = build_rejection(signer, header, reason, at).map_err(LedgerError::internal)?;
         let ack = Acknowledgment::new(Status::Rejected, &event);
         record_ack(tx, header, &ack).await?;
         sqlx::query(
-            "insert into audit (business_id, proposal_id, author, code, message, rejection)
-             values ($1, $2, $3, $4, $5, $6)",
+            "insert into audit (business_id, proposal_id, author, code, rejection)
+             values ($1, $2, $3, $4, $5)",
         )
         .bind(header.business.to_string())
         .bind(header.id.to_hex())
         .bind(header.author.to_hex())
         .bind(json_name(&reason.code))
-        .bind(&reason.message)
         .bind(event.as_json())
         .execute(&mut **tx)
         .await?;
@@ -732,25 +795,6 @@ impl Ledger {
             "rejected"
         );
         Ok(ack)
-    }
-
-    /// The key that signs a rejection: the business's service key, or the
-    /// primary key for a business this service doesn't hold.
-    async fn rejection_key(
-        &self,
-        tx: &mut Transaction<'_, Postgres>,
-        business: &BusinessId,
-    ) -> Result<&Keys, LedgerError> {
-        let service: Option<String> =
-            sqlx::query_scalar("select membership->>'service' from businesses where id = $1")
-                .bind(business.to_string())
-                .fetch_optional(&mut **tx)
-                .await?
-                .flatten();
-        Ok(service
-            .and_then(|s| PublicKey::from_hex(&s).ok())
-            .and_then(|k| self.key(&k))
-            .unwrap_or(&self.primary))
     }
 
     /// An epoch key, unsealed with the business's service key.
@@ -805,6 +849,14 @@ impl Ledger {
             let payload = CommittedPayload::from_text(row.try_get("payload")?)
                 .map_err(LedgerError::internal)?;
             let (membership, outcome) = match head.membership.activate(&id, secs) {
+                Ok((state, _)) if self.key(&state.service).is_none() => {
+                    // Fails before signing anything: the change stays
+                    // pending until the key is loaded again.
+                    return Err(LedgerError::Internal(format!(
+                        "business {business}'s due service key replacement names {}, which is not loaded; it stays pending",
+                        state.service
+                    )));
+                }
                 Ok((state, _)) => (state, Outcome::Activated),
                 Err(_) => (
                     head.membership
@@ -835,23 +887,68 @@ impl Ledger {
         }
     }
 
-    /// Activates the due changes of one business, if it has any.
-    async fn catch_up(&self, business: &BusinessId) -> Result<(), LedgerError> {
-        let due: bool = sqlx::query_scalar(
-            "select exists (select 1 from pending_changes
-                            where business_id = $1 and effective_at <= $2)",
-        )
-        .bind(business.to_string())
-        .bind(to_i64(self.clock.now_secs()))
-        .fetch_one(&self.pool)
-        .await?;
-        if due {
-            let mut tx = self.pool.begin().await?;
-            lock(&mut tx, business).await?;
-            self.activate_due_locked(&mut tx, business).await?;
-            tx.commit().await?;
+    /// Activates the due changes of one business, if it has any, before a
+    /// read. A failure is logged and the read goes on: a failed activation
+    /// rolls back and changes nothing, so the committed state is still the
+    /// business as it stands, and its due change stays pending. (Proposals
+    /// don't go on: they activate first, under the same lock, and fail.)
+    async fn catch_up(&self, business: &BusinessId) {
+        let result = async {
+            let due: bool = sqlx::query_scalar(
+                "select exists (select 1 from pending_changes
+                                where business_id = $1 and effective_at <= $2)",
+            )
+            .bind(business.to_string())
+            .bind(to_i64(self.clock.now_secs()))
+            .fetch_one(&self.pool)
+            .await?;
+            if due {
+                let mut tx = self.pool.begin().await?;
+                lock(&mut tx, business).await?;
+                self.activate_due_locked(&mut tx, business).await?;
+                tx.commit().await?;
+            }
+            Ok::<(), LedgerError>(())
         }
-        Ok(())
+        .await;
+        if let Err(e) = result {
+            tracing::error!(business = %business, error = %e, "activation failed");
+        }
+    }
+
+    /// The businesses whose current service key isn't loaded, and the key
+    /// each needs, as hex. The service refuses to start while any is
+    /// missing: that business could do nothing.
+    pub async fn missing_service_keys(&self) -> Result<Vec<(String, String)>, LedgerError> {
+        self.missing_keys("select id, membership->>'service' from businesses order by id")
+            .await
+    }
+
+    /// The businesses with a pending `replaceServiceKey` naming a key that
+    /// isn't loaded, and that key. When it falls due it can't activate, and
+    /// the business's proposals fail until the key is loaded.
+    pub async fn missing_pending_keys(&self) -> Result<Vec<(String, String)>, LedgerError> {
+        self.missing_keys(
+            "select business_id, change->>'key' from pending_changes
+             where change->>'op' = 'replaceServiceKey' order by business_id",
+        )
+        .await
+    }
+
+    async fn missing_keys(
+        &self,
+        query: &'static str,
+    ) -> Result<Vec<(String, String)>, LedgerError> {
+        let rows: Vec<(String, Option<String>)> =
+            sqlx::query_as(query).fetch_all(&self.pool).await?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|(business, key)| {
+                let key = key.unwrap_or_default();
+                let loaded = PublicKey::from_hex(&key).is_ok_and(|k| self.key(&k).is_some());
+                (!loaded).then_some((business, key))
+            })
+            .collect())
     }
 
     /// The scheduler's work: activates every pending change that is due, in
@@ -906,14 +1003,26 @@ impl Ledger {
         after: Option<u64>,
         limit: u32,
     ) -> Result<Option<Page>, LedgerError> {
-        self.catch_up(business).await?;
-        let Some(membership) = self.membership(business).await? else {
+        self.catch_up(business).await;
+        let id = business.to_string();
+        // The permission check and the page come from one state: a share
+        // lock on the business row waits for a proposal holding it (every
+        // proposal takes it `for update` before appending), and keeps the
+        // next from appending until the page is read. So a reader removed by
+        // a proposal gets nothing that proposal appended.
+        let mut tx = self.pool.begin().await?;
+        let row: Option<(i64, String)> =
+            sqlx::query_as("select seq, membership::text from businesses where id = $1 for share")
+                .bind(&id)
+                .fetch_optional(&mut *tx)
+                .await?;
+        let Some((head, membership)) = row else {
             return Ok(None);
         };
+        let membership: MembershipState = from_json(&membership)?;
         if membership.readable_epochs(reader).is_none() {
             return Ok(None);
         }
-        let id = business.to_string();
         let events: Vec<String> = sqlx::query_scalar(
             "select event from acceptances where business_id = $1 and seq > $2
              order by seq limit $3",
@@ -921,12 +1030,9 @@ impl Ledger {
         .bind(&id)
         .bind(after.map_or(-1, to_i64))
         .bind(i64::from(limit))
-        .fetch_all(&self.pool)
+        .fetch_all(&mut *tx)
         .await?;
-        let head: i64 = sqlx::query_scalar("select seq from businesses where id = $1")
-            .bind(&id)
-            .fetch_one(&self.pool)
-            .await?;
+        tx.commit().await?;
         Ok(Some(Page {
             events,
             head: to_u64(head),
@@ -941,8 +1047,21 @@ impl Ledger {
         member: &PublicKey,
         business: Option<&BusinessId>,
     ) -> Result<Vec<String>, LedgerError> {
-        if let Some(b) = business {
-            self.catch_up(b).await?;
+        // Due changes first, for every business this reads, as for one.
+        let businesses: Vec<BusinessId> = match business {
+            Some(b) => vec![*b],
+            None => sqlx::query_scalar::<_, String>(
+                "select distinct business_id from epoch_deliveries where member = $1",
+            )
+            .bind(member.to_hex())
+            .fetch_all(&self.pool)
+            .await?
+            .iter()
+            .map(|id| id.parse().map_err(LedgerError::internal))
+            .collect::<Result<_, _>>()?,
+        };
+        for b in &businesses {
+            self.catch_up(b).await;
         }
         let rows = sqlx::query(
             "select business_id, epoch, event from epoch_deliveries
@@ -991,7 +1110,7 @@ impl Ledger {
         business: &BusinessId,
         reader: &PublicKey,
     ) -> Result<Option<Vec<PendingChange>>, LedgerError> {
-        self.catch_up(business).await?;
+        self.catch_up(business).await;
         let Some(membership) = self.membership(business).await? else {
             return Ok(None);
         };

@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 use common::*;
 use ledger_service::clock::Clock;
 use ledger_service::ledger::KEY_NOT_HELD;
-use ledger_service::Status;
+use ledger_service::{LedgerError, Status};
 use nostr::nips::nip98::{HttpData, HttpMethod};
 use nostr::prelude::{Event, EventId, Keys};
 use nostr::types::url::Url;
@@ -111,10 +111,11 @@ async fn a_removed_member_is_refused_at_once_and_cant_read_after_rotation() {
 
     // Refused at once: proposals, the chain, and keys, even the ones once
     // received.
+    // A removed member is an outsider: answered unsigned, nothing stored.
     let refused = w
-        .send(&bookkeeper, Some(3), save(w.business, "draft-2"))
+        .try_send(&bookkeeper, Some(3), save(w.business, "draft-2"))
         .await;
-    assert_rejected(&refused, &bookkeeper, ProtocolError::NotMember);
+    assert!(matches!(refused, Err(LedgerError::NoSuchBusiness)));
     assert!(w
         .ledger
         .acceptances(&w.business, &pk(&bookkeeper), None, 100)
@@ -182,8 +183,10 @@ async fn an_owner_level_change_activates_after_48_hours() {
     w.clock.advance_secs(OWNER_DELAY_SECS - 1);
     assert_eq!(w.run_due().await, 0);
     assert_eq!(w.head().await, 1);
-    let early = w.send(&joining, Some(1), save(w.business, "draft-1")).await;
-    assert_rejected(&early, &joining, ProtocolError::NotMember);
+    let early = w
+        .try_send(&joining, Some(1), save(w.business, "draft-1"))
+        .await;
+    assert!(matches!(early, Err(LedgerError::NoSuchBusiness)));
 
     // Due: the scheduler appends the activation, once.
     w.clock.advance_secs(1);
@@ -488,8 +491,10 @@ async fn a_stolen_owner_key_cant_veto_its_recovery() {
     assert_eq!(state.actor(&pk(&replacement)), Actor::Member(Role::Owner));
 
     // The thief is cut off; the replacement owner has full history.
-    let lost = w.send(&thief, Some(3), save(w.business, "draft-2")).await;
-    assert_rejected(&lost, &thief, ProtocolError::NotMember);
+    let lost = w
+        .try_send(&thief, Some(3), save(w.business, "draft-2"))
+        .await;
+    assert!(matches!(lost, Err(LedgerError::NoSuchBusiness)));
     assert!(w.keys_for(&thief).await.is_empty());
     let keys = w.keys_for(&replacement).await;
     assert_eq!(epochs(&keys), vec![0, 1]);

@@ -10,13 +10,18 @@
 //! - `GET /v1/rejections?after=`: my rejections.
 //! - `GET /health`.
 //!
-//! Reads need NIP-98 auth. Every request is rate limited per public key.
+//! Reads need NIP-98 auth. Before anything is parsed or verified, every
+//! request passes three cheap checks: its declared body size, a limit on
+//! all requests together, and a limit per client address. After the
+//! signature, it is also rate limited per public key.
 
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 
-use axum::body::Bytes;
-use axum::extract::{DefaultBodyLimit, OriginalUri, Path, Query, State};
-use axum::http::{header, HeaderMap, StatusCode};
+use axum::body::{Body, Bytes};
+use axum::extract::{ConnectInfo, DefaultBodyLimit, OriginalUri, Path, Query, Request, State};
+use axum::http::{header, HeaderMap, HeaderValue, Method, StatusCode};
+use axum::middleware::{self, Next};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::Router;
@@ -25,6 +30,7 @@ use nostr::prelude::{Event, PublicKey, Timestamp};
 use nostr::types::url::Url;
 use protocol::{parse_proposal, BusinessId, MAX_EVENT_BYTES};
 use serde::Deserialize;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 
 use crate::ledger::{Ledger, LedgerError};
 use crate::nip98;
@@ -40,20 +46,182 @@ pub struct AppState {
     /// The service's public base URL, such as `https://ledger.example`. NIP-98
     /// events must name it exactly.
     pub public_url: String,
-    pub writes: RateLimit,
-    pub reads: RateLimit,
+    /// Per public key, after the signature is checked.
+    pub writes: RateLimit<PublicKey>,
+    pub reads: RateLimit<PublicKey>,
+    /// Every request together, before anything is parsed.
+    pub global: RateLimit<()>,
+    /// Per client address, before anything is parsed.
+    pub per_ip: RateLimit<IpAddr>,
+    /// Proxies whose `X-Forwarded-For` names the client. From any other
+    /// peer the header is ignored, so a client can't choose its own bucket.
+    pub trusted_proxies: Vec<IpAddr>,
+    /// Browser origins allowed to call the API (CORS). Empty: none.
+    pub allowed_origins: Vec<String>,
 }
 
-pub fn router(state: Arc<AppState>) -> Router {
-    Router::new()
+impl AppState {
+    /// The state with the service's default limits.
+    pub fn new(ledger: Arc<Ledger>, public_url: String) -> AppState {
+        AppState {
+            ledger,
+            public_url,
+            writes: RateLimit::new(60, 10),
+            reads: RateLimit::new(120, 20),
+            global: RateLimit::new(GLOBAL_BURST, GLOBAL_PER_SEC),
+            per_ip: RateLimit::new(IP_BURST, IP_PER_SEC),
+            trusted_proxies: Vec::new(),
+            allowed_origins: Vec::new(),
+        }
+    }
+}
+
+/// All requests together: 400 at once, 200 a second after that.
+pub const GLOBAL_BURST: u32 = 400;
+pub const GLOBAL_PER_SEC: u32 = 200;
+/// Per client address: 180 at once, 30 a second after that, enough for a
+/// member's write and read buckets together.
+pub const IP_BURST: u32 = 180;
+pub const IP_PER_SEC: u32 = 30;
+
+/// A plain browser origin, as a browser sends it in `Origin`: `http://` or
+/// `https://`, a lowercase host name, IPv4 address or bracketed IPv6
+/// address, and an optional port, with nothing after it. CORS compares
+/// origins as exact strings, so anything else, `*` included, could never
+/// match and only hides a typo.
+pub fn is_plain_origin(origin: &str) -> bool {
+    let Some(rest) = origin
+        .strip_prefix("http://")
+        .or_else(|| origin.strip_prefix("https://"))
+    else {
+        return false;
+    };
+    let (host, port) = match rest.rsplit_once(':') {
+        // A bracketed IPv6 address contains colons of its own.
+        Some((host, port)) if !port.ends_with(']') => (host, Some(port)),
+        _ => (rest, None),
+    };
+    let host_ok = if let Some(inner) = host.strip_prefix('[').and_then(|h| h.strip_suffix(']')) {
+        !inner.is_empty()
+            && inner
+                .chars()
+                .all(|c| c.is_ascii_digit() || ('a'..='f').contains(&c) || c == ':' || c == '.')
+    } else {
+        !host.is_empty()
+            && !host.starts_with(['.', '-'])
+            && !host.ends_with(['.', '-'])
+            && host
+                .chars()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-' || c == '.')
+    };
+    let port_ok = port.is_none_or(|p| {
+        !p.is_empty()
+            && p.chars().all(|c| c.is_ascii_digit())
+            && !(p.len() > 1 && p.starts_with('0'))
+            && p.parse::<u16>().is_ok_and(|n| n > 0)
+    });
+    host_ok && port_ok
+}
+
+/// CORS for exactly `origins` (each must pass [`is_plain_origin`]): `GET`
+/// and `POST`, with the `Authorization` and `Content-Type` headers, and no
+/// credentials, since auth is a header, not a cookie.
+pub fn cors(origins: &[String]) -> Result<CorsLayer, String> {
+    let values = origins
+        .iter()
+        .map(|o| {
+            if !is_plain_origin(o) {
+                return Err(format!(
+                    "--allowed-origin must be an origin like https://app.example, with no path or trailing slash; got {o}."
+                ));
+            }
+            HeaderValue::from_str(o).map_err(|_| format!("--allowed-origin {o} is not valid."))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(CorsLayer::new()
+        .allow_origin(AllowOrigin::list(values))
+        .allow_methods([Method::GET, Method::POST])
+        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]))
+}
+
+/// The address a request comes from: its peer, or, when the peer is a
+/// trusted proxy, the last address in `X-Forwarded-For` that isn't one.
+pub fn client_ip(peer: IpAddr, headers: &HeaderMap, trusted: &[IpAddr]) -> IpAddr {
+    if !trusted.contains(&peer) {
+        return peer;
+    }
+    headers
+        .get_all("x-forwarded-for")
+        .iter()
+        .filter_map(|v| v.to_str().ok())
+        .flat_map(|v| v.split(','))
+        .map(str::trim)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .map(|a| a.parse::<IpAddr>())
+        .take_while(Result::is_ok)
+        .filter_map(Result::ok)
+        .find(|ip| !trusted.contains(ip))
+        .unwrap_or(peer)
+}
+
+/// The cheap checks that run before any JSON is parsed or signature
+/// verified: the declared body size, then the global and per-address
+/// limits.
+async fn limits(
+    State(state): State<Arc<AppState>>,
+    request: Request<Body>,
+    next: Next,
+) -> Response {
+    let declared = request
+        .headers()
+        .get(header::CONTENT_LENGTH)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.parse::<u64>().ok());
+    if declared.is_some_and(|n| n > MAX_BODY_BYTES as u64) {
+        return error(
+            StatusCode::PAYLOAD_TOO_LARGE,
+            "The request is larger than one event.",
+        );
+    }
+    let now = state.ledger.clock().now_millis();
+    let peer = request
+        .extensions()
+        .get::<ConnectInfo<SocketAddr>>()
+        .map_or(IpAddr::V4(Ipv4Addr::UNSPECIFIED), |c| c.0.ip());
+    let ip = client_ip(peer, request.headers(), &state.trusted_proxies);
+    if !state.global.allow(&(), now) || !state.per_ip.allow(&ip, now) {
+        return error(
+            StatusCode::TOO_MANY_REQUESTS,
+            "Too many requests. Wait and try again.",
+        );
+    }
+    next.run(request).await
+}
+
+/// The API. Serve it with `into_make_service_with_connect_info::<SocketAddr>`
+/// so the per-address limit sees each client; without it, every request
+/// shares one address bucket.
+pub fn router(state: Arc<AppState>) -> Result<Router, String> {
+    let cors = (!state.allowed_origins.is_empty())
+        .then(|| cors(&state.allowed_origins))
+        .transpose()?;
+    let api = Router::new()
         .route("/health", get(|| async { "ok" }))
         .route("/v1/proposals", post(submit))
         .route("/v1/businesses/{id}/acceptances", get(acceptances))
         .route("/v1/businesses/{id}/pending", get(pending))
         .route("/v1/epoch-keys", get(epoch_keys))
         .route("/v1/rejections", get(rejections))
-        .layer(DefaultBodyLimit::max(MAX_BODY_BYTES))
-        .with_state(state)
+        .layer(DefaultBodyLimit::max(MAX_BODY_BYTES));
+    let api = match cors {
+        Some(cors) => api.layer(cors),
+        None => api,
+    };
+    Ok(api
+        .layer(middleware::from_fn_with_state(state.clone(), limits))
+        .with_state(state))
 }
 
 fn error(status: StatusCode, message: &str) -> Response {
@@ -77,6 +245,24 @@ fn json(body: String) -> Response {
 fn failure(e: LedgerError) -> Response {
     match e {
         LedgerError::Invalid(e) => error(StatusCode::BAD_REQUEST, &e.to_string()),
+        LedgerError::NoSuchBusiness => error(StatusCode::NOT_FOUND, "No such business."),
+        // Unsigned: the code and message a signed rejection would carry.
+        LedgerError::Refused(reason) => {
+            let mut body = serde_json::Map::new();
+            body.insert("error".into(), reason.message.into());
+            body.insert("code".into(), serde_json::json!(reason.code));
+            if let (Some(size), Some(limit)) = (reason.size, reason.limit) {
+                body.insert("size".into(), size.into());
+                body.insert("limit".into(), limit.into());
+            }
+            let body = serde_json::Value::Object(body);
+            (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                [(header::CONTENT_TYPE, "application/json")],
+                body.to_string(),
+            )
+                .into_response()
+        }
         other => {
             tracing::error!(error = %other, "request failed");
             error(

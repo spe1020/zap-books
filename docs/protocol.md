@@ -524,8 +524,11 @@ the event would have been, worked out from NIP-44's padding rule.
 | `tooLarge` | The proposal, or the acceptance it would produce, is over the size limit. Nothing was stored. Split it into smaller batches and send again (see Large imports). |
 | `rejected` | Any other reason. The message says which.                                                                                                                       |
 
-Only a proposal whose signature and tags are valid gets a signed rejection.
-A malformed request gets an HTTP error.
+Only a proposal whose signature and tags are valid gets a signed rejection,
+and only from a member or the recovery key of a business that exists; it is
+signed by that business's own service key. A malformed request gets an HTTP
+error, and so does a proposal from anyone else, or a refused genesis, with
+nothing stored (see `docs/service.md`, API).
 
 ## Epochs and key delivery (kind 4133)
 
