@@ -26,6 +26,38 @@ pub enum Refusal {
     Protocol(#[from] ProtocolError),
 }
 
+/// The longest record id a proposer may choose.
+pub const MAX_ID_LEN: usize = 128;
+
+/// A record id a proposer chooses (a draft, document or rule id, or a
+/// genesis account or category): 1 to [`MAX_ID_LEN`] ASCII letters, digits,
+/// hyphens or underscores. UUIDs and the ids the app derives from a business
+/// id fit. Ids the service generates are not checked here.
+pub fn valid_id(id: &str) -> bool {
+    !id.is_empty()
+        && id.len() <= MAX_ID_LEN
+        && id
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+}
+
+fn check_id(id: &str) -> Result<(), Refusal> {
+    if !valid_id(id) {
+        return Err(ProtocolError::BadId.into());
+    }
+    Ok(())
+}
+
+/// Names unique within their list ignoring case, and not blank, as the
+/// Settings screen requires of every later account or category.
+fn unique_names<'a>(names: impl IntoIterator<Item = &'a str>) -> bool {
+    let mut seen = std::collections::HashSet::new();
+    names.into_iter().all(|name| {
+        let name = name.trim();
+        !name.is_empty() && seen.insert(name.to_lowercase())
+    })
+}
+
 /// The books a genesis proposal creates: its profile, accounts and
 /// categories, and nothing else.
 pub fn genesis_business(business: BusinessId, command: &Command) -> Result<BusinessData, Refusal> {
@@ -43,6 +75,14 @@ pub fn genesis_business(business: BusinessId, command: &Command) -> Result<Busin
     if profile.id != id || profile.business_id != id {
         return Err(bad("the profile must carry the business id"));
     }
+    if accounts
+        .iter()
+        .map(|a| a.id.as_str())
+        .chain(categories.iter().map(|c| c.id.as_str()))
+        .any(|id| !valid_id(id))
+    {
+        return Err(ProtocolError::BadId.into());
+    }
     let mut seen = std::collections::HashSet::new();
     for a in accounts {
         if a.business_id != id || !seen.insert(a.id.as_str()) {
@@ -58,6 +98,13 @@ pub fn genesis_business(business: BusinessId, command: &Command) -> Result<Busin
                 "each category needs a unique id and its own expense account",
             ));
         }
+    }
+    if !unique_names(accounts.iter().map(|a| a.name.as_str()))
+        || !unique_names(categories.iter().map(|c| c.name.as_str()))
+    {
+        return Err(bad(
+            "account names and category names must each be unique, ignoring case",
+        ));
     }
     Ok(BusinessData {
         profile: profile.clone(),
@@ -95,7 +142,7 @@ fn attach(
 ) -> Result<(), Refusal> {
     for d in documents {
         let taken = b.documents.iter().any(|x| x.id == d.id);
-        if d.id.is_empty() || taken || !d.valid_hash() || d.size == 0 {
+        if !valid_id(&d.id) || taken || !d.valid_hash() || d.size == 0 {
             return Err(ProtocolError::BadDocument.into());
         }
         b.documents.push(SourceDocument {
@@ -158,6 +205,7 @@ pub fn apply_command(
             documents,
             extraction,
         } => {
+            check_id(&draft.id)?;
             let mut b = business.clone();
             attach(&mut b, documents, env)?;
             let mut b = save_draft(&b, draft, env)?;
@@ -167,6 +215,7 @@ pub fn apply_command(
             Ok(b)
         }
         Command::SubmitReceiptDraft { draft, documents } => {
+            check_id(&draft.id)?;
             if business.drafts.iter().any(|d| d.id == draft.id) {
                 return Err(ProtocolError::SubmitterNewDraftsOnly.into());
             }
@@ -179,12 +228,20 @@ pub fn apply_command(
             original_id,
             replacement,
             reason,
-        } => Ok(correct(business, original_id, replacement, reason, env)?),
+        } => {
+            check_id(&replacement.id)?;
+            Ok(correct(business, original_id, replacement, reason, env)?)
+        }
         Command::CommitImport { account_id, rows } => {
             Ok(commit_import(business, rows, account_id, env)?)
         }
         Command::UpdateSettings { change } => Ok(update_settings(business, change, env)?),
-        Command::SaveRule { rule } => Ok(save_rule(business, rule, env)?),
+        Command::SaveRule { rule } => {
+            if let Some(id) = &rule.id {
+                check_id(id)?;
+            }
+            Ok(save_rule(business, rule, env)?)
+        }
         Command::ChangeMembership { .. } | Command::Veto { .. } => Ok(business.clone()),
     }
 }
@@ -234,6 +291,10 @@ pub fn audit(
     let command = &content.payload.command;
     let (after, changes) = match before {
         None => {
+            // Genesis generates nothing, so it records no ids.
+            if !content.env.ids.is_empty() {
+                return Err(ProtocolError::AuditMismatch.into());
+            }
             let b = genesis_business(content.payload.business, command)?;
             let changes = genesis_changes(&b);
             (b, changes)

@@ -26,7 +26,9 @@ mod limits;
 mod membership;
 mod records;
 
-pub use apply::{apply_command, audit, genesis_business, genesis_changes, rebuild, Refusal};
+pub use apply::{
+    apply_command, audit, genesis_business, genesis_changes, rebuild, valid_id, Refusal, MAX_ID_LEN,
+};
 pub use business_id::BusinessId;
 pub use chain::{verify_chain, ChainHead};
 pub use command::{

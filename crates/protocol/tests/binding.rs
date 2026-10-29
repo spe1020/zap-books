@@ -255,12 +255,12 @@ fn open_acceptance_refuses_a_proposal_for_another_business() {
 fn follow_refuses_an_acceptance_for_another_business() {
     let c = cross_business();
     assert_eq!(
-        c.state.follow(&c.other, 10).unwrap_err(),
+        c.state.follow(&c.header, &c.other, 10).unwrap_err(),
         ProtocolError::WrongBusiness
     );
     // The owner may change settings, so the same content for this business
     // follows (and leaves the membership as it was).
-    assert_eq!(c.state.follow(&c.own, 10).unwrap(), c.state);
+    assert_eq!(c.state.follow(&c.header, &c.own, 10).unwrap(), c.state);
 }
 
 #[test]

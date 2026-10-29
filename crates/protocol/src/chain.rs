@@ -18,7 +18,9 @@ pub struct ChainHead {
 
 /// Verifies `acceptances` as the continuation of a chain: each is validly
 /// signed by the current service key, belongs to `business`, has the next
-/// `seq`, links by `prev` to the one before, and never goes back an epoch.
+/// `seq`, links by `prev` to the one before, and moves to the next epoch
+/// or stays in its own: genesis is epoch 0, and one acceptance can start at
+/// most one epoch.
 ///
 /// From the start, pass `after: None` and `service` as declared in the
 /// genesis proposal; to continue, pass the last head. Any altered, missing,
@@ -34,7 +36,10 @@ pub fn verify_chain(
     let mut signer = after.map_or(service, |h| h.service);
     for event in acceptances {
         let header = parse_acceptance(event)?;
-        let expected = head.map_or(0, |h| h.seq + 1);
+        let expected = match head {
+            None => 0,
+            Some(h) => h.seq.checked_add(1).ok_or(ProtocolError::Overflow("seq"))?,
+        };
         if header.seq != expected {
             return Err(ProtocolError::ChainSeq {
                 expected,
@@ -50,7 +55,11 @@ pub fn verify_chain(
         if header.prev != head.map(|h| h.id) {
             return Err(ProtocolError::ChainPrev(header.seq));
         }
-        if head.is_some_and(|h| header.epoch < h.epoch) {
+        let epochs = match head {
+            None => 0..=0,
+            Some(h) => h.epoch..=h.epoch.saturating_add(1),
+        };
+        if !epochs.contains(&header.epoch) {
             return Err(ProtocolError::ChainEpoch(header.seq));
         }
         if let Some(next) = header.next_service {

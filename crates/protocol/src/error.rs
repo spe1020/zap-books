@@ -33,8 +33,12 @@ pub enum ProtocolError {
     BadBusinessId,
     #[error("Unsupported protocol version {0}.")]
     UnsupportedVersion(u32),
-    #[error("The content could not be read: {0}")]
-    BadContent(String),
+    /// A fixed description, never the content itself: serde's own messages
+    /// quote the offending text.
+    #[error("The content could not be read: {0}.")]
+    BadContent(&'static str),
+    #[error("The {0} counter is at its maximum.")]
+    Overflow(&'static str),
 
     // Encryption
     #[error("The content could not be encrypted.")]
@@ -51,7 +55,7 @@ pub enum ProtocolError {
     ChainPrev(u64),
     #[error("The acceptance at seq {0} belongs to another business.")]
     ChainBusiness(u64),
-    #[error("The acceptance at seq {0} has an earlier epoch than its predecessor.")]
+    #[error("The acceptance at seq {0} has an epoch other than its predecessor's or the next.")]
     ChainEpoch(u64),
 
     // Membership and permissions
@@ -83,12 +87,17 @@ pub enum ProtocolError {
     WrongService,
     #[error("This acceptance belongs to another business.")]
     WrongBusiness,
+    #[error("The acceptance's epoch is not the one the membership rules give.")]
+    WrongEpoch,
 
     // Applying commands
     #[error("This business can't be created: {0}.")]
     InvalidGenesis(String),
     #[error("A document reference needs a new id, a size and a SHA-256 hash.")]
     BadDocument,
+    /// [`crate::MAX_ID_LEN`].
+    #[error("A record id must be 1 to 128 letters, digits, hyphens or underscores.")]
+    BadId,
     #[error("The receipt reading must belong to this business, this draft and one of its documents, and not be approved yet.")]
     ExtractionScope,
     #[error("Submitters can only add new drafts.")]

@@ -180,6 +180,34 @@ fn a_missing_or_malformed_salt_is_refused() {
     let mut value = serde_json::to_value(&payload).unwrap();
     assert!(CommittedPayload::from_text(value.to_string()).is_ok());
     value.as_object_mut().unwrap().remove("salt");
-    let err = CommittedPayload::from_text(value.to_string()).unwrap_err();
-    assert!(err.to_string().contains("salt"), "{err}");
+    assert_eq!(
+        CommittedPayload::from_text(value.to_string()).unwrap_err(),
+        ProtocolError::BadContent("it is not valid JSON for this protocol version")
+    );
+}
+
+#[test]
+fn unreadable_content_never_echoes_its_text() {
+    // PROTO-4: serde quotes the offending token; the error must not.
+    let mut value = serde_json::to_value(ProposalPayload::new(
+        business_id(),
+        Some(3),
+        approve("draft-1"),
+    ))
+    .unwrap();
+    let cases = [
+        serde_json::json!({"type": "Invented Vendor Text"}),
+        serde_json::json!({"type": "Approve", "expenseId": 987654321}),
+    ];
+    for command in cases {
+        value["command"] = command;
+        let text = value.to_string();
+        let err = CommittedPayload::from_text(text).unwrap_err();
+        let reason = protocol::Reason::from_error(&err);
+        for shown in [err.to_string(), format!("{err:?}"), reason.message] {
+            for fragment in ["Invented", "987654321", "Vendor"] {
+                assert!(!shown.contains(fragment), "{shown}");
+            }
+        }
+    }
 }
