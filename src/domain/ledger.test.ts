@@ -71,6 +71,22 @@ describe("financial invariants", () => {
     );
     expect(b.drafts.find((x) => x.id === d.id)?.status).toBe("draft");
   });
+  test("a saved draft keeps to the values Rust can load (ACC-4, WEB-1)", () => {
+    const b = fresh();
+    const draft = { ...blankDraft(b), vendor: "Invented Stationer" };
+    expect(() => saveDraft(b, draft)).not.toThrow();
+    for (const currency of ["CAD", "zz", "", "usd"])
+      expect(() =>
+        saveDraft(b, {
+          ...draft,
+          currency: currency as (typeof draft)["currency"],
+        }),
+      ).toThrow("Choose a supported currency.");
+    for (const amountMinor of [NaN, 12.5, Infinity, 2 ** 53])
+      expect(() => saveDraft(b, { ...draft, amountMinor })).toThrow(
+        "Amount must be in whole minor units.",
+      );
+  });
   test("a saved draft cannot claim a correction or a journal (W13)", () => {
     const b = fresh(),
       original = b.drafts.find((d) => d.vendor === "Adobe")!;

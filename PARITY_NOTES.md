@@ -60,6 +60,15 @@ message. The affected checks are always true in Rust:
   import row." is unreachable.
 - `src/domain/settings.ts` (`updateSettings`): "Choose a supported currency."
   is unreachable for a new account or category.
+- `src/domain/ledger.ts` (`writeDraft`, so `saveDraft`, `correct` and
+  `commitImport`): "Choose a supported currency." and "Amount must be in
+  whole minor units." are unreachable. They were added to the TypeScript
+  (audit WEB-1 / ACC-4) so the browser can never store a draft Rust can't
+  load: a receipt reading could fill in either value. Rust needs no runtime
+  check, since `ExpenseDraft` can't hold such a value, and no fixture records
+  it, since the input itself wouldn't deserialize; the TypeScript is pinned
+  by "a saved draft keeps to the values Rust can load (ACC-4, WEB-1)" in
+  `src/domain/ledger.test.ts`, the Rust by the test below.
 - `src/domain/ledger.ts:36` and `:52` (`parseMoney`, `sum`) and
   `src/domain/import.ts:311` (combined import amount) are ported as explicit
   range checks against `MAX_MINOR`, with the same messages.

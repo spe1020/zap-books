@@ -251,9 +251,11 @@ export type ExtractorHealth =
   { ready: true; model: string } | { ready: false; reason: string };
 export interface ExtractionAdapter {
   health(): Promise<ExtractorHealth>;
+  /** Rejects with the signal's `AbortError` when `signal` cancels it. */
   extract(
     document: SourceDocument,
     categories: { id: string; name: string }[],
+    signal?: AbortSignal,
   ): Promise<ExtractionResult>;
 }
 export interface AIAdapter {

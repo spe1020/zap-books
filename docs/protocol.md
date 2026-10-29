@@ -58,7 +58,16 @@ publishes to public relays.
   `17`), so each has one spelling.
 - **Business id:** 32 random bytes chosen by the founding owner, written as
   64 lowercase hex characters. No other spelling parses.
-- **Keys and event ids** are 64-character lowercase hex, as in NIP-01.
+- **Keys and event ids** are 64-character lowercase hex, as in NIP-01. In
+  the `service`, `prev`, `e` and `p` tags no other spelling parses, so a
+  relay filter on the raw tag and a reader comparing parsed values always
+  agree.
+- **Record ids a proposer chooses** (a draft's id, a correction's
+  replacement, a document reference, a rule given an id, and genesis's
+  accounts and categories) are 1 to 128 ASCII letters, digits, hyphens or
+  underscores. UUIDs and the ids the app derives from a business id fit;
+  anything else, the empty id included, is refused (`BadId`, or
+  `BadDocument` for a document). Ids the service generates are its own.
 - **Times.** `created_at` is Unix seconds. Inside `ledger-core` records,
   times stay ISO-8601 strings, as today.
 
@@ -316,7 +325,8 @@ encrypted storage). A proposal refers to a file by id and content hash:
 ```
 
 The service stores and checks the reference, never the file, and the
-ledger's existing document rules apply to it.
+ledger's existing document rules apply to it. The id follows the record id
+rule above.
 
 ## Genesis
 
@@ -338,7 +348,13 @@ founding owner:
 added at genesis with full history, or `{"type": "backupKey", "pubkey": …}`,
 a key kept offline. The owner chooses.
 
-The service accepts genesis as **seq 0**. Because the acceptance embeds the
+Genesis's accounts and categories meet the rules every later one does: ids
+under the record id rule and unique, every category on its own expense
+account, and account names and category names each unique within their list
+ignoring case and not blank. Genesis generates no ids, so its acceptance
+records none, and an audit refuses one that does.
+
+The service accepts genesis as **seq 0**, in epoch 0. Because the acceptance embeds the
 owner's signed proposal (see below), and that proposal names the service's
 key in a signed tag, the genesis acceptance is the **service-key
 declaration** of decision 0001. A reader takes the expected service key from
@@ -422,7 +438,12 @@ acceptances: `pending`, then `activated` or `lapsed`.
 
 **Which epoch.** An acceptance that starts a new epoch (a removal, say) is
 itself encrypted under the new epoch, so a removed member can't read the
-acceptance that removed them, nor anything after it.
+acceptance that removed them, nor anything after it. Every other acceptance
+stays in the current epoch. Readers check this: `MembershipState::follow`
+takes the acceptance's header and refuses an `epoch` tag other than the
+epoch its membership rules give after that acceptance's own change
+(`WrongEpoch`), so a service that stops rotating keys, or rotates when the
+rules don't, is caught by anyone re-deriving the membership.
 
 ### Two kinds of verification
 
@@ -454,7 +475,8 @@ decrypting anything, that each acceptance:
 3. names this business;
 4. has the next `seq`;
 5. links by `prev` to the one before;
-6. never goes back to an earlier epoch.
+6. starts at epoch 0, and then has its predecessor's epoch or the next one:
+   one acceptance can start at most one epoch.
 
 An altered acceptance no longer matches its id or signature. A missing,
 inserted or reordered one breaks `seq` or `prev`. A truncated chain is
@@ -566,7 +588,9 @@ the business key can rebuild it from the chain and check each decision
 Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
 
 - **Owner-level changes wait 48 hours.** They are accepted with outcome
-  `pending` and `effectiveAt` = acceptance time + 48 hours. When one is due,
+  `pending` and `effectiveAt` = acceptance time + 48 hours, exactly: a
+  reader following the chain refuses any other time, earlier or later, so
+  the service can't hold a change pending forever. When one is due,
   the service's scheduler appends an `activated` acceptance, unless a `Veto`
   was accepted first. A due change is activated before anything else the
   service accepts for the business, so a veto must arrive before

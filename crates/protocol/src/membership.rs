@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use crate::business_id::BusinessId;
 use crate::command::{Command, History, MembershipChange, Recovery, Role};
 use crate::error::{ProtocolError, Result};
-use crate::events::{AcceptanceContent, Outcome};
+use crate::events::{AcceptanceContent, AcceptanceHeader, Outcome};
 
 /// How long an owner-level change waits: 48 hours.
 pub const OWNER_DELAY_SECS: u64 = 48 * 60 * 60;
@@ -195,6 +195,12 @@ impl MembershipState {
         }
     }
 
+    fn next_epoch(&self) -> Result<u64> {
+        self.epoch
+            .checked_add(1)
+            .ok_or(ProtocolError::Overflow("epoch"))
+    }
+
     /// Applies a change now, returning the new state and whether it started
     /// a new epoch. Pending changes from anyone who loses owner or recovery
     /// standing are cancelled with it.
@@ -216,12 +222,17 @@ impl MembershipState {
                 // A from-join-date reader must not hold the current epoch's
                 // key, which covers data from before they joined.
                 rotate = role.reads() && history == History::FromJoin;
+                let joined_epoch = if rotate {
+                    self.next_epoch()?
+                } else {
+                    self.epoch
+                };
                 next.members.insert(
                     member,
                     Member {
                         role,
                         history,
-                        joined_epoch: self.epoch + u64::from(rotate),
+                        joined_epoch,
                     },
                 );
             }
@@ -244,7 +255,7 @@ impl MembershipState {
                     rotate = true;
                 } else if !was && now && m.history == History::FromJoin {
                     rotate = true;
-                    m.joined_epoch = self.epoch + 1;
+                    m.joined_epoch = self.next_epoch()?;
                 }
             }
             MembershipChange::ReplaceRecoveryKey { key } => {
@@ -282,7 +293,7 @@ impl MembershipState {
             }
         }
         if rotate {
-            next.epoch += 1;
+            next.epoch = self.next_epoch()?;
         }
         let standing = |k: &PublicKey| {
             next.members.get(k).is_some_and(|m| m.role == Role::Owner)
@@ -313,7 +324,9 @@ impl MembershipState {
             });
         }
         self.apply(change)?;
-        let effective_at = now.saturating_add(OWNER_DELAY_SECS);
+        let effective_at = now
+            .checked_add(OWNER_DELAY_SECS)
+            .ok_or(ProtocolError::Overflow("time"))?;
         Ok(MembershipUpdate {
             state: self.with_pending(proposal, *signer, *change, effective_at),
             outcome: Outcome::Pending { effective_at },
@@ -446,9 +459,28 @@ impl MembershipState {
     }
 
     /// Re-derives the state after one later acceptance, re-checking the
-    /// service's decision. `at` is the acceptance's `created_at`. An
-    /// acceptance for another business is refused, whatever it says.
-    pub fn follow(&self, content: &AcceptanceContent, at: u64) -> Result<MembershipState> {
+    /// service's decision. `header` and `content` are what
+    /// [`crate::open_acceptance`] returned; `at` is the acceptance's
+    /// `created_at`. An acceptance for another business is refused, whatever
+    /// it says, and so is one whose `epoch` tag is not the epoch the new
+    /// state is in: a change that starts an epoch is the first acceptance
+    /// sealed under it, and every other acceptance stays in the current one.
+    /// So a service that stops rotating keys, after a removal say, is caught
+    /// here.
+    pub fn follow(
+        &self,
+        header: &AcceptanceHeader,
+        content: &AcceptanceContent,
+        at: u64,
+    ) -> Result<MembershipState> {
+        let next = self.follow_content(content, at)?;
+        if header.epoch != next.epoch {
+            return Err(ProtocolError::WrongEpoch);
+        }
+        Ok(next)
+    }
+
+    fn follow_content(&self, content: &AcceptanceContent, at: u64) -> Result<MembershipState> {
         if content.payload.business != self.business {
             return Err(ProtocolError::WrongBusiness);
         }
@@ -465,8 +497,10 @@ impl MembershipState {
             }
             (Command::ChangeMembership { change }, Outcome::Pending { effective_at }) => {
                 self.authorize(&proposer, &content.payload.command)?;
+                // Exactly the wait, as the service sets it: a later time
+                // would let a pending change never fall due.
                 if !self.is_owner_level(change)
-                    || effective_at < at.saturating_add(OWNER_DELAY_SECS)
+                    || Some(effective_at) != at.checked_add(OWNER_DELAY_SECS)
                 {
                     return Err(ProtocolError::Forbidden);
                 }

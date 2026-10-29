@@ -473,3 +473,96 @@ test("tax, fees and discounts are shown for reference with every line", async ({
   expect(stored.fees).toEqual(lines([150, "Card surcharge (3%) $1.50"]));
   expect(stored.discounts.value).toBe(200);
 });
+
+test("an answer with an unsupported currency is refused, not applied (WEB-1)", async ({
+  page,
+}) => {
+  await stubExtractor(page, result({ currency: found("zz", "zz") }));
+  await page.reload();
+  const dialog = await newExpenseWithReceipt(page);
+  await dialog.getByRole("button", { name: "Read receipt" }).click();
+  await expect(dialog.getByRole("alert")).toHaveText(
+    "Receipt reading returned an answer the app can't use. Enter the details manually.",
+  );
+  await expect(
+    dialog.getByRole("region", { name: "Suggestions from the receipt" }),
+  ).toHaveCount(0);
+  await dialog.getByLabel("Vendor", { exact: true }).fill("Invented Stationer");
+  await dialog.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByText("Draft saved.")).toBeVisible();
+  const state = await workspace(page);
+  const saved = state.businesses[0].drafts.find(
+    (d: any) => d.vendor === "Invented Stationer",
+  );
+  expect(saved.currency).toBe("USD");
+});
+
+test("a reading can be cancelled, and closing the dialog cancels it (WEB-2)", async ({
+  page,
+}) => {
+  await stubExtractor(page, result());
+  // The service never answers.
+  await page.route(`${EXTRACTOR}/extract`, () => {});
+  await page.reload();
+  const dialog = await newExpenseWithReceipt(page);
+  const read = dialog.getByRole("button", { name: /Read receipt|Reading/ });
+  await read.click();
+  await expect(read).toHaveText("Reading receipt…");
+  let failed = page.waitForEvent("requestfailed", (r) =>
+    r.url().endsWith("/extract"),
+  );
+  await dialog.getByRole("button", { name: "Cancel reading" }).click();
+  await failed;
+  await expect(read).toHaveText("Read receipt");
+  await expect(read).toBeEnabled();
+  await expect(dialog.getByRole("alert")).toHaveCount(0);
+
+  await read.click();
+  await expect(read).toHaveText("Reading receipt…");
+  failed = page.waitForEvent("requestfailed", (r) =>
+    r.url().endsWith("/extract"),
+  );
+  await dialog.getByRole("button", { name: "Close" }).first().click();
+  await failed;
+});
+
+test("a damaged saved record breaks only the screen that shows it", async ({
+  page,
+}) => {
+  // A draft no code path can now write: its currency can't be formatted.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open("business-finance-v1", 1);
+        open.onsuccess = () => {
+          const db = open.result;
+          const tx = db.transaction("workspace", "readwrite");
+          const store = tx.objectStore("workspace");
+          const get = store.get("state");
+          get.onsuccess = () => {
+            const state = get.result;
+            const draft = state.businesses[0].drafts.find(
+              (d: any) => d.status === "draft",
+            );
+            draft.currency = "zz";
+            store.put(state, "state");
+          };
+          tx.oncomplete = () => {
+            db.close();
+            resolve();
+          };
+          tx.onerror = () => reject(tx.error);
+        };
+      }),
+  );
+  await page.reload();
+  await page.getByRole("button", { name: /Expense inbox/ }).click();
+  await expect(page.getByRole("alert")).toContainText(
+    "This screen couldn’t be shown. A saved record may be damaged.",
+  );
+  // Navigation and the other screens still work, Settings among them.
+  await page.getByRole("button", { name: "Settings" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Workspace settings" }),
+  ).toBeVisible();
+});

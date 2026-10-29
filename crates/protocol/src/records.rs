@@ -331,10 +331,9 @@ fn upsert<T: Keyed>(list: &mut Vec<T>, record: T) {
 }
 
 fn remove<T: Keyed>(list: &mut Vec<T>, id: &str) -> Result<()> {
-    let index = list
-        .iter()
-        .position(|x| x.key_id() == id)
-        .ok_or_else(|| ProtocolError::BadChange(format!("no record {id} to remove")))?;
+    let index = list.iter().position(|x| x.key_id() == id).ok_or_else(|| {
+        ProtocolError::BadChange("a removal names a record that doesn't exist".into())
+    })?;
     list.remove(index);
     Ok(())
 }

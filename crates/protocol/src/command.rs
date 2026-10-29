@@ -47,6 +47,10 @@ impl ProposalPayload {
     }
 }
 
+/// [`ProtocolError::BadContent`] for content that isn't this protocol's JSON.
+pub(crate) const NOT_PROTOCOL_JSON: &str = "it is not valid JSON for this protocol version";
+pub(crate) const UNSERIALIZABLE: &str = "it could not be written as JSON";
+
 pub(crate) fn is_lower_hex(s: &str, len: usize) -> bool {
     s.len() == len && s.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
 }
@@ -69,13 +73,15 @@ pub struct CommittedPayload {
 impl CommittedPayload {
     pub fn new(payload: ProposalPayload) -> Result<CommittedPayload> {
         let text = serde_json::to_string(&payload)
-            .map_err(|e| ProtocolError::BadContent(e.to_string()))?;
+            .map_err(|_| ProtocolError::BadContent(UNSERIALIZABLE))?;
         Ok(CommittedPayload { text, payload })
     }
 
+    /// serde's message is dropped, as in every content parser: it quotes
+    /// the offending text.
     pub fn from_text(text: String) -> Result<CommittedPayload> {
-        let payload =
-            serde_json::from_str(&text).map_err(|e| ProtocolError::BadContent(e.to_string()))?;
+        let payload = serde_json::from_str(&text)
+            .map_err(|_| ProtocolError::BadContent(NOT_PROTOCOL_JSON))?;
         Ok(CommittedPayload { text, payload })
     }
 

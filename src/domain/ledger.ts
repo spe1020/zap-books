@@ -279,6 +279,12 @@ export function writeDraft(
     b.drafts.some((x) => x.id === draft.id && x.status !== "draft")
   )
     throw new Error("Only drafts in this business can be edited.");
+  // A stored draft must be one Rust can load (PARITY_NOTES D2), whatever
+  // filled it in: a receipt reading, for one.
+  if (!currencies.includes(draft.currency))
+    throw new Error("Choose a supported currency.");
+  if (!Number.isSafeInteger(draft.amountMinor))
+    throw new Error("Amount must be in whole minor units.");
   if (
     draft.documentIds.some(
       (docId) =>

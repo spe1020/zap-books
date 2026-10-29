@@ -12,7 +12,7 @@ use protocol::{
     build_acceptance, build_delivery, build_proposal, open_acceptance, open_delivery,
     open_proposal, verify_chain, AcceptanceContent, AcceptanceHeader, Command, CommittedPayload,
     EnvRecord, EpochKey, History, MembershipChange, MembershipState, Outcome, ProposalPayload,
-    Role, OWNER_DELAY_SECS, PROTOCOL_VERSION,
+    ProtocolError, Role, OWNER_DELAY_SECS, PROTOCOL_VERSION,
 };
 
 const T0: u64 = 1_800_000_000;
@@ -71,6 +71,19 @@ impl Books {
 
     /// Proposes and accepts a membership change, as the service would.
     fn change(&mut self, signer: &Keys, change: MembershipChange, now: u64) -> Event {
+        self.change_sealed(signer, change, now, true)
+    }
+
+    /// As [`Books::change`]; with `rotate: false`, a change that starts an
+    /// epoch is sealed under the old one, as a service that fails to rotate
+    /// would.
+    fn change_sealed(
+        &mut self,
+        signer: &Keys,
+        change: MembershipChange,
+        now: u64,
+        rotate: bool,
+    ) -> Event {
         let payload = ProposalPayload {
             v: PROTOCOL_VERSION,
             salt: salt(),
@@ -84,7 +97,7 @@ impl Books {
             .state
             .propose(header.id, &header.author, &change, now)
             .unwrap();
-        if update.new_epoch {
+        if update.new_epoch && rotate {
             self.epochs.push(EpochKey::generate(update.state.epoch));
         }
         self.state = update.state;
@@ -199,10 +212,9 @@ fn epochs_follow_membership_and_readers_rebuild_it() {
         rebuilt = Some(match rebuilt {
             None => MembershipState::from_genesis(&content).unwrap(),
             Some(state) => {
-                let next = state.follow(&content, at).unwrap();
-                // The acceptance that starts an epoch is the first under it.
-                assert_eq!(next.epoch, header.epoch);
-                next
+                // follow checks the acceptance that starts an epoch is the
+                // first under it.
+                state.follow(&header, &content, at).unwrap()
             }
         });
     }
@@ -235,7 +247,11 @@ fn a_reader_refuses_a_change_the_service_should_have_rejected() {
         changes: vec![],
         outcome: Outcome::Applied,
     };
-    assert!(books.state.follow(&content, T0).is_err());
+    let header = next_header(&books, &content);
+    assert_eq!(
+        books.state.follow(&header, &content, T0).unwrap_err(),
+        ProtocolError::NotMember
+    );
 
     // Or an owner-level change applied without its wait.
     let owner_level = ProposalPayload {
@@ -249,7 +265,190 @@ fn a_reader_refuses_a_change_the_service_should_have_rejected() {
         payload: CommittedPayload::new(owner_level).unwrap(),
         ..content
     };
-    assert!(books.state.follow(&content, T0).is_err());
+    let header = next_header(&books, &content);
+    assert_eq!(
+        books.state.follow(&header, &content, T0).unwrap_err(),
+        ProtocolError::Forbidden
+    );
+}
+
+/// The header of the next acceptance in `books`, in the current epoch.
+fn next_header(books: &Books, content: &AcceptanceContent) -> AcceptanceHeader {
+    AcceptanceHeader {
+        business: business_id(),
+        seq: books.chain.len() as u64,
+        prev: books.chain.last().map(|e| e.id),
+        proposal: content.proposal.id,
+        epoch: books.state.epoch,
+        next_service: None,
+    }
+}
+
+/// Opens every acceptance with `keys` and re-derives the membership,
+/// stopping at the first acceptance `follow` refuses.
+fn follow_chain(
+    chain: &[Event],
+    keys: &BTreeMap<u64, EpochKey>,
+) -> Result<MembershipState, (u64, ProtocolError)> {
+    let mut state: Option<MembershipState> = None;
+    for event in chain {
+        let header = protocol::parse_acceptance(event).unwrap();
+        let (header, content) =
+            open_acceptance(event, &keys[&header.epoch], &pk(&service())).unwrap();
+        state = Some(match state {
+            None => MembershipState::from_genesis(&content).unwrap(),
+            Some(state) => state
+                .follow(&header, &content, event.created_at.as_secs())
+                .map_err(|e| (header.seq, e))?,
+        });
+    }
+    Ok(state.unwrap())
+}
+
+#[test]
+fn a_service_that_stops_rotating_after_a_removal_is_caught() {
+    // PROTO-2: the chain itself is well formed, so only follow can tell.
+    let mut books = Books::create();
+    books.change(
+        &owner(),
+        add(&bookkeeper(), Role::Bookkeeper, History::Full),
+        T0,
+    ); // 1
+    books.change_sealed(
+        &owner(),
+        MembershipChange::Remove {
+            member: pk(&bookkeeper()),
+        },
+        T0,
+        false,
+    ); // 2: starts epoch 1, but sealed under epoch 0
+    books.change(&owner(), add(&key(73), Role::Viewer, History::Full), T0); // 3
+    assert_eq!(books.state.epoch, 1);
+    assert_eq!(books.epochs.len(), 1);
+
+    verify_chain(business_id(), pk(&service()), None, &books.chain).unwrap();
+    // The removed bookkeeper's old key still opens everything.
+    let old: BTreeMap<u64, EpochKey> = [(0, books.epochs[0].clone())].into();
+    assert_eq!(readable(&books.chain, &old), vec![0, 1, 2, 3]);
+    assert_eq!(
+        follow_chain(&books.chain, &old).unwrap_err(),
+        (2, ProtocolError::WrongEpoch)
+    );
+
+    // Rotating as the rules say follows cleanly.
+    let mut honest = Books::create();
+    honest.change(
+        &owner(),
+        add(&bookkeeper(), Role::Bookkeeper, History::Full),
+        T0,
+    );
+    honest.change(
+        &owner(),
+        MembershipChange::Remove {
+            member: pk(&bookkeeper()),
+        },
+        T0,
+    );
+    let keys = honest.keys_for(&owner());
+    assert_eq!(follow_chain(&honest.chain, &keys).unwrap(), honest.state);
+}
+
+#[test]
+fn an_epoch_tag_ahead_of_the_rules_is_caught_too() {
+    // PROTO-2, the other direction: an ordinary change sealed under a new
+    // epoch the rules never started.
+    let mut books = Books::create();
+    books.epochs.push(EpochKey::generate(1));
+    books.change(
+        &owner(),
+        add(&bookkeeper(), Role::Bookkeeper, History::Full),
+        T0,
+    );
+    let keys: BTreeMap<u64, EpochKey> = books.epochs.iter().map(|k| (k.epoch, k.clone())).collect();
+    verify_chain(business_id(), pk(&service()), None, &books.chain).unwrap();
+    assert_eq!(
+        follow_chain(&books.chain, &keys).unwrap_err(),
+        (1, ProtocolError::WrongEpoch)
+    );
+}
+
+#[test]
+fn a_pending_change_waits_exactly_48_hours() {
+    // PROTO-8: neither shorter nor longer than the service sets.
+    let books = Books::create();
+    let payload = ProposalPayload {
+        v: PROTOCOL_VERSION,
+        salt: salt(),
+        business: business_id(),
+        base_seq: Some(0),
+        command: Command::ChangeMembership {
+            change: add(&key(81), Role::Owner, History::Full),
+        },
+    };
+    let content = |effective_at| AcceptanceContent {
+        v: PROTOCOL_VERSION,
+        proposal: build_proposal(&owner(), &pk(&service()), &payload, at(T0)).unwrap(),
+        payload: CommittedPayload::new(payload.clone()).unwrap(),
+        env: EnvRecord {
+            ids: vec![],
+            now: "2027-01-15T08:00:00.000Z".into(),
+        },
+        changes: vec![],
+        outcome: Outcome::Pending { effective_at },
+    };
+    let exact = content(T0 + OWNER_DELAY_SECS);
+    let header = next_header(&books, &exact);
+    let state = books.state.follow(&header, &exact, T0).unwrap();
+    assert_eq!(state.due(T0 + OWNER_DELAY_SECS).len(), 1);
+    for effective_at in [
+        T0 + OWNER_DELAY_SECS - 1,
+        T0 + OWNER_DELAY_SECS + 1,
+        u64::MAX,
+    ] {
+        assert_eq!(
+            books
+                .state
+                .follow(&header, &content(effective_at), T0)
+                .unwrap_err(),
+            ProtocolError::Forbidden,
+            "effectiveAt {effective_at}"
+        );
+    }
+}
+
+#[test]
+fn an_epoch_at_its_maximum_is_an_error_not_a_wrap() {
+    // PROTO-5.
+    let mut state = MembershipState::genesis(
+        business_id(),
+        pk(&owner()),
+        pk(&service()),
+        backup_recovery(),
+    )
+    .unwrap();
+    state.epoch = u64::MAX;
+    let joined = state
+        .propose(
+            genesis_event().id,
+            &pk(&owner()),
+            &add(&bookkeeper(), Role::Bookkeeper, History::Full),
+            T0,
+        )
+        .unwrap()
+        .state;
+    for change in [
+        MembershipChange::Remove {
+            member: pk(&bookkeeper()),
+        },
+        add(&viewer(), Role::Viewer, History::FromJoin),
+    ] {
+        assert_eq!(
+            joined
+                .propose(genesis_event().id, &pk(&owner()), &change, T0)
+                .unwrap_err(),
+            ProtocolError::Overflow("epoch")
+        );
+    }
 }
 
 #[test]

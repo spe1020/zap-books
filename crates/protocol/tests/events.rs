@@ -486,3 +486,61 @@ fn an_epoch_key_delivery_opens_only_for_its_member() {
         .as_json()
         .contains(&epoch.secret_key().to_secret_hex()));
 }
+
+/// Re-signs `event` with the value of its `name` tag uppercased.
+fn uppercased(keys: &nostr::prelude::Keys, event: &Event, name: &str) -> Event {
+    let tags: Vec<Vec<String>> = event
+        .tags
+        .iter()
+        .map(|t| {
+            let mut t = t.as_slice().to_vec();
+            if t[0] == name {
+                t[1] = t[1].to_uppercase();
+            }
+            t
+        })
+        .collect();
+    let tags = tags
+        .iter()
+        .map(|t| t.iter().map(String::as_str).collect())
+        .collect();
+    with_tags(keys, event, tags)
+}
+
+#[test]
+fn key_and_event_id_tags_have_one_spelling() {
+    // PROTO-6: lowercase hex only, as the business id already is.
+    let genesis = genesis_event();
+    assert_eq!(
+        parse_proposal(&uppercased(&owner(), &genesis, "service")).unwrap_err(),
+        ProtocolError::BadTag("service")
+    );
+    // Re-signed unchanged, it still parses: only the spelling is refused.
+    assert!(parse_proposal(&uppercased(&owner(), &genesis, "none")).is_ok());
+
+    let epoch = EpochKey::generate(0);
+    let first = acceptance_for(&genesis, 0, None, &epoch);
+    let next = build_proposal(&bookkeeper(), &pk(&service()), &approve_payload(0), at(5)).unwrap();
+    let second = acceptance_for(&next, 1, Some(first.id), &epoch);
+    assert!(protocol::parse_acceptance(&uppercased(&service(), &second, "none")).is_ok());
+    for name in ["prev", "e"] {
+        assert_eq!(
+            protocol::parse_acceptance(&uppercased(&service(), &second, name)).unwrap_err(),
+            ProtocolError::BadTag(name)
+        );
+    }
+
+    let (header, _) = open_proposal(&next, &service()).unwrap();
+    let rejection = build_rejection(
+        &service(),
+        &header,
+        &Reason::rejected("Invented reason."),
+        at(6),
+    )
+    .unwrap();
+    let forged = uppercased(&service(), &rejection, "p");
+    assert_eq!(
+        open_rejection(&forged, &bookkeeper(), &pk(&service())).unwrap_err(),
+        ProtocolError::BadTag("p")
+    );
+}

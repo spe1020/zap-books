@@ -58,6 +58,7 @@ import type { Mutation } from "./components/Review";
 import { ImportDialog } from "./components/Import";
 import { ExportDialog } from "./components/Export";
 import { Settings } from "./components/Settings";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 type View = "overview" | "inbox" | "transactions" | "settings";
 const nav = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -377,45 +378,50 @@ export default function App() {
                 </button>
               </div>
             )}
-            {view === "overview" && (
-              <Overview
-                b={b}
-                period={period}
-                setPeriod={setPeriod}
-                currency={currency}
-                setCurrency={setCurrency}
-                open={setReview}
-                navigate={navigate}
-              />
-            )}
-            {view === "inbox" && (
-              <InboxView
-                key={b.profile.id}
-                b={b}
-                open={setReview}
-                create={() => setReview(blankDraft(b))}
-              />
-            )}
-            {view === "transactions" && (
-              <Transactions
-                key={b.profile.id}
-                b={b}
-                open={setReview}
-                openTransfer={setTransfer}
-              />
-            )}
-            {view === "settings" && (
-              <Settings
-                key={b.profile.id}
-                b={b}
-                mutate={mutate}
-                busy={busy}
-                onReset={() => {
-                  setResetText("");
-                  setReset(true);
-                }}
-              />
-            )}
+            <ErrorBoundary
+              label="This screen"
+              resetKey={`${view}:${b.profile.id}`}
+            >
+              {view === "overview" && (
+                <Overview
+                  b={b}
+                  period={period}
+                  setPeriod={setPeriod}
+                  currency={currency}
+                  setCurrency={setCurrency}
+                  open={setReview}
+                  navigate={navigate}
+                />
+              )}
+              {view === "inbox" && (
+                <InboxView
+                  key={b.profile.id}
+                  b={b}
+                  open={setReview}
+                  create={() => setReview(blankDraft(b))}
+                />
+              )}
+              {view === "transactions" && (
+                <Transactions
+                  key={b.profile.id}
+                  b={b}
+                  open={setReview}
+                  openTransfer={setTransfer}
+                />
+              )}
+              {view === "settings" && (
+                <Settings
+                  key={b.profile.id}
+                  b={b}
+                  mutate={mutate}
+                  busy={busy}
+                  onReset={() => {
+                    setResetText("");
+                    setReset(true);
+                  }}
+                />
+              )}
+            </ErrorBoundary>
             <footer className="page-footer">
               <span>
                 <span className="local-dot" />
@@ -429,15 +435,21 @@ export default function App() {
           </main>
         </div>
         {review && (
-          <Review
-            key={review.id}
-            b={b}
-            initial={review}
-            mutate={mutate}
+          <ErrorBoundary
+            label="This expense"
+            resetKey={review.id}
             onClose={() => setReview(null)}
-            onOpen={setReview}
-            busy={busy}
-          />
+          >
+            <Review
+              key={review.id}
+              b={b}
+              initial={review}
+              mutate={mutate}
+              onClose={() => setReview(null)}
+              onOpen={setReview}
+              busy={busy}
+            />
+          </ErrorBoundary>
         )}
         {importing && (
           <ImportDialog

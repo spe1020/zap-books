@@ -23,6 +23,73 @@ use crate::error::ExtractError;
 use crate::extract::{Category, ExtractionResult, Extractor};
 use crate::normalize::parse_amount;
 
+/// The `kind` tags the shareable report names.
+pub const KINDS: [&str; 5] = ["photo", "screenshot", "pdf", "scanned pdf", "thermal"];
+
+/// How the shareable report names a receipt's `kind`: one of [`KINDS`],
+/// "untagged" or "other", never the tag's own text otherwise.
+fn kind_label(kind: Option<&str>) -> &'static str {
+    match kind {
+        None => "untagged",
+        Some(k) => KINDS
+            .into_iter()
+            .find(|known| *known == k)
+            .unwrap_or("other"),
+    }
+}
+
+/// Refuses a report path that `.gitignore` doesn't cover, for the report
+/// and the details file written beside it, so neither can be committed by
+/// accident. Outside a git checkout there is nothing to commit to; without
+/// git the name must match `bench-results*.md`.
+pub fn check_out_path(out: &Path) -> Result<(), String> {
+    let refuse = |path: &Path| {
+        format!(
+            "{} is not covered by .gitignore, so it could be committed. Use a name like bench-results-<label>.md.",
+            path.display()
+        )
+    };
+    for path in [out.to_path_buf(), details_path(out)] {
+        let dir = match path.parent() {
+            Some(p) if !p.as_os_str().is_empty() => p.to_path_buf(),
+            _ => PathBuf::from("."),
+        };
+        let name = path.file_name().ok_or_else(|| refuse(&path))?;
+        let status = std::process::Command::new("git")
+            .arg("-C")
+            .arg(&dir)
+            .args(["check-ignore", "-q", "--"])
+            .arg(name)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .status();
+        match status.map(|s| s.code()) {
+            Ok(Some(0)) => {}
+            Ok(Some(1)) => return Err(refuse(&path)),
+            // 128: not in a git checkout, or the directory doesn't exist.
+            Ok(Some(128)) if !dir.exists() => {
+                return Err(format!("{} does not exist.", dir.display()))
+            }
+            Ok(Some(128)) => {}
+            _ => {
+                let fits = out
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .is_some_and(|n| n.starts_with("bench-results") && n.ends_with(".md"));
+                if !fits {
+                    return Err(refuse(out));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Where the per-receipt details go for a report written to `out`.
+pub fn details_path(out: &Path) -> PathBuf {
+    out.with_extension("details.local.md")
+}
+
 pub const FIELDS: [&str; 11] = [
     "total",
     "date",
@@ -70,7 +137,8 @@ pub struct Expected {
     /// Counts toward "Total on clear receipts". Defaults to true.
     #[serde(default = "yes")]
     pub clear: bool,
-    /// A free-form tag such as "thermal" or "pdf", reported as counts.
+    /// One of [`KINDS`], reported as counts. Any other tag is counted as
+    /// "other": the report is shared, and a tag is free text someone wrote.
     #[serde(default)]
     pub kind: Option<String>,
 }
@@ -575,9 +643,8 @@ pub fn report(
         if median_ok { "met" } else { "**not met**" }
     ));
 
-    let kinds: BTreeMap<String, usize> = receipts.iter().fold(BTreeMap::new(), |mut m, r| {
-        *m.entry(r.expected.kind.clone().unwrap_or_else(|| "untagged".into()))
-            .or_default() += 1;
+    let kinds: BTreeMap<&str, usize> = receipts.iter().fold(BTreeMap::new(), |mut m, r| {
+        *m.entry(kind_label(r.expected.kind.as_deref())).or_default() += 1;
         m
     });
     let kinds: Vec<String> = kinds.iter().map(|(k, n)| format!("{k} {n}")).collect();
@@ -966,6 +1033,54 @@ mod tests {
         let text = details("m", &receipts, &[r]);
         assert!(text.contains("## Causes\n\n- receipt not read: timed out: 1\n"));
         assert!(!text.contains("$"));
+    }
+
+    #[test]
+    fn the_report_names_only_known_kinds() {
+        // EXT-9: a kind tag is free text, and the report is shared.
+        let receipt = |kind: Option<&str>| Receipt {
+            path: PathBuf::from("r.png"),
+            expected: Expected {
+                kind: kind.map(str::to_string),
+                ..Expected::default()
+            },
+        };
+        let receipts = vec![
+            receipt(Some("photo")),
+            receipt(Some("scanned pdf")),
+            receipt(Some("Invented Corner Store")),
+            receipt(Some("Photo")),
+            receipt(None),
+        ];
+        let settings = Settings {
+            thinking_supported: None,
+            max_tokens: 1,
+            timeout: Duration::from_secs(1),
+            prompt_version: "v",
+        };
+        let text = report("m", &receipts, &[], None, None, &settings);
+        assert!(
+            text.contains("Corpus mix: other 2, photo 1, scanned pdf 1, untagged 1."),
+            "{text}"
+        );
+        assert!(!text.contains("Invented") && !text.contains("Corner"));
+    }
+
+    #[test]
+    fn the_report_must_go_to_an_ignored_file() {
+        // EXT-9: the repository's .gitignore covers bench-results*.md and
+        // *.details.local.md; any other name could be committed.
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        assert!(check_out_path(&root.join("bench-results.md")).is_ok());
+        assert!(check_out_path(&root.join("bench-results-photos.md")).is_ok());
+        for name in ["notes.md", "results.md", "docs/bench-results.txt"] {
+            let err = check_out_path(&root.join(name)).unwrap_err();
+            assert!(err.contains(".gitignore"), "{name}: {err}");
+        }
+        assert_eq!(
+            details_path(Path::new("bench-results.md")),
+            PathBuf::from("bench-results.details.local.md")
+        );
     }
 
     #[test]

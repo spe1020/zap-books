@@ -643,8 +643,10 @@ async fn a_chain_with_membership_changes_rebuilds_audits_and_rederives_the_membe
     // A reader re-derives the membership and checks every decision.
     let mut state = MembershipState::from_genesis(&contents[0]).unwrap();
     for (event, content) in events.iter().zip(&contents).skip(1) {
-        state = state.follow(content, event.created_at.as_secs()).unwrap();
-        assert_eq!(state.epoch, parse_acceptance(event).unwrap().epoch);
+        let header = parse_acceptance(event).unwrap();
+        state = state
+            .follow(&header, content, event.created_at.as_secs())
+            .unwrap();
     }
     assert_eq!(state, w.membership().await);
     assert_eq!(state.epoch, 2);

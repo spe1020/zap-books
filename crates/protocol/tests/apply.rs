@@ -460,3 +460,154 @@ fn today_never_reaches_the_books() {
     );
     assert_eq!(imported.drafts.last().unwrap().date, "2023-02-10");
 }
+
+#[test]
+fn proposer_chosen_ids_are_short_plain_and_not_empty() {
+    // PROTO-7: draft, replacement, document and rule ids.
+    let b = genesis_business(business_id(), &genesis_command()).unwrap();
+    let long = "a".repeat(protocol::MAX_ID_LEN + 1);
+    let bad_ids = ["", "draft 1", "draft/1", "dräft", long.as_str()];
+    for id in bad_ids {
+        let save = Command::SaveDraft {
+            draft: draft(&b, id, &[]),
+            documents: vec![],
+            extraction: None,
+        };
+        assert_eq!(
+            run(&b, &save).unwrap_err(),
+            Refusal::Protocol(ProtocolError::BadId),
+            "draft id {id:?}"
+        );
+        let submit = Command::SubmitReceiptDraft {
+            draft: draft(&b, id, &[]),
+            documents: vec![],
+        };
+        assert_eq!(
+            run(&b, &submit).unwrap_err(),
+            Refusal::Protocol(ProtocolError::BadId)
+        );
+        let attach = Command::SaveDraft {
+            draft: draft(&b, "draft-1", &[id]),
+            documents: vec![document(id)],
+            extraction: None,
+        };
+        assert_eq!(
+            run(&b, &attach).unwrap_err(),
+            Refusal::Protocol(ProtocolError::BadDocument)
+        );
+        let rule = Command::SaveRule {
+            rule: RuleInput {
+                id: Some(id.into()),
+                vendor_includes: "invented".into(),
+                category_id: b.categories[0].id.clone(),
+                purpose: "Office use".into(),
+                enabled: true,
+            },
+        };
+        assert_eq!(
+            run(&b, &rule).unwrap_err(),
+            Refusal::Protocol(ProtocolError::BadId)
+        );
+    }
+
+    // A correction's replacement is a new draft too.
+    let saved = run(
+        &b,
+        &Command::SaveDraft {
+            draft: draft(&b, "draft-1", &[]),
+            documents: vec![],
+            extraction: None,
+        },
+    )
+    .unwrap();
+    let posted = run(
+        &saved,
+        &Command::Approve {
+            expense_id: "draft-1".into(),
+        },
+    )
+    .unwrap();
+    let correct = |id: &str| Command::Correct {
+        original_id: "draft-1".into(),
+        replacement: draft(&posted, id, &[]),
+        reason: "Wrong amount".into(),
+    };
+    assert_eq!(
+        run(&posted, &correct("")).unwrap_err(),
+        Refusal::Protocol(ProtocolError::BadId)
+    );
+
+    // The longest allowed id, a UUID and the app's derived ids all pass.
+    let longest = "a".repeat(protocol::MAX_ID_LEN);
+    for id in [
+        longest.as_str(),
+        "00000000-0000-4000-8000-000000000001",
+        "invented_draft-7",
+    ] {
+        assert!(protocol::valid_id(id), "{id}");
+    }
+    assert!(run(&posted, &correct("draft-2")).is_ok());
+}
+
+#[test]
+fn genesis_names_follow_the_settings_rules() {
+    // PROTO-9 (a): the case-insensitive name rule, as for later accounts.
+    let mut command = genesis_command();
+    if let Command::CreateBusiness { accounts, .. } = &mut command {
+        accounts[1].name = accounts[0].name.to_uppercase();
+    }
+    assert!(matches!(
+        genesis_business(business_id(), &command).unwrap_err(),
+        Refusal::Protocol(ProtocolError::InvalidGenesis(_))
+    ));
+    let mut command = genesis_command();
+    if let Command::CreateBusiness { categories, .. } = &mut command {
+        categories[1].name = format!(" {} ", categories[0].name.to_lowercase());
+    }
+    assert!(matches!(
+        genesis_business(business_id(), &command).unwrap_err(),
+        Refusal::Protocol(ProtocolError::InvalidGenesis(_))
+    ));
+    let mut command = genesis_command();
+    if let Command::CreateBusiness { accounts, .. } = &mut command {
+        accounts[0].name = "  ".into();
+    }
+    assert!(genesis_business(business_id(), &command).is_err());
+    // And its ids are proposer-chosen ids.
+    let mut command = genesis_command();
+    if let Command::CreateBusiness { accounts, .. } = &mut command {
+        accounts[0].id = String::new();
+    }
+    assert_eq!(
+        genesis_business(business_id(), &command).unwrap_err(),
+        Refusal::Protocol(ProtocolError::BadId)
+    );
+}
+
+#[test]
+fn a_genesis_acceptance_records_no_ids() {
+    // PROTO-9 (b): audit covers genesis's environment as it does every
+    // other acceptance's.
+    let command = genesis_command();
+    let b = genesis_business(business_id(), &command).unwrap();
+    let clean = content(
+        command.clone(),
+        protocol::EnvRecord {
+            ids: vec![],
+            now: NOW.into(),
+        },
+        genesis_changes(&b),
+    );
+    assert_eq!(audit(None, &clean).unwrap(), b);
+    let spurious = AcceptanceContent {
+        env: protocol::EnvRecord {
+            ids: vec!["00000000-0000-4000-8000-000000000001".into()],
+            now: NOW.into(),
+        },
+        ..clean
+    };
+    assert_eq!(
+        audit(None, &spurious).unwrap_err(),
+        Refusal::Protocol(ProtocolError::AuditMismatch)
+    );
+}

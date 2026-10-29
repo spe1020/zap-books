@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::business_id::BusinessId;
 use crate::command::{
     is_lower_hex, Command, CommandType, CommittedPayload, MembershipChange, ProposalPayload,
-    PROTOCOL_VERSION,
+    NOT_PROTOCOL_JSON, PROTOCOL_VERSION, UNSERIALIZABLE,
 };
 use crate::crypto::{decrypt_from, encrypt_to, encrypted_len, EpochKey, MAX_PLAINTEXT};
 use crate::env::EnvRecord;
@@ -107,11 +107,20 @@ fn number(value: &str, name: &'static str) -> Result<u64> {
     value.parse().map_err(|_| ProtocolError::BadTag(name))
 }
 
+/// 64 lowercase hex characters, so each id has one spelling: `from_hex`
+/// alone also accepts uppercase.
 fn event_id(value: &str, name: &'static str) -> Result<EventId> {
+    if !is_lower_hex(value, 64) {
+        return Err(ProtocolError::BadTag(name));
+    }
     EventId::from_hex(value).map_err(|_| ProtocolError::BadTag(name))
 }
 
+/// 64 lowercase hex characters, as for [`event_id`].
 fn public_key(value: &str, name: &'static str) -> Result<PublicKey> {
+    if !is_lower_hex(value, 64) {
+        return Err(ProtocolError::BadTag(name));
+    }
     PublicKey::from_hex(value).map_err(|_| ProtocolError::BadTag(name))
 }
 
@@ -126,11 +135,13 @@ fn verified(event: &Event, kind: u16) -> Result<()> {
 }
 
 fn to_json<T: Serialize>(value: &T) -> Result<String> {
-    serde_json::to_string(value).map_err(|e| ProtocolError::BadContent(e.to_string()))
+    serde_json::to_string(value).map_err(|_| ProtocolError::BadContent(UNSERIALIZABLE))
 }
 
+/// serde's message is dropped: it quotes the offending text, which is
+/// decrypted content.
 fn from_json<T: for<'de> Deserialize<'de>>(text: &str) -> Result<T> {
-    serde_json::from_str(text).map_err(|e| ProtocolError::BadContent(e.to_string()))
+    serde_json::from_str(text).map_err(|_| ProtocolError::BadContent(NOT_PROTOCOL_JSON))
 }
 
 fn check_version(v: u32) -> Result<()> {
@@ -168,7 +179,7 @@ pub fn build_proposal(
     at: Timestamp,
 ) -> Result<Event> {
     if !payload.valid_salt() {
-        return Err(ProtocolError::BadContent("invalid salt".into()));
+        return Err(ProtocolError::BadContent("invalid salt"));
     }
     let committed = CommittedPayload::new(payload.clone())?;
     let mut tags = vec![
@@ -237,7 +248,7 @@ fn check_payload(header: &ProposalHeader, committed: &CommittedPayload) -> Resul
     let payload = committed.payload();
     check_version(payload.v)?;
     if !payload.valid_salt() {
-        return Err(ProtocolError::BadContent("invalid salt".into()));
+        return Err(ProtocolError::BadContent("invalid salt"));
     }
     if payload.business != header.business {
         return Err(ProtocolError::TagMismatch(tag::BUSINESS));
@@ -659,7 +670,7 @@ pub fn open_delivery(event: &Event, member: &Keys, service: &PublicKey) -> Resul
         return Err(ProtocolError::TagMismatch(tag::EPOCH));
     }
     let secret = SecretKey::from_hex(&content.secret)
-        .map_err(|_| ProtocolError::BadContent("invalid epoch secret".into()))?;
+        .map_err(|_| ProtocolError::BadContent("invalid epoch secret"))?;
     Ok(Delivery {
         business,
         key: EpochKey::from_secret(epoch, secret),

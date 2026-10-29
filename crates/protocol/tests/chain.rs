@@ -7,8 +7,8 @@ use common::*;
 use nostr::prelude::{Event, EventId, Keys, PublicKey};
 use protocol::{
     build_acceptance, build_proposal, open_proposal, verify_chain, AcceptanceContent,
-    AcceptanceHeader, Command, EnvRecord, EpochKey, MembershipChange, Outcome, ProposalPayload,
-    ProtocolError, PROTOCOL_VERSION,
+    AcceptanceHeader, ChainHead, Command, EnvRecord, EpochKey, MembershipChange, Outcome,
+    ProposalPayload, ProtocolError, PROTOCOL_VERSION,
 };
 
 fn proposal(seq: u64) -> Event {
@@ -25,6 +25,17 @@ fn proposal(seq: u64) -> Event {
 }
 
 fn accept(
+    signer: &Keys,
+    proposal: &Event,
+    seq: u64,
+    prev: Option<EventId>,
+    next_service: Option<PublicKey>,
+) -> Event {
+    accept_in(0, signer, proposal, seq, prev, next_service)
+}
+
+fn accept_in(
+    epoch: u64,
     signer: &Keys,
     proposal: &Event,
     seq: u64,
@@ -48,10 +59,10 @@ fn accept(
         seq,
         prev,
         proposal: header.id,
-        epoch: 0,
+        epoch,
         next_service,
     };
-    let epoch = EpochKey::generate(0);
+    let epoch = EpochKey::generate(epoch);
     build_acceptance(
         signer,
         &epoch.public_key(),
@@ -236,5 +247,48 @@ fn a_service_key_replacement_hands_over_the_chain() {
     assert_eq!(
         verify_chain(business_id(), pk(&service()), None, &events).unwrap_err(),
         ProtocolError::ChainSigner(3)
+    );
+}
+
+#[test]
+fn genesis_is_epoch_0_and_each_acceptance_starts_at_most_one_epoch() {
+    // PROTO-2: one acceptance can start at most one epoch.
+    let mut events = chain(2);
+    events.push(accept_in(
+        1,
+        &service(),
+        &proposal(2),
+        2,
+        Some(events[1].id),
+        None,
+    ));
+    verify_chain(business_id(), pk(&service()), None, &events).unwrap();
+
+    events[2] = accept_in(2, &service(), &proposal(2), 2, Some(events[1].id), None);
+    assert_eq!(
+        verify_chain(business_id(), pk(&service()), None, &events).unwrap_err(),
+        ProtocolError::ChainEpoch(2)
+    );
+
+    let late = vec![accept_in(1, &service(), &genesis_event(), 0, None, None)];
+    assert_eq!(
+        verify_chain(business_id(), pk(&service()), None, &late).unwrap_err(),
+        ProtocolError::ChainEpoch(0)
+    );
+}
+
+#[test]
+fn a_head_at_the_last_seq_is_an_error_not_a_wrap() {
+    // PROTO-5: the next seq after u64::MAX is refused, not computed.
+    let events = chain(1);
+    let head = ChainHead {
+        seq: u64::MAX,
+        id: events[0].id,
+        epoch: 0,
+        service: pk(&service()),
+    };
+    assert_eq!(
+        verify_chain(business_id(), pk(&service()), Some(head), &events).unwrap_err(),
+        ProtocolError::Overflow("seq")
     );
 }
