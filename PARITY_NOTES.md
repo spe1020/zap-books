@@ -183,6 +183,26 @@ the Rust follow, so both languages still agree on every fixture.
   belongs to a different expense."), and `correct` moves the payment's
   `draftId` to the replacement. The commit after `dbc94a9`.
 
+- **W13.** `writeDraft` builds the stored draft from an explicit allow-list
+  of caller-settable fields and takes every authority-bearing field from the
+  record's own history: `paymentId` and `importSource` from the stored draft
+  (or the original, for a correction; `commitImport` alone supplies its
+  own), `journalId` from the stored draft, and `correctionOf` from the
+  correction's original. A caller-supplied `correctionOf` or `journalId` is
+  dropped, not stored; `correct` no longer sets `correctionOf` itself. The
+  W12 messages are unchanged. Why: `writeDraft` had guarded `paymentId` and
+  `importSource` by enumeration and stored everything else as given, so
+  `correctionOf` and `journalId` were trusted by default. `duplicates`
+  exempts `x.id === d.correctionOf`, so a bookkeeper could post an expense,
+  save a twin naming it in `correctionOf`, and the first dropped out of
+  duplicate detection with no reversal, while the export and the
+  Corrections filter showed a correction that never happened. With the
+  allow-list a new field on `ExpenseDraft` is inert until it is placed on one
+  side or the other (2026-10-28 audit, ACC-1). Fixture:
+  `drafts/saveDraft: draft claiming a correction and a journal`; tests
+  `a saved draft cannot claim a correction or a journal (W13)` and
+  `a_saved_draft_cannot_claim_a_correction_or_a_journal`.
+
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
 original and marks it corrected, then posts the replacement; merely naming an

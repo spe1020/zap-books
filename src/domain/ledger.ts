@@ -4,6 +4,7 @@ import type {
   ExpenseDraft,
   FinancialEvent,
   EventType,
+  ImportedExpenseSource,
   JournalEntry,
   JournalLine,
   LedgerCommands,
@@ -236,6 +237,13 @@ export function saveDraft(
  * `evidenceOf`'s when a correction carries its original's evidence onto a
  * new draft.
  *
+ * The stored draft is built from an explicit list of the fields a caller may
+ * set (see `storedDraft`). Every field that carries authority, the evidence
+ * links, `journalId` and `correctionOf`, comes from the record's own history:
+ * the stored draft, or `evidenceOf` for a correction. A field added to
+ * `ExpenseDraft` is therefore inert here until it is listed, never trusted by
+ * default (PARITY_NOTES W13).
+ *
  * @internal
  */
 export function writeDraft(
@@ -280,30 +288,83 @@ export function writeDraft(
     )
   )
     throw new Error("Invalid receipt reference.");
-  const index = b.drafts.findIndex((x) => x.id === draft.id);
-  if (index === -1) b.drafts.push(structuredClone(draft));
-  else b.drafts[index] = structuredClone(draft);
+  const stored = storedDraft(draft, {
+    paymentId: options.allowImportSource ? draft.paymentId : payment,
+    importSource: options.allowImportSource ? draft.importSource : evidence,
+    journalId: prior?.journalId,
+    correctionOf: options.evidenceOf?.id ?? prior?.correctionOf,
+  });
+  const index = b.drafts.findIndex((x) => x.id === stored.id);
+  if (index === -1) b.drafts.push(stored);
+  else b.drafts[index] = stored;
   if (
-    draft.vendor.trim() &&
-    !b.vendors.some((v) => normalize(v.name) === normalize(draft.vendor))
+    stored.vendor.trim() &&
+    !b.vendors.some((v) => normalize(v.name) === normalize(stored.vendor))
   )
     b.vendors.push({
       id: id(),
       businessId: b.profile.id,
-      name: draft.vendor.trim(),
+      name: stored.vendor.trim(),
     });
   event(
     b,
     index === -1 ? "expense.created" : "expense.updated",
-    draft.id,
+    stored.id,
     index === -1 ? "Expense draft created" : "Expense draft updated",
     [
-      ...draft.documentIds,
-      ...(draft.paymentId ? [draft.paymentId] : []),
-      ...(draft.importSource ? [draft.importSource.id] : []),
+      ...stored.documentIds,
+      ...(stored.paymentId ? [stored.paymentId] : []),
+      ...(stored.importSource ? [stored.importSource.id] : []),
     ],
   );
   return b;
+}
+/**
+ * The fields of a draft that carry authority: the evidence it rests on and
+ * the posting and correction it belongs to. `writeDraft` takes them from the
+ * record's history, never from the caller.
+ */
+interface DraftAuthority {
+  paymentId: string | undefined;
+  importSource: ImportedExpenseSource | undefined;
+  journalId: string | undefined;
+  correctionOf: string | undefined;
+}
+/**
+ * The draft `writeDraft` stores: the caller-settable fields copied from
+ * `draft`, and the authority-bearing ones from `authority`. This is an
+ * allow-list: a field missing here is dropped, not copied, so a new field on
+ * `ExpenseDraft` must be placed deliberately on one side or the other. The
+ * key order matches `blankDraft`, with the optional fields after it in the
+ * order the ledger has always written them.
+ */
+function storedDraft(
+  draft: ExpenseDraft,
+  authority: DraftAuthority,
+): ExpenseDraft {
+  const stored: ExpenseDraft = {
+    id: draft.id,
+    businessId: draft.businessId,
+    vendor: draft.vendor,
+    date: draft.date,
+    description: draft.description,
+    amountMinor: draft.amountMinor,
+    currency: draft.currency,
+    categoryId: draft.categoryId,
+    accountId: draft.accountId,
+    purpose: draft.purpose,
+    documentIds: [...draft.documentIds],
+    status: draft.status,
+    duplicateReason: draft.duplicateReason,
+    createdAt: draft.createdAt,
+  };
+  if (authority.paymentId !== undefined) stored.paymentId = authority.paymentId;
+  if (authority.importSource !== undefined)
+    stored.importSource = structuredClone(authority.importSource);
+  if (authority.correctionOf !== undefined)
+    stored.correctionOf = authority.correctionOf;
+  if (authority.journalId !== undefined) stored.journalId = authority.journalId;
+  return stored;
 }
 export function approve(
   business: BusinessData,
@@ -447,11 +508,11 @@ export function correct(
     reversal.id,
     replacement.id,
   ]);
-  b = writeDraft(
-    b,
-    { ...replacement, correctionOf: original.id },
-    { allowImportSource: false, evidenceOf: original },
-  );
+  // writeDraft records the replacement as a correction of `evidenceOf`.
+  b = writeDraft(b, replacement, {
+    allowImportSource: false,
+    evidenceOf: original,
+  });
   // The replacement takes over the original's payment.
   const payment = b.payments.find(
     (p) => p.id === original.paymentId && p.businessId === b.profile.id,

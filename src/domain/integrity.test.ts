@@ -37,11 +37,15 @@ describe("ledger trust boundaries", () => {
       };
       const posted = approve(saveDraft(imported, draft), draft.id);
       const original = posted.drafts.find((d) => d.id === draft.id)!;
+      // Since W13 a caller's correctionOf is dropped, so the original counts
+      // as a duplicate of this twin; the reason lets the test reach the
+      // evidence checks it is about.
       const replacement = {
         ...original,
         id: id(),
         status: "draft" as const,
         correctionOf: original.id,
+        duplicateReason: "Forged correction",
       };
       const before = structuredClone(posted);
       // A manual save cannot attach existing evidence to a new draft.
