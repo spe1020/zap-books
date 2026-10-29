@@ -11,8 +11,9 @@ use serde_json::Value;
 
 use crate::error::ExtractError;
 use crate::evidence::{
-    amount_in_evidence, date_in_evidence, fits_percentage, has_label, is_thousands_grouped,
-    numbers_in_evidence, shows_deduction,
+    amount_in_evidence, amount_marked_credit, amount_shown_negative, date_in_evidence,
+    fits_percentage, has_label, has_word_outside_phrase, is_thousands_grouped, numbers_in_evidence,
+    shows_deduction,
 };
 use crate::extract::Category;
 
@@ -357,8 +358,67 @@ pub const NOT_PAID: [&str; 8] = [
 /// A negative amount on a line with one of these words is a payment...
 const PAYMENT: [&str; 3] = ["payment", "paid", "charged"];
 
-/// ...unless the line also has one of these, so it may be money coming back.
-const REFUND: [&str; 4] = ["refund", "credit", "return", "reversal"];
+/// ...unless the line also has one of these, or a `CREDIT` form (see
+/// `is_refund_line`), so it may be money coming back. The forms are listed
+/// explicitly, as whole words, rather than matched by prefix or stem, so
+/// each one is visible here and `returnable` or `creditor` can't match.
+const REFUND: [&str; 10] = [
+    "refund",
+    "refunds",
+    "refunded",
+    "return",
+    "returns",
+    "returned",
+    "reverse",
+    "reversed",
+    "reversal",
+    "reversals",
+];
+
+/// The forms of `credit`, each read as money back unless it comes directly
+/// before `card`.
+const CREDIT: [&str; 3] = ["credit", "credits", "credited"];
+
+/// Whether a total's line says money came back, by its words alone:
+///
+/// - a `REFUND` form as a whole word, any case; or
+/// - a `CREDIT` form anywhere except directly before `card`.
+///
+/// A `CR` marker printed right after the amount (`42.50 CR`) is the third
+/// way a receipt says credit; it needs the amount, so `amount_field` checks
+/// it with `amount_marked_credit` and treats it the same as a match here.
+///
+/// What the rule decides:
+///
+/// - `CREDIT MEMO`, `STORE CREDIT`, `CREDIT BALANCE`, `MERCHANDISE CREDIT`:
+///   money back (`credit` not before `card`).
+/// - `CREDIT CARD REFUND`: money back (`refund`).
+/// - `STORE CREDITS APPLIED`, `Credited to card`, `AMOUNT CREDITED`: money
+///   back (`credits`, `credited`, under the same not-before-`card` rule).
+/// - `Store credit to credit card`: money back (the first `credit`).
+/// - `REFUNDED`, `Returned items`, `Payment reversed`, `Returns`,
+///   `Reverse`: money back (listed forms).
+/// - `CREDIT CARD TOTAL`, `Credit Card Sale`, `Paid by credit card`,
+///   `Credit, card` (punctuation doesn't separate words): a purchase.
+/// - `RETURNABLE CONTAINER DEPOSIT`, `Creditor`, `Refunding`: a purchase
+///   line as far as this rule is concerned, since only the listed forms
+///   match. A prefix match would catch the first (safely) and the other two
+///   (wrongly, for `creditor`), so the forms stay explicit.
+/// - `TOTAL 42.50 CR`, `TOTAL 42.50CR`: money back, by the marker on the
+///   amount. `CR 42.50` and `CR TOTAL 42.50` are not: only a `CR` after the
+///   amount counts, so initials and codes elsewhere on the line don't.
+///
+/// Known gaps, not handled yet: `exchange`, `adjustment`, `void`/`voided`,
+/// `cancelled`, `chargeback`, `rebate`, the `-ing` forms (`refunding`,
+/// `returning`, `reversing`, `crediting`), and the abbreviations `RTN`,
+/// `RFND`, `VD`, and `REF` (which also means a reference number). A
+/// `DR`/`CR` column with the marker before the amount is not read either.
+fn is_refund_line(evidence: &str) -> bool {
+    has_label(evidence, &REFUND)
+        || CREDIT
+            .iter()
+            .any(|form| has_word_outside_phrase(evidence, form, "card"))
+}
 
 /// Words one of which a receipt number's evidence must contain.
 pub const REFERENCE_LABELS: [&str; 11] = [
@@ -466,7 +526,11 @@ enum Amount {
 /// has a payment label is decided with the reconciliation in `normalize`. A
 /// negative total is taken as paid only when its line says
 /// it is a payment and nothing suggests a refund; any other negative total
-/// stays unclear, so a refund never becomes an expense.
+/// stays unclear, so a refund never becomes an expense. The receipt's own
+/// sign counts as much as the model's: a positive value whose line says
+/// refund, or prints the amount with a minus or in parentheses, is judged
+/// the same way, so a model that drops the sign can't turn a refund into a
+/// purchase.
 fn amount_field(
     raw: &RawField,
     label: &str,
@@ -491,6 +555,14 @@ fn amount_field(
                 None
             }
         };
+        // A refund line, by its words or by a `CR` marker on this amount, is
+        // never the amount paid. A payment line prints the amount paid as
+        // negative; nothing else negative is the amount paid.
+        let credit_marked = parse_discount(text)
+            .ok()
+            .is_some_and(|v| amount_marked_credit(v, evidence));
+        let refund_line = is_refund_line(evidence) || credit_marked;
+        let paid_line = has_label(evidence, &PAYMENT) && !refund_line;
         match parse_amount(text) {
             Ok(value) if value == Minor::ZERO && is_total => {
                 warnings.push(format!(
@@ -498,18 +570,28 @@ fn amount_field(
                 ));
                 None
             }
-            Ok(value) => in_evidence(value, warnings),
-            Err(AmountProblem::Negative)
-                if is_total && has_label(evidence, &PAYMENT) && !has_label(evidence, &REFUND) =>
-            {
-                match parse_discount(text) {
-                    Ok(paid) => in_evidence(paid, warnings),
-                    Err(_) => {
-                        warnings.push(format!("The {label} is negative. Enter it yourself."));
-                        None
-                    }
-                }
+            Ok(value) if is_total && refund_line => {
+                warnings.push(format!(
+                    "The {label} looks like a refund or return ({}). Enter the {label} yourself.",
+                    shown(value, currency)
+                ));
+                None
             }
+            Ok(value) if is_total && amount_shown_negative(value, evidence) && !paid_line => {
+                warnings.push(format!(
+                    "The only amount is a payment or refund line ({}). Enter the {label} yourself.",
+                    shown(-value, currency)
+                ));
+                None
+            }
+            Ok(value) => in_evidence(value, warnings),
+            Err(AmountProblem::Negative) if is_total && paid_line => match parse_discount(text) {
+                Ok(paid) => in_evidence(paid, warnings),
+                Err(_) => {
+                    warnings.push(format!("The {label} is negative. Enter it yourself."));
+                    None
+                }
+            },
             Err(problem) => {
                 warnings.push(match problem {
                     AmountProblem::CommaDecimal => format!(
@@ -1083,6 +1165,55 @@ mod tests {
                 Some(minor(2400))
             );
         }
+        // Naming the card is not a credit: this is a payment, not money back.
+        let n = total("-24.00", "Credit card payment -24.00");
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert_eq!(n.fields.total.value, Some(minor(2400)));
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+    }
+
+    #[test]
+    fn credit_means_money_back_unless_it_only_names_the_card() {
+        for evidence in [
+            "CREDIT MEMO",
+            "STORE CREDIT",
+            "CREDIT BALANCE",
+            "CREDIT CARD REFUND",
+            "MERCHANDISE CREDIT",
+            "Store credit to credit card",
+            "STORE CREDITS APPLIED",
+            "Credits",
+            "RETURN TOTAL",
+            // Inflections, listed explicitly.
+            "REFUNDED",
+            "Refunds",
+            "Amount refunded",
+            "Returned items",
+            "Returns",
+            "Payment reversed",
+            "Reverse",
+            "Reversals",
+            "Credited to card",
+            "AMOUNT CREDITED",
+            "Credited",
+        ] {
+            assert!(is_refund_line(evidence), "{evidence}");
+        }
+        // Words are matched past punctuation, so `Credit, card` names the
+        // card. Only the listed forms match: no prefix or stem matching.
+        for evidence in [
+            "CREDIT CARD TOTAL",
+            "Credit Card Sale",
+            "Paid by credit card",
+            "Credit, card",
+            "Credited card",
+            "TOTAL",
+            "RETURNABLE CONTAINER DEPOSIT",
+            "Creditor",
+            "Refunding",
+        ] {
+            assert!(!is_refund_line(evidence), "{evidence}");
+        }
     }
 
     #[test]
@@ -1093,6 +1224,8 @@ mod tests {
             "Total paid, return: -$24.00",
             "Payment reversal -$24.00",
             "TOTAL -$24.00",
+            "Payment -$24.00 CR",
+            "Payment, credits applied -$24.00",
         ] {
             let n = total("-$24.00", evidence);
             assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
@@ -1110,6 +1243,83 @@ mod tests {
             run(answer).warnings,
             vec!["The only amount is a payment or refund line (−12.00). Enter the total yourself."]
         );
+    }
+
+    /// The model may drop a printed sign. The receipt's own sign and refund
+    /// words then decide, exactly as when the model keeps the sign.
+    #[test]
+    fn a_total_the_receipt_prints_negative_is_not_found_from_a_positive_value() {
+        for evidence in [
+            "TOTAL -42.50",
+            "TOTAL (42.50)",
+            "Total: -$42.50",
+            "Amount due ($42.50)",
+            "TOTAL 42.50-",
+        ] {
+            let n = total("42.50", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
+            assert_eq!(n.fields.total.value, None, "{evidence}");
+            assert_eq!(
+                n.warnings,
+                vec!["The only amount is a payment or refund line (−$42.50). Enter the total yourself."],
+                "{evidence}"
+            );
+        }
+        // With a refund word the line is refused whatever sign it prints.
+        for evidence in [
+            "REFUND TOTAL -42.50",
+            "REFUND TOTAL (42.50)",
+            "Total refund 42.50",
+            "RETURN TOTAL $42.50",
+            "Payment reversal 42.50",
+            "Store credit $42.50",
+            "Credit card refund -42.50",
+            "Store credit to credit card $42.50",
+            "STORE CREDITS APPLIED 42.50",
+            "Amount refunded $42.50",
+            "Returned -42.50",
+            "Payment reversed (42.50)",
+            "Credited to card 42.50",
+            "TOTAL 42.50 CR",
+            "TOTAL $42.50CR",
+            "Amount paid 42.50 cr",
+        ] {
+            let n = total("42.50", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
+            assert_eq!(n.fields.total.value, None, "{evidence}");
+            assert_eq!(
+                n.warnings,
+                vec!["The total looks like a refund or return ($42.50). Enter the total yourself."],
+                "{evidence}"
+            );
+        }
+        // A payment line printed negative is still the amount paid.
+        for evidence in ["Payment (card): -$42.50", "Amount paid (42.50)"] {
+            let n = total("42.50", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Found, "{evidence}");
+            assert_eq!(n.fields.total.value, Some(minor(4250)));
+            assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+        }
+        // Naming the card isn't a credit, a hyphen in a word isn't a sign,
+        // and a `CR` before the amount or on another amount isn't a marker.
+        for evidence in [
+            "CREDIT CARD TOTAL $42.50",
+            "SUB-TOTAL/TOTAL 42.50",
+            "CR TOTAL 42.50",
+            "TOTAL 42.50 CRN",
+            "RETURNABLE CONTAINER DEPOSIT TOTAL 42.50",
+        ] {
+            let n = total("42.50", evidence);
+            assert_eq!(n.fields.total.status, FieldStatus::Found, "{evidence}");
+            assert_eq!(n.fields.total.value, Some(minor(4250)));
+        }
+        // Only the total is judged this way: a subtotal printed in
+        // parentheses still matches its evidence.
+        let mut answer = good();
+        answer["subtotal"] = found("40.00", "Subtotal (40.00)");
+        answer["total"] = found("42.50", "TOTAL 42.50");
+        let n = run(answer);
+        assert_eq!(n.fields.subtotal.value, Some(minor(4000)));
     }
 
     #[test]
