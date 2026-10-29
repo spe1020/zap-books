@@ -407,26 +407,39 @@ pub fn parse_acceptance(event: &Event) -> Result<AcceptanceHeader> {
     })
 }
 
-/// A reader's view: decrypts an acceptance with the epoch key its `epoch`
-/// tag names, and checks the embedded proposal against the tags, and a
-/// `service` tag against the content. Auditing starts from what this
-/// returns, so a forged hand-over fails before any audit. The caller
-/// verifies the chain and the signer first.
+/// A reader's view of an acceptance, like [`open_rejection`] and
+/// [`open_delivery`]: fails unless `service` signed it (the key the chain
+/// says signs this seq, from genesis or the last hand-over), then decrypts
+/// it with the epoch key its `epoch` tag names and checks the content
+/// against the tags: the embedded proposal must be the one the `e` tag
+/// names and must be for this business, its payload must match its signed
+/// commitment, and a `service` tag must match an activated key replacement.
+/// Following the membership and auditing start from what this returns, so
+/// a forged signer, a proposal borrowed from another business or a forged
+/// hand-over all fail before either. [`crate::verify_chain`] still checks
+/// the links between acceptances; this checks one acceptance on its own.
 pub fn open_acceptance(
     event: &Event,
     epoch: &EpochKey,
+    service: &PublicKey,
 ) -> Result<(AcceptanceHeader, AcceptanceContent)> {
     let header = parse_acceptance(event)?;
+    if event.pubkey != *service {
+        return Err(ProtocolError::WrongService);
+    }
     if header.epoch != epoch.epoch {
         return Err(ProtocolError::Decrypt);
     }
-    let text = decrypt_from(epoch.secret_key(), &event.pubkey, &event.content)?;
+    let text = decrypt_from(epoch.secret_key(), service, &event.content)?;
     let content: AcceptanceContent = from_json(&text)?;
     check_version(content.v)?;
     if content.proposal.id != header.proposal {
         return Err(ProtocolError::TagMismatch(tag::EVENT));
     }
     let proposal = parse_proposal(&content.proposal)?;
+    if proposal.business != header.business {
+        return Err(ProtocolError::TagMismatch(tag::BUSINESS));
+    }
     check_payload(&proposal, &content.payload)?;
     check_handover(&header, &content)?;
     Ok((header, content))

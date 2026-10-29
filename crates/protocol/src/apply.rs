@@ -225,7 +225,8 @@ pub fn rebuild<'a>(
 /// Audits one acceptance: re-runs its command on `before` with the recorded
 /// ids and time, and checks it gives exactly the recorded changes, using
 /// exactly the recorded ids. Returns the books after it. For genesis, pass
-/// `before: None`.
+/// `before: None`. An acceptance for another business than `before` is
+/// refused before anything is re-run.
 pub fn audit(
     before: Option<&BusinessData>,
     content: &AcceptanceContent,
@@ -238,6 +239,9 @@ pub fn audit(
             (b, changes)
         }
         Some(before) => {
+            if content.payload.business.to_string() != before.profile.id {
+                return Err(ProtocolError::WrongBusiness.into());
+            }
             let mut env = ReplayEnv::new(&content.env);
             let after = apply_command(before, command, &mut env)?;
             env.finish()?;

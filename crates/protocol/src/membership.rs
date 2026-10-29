@@ -11,6 +11,7 @@ use std::ops::RangeInclusive;
 use nostr::prelude::{EventId, PublicKey};
 use serde::{Deserialize, Serialize};
 
+use crate::business_id::BusinessId;
 use crate::command::{Command, History, MembershipChange, Recovery, Role};
 use crate::error::{ProtocolError, Result};
 use crate::events::{AcceptanceContent, Outcome};
@@ -40,6 +41,9 @@ pub struct PendingChange {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MembershipState {
+    /// The business this membership belongs to. `follow` refuses an
+    /// acceptance for any other.
+    pub business: BusinessId,
     pub members: BTreeMap<PublicKey, Member>,
     /// The offline backup key, if the business has one.
     pub recovery_key: Option<PublicKey>,
@@ -74,13 +78,19 @@ pub struct MembershipUpdate {
 impl MembershipState {
     /// The state genesis creates: the founding owner, the recovery party,
     /// epoch 0.
-    pub fn genesis(founder: PublicKey, service: PublicKey, recovery: Recovery) -> Result<Self> {
+    pub fn genesis(
+        business: BusinessId,
+        founder: PublicKey,
+        service: PublicKey,
+        recovery: Recovery,
+    ) -> Result<Self> {
         let owner = Member {
             role: Role::Owner,
             history: History::Full,
             joined_epoch: 0,
         };
         let mut state = MembershipState {
+            business,
             members: BTreeMap::from([(founder, owner)]),
             recovery_key: None,
             service,
@@ -425,14 +435,23 @@ impl MembershipState {
         match &content.payload.command {
             Command::CreateBusiness {
                 service, recovery, ..
-            } => MembershipState::genesis(content.proposal.pubkey, *service, *recovery),
+            } => MembershipState::genesis(
+                content.payload.business,
+                content.proposal.pubkey,
+                *service,
+                *recovery,
+            ),
             _ => Err(ProtocolError::NotGenesis),
         }
     }
 
     /// Re-derives the state after one later acceptance, re-checking the
-    /// service's decision. `at` is the acceptance's `created_at`.
+    /// service's decision. `at` is the acceptance's `created_at`. An
+    /// acceptance for another business is refused, whatever it says.
     pub fn follow(&self, content: &AcceptanceContent, at: u64) -> Result<MembershipState> {
+        if content.payload.business != self.business {
+            return Err(ProtocolError::WrongBusiness);
+        }
         let proposer = content.proposal.pubkey;
         let id = content.proposal.id;
         match (&content.payload.command, content.outcome) {

@@ -29,8 +29,13 @@ impl Books {
         let genesis = genesis_event();
         let (_, payload) = open_proposal(&genesis, &service()).unwrap();
         let mut books = Books {
-            state: MembershipState::genesis(pk(&owner()), pk(&service()), backup_recovery())
-                .unwrap(),
+            state: MembershipState::genesis(
+                business_id(),
+                pk(&owner()),
+                pk(&service()),
+                backup_recovery(),
+            )
+            .unwrap(),
             epochs: vec![EpochKey::generate(0)],
             chain: vec![],
         };
@@ -127,7 +132,9 @@ fn readable(chain: &[Event], keys: &BTreeMap<u64, EpochKey>) -> Vec<u64> {
         .filter_map(|e| {
             let header = protocol::parse_acceptance(e).unwrap();
             let key = keys.get(&header.epoch)?;
-            open_acceptance(e, key).ok().map(|(h, _)| h.seq)
+            open_acceptance(e, key, &pk(&service()))
+                .ok()
+                .map(|(h, _)| h.seq)
         })
         .collect()
 }
@@ -187,7 +194,7 @@ fn epochs_follow_membership_and_readers_rebuild_it() {
     let mut rebuilt: Option<MembershipState> = None;
     for event in &books.chain {
         let header = protocol::parse_acceptance(event).unwrap();
-        let (_, content) = open_acceptance(event, &keys[&header.epoch]).unwrap();
+        let (_, content) = open_acceptance(event, &keys[&header.epoch], &pk(&service())).unwrap();
         let at = event.created_at.as_secs();
         rebuilt = Some(match rebuilt {
             None => MembershipState::from_genesis(&content).unwrap(),

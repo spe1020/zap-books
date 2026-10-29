@@ -81,6 +81,8 @@ pub enum ProtocolError {
     NotGenesis,
     #[error("The service key in this proposal is not this service's key.")]
     WrongService,
+    #[error("This acceptance belongs to another business.")]
+    WrongBusiness,
 
     // Applying commands
     #[error("This business can't be created: {0}.")]
