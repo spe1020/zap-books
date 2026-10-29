@@ -1,5 +1,7 @@
 import type {
+  Currency,
   ExtractionAdapter,
+  ExtractionFieldName,
   ExtractionResult,
   ExtractorHealth,
 } from "../domain/types";
@@ -9,6 +11,7 @@ import {
   extractionLists,
   type ExtractionListName,
 } from "../domain/types";
+import { validDate } from "../domain/ledger";
 
 /** The local extractor (crates/extractor). Override with VITE_EXTRACTOR_URL. */
 export const extractorUrl = (
@@ -18,11 +21,39 @@ export const extractorUrl = (
 
 const UNAVAILABLE =
   "Receipt reading isn't running on this computer. Enter the details manually.";
+const TOO_SLOW =
+  "Receipt reading took too long. Try again, or enter the details manually.";
+/**
+ * How long the app waits for a reading: above the service's own 90-second
+ * limit, so a working service always answers first.
+ */
+export const EXTRACT_TIMEOUT_MS = 120_000;
 
 const statuses = ["found", "unclear", "absent"];
 
 const isList = (name: string): name is ExtractionListName =>
   (extractionLists as readonly string[]).includes(name);
+
+const isString = (v: unknown) => typeof v === "string";
+const isMinor = (v: unknown) => Number.isSafeInteger(v);
+/**
+ * What a found value must be, field by field: the types the app stores.
+ * Anything else answering on the extractor's port could otherwise put, say,
+ * an unsupported currency into a draft.
+ */
+const valueChecks: Record<ExtractionFieldName, (v: unknown) => boolean> = {
+  vendor: isString,
+  date: (v) => isString(v) && validDate(v as string),
+  total: isMinor,
+  currency: (v) => currencies.includes(v as Currency),
+  reference: isString,
+  subtotal: isMinor,
+  tax: isMinor,
+  fees: isMinor,
+  discounts: isMinor,
+  tip: isMinor,
+  category: isString,
+};
 
 /** A list's lines carry amounts only when it is found. */
 function isLines(f: Record<string, unknown>): boolean {
@@ -42,7 +73,10 @@ function isLines(f: Record<string, unknown>): boolean {
   });
 }
 
-/** The service validates everything, but its answer is still checked here. */
+/**
+ * The service validates everything, but its answer is still checked here:
+ * every field's shape, and a found value's type.
+ */
 export function isExtractionResult(x: unknown): x is ExtractionResult {
   if (!x || typeof x !== "object") return false;
   const r = x as Record<string, unknown>;
@@ -55,7 +89,7 @@ export function isExtractionResult(x: unknown): x is ExtractionResult {
         !!f &&
         statuses.includes(f.status as string) &&
         (isList(name) ? isLines(f) : typeof f.evidence === "string") &&
-        (f.status === "found" ? f.value !== null : f.value === null)
+        (f.status === "found" ? valueChecks[name](f.value) : f.value === null)
       );
     }) &&
     Array.isArray(r.warnings) &&
@@ -82,7 +116,7 @@ export const extractor: ExtractionAdapter = {
       return { ready: false, reason: UNAVAILABLE };
     }
   },
-  async extract(document, categories) {
+  async extract(document, categories, signal) {
     const form = new FormData();
     form.append("file", document.blob, document.name);
     form.append(
@@ -90,16 +124,30 @@ export const extractor: ExtractionAdapter = {
       JSON.stringify(categories.map(({ id, name }) => ({ id, name }))),
     );
     form.append("currencies", JSON.stringify(currencies));
+    // The caller's signal cancels; the timeout bounds a service that never
+    // answers. A cancelled read rethrows the AbortError for the caller.
+    const timeout = AbortSignal.timeout(EXTRACT_TIMEOUT_MS);
+    const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+    const failed = (e: unknown): never => {
+      if (signal?.aborted) throw e;
+      throw new Error(timeout.aborted ? TOO_SLOW : UNAVAILABLE);
+    };
     let response: Response;
     try {
       response = await fetch(`${extractorUrl}/extract`, {
         method: "POST",
         body: form,
+        signal: combined,
       });
-    } catch {
-      throw new Error(UNAVAILABLE);
+    } catch (e) {
+      return failed(e);
     }
-    const body: unknown = await response.json().catch(() => null);
+    let body: unknown = null;
+    try {
+      body = await response.json();
+    } catch (e) {
+      if (combined.aborted) return failed(e);
+    }
     if (!response.ok) {
       const message = (body as { error?: unknown } | null)?.error;
       throw new Error(

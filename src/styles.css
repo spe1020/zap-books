@@ -1357,6 +1357,9 @@ td:last-child {
 .read-receipt p {
   margin: 8px 0 0;
 }
+.read-receipt .button + .button {
+  margin-left: 8px;
+}
 .button.small {
   padding: 6px 10px;
   font-size: 12px;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Check,
   CheckCircle2,
@@ -160,6 +160,9 @@ export function Review({
   const [loadingFile, setLoadingFile] = useState(false);
   const [health, setHealth] = useState<ExtractorHealth | null>(null);
   const [reading, setReading] = useState(false);
+  /** Cancels the reading in progress; closing the dialog cancels it too. */
+  const readController = useRef<AbortController | null>(null);
+  useEffect(() => () => readController.current?.abort(), []);
   const [readError, setReadError] = useState("");
   const [extraction, setExtraction] = useState<{
     documentId: string;
@@ -227,6 +230,8 @@ export function Review({
   }
   async function readReceipt() {
     if (!document) return;
+    const controller = new AbortController();
+    readController.current = controller;
     setReading(true);
     setReadError("");
     setEdited(new Set());
@@ -234,14 +239,25 @@ export function Review({
       const result = await extractor.extract(
         document,
         b.categories.map(({ id, name }) => ({ id, name })),
+        controller.signal,
       );
+      if (controller.signal.aborted) return;
       setExtraction({ documentId: document.id, result });
       setAccepted(new Set());
     } catch (e) {
+      if (controller.signal.aborted) return;
       setReadError((e as Error).message);
     } finally {
-      setReading(false);
+      if (readController.current === controller) {
+        readController.current = null;
+        if (!controller.signal.aborted) setReading(false);
+      }
     }
+  }
+  function cancelReading() {
+    readController.current?.abort();
+    readController.current = null;
+    setReading(false);
   }
   async function upload(file?: File) {
     if (!file) return;
@@ -383,6 +399,15 @@ export function Review({
                 <ScanText size={16} />
                 {reading ? "Reading receipt…" : "Read receipt"}
               </button>
+              {reading && (
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={cancelReading}
+                >
+                  Cancel reading
+                </button>
+              )}
               <p id="read-receipt-note" className="small muted" role="status">
                 {reading
                   ? "Reading on this computer. You can keep editing."
