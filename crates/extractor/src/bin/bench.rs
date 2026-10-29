@@ -10,7 +10,8 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use extractor::bench::{
-    combine, details, load_categories, load_corpus, report, run_model, Receipt, Settings,
+    check_out_path, combine, details, details_path, load_categories, load_corpus, report,
+    run_model, Receipt, Settings,
 };
 use extractor::config::{is_local_url, DEFAULT_MAX_TOKENS, DEFAULT_MODEL, DEFAULT_OLLAMA};
 use extractor::extract::Category;
@@ -69,6 +70,7 @@ fn parse() -> Result<Args, String> {
     if corpora.is_empty() {
         return Err(format!("--corpus is required.\n{USAGE}"));
     }
+    check_out_path(&out)?;
     Ok(Args {
         corpora,
         models,
@@ -197,7 +199,7 @@ async fn main() -> std::process::ExitCode {
             markdown.push('\n');
         }
     }
-    let details_path = args.out.with_extension("details.local.md");
+    let details_path = details_path(&args.out);
     if let Err(e) =
         std::fs::write(&args.out, &markdown).and_then(|()| std::fs::write(&details_path, &local))
     {

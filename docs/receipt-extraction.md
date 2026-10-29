@@ -91,7 +91,10 @@ cargo run -p extractor -- [--port 8787] [--ollama http://127.0.0.1:11434]
 
 `--allowed-origin` replaces the default origins (`http://127.0.0.1:5173`,
 `http://localhost:5173`, and the same on port 4173 for `npm run preview`) the
-first time it is given. Set `VITE_EXTRACTOR_URL` if the extractor runs on
+first time it is given. Each must be a plain origin as a browser sends it
+(`http://127.0.0.1:3000`): a scheme, a lowercase host and an optional port,
+with no path or trailing slash. Anything else is refused at start-up, since
+it could never match. Set `VITE_EXTRACTOR_URL` if the extractor runs on
 another port; the app needs no environment variables otherwise.
 
 ## What runs where
@@ -106,8 +109,13 @@ Review ── POST /extract ─▶ check file ─ render PDF pages ────�
   names. It shows suggestions as plain text and records what you did with
   them (`ExtractionRecord`).
 - **Extractor** (`crates/extractor`): accepts PNG, JPEG, WebP or PDF up to
-  10 MB, identified by content. For PDFs, Poppler renders the first three
-  pages and extracts the text layer when there is one. It asks the model for
+  10 MB, identified by content. An image must also declare at most 40
+  megapixels in its header (a small file can declare a huge canvas, which the
+  model's decoder would then allocate); one whose header doesn't say its size
+  is refused. For PDFs, Poppler renders the first three pages, each scaled to
+  fit 2000 × 2000 pixels whatever size the PDF declares, and refuses a
+  rendered page over 10 MB; it extracts the text layer when there is one,
+  reading no more of it than the prompt keeps. It asks the model for
   a fixed JSON schema, with fields in a fixed order (vendor, date, currency,
   total, subtotal, tax, fees, discounts, tip, reference, category; the
   model fills them in that order). It then re-checks every value: amounts
@@ -123,7 +131,11 @@ Review ── POST /extract ─▶ check file ─ render PDF pages ────�
 
 The service only answers requests whose `Host` is `127.0.0.1:<port>` or
 `localhost:<port>` (this blocks DNS rebinding) and whose `Origin`, if any, is
-one of the app's. It listens on `127.0.0.1` only.
+one of the app's. It listens on `127.0.0.1` only. It reads one receipt at a
+time: a request that arrives while another is being read is answered at
+once with "The model is still finishing an earlier receipt…" rather than
+queued. Its client for Ollama never follows a redirect, so whatever answers
+on the Ollama address can't send the receipt anywhere else.
 
 Every request to Ollama asks for thinking off (`think: false`), temperature 0
 and a fixed seed, and caps the answer at `--max-tokens` tokens (2048 by
@@ -143,7 +155,9 @@ The extractor logs to its terminal: timings, the model name, page counts,
 whether a PDF text layer was used, and each field's status (`found`,
 `unclear`, `absent`). It never logs receipt contents, evidence, or extracted
 values. PDF pages are rendered into a private temporary folder that is deleted
-as soon as the receipt is read.
+as soon as the receipt is read, whether or not reading worked. If the
+extractor is killed mid-receipt, it removes the folders left behind the next
+time it starts.
 
 In the app, each reading is saved with the expense as an `ExtractionRecord`:
 the model, prompt version, proposed fields with their evidence, and, once the
@@ -221,8 +235,13 @@ line. One line that can't be read exactly makes the whole list unclear.
 
 The total stays found only if it equals either `subtotal + tax + fees + tip`
 or `subtotal − discounts + tax + fees + tip` (receipts differ on whether the
-printed subtotal is before or after savings). Anything not read counts as 0.
-Without a subtotal line there is nothing to check against, so no check runs.
+printed subtotal is before or after savings). A part with no line on the
+receipt counts as 0. A part the model saw but couldn't read (an `unclear`
+tax, fees, discounts or tip) is not a 0: with one, nothing can be added up,
+so no check runs and the total stands on its label alone. Without a
+subtotal line there is likewise nothing to check against. Adding up never
+confirms a total whose evidence is a subtotal line (`sub` or
+`merchandise`): matching the subtotal means the model read the wrong line.
 If the check fails with the fees but passes without them, the fees were
 printed among the items and are already in the subtotal: they are left out,
 the total stays found, and a warning says so.
@@ -307,7 +326,9 @@ totals in both benchmarks, and the fastest.
 It runs the same pipeline over a folder of labelled receipts and writes
 `bench-results.md` (aggregate numbers only) and
 `bench-results.details.local.md` (per-receipt verdicts, which name files; keep
-it local). Both are gitignored. It takes the same `--timeout-seconds` and
+it local). Both are gitignored. `--out` names the first; the bench refuses a
+name `.gitignore` doesn't cover, for either file, so use one like
+`bench-results-<label>.md`. It takes the same `--timeout-seconds` and
 `--max-tokens` flags as the service. Each model's section records its run
 settings (thinking requested off and whether the model supports it, max
 tokens, timeout, prompt version). When the bench finishes with a model it
@@ -366,8 +387,9 @@ How to label:
 - **`vendor`** may be a list of accepted spellings.
 
 `clear: false` leaves a receipt out of "Total, clear receipts". `kind` is a
-free tag counted in the report (for example `photo`, `screenshot`, `pdf` for a
-PDF with a text layer, `scanned pdf` for one without). An optional
+tag counted in the report: `photo`, `screenshot`, `pdf` for a PDF with a text
+layer, `scanned pdf` for one without, or `thermal`. The report is shared, so
+any other tag is counted as `other`, never written out. An optional
 `categories.json` at the corpus root lists `{ "id", "name" }` categories to
 send. `docs/samples/` is a small labelled corpus of fictional receipts. Real
 receipts never go in the repository.

@@ -16,6 +16,8 @@ pub enum ExtractError {
         "Supported receipts: PNG, JPEG, WebP, or PDF. This file does not match a supported format."
     )]
     UnsupportedType,
+    #[error("The receipt image is over 40 megapixels. Choose a smaller image.")]
+    ImageTooLarge,
     #[error("The request was not understood: {0}")]
     BadRequest(&'static str),
     #[error("Reading PDF receipts needs Poppler. Install it with: brew install poppler")]
@@ -49,7 +51,7 @@ impl ExtractError {
     pub fn status(&self) -> u16 {
         match self {
             Self::MissingFile | Self::EmptyFile | Self::BadRequest(_) => 400,
-            Self::TooLarge => 413,
+            Self::TooLarge | Self::ImageTooLarge => 413,
             Self::UnsupportedType => 415,
             Self::PdfUnreadable => 422,
             Self::PopplerMissing | Self::OllamaUnavailable | Self::ModelMissing(_) | Self::Busy => {

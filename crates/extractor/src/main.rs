@@ -14,6 +14,10 @@ async fn main() -> std::process::ExitCode {
             return std::process::ExitCode::from(2);
         }
     };
+    let swept = pdf::sweep_stale(&std::env::temp_dir());
+    if swept > 0 {
+        eprintln!("Removed {swept} temporary receipt folder(s) left by a run that was stopped.");
+    }
     if !pdf::poppler_available().await {
         eprintln!(
             "Poppler (pdftotext, pdftoppm) was not found, so PDF receipts can't be read.\nInstall it with: brew install poppler\nImage receipts still work."

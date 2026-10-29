@@ -15,6 +15,7 @@ use axum::{Json, Router};
 use ledger_core::Currency;
 use serde_json::json;
 use tokio::net::TcpListener;
+use tokio::sync::Semaphore;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
 use crate::config::Config;
@@ -35,6 +36,9 @@ struct AppState {
     /// True once the startup warm-up has finished, whether or not it worked,
     /// or from the start when warm-up is off.
     warmed_up: AtomicBool,
+    /// One permit: one receipt is read at a time, and another request is
+    /// told the service is busy rather than queued behind it.
+    reading: Semaphore,
 }
 
 impl IntoResponse for ExtractError {
@@ -148,6 +152,10 @@ async fn extract(
     }
     let file = file.ok_or(ExtractError::MissingFile)?;
     detect(&file)?;
+    let _reading = state
+        .reading
+        .try_acquire()
+        .map_err(|_| ExtractError::Busy)?;
     // A receipt that timed out earlier may still hold the model.
     state
         .extractor
@@ -231,6 +239,7 @@ impl Service {
             origins: config.allowed_origins.clone(),
             timeout: config.timeout,
             warmed_up: AtomicBool::new(!config.warm_up),
+            reading: Semaphore::new(1),
         });
         Ok(Service {
             listener,

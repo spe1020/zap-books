@@ -893,10 +893,14 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     let tip = amount_field(&raw.tip, "tip", Amount::Part, money, w);
     let labelled = has_label(&total.evidence, &TOTAL_LABELS);
     let mut reconciled = false;
+    // A line the model saw but couldn't read is not a zero: with one, the
+    // parts can't be added up at all, so the total stands on its label alone.
+    let unread_part =
+        [tax.status, fees.status, discounts.status, tip.status].contains(&FieldStatus::Unclear);
     // The total must equal subtotal + tax + fees + tip, either with or
-    // without the discounts taken off the subtotal. Anything not read counts
-    // as 0. Without a subtotal there is nothing to check against.
-    if let (Some(t), Some(s)) = (total.value, subtotal.value) {
+    // without the discounts taken off the subtotal. A part with no line
+    // counts as 0. Without a subtotal there is nothing to check against.
+    if let (Some(t), Some(s), false) = (total.value, subtotal.value, unread_part) {
         let parts = Parts {
             subtotal: s,
             tax: tax.value,
@@ -940,6 +944,9 @@ pub fn normalize(raw: &RawFields, ctx: &Context<'_>) -> Normalized {
     }
     // A found total is confirmed by its label, by adding up, or both. One
     // with neither (no label, and no subtotal to check it against) is unclear.
+    // A subtotal line that adds up is still a subtotal line: the model read
+    // the wrong line, so adding up confirms nothing.
+    let reconciled = reconciled && !is_subtotal_label(&total.evidence);
     let total_confirmed_by = match (total.value.is_some(), labelled, reconciled) {
         (false, _, _) => None,
         (true, true, true) => Some(TotalConfirmation::LabelAndReconciliation),
@@ -1787,9 +1794,10 @@ mod tests {
             n.warnings[0],
             "The tax lines use a comma as the decimal separator. Enter the amounts yourself."
         );
-        // An unclear tax counts as 0 for the total, which then can't be
-        // confirmed.
-        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        // An unclear tax is not a zero: nothing is added up, and the
+        // labelled total stands on its label (EXT-2).
+        assert_eq!(n.fields.total.status, FieldStatus::Found);
+        assert_eq!(n.total_confirmed_by, Some(TotalConfirmation::Label));
         let n = with("tax", lines(&[("2.50", "")]));
         assert_eq!(n.fields.tax.status, FieldStatus::Unclear);
         assert!(n.warnings[0].contains("didn't show where it saw the tax lines"));
@@ -2068,20 +2076,23 @@ mod tests {
 
     #[test]
     fn a_total_above_the_parts_without_a_tip_suggests_one() {
-        for tip in [
-            absent(),
-            json!({ "status": "unclear", "value": null, "evidence": "TIP ___" }),
-        ] {
-            let mut answer = good();
-            answer["total"] = found("51.00", "TOTAL $51.00");
-            answer["tip"] = tip;
-            let n = run(answer);
-            assert_eq!(n.fields.total.status, FieldStatus::Unclear);
-            assert_eq!(
-                n.warnings,
-                vec!["Subtotal $40.00 and tax $2.50 add up to $42.50, but the total reads $51.00. If you added a tip, check the amount matches what you paid."]
-            );
-        }
+        let mut answer = good();
+        answer["total"] = found("51.00", "TOTAL $51.00");
+        answer["tip"] = absent();
+        let n = run(answer);
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(
+            n.warnings,
+            vec!["Subtotal $40.00 and tax $2.50 add up to $42.50, but the total reads $51.00. If you added a tip, check the amount matches what you paid."]
+        );
+        // A tip line seen but not read leaves nothing to add up, so the
+        // labelled total stands on its label (EXT-2).
+        let mut answer = good();
+        answer["total"] = found("51.00", "TOTAL $51.00");
+        answer["tip"] = json!({ "status": "unclear", "value": null, "evidence": "TIP ___" });
+        let n = run(answer);
+        assert_eq!(n.total_confirmed_by, Some(TotalConfirmation::Label));
+        assert!(n.warnings.is_empty(), "{:?}", n.warnings);
         // A tip that doesn't reconcile is named with the other parts.
         let mut answer = good();
         answer["total"] = found("51.00", "TOTAL $51.00");
@@ -2101,6 +2112,87 @@ mod tests {
         let n = run(answer);
         assert_eq!(n.fields.total.status, FieldStatus::Found);
         assert!(n.warnings.is_empty(), "{:?}", n.warnings);
+    }
+
+    fn unclear_lines(evidence: &str) -> Value {
+        json!({ "status": "unclear", "lines": [{ "amount": null, "evidence": evidence }] })
+    }
+
+    #[test]
+    fn an_unread_part_means_nothing_is_reconciled() {
+        // EXT-2, the audit's probe cases: an unclear part is not a zero, so
+        // an unlabelled total equal to the subtotal is not confirmed by it.
+        for evidence in ["$40.00", "40.00", "Subtotal $40.00"] {
+            let mut answer = good();
+            answer["tax"] = unclear_lines("TAX");
+            answer["total"] = found("40.00", evidence);
+            let n = run(answer);
+            assert_eq!(n.fields.total.status, FieldStatus::Unclear, "{evidence}");
+            assert_eq!(n.total_confirmed_by, None, "{evidence}");
+        }
+        // Tax read, a fee line seen but not read.
+        let mut answer = good();
+        answer["fees"] = unclear_lines("SERVICE FEE");
+        answer["total"] = found("42.50", "$42.50");
+        let n = run(answer);
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert!(
+            n.warnings.contains(&TOTAL_UNLABELLED.to_string()),
+            "{:?}",
+            n.warnings
+        );
+        // The same for an unread discount or tip.
+        for (field, value) in [
+            ("discounts", unclear_lines("COUPON")),
+            (
+                "tip",
+                json!({ "status": "unclear", "value": null, "evidence": "TIP ?" }),
+            ),
+        ] {
+            let mut answer = good();
+            answer[field] = value;
+            answer["total"] = found("42.50", "$42.50");
+            assert_eq!(
+                run(answer).fields.total.status,
+                FieldStatus::Unclear,
+                "{field}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_labelled_total_with_an_unread_part_stands_on_its_label() {
+        // EXT-2: no reconciliation, so no mismatch either: the unread tax
+        // is why the parts don't add up.
+        let mut answer = good();
+        answer["tax"] = unclear_lines("TAX");
+        answer["total"] = found("43.20", "TOTAL $43.20");
+        let n = run(answer);
+        assert_eq!(n.fields.total.value, Some(minor(4320)));
+        assert_eq!(n.total_confirmed_by, Some(TotalConfirmation::Label));
+        assert!(
+            !n.warnings.iter().any(|w| w.contains("add up")),
+            "{:?}",
+            n.warnings
+        );
+    }
+
+    #[test]
+    fn a_subtotal_line_is_never_confirmed_by_adding_up() {
+        // EXT-2: the parts are all read and agree, but the "total" is the
+        // subtotal's line.
+        let mut answer = good();
+        answer["tax"] = no_lines();
+        answer["total"] = found("40.00", "Subtotal $40.00");
+        let n = run(answer);
+        assert_eq!(n.fields.total.status, FieldStatus::Unclear);
+        assert_eq!(n.total_confirmed_by, None);
+        // A merchandise line likewise.
+        let mut answer = good();
+        answer["subtotal"] = found("40.00", "Merchandise $40.00");
+        answer["tax"] = no_lines();
+        answer["total"] = found("40.00", "Merchandise $40.00");
+        assert_eq!(run(answer).fields.total.status, FieldStatus::Unclear);
     }
 
     #[test]

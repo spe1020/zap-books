@@ -713,3 +713,97 @@ async fn a_service_charge_read_as_a_fee_keeps_the_total() {
         json!(["Subtotal £30.00 and tax £6.00 add up to £36.00, but the total reads £40.50. If you added a tip, check the amount matches what you paid."])
     );
 }
+
+#[tokio::test]
+async fn a_second_receipt_while_one_is_read_is_told_busy_at_once() {
+    // EXT-4: one extraction at a time.
+    let (ollama, fake) = spawn_fake(demo_answer()).await;
+    fake.lock().unwrap().delay = Duration::from_secs(2);
+    let addr = spawn_service(&ollama, Duration::from_secs(10)).await;
+    let first = tokio::spawn(extract(addr, sample("demo-receipt.png")));
+    assert!(
+        eventually(|| fake.lock().unwrap().requests.len() == 1).await,
+        "the first receipt never reached the model"
+    );
+    let started = std::time::Instant::now();
+    let (status, body) = extract(addr, sample("demo-receipt.png")).await;
+    assert_eq!(status, 503, "{body}");
+    assert!(started.elapsed() < Duration::from_secs(1), "it waited");
+    assert_eq!(
+        body["error"],
+        "The model is still finishing an earlier receipt. Try again in a minute, or enter the details manually."
+    );
+    assert_eq!(first.await.unwrap().0, 200);
+    // Done with the first, the next is read.
+    fake.lock().unwrap().delay = Duration::ZERO;
+    assert_eq!(extract(addr, sample("demo-receipt.png")).await.0, 200);
+    assert_eq!(fake.lock().unwrap().requests.len(), 2);
+}
+
+#[tokio::test]
+async fn the_model_address_cannot_redirect_the_receipt() {
+    // EXT-6: whatever answers on the local port gets the receipt, but
+    // can't bounce it anywhere else.
+    let (elsewhere, received) = spawn_fake(demo_answer()).await;
+    let redirect = Router::new()
+        .route("/api/tags", get(tags))
+        .route("/api/show", post(show))
+        .route(
+            "/api/chat",
+            post(move || {
+                let to = format!("{elsewhere}/api/chat");
+                async move {
+                    (
+                        StatusCode::TEMPORARY_REDIRECT,
+                        [(axum::http::header::LOCATION, to)],
+                    )
+                }
+            }),
+        );
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let ollama = format!("http://{}", listener.local_addr().unwrap());
+    tokio::spawn(async move { axum::serve(listener, redirect).await.unwrap() });
+    let addr = spawn_service(&ollama, Duration::from_secs(10)).await;
+    let (status, _) = extract(addr, sample("demo-receipt.png")).await;
+    assert_ne!(status, 200);
+    assert!(received.lock().unwrap().requests.is_empty());
+}
+
+/// A PNG header declaring `width` × `height`; the pixel data never matters.
+fn png_header(width: u32, height: u32) -> Vec<u8> {
+    let mut b = b"\x89PNG\r\n\x1a\n\0\0\0\x0dIHDR".to_vec();
+    b.extend_from_slice(&width.to_be_bytes());
+    b.extend_from_slice(&height.to_be_bytes());
+    b.extend_from_slice(&[8, 2, 0, 0, 0, 0, 0, 0, 0]);
+    b
+}
+
+#[tokio::test]
+async fn an_image_declaring_a_huge_canvas_is_refused_before_the_model() {
+    // EXT-3: a few bytes can declare 3.6 gigapixels.
+    let (ollama, fake) = spawn_fake(demo_answer()).await;
+    let addr = spawn_service(&ollama, Duration::from_secs(10)).await;
+    let (status, body) = extract(addr, png_header(60_000, 60_000)).await;
+    assert_eq!(status, 413);
+    assert_eq!(
+        body["error"],
+        "The receipt image is over 40 megapixels. Choose a smaller image."
+    );
+    assert!(fake.lock().unwrap().requests.is_empty());
+}
+
+#[tokio::test]
+async fn a_pdf_page_of_any_size_renders_within_2000_pixels() {
+    // EXT-3: the largest page a PDF can declare (200 inches square) would
+    // render to 30,000 pixels a side at 150 dpi.
+    if !extractor::pdf::poppler_available().await {
+        eprintln!("Poppler not installed; skipping");
+        return;
+    }
+    let pdf = b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 14400 14400]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+    let pages = extractor::pdf::read(pdf).await.unwrap();
+    assert_eq!(pages.images.len(), 1);
+    let (w, h) =
+        extractor::files::dimensions(&pages.images[0], extractor::files::FileKind::Png).unwrap();
+    assert!(w <= 2000 && h <= 2000, "{w}x{h}");
+}

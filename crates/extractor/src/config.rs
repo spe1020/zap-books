@@ -63,6 +63,45 @@ pub fn is_local_url(url: &str) -> bool {
     })
 }
 
+/// A plain browser origin, the way a browser sends it in `Origin`:
+/// `http://` or `https://`, a lowercase host name, IPv4 address or bracketed
+/// IPv6 address, and an optional port, with nothing after it. The guard
+/// compares origins as exact strings, so anything else (a trailing slash, a
+/// path, `*`, uppercase) could never match and only hides a typo.
+pub fn is_plain_origin(origin: &str) -> bool {
+    let Some(rest) = origin
+        .strip_prefix("http://")
+        .or_else(|| origin.strip_prefix("https://"))
+    else {
+        return false;
+    };
+    let (host, port) = match rest.rsplit_once(':') {
+        // A bracketed IPv6 address contains colons of its own.
+        Some((host, port)) if !port.ends_with(']') => (host, Some(port)),
+        _ => (rest, None),
+    };
+    let host_ok = if let Some(inner) = host.strip_prefix('[').and_then(|h| h.strip_suffix(']')) {
+        !inner.is_empty()
+            && inner
+                .chars()
+                .all(|c| c.is_ascii_digit() || ('a'..='f').contains(&c) || c == ':' || c == '.')
+    } else {
+        !host.is_empty()
+            && !host.starts_with(['.', '-'])
+            && !host.ends_with(['.', '-'])
+            && host
+                .chars()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-' || c == '.')
+    };
+    let port_ok = port.is_none_or(|p| {
+        !p.is_empty()
+            && p.chars().all(|c| c.is_ascii_digit())
+            && !(p.len() > 1 && p.starts_with('0'))
+            && p.parse::<u16>().is_ok_and(|n| n > 0)
+    });
+    host_ok && port_ok
+}
+
 impl Config {
     /// Parses flags. `--allowed-origin` replaces the defaults the first time
     /// it is given and adds to the list after that.
@@ -82,6 +121,11 @@ impl Config {
                 "--model" => config.model = value()?,
                 "--allowed-origin" => {
                     let origin = value()?;
+                    if !is_plain_origin(&origin) {
+                        return Err(format!(
+                            "--allowed-origin must be an origin like http://127.0.0.1:5173, with no path or trailing slash; got {origin}.\n{USAGE}"
+                        ));
+                    }
                     if !custom_origins {
                         config.allowed_origins.clear();
                         custom_origins = true;
@@ -169,6 +213,44 @@ mod tests {
             "http://user@127.0.0.1:11434",
         ] {
             assert!(parse(&["--ollama", remote]).is_err(), "{remote}");
+        }
+    }
+
+    #[test]
+    fn allowed_origins_must_be_plain_origins() {
+        // EXT-5: '*' used to reach tower-http and panic; the rest silently
+        // never matched.
+        for bad in [
+            "*",
+            "http://localhost:5173/",
+            "http://localhost:5173/app",
+            "localhost:5173",
+            "127.0.0.1",
+            "ftp://localhost",
+            "http://",
+            "http://LOCALHOST:5173",
+            "http://localhost:",
+            "http://localhost:0",
+            "http://localhost:65536",
+            "http://localhost:05173",
+            "http://user@localhost:5173",
+            "http://localhost:5173?x",
+            "http://localhost:5173#x",
+            "http://local host",
+            "null",
+            "",
+        ] {
+            let err = parse(&["--allowed-origin", bad]).unwrap_err();
+            assert!(err.contains("--allowed-origin"), "{bad}: {err}");
+        }
+        for good in [
+            "http://127.0.0.1:5173",
+            "http://localhost",
+            "https://books.example.com",
+            "https://books.example.com:8443",
+            "http://[::1]:5173",
+        ] {
+            assert!(parse(&["--allowed-origin", good]).is_ok(), "{good}");
         }
     }
 

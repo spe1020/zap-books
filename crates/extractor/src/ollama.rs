@@ -118,9 +118,12 @@ fn send_error(e: &reqwest::Error) -> ExtractError {
 
 impl Ollama {
     pub fn new(base: &str, timeout: Duration, max_tokens: u32) -> Result<Ollama, ExtractError> {
+        // No redirects: whatever answers on the local address must not be
+        // able to send the receipt anywhere else.
         let http = reqwest::Client::builder()
             .timeout(timeout)
             .no_proxy()
+            .redirect(reqwest::redirect::Policy::none())
             .build()
             .map_err(|_| ExtractError::Internal)?;
         Ok(Ollama {
