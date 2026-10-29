@@ -165,6 +165,16 @@ pub enum ExpenseStatus {
 
 /// An expense awaiting review, or the record of one that was posted.
 ///
+/// The fields of a draft that carry authority: the evidence it rests on and
+/// the posting and correction it belongs to. `write_draft` takes them from
+/// the record's history, never from the caller.
+pub(crate) struct DraftAuthority {
+    pub(crate) payment_id: Option<String>,
+    pub(crate) import_source: Option<ImportedExpenseSource>,
+    pub(crate) journal_id: Option<String>,
+    pub(crate) correction_of: Option<String>,
+}
+
 /// `status` is private: only `approve` and `correct` move an expense out of
 /// `draft`. New drafts come from [`crate::blank_draft`],
 /// [`ExpenseDraft::replacement`], or deserialization.
@@ -232,12 +242,42 @@ impl ExpenseDraft {
 
     /// `{ ...this, id, status: "draft" }`: a copy under a new id, in draft
     /// status, as the TypeScript builds a correction's replacement. Every
-    /// other field, including `journalId`, is copied unchanged.
+    /// other field, including `journalId`, is copied unchanged; `write_draft`
+    /// then takes `journal_id` and `correction_of` from the record's own
+    /// history, not from the copy (see [`ExpenseDraft::written`]).
     pub fn replacement(&self, id: impl Into<String>) -> ExpenseDraft {
         ExpenseDraft {
             id: id.into(),
             status: ExpenseStatus::Draft,
             ..self.clone()
+        }
+    }
+
+    /// The draft `write_draft` stores: the fields a caller may set, taken
+    /// from `self`, and the fields that carry authority, taken from
+    /// `authority`. This is an allow-list: a field added to `ExpenseDraft`
+    /// must be placed here deliberately, on one side or the other, so it is
+    /// inert rather than trusted by default (PARITY_NOTES W13).
+    pub(crate) fn written(self, authority: DraftAuthority) -> ExpenseDraft {
+        ExpenseDraft {
+            id: self.id,
+            business_id: self.business_id,
+            vendor: self.vendor,
+            date: self.date,
+            description: self.description,
+            amount_minor: self.amount_minor,
+            currency: self.currency,
+            category_id: self.category_id,
+            account_id: self.account_id,
+            purpose: self.purpose,
+            document_ids: self.document_ids,
+            payment_id: authority.payment_id,
+            import_source: authority.import_source,
+            status: self.status,
+            journal_id: authority.journal_id,
+            correction_of: authority.correction_of,
+            duplicate_reason: self.duplicate_reason,
+            created_at: self.created_at,
         }
     }
 

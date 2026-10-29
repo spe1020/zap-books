@@ -71,6 +71,60 @@ describe("financial invariants", () => {
     );
     expect(b.drafts.find((x) => x.id === d.id)?.status).toBe("draft");
   });
+  test("a saved draft cannot claim a correction or a journal (W13)", () => {
+    const b = fresh(),
+      original = b.drafts.find((d) => d.vendor === "Adobe")!;
+    expect(original.status).toBe("posted");
+    // A twin of the posted expense that names it as corrected and points at
+    // its journal, without any correction having happened.
+    const twin = {
+      ...blankDraft(b),
+      vendor: original.vendor,
+      date: original.date,
+      description: original.description,
+      amountMinor: original.amountMinor,
+      currency: original.currency,
+      categoryId: original.categoryId,
+      accountId: original.accountId,
+      purpose: original.purpose,
+      correctionOf: original.id,
+      journalId: original.journalId,
+    };
+    const saved = saveDraft(b, twin);
+    const stored = saved.drafts.find((d) => d.id === twin.id)!;
+    expect(stored.correctionOf).toBeUndefined();
+    expect(stored.journalId).toBeUndefined();
+    expect("correctionOf" in stored).toBe(false);
+    expect("journalId" in stored).toBe(false);
+    // So the original still counts as its duplicate, and the original is
+    // untouched.
+    expect(duplicates(saved, stored).map((d) => d.id)).toContain(original.id);
+    expect(validation(saved, stored)).toContain(
+      "Explain why this possible duplicate is a separate expense.",
+    );
+    expect(saved.drafts.find((d) => d.id === original.id)).toEqual(original);
+    // Editing the stored draft cannot attach them either.
+    const edited = saveDraft(saved, {
+      ...stored,
+      correctionOf: original.id,
+      journalId: "forged-journal",
+    });
+    expect(edited.drafts.find((d) => d.id === twin.id)).toEqual(stored);
+    // Only a correction records one, and it comes from the original, not
+    // from the replacement.
+    const next = correct(
+      b,
+      original.id,
+      { ...twin, correctionOf: "someone-else", journalId: "forged-journal" },
+      "Reason",
+    );
+    const replacement = next.drafts.find((d) => d.id === twin.id)!;
+    expect(replacement.correctionOf).toBe(original.id);
+    expect(replacement.status).toBe("posted");
+    expect(next.journals.some((j) => j.id === replacement.journalId)).toBe(
+      true,
+    );
+  });
   test("a correction reverses the original and posts replacement atomically", () => {
     const b = fresh(),
       original = b.drafts.find((d) => d.vendor === "Adobe")!;

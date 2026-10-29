@@ -16,8 +16,8 @@ use crate::js;
 use crate::money::{Currency, Minor};
 use crate::types::{
     check_line_amounts, check_totals, AccountKind, Approval, AuditEvent, BusinessData,
-    ExpenseDraft, ExpenseStatus, FinancialEvent, JournalEntry, JournalKind, JournalLine,
-    PayloadValue, SchemaVersion, UncheckedJournal, Vendor,
+    DraftAuthority, ExpenseDraft, ExpenseStatus, FinancialEvent, JournalEntry, JournalKind,
+    JournalLine, PayloadValue, SchemaVersion, UncheckedJournal, Vendor,
 };
 use crate::EventType;
 
@@ -315,6 +315,26 @@ pub(crate) fn write_draft(
     }) {
         return Err(LedgerError::InvalidReceipt);
     }
+    // The stored draft: the caller's fields, and the authority-bearing ones
+    // from the record's own history (PARITY_NOTES W13).
+    let authority = DraftAuthority {
+        payment_id: if options.allow_import_source {
+            draft.payment_id.clone()
+        } else {
+            payment.cloned()
+        },
+        import_source: if options.allow_import_source {
+            draft.import_source.clone()
+        } else {
+            evidence.cloned()
+        },
+        journal_id: prior.and_then(|p| p.journal_id.clone()),
+        correction_of: options
+            .evidence_of
+            .map(|o| o.id.clone())
+            .or_else(|| prior.and_then(|p| p.correction_of.clone())),
+    };
+    let draft = draft.written(authority);
     let sources = evidence_ids(&draft);
     let index = b.drafts.iter().position(|x| x.id == draft.id);
     let vendor = draft.vendor.clone();
@@ -550,8 +570,8 @@ pub fn correct(
         reason,
         sources,
     );
-    let mut replacement = replacement.clone();
-    replacement.correction_of = Some(original.id.clone());
+    // write_draft records the replacement as a correction of `evidence_of`.
+    let replacement = replacement.clone();
     let replacement_id = replacement.id.clone();
     let options = WriteOptions {
         allow_import_source: false,

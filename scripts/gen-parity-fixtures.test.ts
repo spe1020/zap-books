@@ -499,6 +499,13 @@ function drafts(ns: BusinessData, fw: BusinessData) {
     status: "draft",
   });
   save("foreign draft", ns, fw.drafts[0]);
+  // W13 (PARITY_NOTES.md): correctionOf and journalId come from the record's
+  // history, never from the caller; both are dropped here.
+  save("draft claiming a correction and a journal", ns, {
+    ...ready(ns, {}),
+    correctionOf: find(ns, "Adobe", "posted").id,
+    journalId: find(ns, "Adobe", "posted").journalId,
+  });
   save("foreign receipt", ns, {
     ...find(ns, "Figma"),
     documentIds: [fw.documents[0].id],
@@ -1611,11 +1618,15 @@ function integrity(ns: BusinessData, fw: BusinessData) {
       };
       const posted = L.approve(L.saveDraft(imported, draft), draft.id);
       const original = posted.drafts.find((d) => d.id === draft.id)!;
+      // W13 drops the caller's correctionOf, so the original counts as a
+      // duplicate of this twin; the reason lets the fixtures reach the
+      // evidence checks they pin.
       const replacement = {
         ...original,
         id: L.id(),
         status: "draft" as const,
         correctionOf: original.id,
+        duplicateReason: "Forged correction",
       };
       record(
         "integrity",

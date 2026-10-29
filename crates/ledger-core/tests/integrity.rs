@@ -91,6 +91,57 @@ fn forged_correction_cannot_post_payment_or_import_source_twice() {
     }
 }
 
+/// PARITY_NOTES W13: `correction_of` and `journal_id` come from the record's
+/// own history, never from the caller, so a twin of a posted expense can't
+/// drop that expense out of duplicate detection by naming it.
+#[test]
+fn a_saved_draft_cannot_claim_a_correction_or_a_journal() {
+    let (b, mut env) = fresh();
+    let original = b
+        .drafts
+        .iter()
+        .find(|d| d.vendor == "Adobe" && d.status() == ExpenseStatus::Posted)
+        .unwrap()
+        .clone();
+    assert!(original.payment_id.is_none() && original.import_source.is_none());
+    // `replacement` copies `journal_id`; name the original as corrected too.
+    let mut twin = original.replacement(env.new_id());
+    twin.correction_of = Some(original.id.clone());
+    assert!(twin.journal_id.is_some());
+    let saved = save_draft(&b, &twin, &mut env).unwrap();
+    let stored = saved.drafts.iter().find(|d| d.id == twin.id).unwrap();
+    assert_eq!(stored.correction_of, None);
+    assert_eq!(stored.journal_id, None);
+    assert!(duplicates(&saved, stored)
+        .iter()
+        .any(|d| d.id == original.id));
+    assert_eq!(
+        validation(&saved, stored),
+        vec!["Explain why this possible duplicate is a separate expense."]
+    );
+    assert_eq!(
+        saved.drafts.iter().find(|d| d.id == original.id),
+        Some(&original)
+    );
+    // Editing the stored draft cannot attach them either.
+    let mut edited = stored.clone();
+    edited.correction_of = Some(original.id.clone());
+    edited.journal_id = Some("forged-journal".into());
+    let after = save_draft(&saved, &edited, &mut env).unwrap();
+    assert_eq!(after.drafts.iter().find(|d| d.id == twin.id), Some(stored));
+    // Only a correction records one, and it comes from the original.
+    let mut forged = twin.clone();
+    forged.correction_of = Some("someone-else".into());
+    let next = correct(&b, &original.id, &forged, "Reason", &mut env).unwrap();
+    let replacement = next.drafts.iter().find(|d| d.id == twin.id).unwrap();
+    assert_eq!(replacement.correction_of, Some(original.id.clone()));
+    assert_eq!(replacement.status(), ExpenseStatus::Posted);
+    assert!(next
+        .journals
+        .iter()
+        .any(|j| Some(&j.id) == replacement.journal_id.as_ref()));
+}
+
 #[test]
 fn previews_bind_destination_before_deduplication_and_import_is_atomic() {
     for history in [false, true] {
