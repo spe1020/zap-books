@@ -1,0 +1,16 @@
+#!/bin/sh
+# zapbooks privacy guard: checks the commit message ($1).
+# `npm run hooks:install` points core.hooksPath at this folder, so every
+# worktree and checkout runs these. See scripts/hooks/privacy-guard.mjs.
+guard="$(dirname "$0")/privacy-guard.mjs"
+if [ ! -f "$guard" ]; then
+  echo "" >&2
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
+  echo "privacy guard: $guard is missing." >&2
+  echo "This commit-msg was NOT checked for real receipt values." >&2
+  echo "Restore it (git checkout -- scripts/hooks) or run npm run hooks:install." >&2
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
+  echo "" >&2
+  exit 0
+fi
+exec node "$guard" commit-msg "$@"

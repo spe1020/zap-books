@@ -1,10 +1,16 @@
 #!/bin/sh
-# zapbooks privacy guard. Installed as both pre-commit (checks the staged
-# diff) and commit-msg (checks the message, passed as "$1") by
-# `npm run hooks:install`. See scripts/hooks/privacy-guard.mjs.
-guard="$(git rev-parse --show-toplevel)/scripts/hooks/privacy-guard.mjs"
+# zapbooks privacy guard: checks the staged diff.
+# `npm run hooks:install` points core.hooksPath at this folder, so every
+# worktree and checkout runs these. See scripts/hooks/privacy-guard.mjs.
+guard="$(dirname "$0")/privacy-guard.mjs"
 if [ ! -f "$guard" ]; then
-  echo "privacy guard: this checkout has no $guard; not checked." >&2
+  echo "" >&2
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
+  echo "privacy guard: $guard is missing." >&2
+  echo "This pre-commit was NOT checked for real receipt values." >&2
+  echo "Restore it (git checkout -- scripts/hooks) or run npm run hooks:install." >&2
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
+  echo "" >&2
   exit 0
 fi
-exec node "$guard" "$@"
+exec node "$guard" pre-commit "$@"
