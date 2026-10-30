@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { seedWorkspace } from "./seed";
-import { exportRecords } from "./export";
+import { encodeCSV, exportRecords } from "./export";
 import { commitImport, guessMapping, parseCSV, previewImport } from "./import";
 import {
   approve,
@@ -112,6 +112,31 @@ describe("portable financial exports", () => {
     const row = rows.find((r) => r[2] === d.id)!;
     expect(row[4]).toBe("'" + d.vendor);
     expect(row[5]).toBe(d.description);
+  });
+  test("CSV neutralizes a leading | and leaves signed numbers alone (WEB-6)", () => {
+    const cells = [
+      "|cmd",
+      " |x",
+      "-12.50",
+      "+1",
+      "-1,000.00",
+      "-x",
+      "+1 x",
+      " -5",
+      "=1",
+    ];
+    const [row] = parseCSV(encodeCSV([["header"], cells]).slice(1)).slice(1);
+    expect(row).toEqual([
+      "'|cmd",
+      "' |x",
+      "-12.50",
+      "+1",
+      "-1,000.00",
+      "'-x",
+      "'+1 x",
+      "' -5",
+      "'=1",
+    ]);
   });
 });
 describe("expense-history migration", () => {

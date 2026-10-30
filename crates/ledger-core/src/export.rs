@@ -69,11 +69,14 @@ pub struct CsvExport {
 }
 
 /// `csvCell`: quotes every cell and prefixes `'` to text a spreadsheet
-/// would run as a formula (`[\s﻿]*[=+\-@]` or a leading tab, CR, LF).
+/// would run as a formula (`[\s﻿]*[=+\-@|]` or a leading tab, CR, LF),
+/// except a sign followed only by digits, `.` and `,`, which a spreadsheet
+/// reads as a number (`^[+-]\d[\d.,]*$`).
 fn csv_cell(value: &str) -> String {
-    let formula = value
+    let formula = (value
         .trim_start_matches(js::is_space)
-        .starts_with(['=', '+', '-', '@'])
+        .starts_with(['=', '+', '-', '@', '|'])
+        && !signed_number(value))
         || value.starts_with(['\t', '\r', '\n']);
     let literal = if formula {
         format!("'{value}")
@@ -81,6 +84,17 @@ fn csv_cell(value: &str) -> String {
         value.to_string()
     };
     format!("\"{}\"", literal.replace('"', "\"\""))
+}
+
+/// `/^[+-]\d[\d.,]*$/`, with `\d` ASCII as in JavaScript.
+fn signed_number(value: &str) -> bool {
+    let Some(rest) = value.strip_prefix(['+', '-']) else {
+        return false;
+    };
+    rest.starts_with(|c: char| c.is_ascii_digit())
+        && rest
+            .chars()
+            .all(|c| c.is_ascii_digit() || c == '.' || c == ',')
 }
 
 /// `encodeCSV`: UTF-8 BOM, every cell quoted, CRLF line endings.

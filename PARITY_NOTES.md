@@ -257,6 +257,21 @@ name is taken`, `settings/renameAccount: an expense account`,
 replaced`; tests `a committed import source gets its own id, whatever the
 rows say (ACC-5)` and `a_committed_import_source_gets_its_own_id`.
 
+- **W17.** `csvCell` also neutralizes a leading `|` (after any whitespace),
+  which some spreadsheets treat as a DDE command, and no longer prefixes a
+  cell that is a sign followed only by digits, `.` and `,`
+  (`/^[+-]\d[\d.,]*$/`): a spreadsheet reads `-12.50` or `+1` as a number,
+  and a formula needs a name, a reference or an operator. Any other cell
+  starting with `+` or `-` keeps its `'`, since a spreadsheet would evaluate
+  `-x` or `+1 x`; so does a signed number after a space, to keep the rule
+  simple. Exported amounts are never signed, so only text such as a vendor
+  or description changes (2026-10-28 audit, WEB-6). Fixtures:
+  `export/encodeCSV: escaping` (cases added) and
+  `export/exportRecords: formula-injection escaping 1` and `2`, which now
+  keep `+1` and `-2`; tests `CSV neutralizes a leading | and leaves signed
+numbers alone (WEB-6)` and
+  `csv_neutralizes_a_pipe_and_leaves_signed_numbers_alone`.
+
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
 original and marks it corrected, then posts the replacement; merely naming an

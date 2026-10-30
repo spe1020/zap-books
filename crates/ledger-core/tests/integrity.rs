@@ -449,3 +449,35 @@ fn a_committed_import_source_gets_its_own_id() {
         vec![sources[1].id.clone()]
     );
 }
+
+/// WEB-6: a leading `|` is neutralized like `=`, and a signed plain number,
+/// which a spreadsheet reads as a number, is left alone.
+#[test]
+fn csv_neutralizes_a_pipe_and_leaves_signed_numbers_alone() {
+    let cells = [
+        "|cmd",
+        " |x",
+        "-12.50",
+        "+1",
+        "-1,000.00",
+        "-x",
+        "+1 x",
+        " -5",
+        "=1",
+    ];
+    let csv = encode_csv(&[cells.iter().map(|c| c.to_string()).collect()]);
+    let expected = [
+        "'|cmd",
+        "' |x",
+        "-12.50",
+        "+1",
+        "-1,000.00",
+        "'-x",
+        "'+1 x",
+        "' -5",
+        "'=1",
+    ]
+    .map(|c| format!("\"{c}\""))
+    .join(",");
+    assert_eq!(csv, format!("\u{FEFF}{expected}\r\n"));
+}
