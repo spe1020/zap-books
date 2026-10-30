@@ -1,14 +1,16 @@
 // Starts the ledger service for the remote e2e tests
 // (playwright.remote.config.ts): an invented test key in a fresh temporary
 // file (mode 0600), the database from DATABASE_URL, and CORS for the test
-// app's origin. Never use this key anywhere else.
+// app's origin. Never use this key anywhere else. It is built with the
+// test-only `e2e-clock` feature: the service's clock is moved by the
+// milliseconds written in the clock file (tests/remote/clock.ts).
 
 import { spawn } from "node:child_process";
 import { chmodSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const [secret, port, appOrigin] = process.argv.slice(2);
+const [secret, port, appOrigin, clockFile] = process.argv.slice(2);
 if (!process.env.DATABASE_URL) {
   console.error(
     "The remote e2e tests need Postgres: set DATABASE_URL, for example postgres://postgres:postgres@127.0.0.1:5432/postgres",
@@ -19,6 +21,7 @@ const dir = mkdtempSync(join(tmpdir(), "zb-e2e-"));
 const keyFile = join(dir, "service.key");
 writeFileSync(keyFile, secret, { mode: 0o600 });
 chmodSync(keyFile, 0o600);
+writeFileSync(clockFile, "0");
 
 const url = `http://127.0.0.1:${port}`;
 const child = spawn(
@@ -29,6 +32,8 @@ const child = spawn(
     "-q",
     "-p",
     "ledger-service",
+    "--features",
+    "e2e-clock",
     "--",
     "--key-file",
     keyFile,
@@ -39,7 +44,14 @@ const child = spawn(
     "--allowed-origin",
     appOrigin,
   ],
-  { stdio: "inherit", env: { RUST_LOG: "warn", ...process.env } },
+  {
+    stdio: "inherit",
+    env: {
+      RUST_LOG: "warn",
+      ...process.env,
+      ZAPBOOKS_E2E_CLOCK_FILE: clockFile,
+    },
+  },
 );
 for (const signal of ["SIGINT", "SIGTERM"])
   process.on(signal, () => child.kill(signal));

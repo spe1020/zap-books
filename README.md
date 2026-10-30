@@ -115,7 +115,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-`test:e2e:remote` starts the ledger service (with an invented test key) on Postgres from `DATABASE_URL`, and a second Vite server configured for it. Each test injects a test-only NIP-07 signer whose keys stay in the Playwright process; the app has no signer of its own.
+`test:e2e:remote` starts the ledger service (with an invented test key) on Postgres from `DATABASE_URL`, and a second Vite server configured for it. Each test injects a test-only NIP-07 signer whose keys stay in the Playwright process; the app has no signer of its own. The service is built with the test-only `e2e-clock` feature, so the recovery test can let 48 hours pass.
 
 Set `CHROMIUM_PATH` if you want to use a different Chromium executable. Tests start Vite automatically when needed and use isolated browser contexts. They cover posting and totals, attachment persistence, import/re-import, corrections, business switching, explicit rules, errors and empty reports, deliberate reset, stale-tab conflicts, keyboard focus, mobile layout, and automated accessibility checks. These checks are not a complete manual accessibility certification or cross-browser support matrix.
 

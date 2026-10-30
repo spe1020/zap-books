@@ -1,13 +1,29 @@
 /**
- * Screenshots of the screens stage 2 PR 4b adds, for its description, with
- * invented data. Run with SCREENSHOTS=1 npm run test:e2e:remote; otherwise
- * skipped. Dates are set in 2031, so no real date appears.
+ * Screenshots of the screens stage 2 PRs 4b and 4c add, for their
+ * descriptions, with invented data. Run with SCREENSHOTS=1 npm run
+ * test:e2e:remote; otherwise skipped. Dates are set in 2031, so no real
+ * date appears.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { freshKey, SERVICE_URL } from "./keys";
+import { npubEncode } from "nostr-tools/nip19";
+import { freshKey, fromNsec, SERVICE_URL, type TestKey } from "./keys";
 import { installSigner } from "./signer";
-import { addMember, tampered, type Event } from "./harness";
-import { openBusiness, signIn } from "./flows";
+import {
+  addMember,
+  assistantDraft,
+  chain,
+  propose,
+  tampered,
+  type Event,
+} from "./harness";
+import { followClock, setClockOffset } from "./clock";
+import {
+  createBusiness,
+  invite,
+  openBusiness,
+  openMembers,
+  signIn,
+} from "./flows";
 
 test.skip(!process.env.SCREENSHOTS, "Set SCREENSHOTS=1 to take them.");
 
@@ -150,4 +166,157 @@ test("screens", async ({ browser }) => {
   await page.getByLabel("Reporting period").fill("2031-03");
   await shot(page, "sync-error");
   await context.close();
+});
+
+/** The screens stage 2 PR 4c adds. The service and pages run in 2031. */
+test("people screens", async ({ browser }) => {
+  test.setTimeout(180_000);
+  const dir4c = "docs/screenshots/stage-2-pr4c";
+  const at = async (page: Page, name: string) => {
+    for (const close of await page
+      .getByRole("button", { name: "Dismiss notification" })
+      .all())
+      await close.click().catch(() => {});
+    await page.screenshot({ path: `${dir4c}/${name}.png`, fullPage: true });
+  };
+  const viewport = { width: 1280, height: 860 };
+  const start = Date.parse("2031-03-10T15:00:00Z") - Date.now();
+  setClockOffset(start);
+  try {
+    const context = async (key: TestKey) => {
+      const c = await browser.newContext({ viewport });
+      await followClock(c);
+      await installSigner(c, key);
+      return c;
+    };
+    const owner = freshKey();
+    const bookkeeper = freshKey();
+    const assistant = freshKey();
+    const incoming = freshKey();
+    const later = freshKey();
+    const replacement = freshKey();
+
+    const ownerContext = await context(owner);
+    const page = await ownerContext.newPage();
+    await signIn(page);
+    const backup = fromNsec(await createBusiness(page, "Fernhill Ceramics"));
+    const business = await openBusiness(page);
+    await invite(page, npubEncode(bookkeeper.pubkey), "Bookkeeper");
+    await expect(page.getByRole("status")).toContainText("Bookkeeper added.");
+    await page.getByLabel("Their npub").fill(npubEncode(assistant.pubkey));
+    await page
+      .getByRole("combobox", { name: "Role", exact: true })
+      .selectOption({ label: "AI assistant" });
+    await at(page, "invite-assistant");
+    await page.getByRole("button", { name: "Invite", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText("AI assistant added.");
+
+    // The assistant's draft, marked in the inbox.
+    const draft = await assistantDraft(assistant, business, "Kiln Paper Co");
+    await propose(assistant, business, {
+      type: "SubmitReceiptDraft",
+      draft,
+      documents: [],
+    });
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.getByRole("button", { name: /Expense inbox/ }).click();
+    await expect(page.getByText("Created by an AI assistant")).toBeVisible();
+    await at(page, "inbox-assistant-draft");
+
+    // An owner-level invite says it waits, then shows its countdown.
+    await openMembers(page);
+    await page.getByLabel("Their npub").fill(npubEncode(incoming.pubkey));
+    await page
+      .getByRole("combobox", { name: "Role", exact: true })
+      .selectOption({ label: "Owner" });
+    await at(page, "invite-owner");
+    await page.getByRole("button", { name: "Invite", exact: true }).click();
+    await expect(page.locator(".pending-item")).toHaveCount(1);
+    await at(page, "members");
+    await page
+      .getByRole("combobox", { name: /Role for/ })
+      .first()
+      .selectOption("owner");
+    await at(page, "change-role-owner");
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Close dialog" })
+      .click();
+
+    // The assistant's own view: it saves its draft, and never approves.
+    const assistantContext = await context(assistant);
+    const bot = await assistantContext.newPage();
+    await signIn(bot);
+    await bot.getByRole("button", { name: /Expense inbox/ }).click();
+    await bot
+      .getByRole("button", { name: "Review Kiln Paper Co", exact: true })
+      .click();
+    await at(bot, "review-as-assistant");
+    await assistantContext.close();
+
+    // Recovery mode: veto the owner invite, then recover the owner.
+    const backupContext = await context(backup);
+    const recovery = await backupContext.newPage();
+    await signIn(recovery);
+    await expect(recovery.locator(".pending-item")).toHaveCount(1);
+    await recovery
+      .getByLabel("The replacement owner's npub")
+      .fill(npubEncode(replacement.pubkey));
+    await recovery
+      .getByLabel(/I understand the replacement takes over/)
+      .check();
+    await at(recovery, "recovery-mode");
+    await recovery.getByRole("button", { name: /^Veto/ }).click();
+    await expect(recovery.getByRole("status")).toContainText("Change vetoed.");
+    await recovery.getByRole("button", { name: "Start the recovery" }).click();
+    await expect(recovery.getByRole("status")).toContainText(
+      "Recovery proposed.",
+    );
+    await at(recovery, "recovery-mode-proposed");
+    await backupContext.close();
+
+    // The owner it names as lost sees it, and can't veto it.
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(
+      page.getByText("names your key as the lost owner"),
+    ).toBeVisible();
+    await at(page, "pending-recovery-lost-owner");
+    await addMember(owner, business, later, "viewer");
+    await ownerContext.close();
+
+    // 48 hours on, the new owner reviews who was added meanwhile.
+    setClockOffset(start + (48 * 60 * 60 + 120) * 1000);
+    await chain(bookkeeper, business);
+    const newContext = await context(replacement);
+    const fresh = await newContext.newPage();
+    await signIn(fresh);
+    await expect(
+      fresh.getByRole("region", { name: "Your business was recovered" }),
+    ).toBeVisible();
+    await at(fresh, "after-recovery");
+    await newContext.close();
+
+    // A from-join-date member, added outside the app, is told why the
+    // books can't be opened.
+    const joiner = freshKey();
+    await propose(replacement, business, {
+      type: "ChangeMembership",
+      change: {
+        op: "add",
+        member: joiner.pubkey,
+        role: "viewer",
+        history: "fromJoin",
+      },
+    });
+    const joinerContext = await context(joiner);
+    const joined = await joinerContext.newPage();
+    await signIn(joined);
+    await expect(
+      joined.getByRole("heading", { name: "Your books couldn't be opened" }),
+    ).toBeVisible();
+    await at(joined, "books-not-opened");
+    await joinerContext.close();
+  } finally {
+    setClockOffset(0);
+  }
 });

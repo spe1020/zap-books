@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import {
   APP_PORT,
   APP_URL,
+  CLOCK_FILE,
   SERVICE,
   SERVICE_PORT,
   SERVICE_URL,
@@ -27,7 +28,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: `node scripts/e2e-service.mjs ${SERVICE.secret} ${SERVICE_PORT} ${APP_URL}`,
+      command: `node scripts/e2e-service.mjs ${SERVICE.secret} ${SERVICE_PORT} ${APP_URL} ${CLOCK_FILE}`,
       url: `${SERVICE_URL}/health`,
       timeout: 300_000,
       reuseExistingServer: false,
