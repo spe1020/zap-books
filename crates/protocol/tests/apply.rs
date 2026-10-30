@@ -229,6 +229,114 @@ fn a_receipt_reading_must_belong_to_the_draft_and_business() {
 }
 
 #[test]
+fn a_correction_attaches_documents_and_a_reading_like_a_save() {
+    let b = genesis_business(business_id(), &genesis_command()).unwrap();
+    // `accept` draws fresh ids for each step, as the service does.
+    let (saved, _) = accept(
+        &b,
+        Command::SaveDraft {
+            draft: draft(&b, "draft-1", &[]),
+            documents: vec![],
+            extraction: None,
+        },
+    );
+    let (posted, _) = accept(
+        &saved,
+        Command::Approve {
+            expense_id: "draft-1".into(),
+        },
+    );
+    let correct = |documents: Vec<DocumentRef>, extraction: Option<ExtractionRecord>| {
+        let mut replacement = draft(&posted, "draft-2", &["doc-2"]);
+        replacement.amount_minor = ledger_core::Minor::new(1334).unwrap();
+        Command::Correct {
+            original_id: "draft-1".into(),
+            replacement,
+            reason: "The receipt shows a higher total.".into(),
+            documents,
+            extraction,
+        }
+    };
+    let mut r = reading(&posted, "draft-2", "doc-2");
+    r.fields.total = serde_json::from_value(
+        serde_json::json!({"status": "found", "value": 1334, "evidence": "TOTAL 13.34"}),
+    )
+    .unwrap();
+    r.accepted = vec![ledger_core::ExtractionFieldName::Total];
+    let command = correct(vec![document("doc-2")], Some(r.clone()));
+    let (after, accepted) = accept(&posted, command);
+    let doc = after.documents.iter().find(|d| d.id == "doc-2").unwrap();
+    assert_eq!(doc.sha256.as_deref(), Some("4c".repeat(32).as_str()));
+    let stored = after
+        .extractions
+        .iter()
+        .find(|x| x.draft_id == "draft-2")
+        .unwrap();
+    assert_ne!(stored.id, "client-chosen");
+    // Posting the replacement finalizes its reading at once.
+    let outcomes = stored.outcomes.clone().unwrap();
+    assert_eq!(
+        outcomes.get(&ledger_core::ExtractionFieldName::Total),
+        Some(&ledger_core::ExtractionOutcome::Accepted)
+    );
+    let replacement = after.drafts.iter().find(|d| d.id == "draft-2").unwrap();
+    assert_eq!(replacement.status(), ExpenseStatus::Posted);
+
+    // An auditor re-running it gets the same books.
+    assert_eq!(audit(Some(&posted), &accepted).unwrap(), after);
+
+    // Checked as for SaveDraft.
+    let mut bad = document("doc-2");
+    bad.sha256 = "not-a-hash".into();
+    assert_eq!(
+        run(&posted, &correct(vec![bad], None)).unwrap_err(),
+        Refusal::Protocol(ProtocolError::BadDocument)
+    );
+    let scope = Refusal::Protocol(ProtocolError::ExtractionScope);
+    // A reading for the original, for a document the replacement doesn't
+    // have, or one already judged.
+    assert_eq!(
+        run(
+            &posted,
+            &correct(
+                vec![document("doc-2")],
+                Some(reading(&posted, "draft-1", "doc-2"))
+            )
+        )
+        .unwrap_err(),
+        scope
+    );
+    assert_eq!(
+        run(
+            &posted,
+            &correct(
+                vec![document("doc-2")],
+                Some(reading(&posted, "draft-2", "doc-9"))
+            )
+        )
+        .unwrap_err(),
+        scope
+    );
+    let mut judged = r.clone();
+    judged.outcomes = Some(Default::default());
+    assert_eq!(
+        run(&posted, &correct(vec![document("doc-2")], Some(judged))).unwrap_err(),
+        scope
+    );
+
+    // Without either, a correction reads as it always did.
+    let old: Command = serde_json::from_value(serde_json::json!({
+        "type": "Correct",
+        "originalId": "draft-1",
+        "replacement": draft(&posted, "draft-3", &[]),
+        "reason": "Wrong category.",
+    }))
+    .unwrap();
+    assert!(!serde_json::to_string(&old).unwrap().contains("documents"));
+    assert!(run(&posted, &old).is_ok());
+}
+
+#[test]
 fn a_submitter_can_only_add_new_drafts() {
     let b = genesis_business(business_id(), &genesis_command()).unwrap();
     let submit = |b: &BusinessData| Command::SubmitReceiptDraft {
@@ -394,6 +502,8 @@ fn today_never_reaches_the_books() {
             original_id: "draft-1".into(),
             replacement,
             reason: "Invented correction".into(),
+            documents: vec![],
+            extraction: None,
         },
     );
     let settings = run_both(
@@ -531,6 +641,8 @@ fn proposer_chosen_ids_are_short_plain_and_not_empty() {
         original_id: "draft-1".into(),
         replacement: draft(&posted, id, &[]),
         reason: "Wrong amount".into(),
+        documents: vec![],
+        extraction: None,
     };
     assert_eq!(
         run(&posted, &correct("")).unwrap_err(),

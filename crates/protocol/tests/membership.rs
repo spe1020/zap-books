@@ -80,6 +80,8 @@ fn every_command() -> Vec<(&'static str, Command)> {
                 original_id: draft.id.clone(),
                 replacement: draft.clone(),
                 reason: "Invented reason".into(),
+                documents: vec![],
+                extraction: None,
             },
         ),
         (
