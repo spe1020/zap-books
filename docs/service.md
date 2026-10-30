@@ -125,6 +125,7 @@ Replacing the key a business uses is an owner-level change
 | `GET /v1/businesses/{id}/pending`                   | NIP-98              | `{"pending": [{proposal, proposer, change, effectiveAt}]}`; 404 unless the caller is an owner or the recovery key                                 |
 | `GET /v1/epoch-keys?business=`                      | NIP-98              | `{"deliveries": [...]}`: the deliveries the caller is entitled to now                                                                             |
 | `GET /v1/rejections?after=`                         | NIP-98              | `{"cursor": n, "rejections": [...]}`: the caller's rejections, oldest first                                                                       |
+| `POST /v1/session`                                  | NIP-98 (`POST`)     | `{"token", "expiresAt"}`: a read session for an hour; 403 unless the caller is a member or recovery key of some business                          |
 | `GET /health`                                       | None                | `ok`                                                                                                                                              |
 
 - **Acknowledgments are idempotent.** The proposal's event id is the key:
@@ -144,6 +145,20 @@ such business."}` for a business that doesn't exist or a proposer who
   signature, and the time (at most 60 seconds old, 30 seconds ahead). Each
   auth event is accepted once; its id is remembered for 120 seconds, longer
   than any event stays valid.
+- **Sessions.** In a browser, NIP-98's signature per request means a
+  signer-extension prompt per read. So `POST /v1/session`, signed with
+  NIP-98, returns a random 32-byte token (64 hex characters) and its
+  expiry, an hour on. Every read accepts `Authorization: Bearer <token>`
+  in place of NIP-98. The token says only who is asking: **membership is
+  still checked on every read**, so a removal cuts a reader off at once.
+  Only the token's SHA-256 is stored (`sessions`), and expired sessions are
+  deleted when the next one is created. An unknown or expired token is a
+  401, and so is one whose key is no longer a member or recovery key of
+  any business; the client signs in again. A session goes only to a key
+  that is a member or recovery key somewhere, so strangers store nothing,
+  and it can't be had with another session. Proposals need none: they're
+  signed events already. Session reads count against the key's read
+  bucket, like signed ones.
 - **Epoch keys.** A member who reads receives every epoch their history
   choice covers. A removed member, or one demoted to submitter, gets none,
   not even the ones delivered to them before.
@@ -281,6 +296,7 @@ and its encrypted event, never the message, which can quote the payload.
 | `outbox`                     | Every acceptance and delivery, to publish to relays in stage 4                                                           |
 | `audit`                      | Signed rejections: the code and the encrypted event                                                                      |
 | `nip98_seen`                 | Used NIP-98 auth events                                                                                                  |
+| `sessions`                   | Read sessions: each token's SHA-256, its key and expiry                                                                  |
 
 ## Deployment requirements
 

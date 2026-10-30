@@ -1163,6 +1163,60 @@ impl Ledger {
         .rows_affected();
         Ok(inserted == 1)
     }
+
+    /// Whether `key` is a member or the recovery key of any business: the
+    /// keys a session is for. Anyone else has nothing to read, and keys
+    /// cost nothing to make, so strangers store nothing.
+    pub async fn has_standing(&self, key: &PublicKey) -> Result<bool, LedgerError> {
+        let hex = key.to_hex();
+        Ok(sqlx::query_scalar(
+            "select exists (select 1 from members where pubkey = $1)
+                 or exists (select 1 from businesses where membership->>'recoveryKey' = $1)",
+        )
+        .bind(&hex)
+        .fetch_one(&self.pool)
+        .await?)
+    }
+
+    /// Stores a session for `key`, by its token's hash, until `expires_at`
+    /// (Unix seconds), and forgets every session expired by `now_secs`.
+    pub async fn create_session(
+        &self,
+        token_hash: &str,
+        key: &PublicKey,
+        expires_at: u64,
+        now_secs: u64,
+    ) -> Result<(), LedgerError> {
+        sqlx::query("delete from sessions where expires_at <= $1")
+            .bind(to_i64(now_secs))
+            .execute(&self.pool)
+            .await?;
+        sqlx::query("insert into sessions (token_hash, pubkey, expires_at) values ($1, $2, $3)")
+            .bind(token_hash)
+            .bind(key.to_hex())
+            .bind(to_i64(expires_at))
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
+    /// The key a session is for, if `token_hash` names one that hasn't
+    /// expired by `now_secs`.
+    pub async fn session(
+        &self,
+        token_hash: &str,
+        now_secs: u64,
+    ) -> Result<Option<PublicKey>, LedgerError> {
+        let key: Option<String> = sqlx::query_scalar(
+            "select pubkey from sessions where token_hash = $1 and expires_at > $2",
+        )
+        .bind(token_hash)
+        .bind(to_i64(now_secs))
+        .fetch_optional(&self.pool)
+        .await?;
+        key.map(|k| PublicKey::from_hex(&k).map_err(LedgerError::internal))
+            .transpose()
+    }
 }
 
 /// Takes a business's lock for the rest of the transaction. An advisory
