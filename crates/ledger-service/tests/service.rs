@@ -5,7 +5,7 @@
 mod common;
 
 use common::*;
-use ledger_service::Status;
+use ledger_service::{LedgerError, Status};
 use nostr::nips::nip98::{HttpData, HttpMethod};
 use nostr::prelude::Event;
 use nostr::types::url::Url;
@@ -25,8 +25,9 @@ async fn genesis_creates_the_books_and_delivers_epoch_zero() {
         contents[0].payload.command,
         Command::CreateBusiness { .. }
     ));
-    // Creating it again is rejected; so is a command for a business that
-    // doesn't exist.
+    // Creating it again is rejected, signed, for its owner. A command for a
+    // business that doesn't exist is refused unsigned, and stores nothing
+    // (SVC-6).
     let again = w.create().await;
     assert_eq!(
         rejection(&again, &owner()).reason.message,
@@ -36,11 +37,10 @@ async fn genesis_creates_the_books_and_delivers_epoch_zero() {
         business: protocol::BusinessId::generate(),
         ..w
     };
-    let missing = other.send(&owner(), Some(0), approve("draft-1")).await;
-    assert_eq!(
-        rejection(&missing, &owner()).reason.code,
-        RejectionCode::Rejected
-    );
+    let stored = other.stored_for(&owner()).await;
+    let missing = other.try_send(&owner(), Some(0), approve("draft-1")).await;
+    assert!(matches!(missing, Err(LedgerError::NoSuchBusiness)));
+    assert_eq!(other.stored_for(&owner()).await, stored);
     other.finish().await;
 }
 
@@ -297,13 +297,14 @@ async fn too_large_is_rejected_with_its_size_and_nothing_is_stored() {
 async fn permissions_are_enforced() {
     let w = World::new().await;
     w.create().await;
+    // An outsider is refused unsigned, as if the business didn't exist,
+    // and nothing is stored (SVC-6).
     let stranger = w
-        .send(&outsider(), Some(0), save(w.business, "draft-1"))
+        .try_send(&outsider(), Some(0), save(w.business, "draft-1"))
         .await;
-    assert_eq!(
-        rejection(&stranger, &outsider()).reason.message,
-        "You are not a member of this business."
-    );
+    assert!(matches!(stranger, Err(LedgerError::NoSuchBusiness)));
+    assert_eq!(w.stored_for(&outsider()).await, (0, 0));
+    // The recovery key gets a signed rejection, which is stored.
     let recovery = w
         .send(&backup(), Some(0), save(w.business, "draft-1"))
         .await;

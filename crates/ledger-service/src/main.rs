@@ -3,18 +3,18 @@
 //! Reads `DATABASE_URL` (or `--database-url`). Listens on 127.0.0.1:8787 by
 //! default; put it behind a TLS-terminating proxy.
 
-use std::net::SocketAddr;
+use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::sync::Arc;
 
 use ledger_service::clock::{uuid, SystemClock};
-use ledger_service::http::{router, AppState};
-use ledger_service::ratelimit::RateLimit;
+use ledger_service::http::{cors, router, AppState};
 use ledger_service::{key, scheduler, Ledger};
 use sqlx::postgres::PgPoolOptions;
 
 const USAGE: &str = "Usage: ledger-service --public-url <https://…> [--key-file <path>]... [--database-url <url>] [--listen <addr>]
+                      [--allowed-origin <https://app.example>]... [--trusted-proxy <ip>]...
        ledger-service generate-key <path>
        ledger-service public-key <path>";
 
@@ -52,6 +52,8 @@ struct Config {
     database_url: String,
     public_url: String,
     listen: SocketAddr,
+    allowed_origins: Vec<String>,
+    trusted_proxies: Vec<IpAddr>,
 }
 
 fn config() -> Result<Config, String> {
@@ -60,6 +62,8 @@ fn config() -> Result<Config, String> {
     let mut database_url = std::env::var("DATABASE_URL").ok();
     let mut public_url = None;
     let mut listen: SocketAddr = ([127, 0, 0, 1], 8787).into();
+    let mut allowed_origins = Vec::new();
+    let mut trusted_proxies = Vec::new();
     while let Some(arg) = args.next() {
         let mut value = || {
             args.next()
@@ -74,11 +78,19 @@ fn config() -> Result<Config, String> {
                     format!("--listen needs an address like 127.0.0.1:8787.\n{USAGE}")
                 })?
             }
+            "--allowed-origin" => allowed_origins.push(value()?),
+            "--trusted-proxy" => trusted_proxies.push(value()?.parse().map_err(|_| {
+                format!("--trusted-proxy needs an IP address like 127.0.0.1.\n{USAGE}")
+            })?),
             "--help" | "-h" => return Err(USAGE.to_string()),
             other => return Err(format!("Unknown option {other}.\n{USAGE}")),
         }
     }
+    // Refused here, at start, rather than when the first browser calls.
+    let _checked = cors(&allowed_origins).map_err(|e| format!("{e}\n{USAGE}"))?;
     Ok(Config {
+        allowed_origins,
+        trusted_proxies,
         key_files,
         database_url: database_url.ok_or_else(|| format!("Set DATABASE_URL.\n{USAGE}"))?,
         public_url: public_url.ok_or_else(|| format!("--public-url is required.\n{USAGE}"))?,
@@ -156,15 +168,53 @@ async fn main() -> ExitCode {
         Ledger::with_key,
     );
     let ledger = Arc::new(ledger);
+    // A business whose key isn't loaded could do nothing: refuse to start.
+    match ledger.missing_service_keys().await {
+        Ok(missing) if missing.is_empty() => {}
+        Ok(missing) => {
+            for (business, key) in missing {
+                eprintln!("Business {business} is signed by service key {key}, which is not loaded. Add its --key-file.");
+            }
+            return ExitCode::from(2);
+        }
+        Err(e) => {
+            eprintln!("Can't check the service keys: {e}");
+            return ExitCode::from(1);
+        }
+    }
+    // One a pending replacement names can be loaded before it falls due.
+    match ledger.missing_pending_keys().await {
+        Ok(missing) => {
+            for (business, key) in missing {
+                tracing::error!(business = %business, key = %key, "a pending service key replacement names a key that is not loaded; load it before the change falls due, or it can't activate");
+            }
+        }
+        Err(e) => {
+            eprintln!("Can't check the service keys: {e}");
+            return ExitCode::from(1);
+        }
+    }
     let services: Vec<String> = ledger.public_keys().iter().map(|k| k.to_hex()).collect();
     tracing::info!(services = ?services, listen = %config.listen, "starting");
-    let _scheduler = scheduler::spawn(ledger.clone(), scheduler::INTERVAL);
-    let state = Arc::new(AppState {
-        ledger,
-        public_url: config.public_url,
-        writes: RateLimit::new(60, 10),
-        reads: RateLimit::new(120, 20),
+    let scheduler = scheduler::spawn(ledger.clone(), scheduler::INTERVAL);
+    // The scheduler isolates each run, so its task should never end; if it
+    // does, say so.
+    tokio::spawn(async move {
+        match scheduler.await {
+            Err(e) if e.is_panic() => tracing::error!("the scheduler stopped: it panicked"),
+            _ => tracing::error!("the scheduler stopped"),
+        }
     });
+    let mut state = AppState::new(ledger, config.public_url);
+    state.allowed_origins = config.allowed_origins;
+    state.trusted_proxies = config.trusted_proxies;
+    let app = match router(Arc::new(state)) {
+        Ok(app) => app,
+        Err(message) => {
+            eprintln!("{message}");
+            return ExitCode::from(2);
+        }
+    };
     let listener = match tokio::net::TcpListener::bind(config.listen).await {
         Ok(l) => l,
         Err(e) => {
@@ -172,17 +222,41 @@ async fn main() -> ExitCode {
             return ExitCode::from(1);
         }
     };
-    let shutdown = async {
-        let _ = tokio::signal::ctrl_c().await;
-    };
-    match axum::serve(listener, router(state))
-        .with_graceful_shutdown(shutdown)
-        .await
+    match axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .with_graceful_shutdown(shutdown())
+    .await
     {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
             eprintln!("The server stopped: {e}");
             ExitCode::from(1)
         }
+    }
+}
+
+/// Resolves on SIGINT (Ctrl-C) or SIGTERM (what systemd and Docker send to
+/// stop a service), so either drains the listener.
+async fn shutdown() {
+    #[cfg(unix)]
+    {
+        use tokio::signal::unix::{signal, SignalKind};
+        match signal(SignalKind::terminate()) {
+            Ok(mut term) => {
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {}
+                    _ = term.recv() => {}
+                }
+            }
+            Err(_) => {
+                let _ = tokio::signal::ctrl_c().await;
+            }
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = tokio::signal::ctrl_c().await;
     }
 }

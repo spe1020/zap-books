@@ -14,7 +14,7 @@ use ledger_core::{blank_draft, BusinessData, ExpenseDraft, Minor, SequentialEnv}
 use ledger_service::clock::{uuid, Clock, FixedClock};
 use ledger_service::http::{router, AppState};
 use ledger_service::ratelimit::RateLimit;
-use ledger_service::{Acknowledgment, Ledger};
+use ledger_service::{Acknowledgment, Ledger, LedgerError};
 use nostr::prelude::{Event, Keys, PublicKey, SecretKey, Timestamp};
 use protocol::{
     build_proposal, open_acceptance, open_delivery, open_rejection, AcceptanceContent, BusinessId,
@@ -121,6 +121,18 @@ impl World {
         self.proposal_to(&service_keys().public_key(), signer, base_seq, command)
     }
 
+    /// A proposal for any business id, to the primary key, signed now.
+    pub fn proposal_for(
+        business: BusinessId,
+        signer: &Keys,
+        base_seq: Option<u64>,
+        command: Command,
+    ) -> Event {
+        let payload = ProposalPayload::new(business, base_seq, command);
+        let at = Timestamp::from_secs(real_now_millis() / 1000);
+        build_proposal(signer, &service_keys().public_key(), &payload, at).unwrap()
+    }
+
     /// A proposal encrypted to `service`.
     pub fn proposal_to(
         &self,
@@ -191,8 +203,34 @@ impl World {
         base_seq: Option<u64>,
         command: Command,
     ) -> Acknowledgment {
+        self.try_send(signer, base_seq, command).await.unwrap()
+    }
+
+    /// As [`World::send`], for a proposal that may be refused unsigned.
+    pub async fn try_send(
+        &self,
+        signer: &Keys,
+        base_seq: Option<u64>,
+        command: Command,
+    ) -> Result<Acknowledgment, LedgerError> {
         let event = self.proposal(signer, base_seq, command);
-        self.ledger.submit(&event).await.unwrap()
+        self.ledger.submit(&event).await
+    }
+
+    /// Rows stored for `author`'s proposals and rejections.
+    pub async fn stored_for(&self, author: &Keys) -> (i64, i64) {
+        let author = author.public_key().to_hex();
+        let proposals: i64 = sqlx::query_scalar("select count(*) from proposals where author = $1")
+            .bind(&author)
+            .fetch_one(&self.pool)
+            .await
+            .unwrap();
+        let audit: i64 = sqlx::query_scalar("select count(*) from audit where author = $1")
+            .bind(&author)
+            .fetch_one(&self.pool)
+            .await
+            .unwrap();
+        (proposals, audit)
     }
 
     /// Creates the business with a backup recovery key.
@@ -251,18 +289,30 @@ impl World {
         (events, contents)
     }
 
-    /// Starts the HTTP API on a free local port; returns its base URL.
+    /// Starts the HTTP API on a free local port, with limits no test
+    /// reaches; returns its base URL.
     pub async fn serve(&self) -> String {
+        self.serve_with(|_| {}).await
+    }
+
+    /// As [`World::serve`], with the state adjusted by `adjust`.
+    pub async fn serve_with(&self, adjust: impl FnOnce(&mut AppState)) -> String {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let base = format!("http://{}", listener.local_addr().unwrap());
-        let state = Arc::new(AppState {
-            ledger: self.ledger.clone(),
-            public_url: base.clone(),
-            writes: RateLimit::new(1000, 1000),
-            reads: RateLimit::new(1000, 1000),
-        });
+        let mut state = AppState::new(self.ledger.clone(), base.clone());
+        state.writes = RateLimit::new(1000, 1000);
+        state.reads = RateLimit::new(1000, 1000);
+        state.global = RateLimit::new(10_000, 10_000);
+        state.per_ip = RateLimit::new(10_000, 10_000);
+        adjust(&mut state);
+        let app = router(Arc::new(state)).unwrap();
         tokio::spawn(async move {
-            axum::serve(listener, router(state)).await.unwrap();
+            axum::serve(
+                listener,
+                app.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+            )
+            .await
+            .unwrap();
         });
         base
     }
@@ -360,17 +410,43 @@ pub async fn http(
     auth: Option<&str>,
     body: &str,
 ) -> (u16, String) {
+    let auth = auth.map(|a| ("Authorization", a));
+    let (status, _, body) = http_with(base, method, path, auth.as_slice(), body).await;
+    (status, body)
+}
+
+/// As [`http`], with extra request headers; also returns the response's
+/// head (status line and headers).
+pub async fn http_with(
+    base: &str,
+    method: &str,
+    path: &str,
+    headers: &[(&str, &str)],
+    body: &str,
+) -> (u16, String, String) {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     let host = base.trim_start_matches("http://");
     let mut stream = tokio::net::TcpStream::connect(host).await.unwrap();
-    let auth = auth.map_or(String::new(), |a| format!("Authorization: {a}\r\n"));
+    let extra: String = headers
+        .iter()
+        .map(|(name, value)| format!("{name}: {value}\r\n"))
+        .collect();
     let request = format!(
-        "{method} {path} HTTP/1.1\r\nHost: {host}\r\n{auth}Content-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+        "{method} {path} HTTP/1.1\r\nHost: {host}\r\n{extra}Content-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
         body.len()
     );
-    stream.write_all(request.as_bytes()).await.unwrap();
-    let mut response = String::new();
-    stream.read_to_string(&mut response).await.unwrap();
+    // The service may answer (a 413, say) before the body is all sent and
+    // close the connection: keep whatever answer arrived, as clients do.
+    let _ = stream.write_all(request.as_bytes()).await;
+    let mut bytes = Vec::new();
+    let mut chunk = [0u8; 8192];
+    while let Ok(n) = stream.read(&mut chunk).await {
+        if n == 0 {
+            break;
+        }
+        bytes.extend_from_slice(&chunk[..n]);
+    }
+    let response = String::from_utf8(bytes).unwrap();
     let status = response[9..12].parse().unwrap();
     let (head, body) = response.split_once("\r\n\r\n").unwrap();
     // axum may answer with chunked encoding; small bodies come in one chunk.
@@ -385,5 +461,5 @@ pub async fn http(
     } else {
         body.to_string()
     };
-    (status, body)
+    (status, head.to_string(), body)
 }

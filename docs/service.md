@@ -18,12 +18,31 @@ cargo run -p ledger-service -- generate-key /secure/path/service.key
 DATABASE_URL=postgres://… cargo run -p ledger-service -- \
   --key-file /secure/path/service.key \
   --public-url https://ledger.example \
-  --listen 127.0.0.1:8787
+  --listen 127.0.0.1:8787 \
+  --trusted-proxy 127.0.0.1 \
+  --allowed-origin https://app.example
 ```
 
-- `--key-file` may be given more than once: the first is the primary key,
-  the others are keys businesses can move to (see Replacing the service
-  key).
+- `--key-file` may be given more than once. The first is the primary key:
+  every new business starts on it, and a genesis naming any other key is
+  refused. The others are only for businesses moving to them (see Replacing
+  the service key).
+- **At start** the service checks that every business's current service
+  key is loaded, and refuses to start, naming the business and the key,
+  when one isn't: that business could do nothing. A pending
+  `replaceServiceKey` naming a key that isn't loaded is logged at error
+  level; load it before the change falls due.
+- `--trusted-proxy <ip>` (repeatable) names a proxy whose
+  `X-Forwarded-For` gives the client's address for the per-address limit
+  (see Limits). From any other peer the header is ignored. Without it, the
+  peer's address counts, which behind a proxy is the proxy's.
+- `--allowed-origin <origin>` (repeatable) lets a browser app on that
+  origin call the API (CORS): `GET` and `POST`, with the `Authorization`
+  and `Content-Type` headers, no credentials. Each must be a plain origin
+  (`https://app.example`, no path or trailing slash); `*` is refused. With
+  none, no other origin is allowed.
+- **Stopping.** SIGINT (Ctrl-C) or SIGTERM (what systemd and Docker send)
+  stops accepting connections and lets requests in flight finish.
 - `--public-url` is the address clients use. NIP-98 auth events must name
   it exactly, so set it to what the TLS-terminating proxy in front of the
   service serves.
@@ -81,7 +100,12 @@ Replacing the key a business uses is an owner-level change
    `--key-file <new key>` (or a `service-key.next` credential).
 3. An owner proposes `replaceServiceKey` naming the new public key. The
    service refuses a key it doesn't hold, since it could sign nothing for
-   the business afterwards.
+   the business afterwards. **Keep the new key loaded through the 48
+   hours.** If it is missing when the change falls due, the change can't
+   activate: it stays pending, and an error is logged on each attempt.
+   Reads of the business keep working, but its proposals fail (500, nothing
+   stored), since a due change must activate before anything else is
+   accepted. Load the key and it activates.
 4. When the change activates, the **old** key signs the hand-over
    acceptance, which carries the new key in its `service` tag and starts a
    new epoch. Every later acceptance, delivery and rejection for the
@@ -89,22 +113,32 @@ Replacing the key a business uses is an owner-level change
    it. The business's epoch secrets are resealed to the new key in the same
    transaction.
 5. Once no business uses the old key, it can leave the service's
-   configuration. If one still names it and it is missing, that business's
-   requests fail (500) and nothing is stored until the key is back.
+   configuration. If one still names it, the service refuses to start and
+   names the business.
 
 ## API
 
-| Request                                             | Auth                | Answer                                                                                                                |
-| --------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `POST /v1/proposals`, a proposal event as the body  | The proposal itself | 200 `{"status": "accepted" \| "rejected", "event": …}`; 400 if not a validly signed proposal; 413 over the body limit |
-| `GET /v1/businesses/{id}/acceptances?after=&limit=` | NIP-98              | `{"head": seq, "acceptances": [...]}`, in seq order; 404 unless the caller reads this business                        |
-| `GET /v1/businesses/{id}/pending`                   | NIP-98              | `{"pending": [{proposal, proposer, change, effectiveAt}]}`; 404 unless the caller is an owner or the recovery key     |
-| `GET /v1/epoch-keys?business=`                      | NIP-98              | `{"deliveries": [...]}`: the deliveries the caller is entitled to now                                                 |
-| `GET /v1/rejections?after=`                         | NIP-98              | `{"cursor": n, "rejections": [...]}`: the caller's rejections, oldest first                                           |
-| `GET /health`                                       | None                | `ok`                                                                                                                  |
+| Request                                             | Auth                | Answer                                                                                                                                            |
+| --------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /v1/proposals`, a proposal event as the body  | The proposal itself | 200 `{"status": "accepted" \| "rejected", "event": …}`; 400 if not a validly signed proposal; 404 / 422 unsigned (below); 413 over the body limit |
+| `GET /v1/businesses/{id}/acceptances?after=&limit=` | NIP-98              | `{"head": seq, "acceptances": [...]}`, in seq order; 404 unless the caller reads this business                                                    |
+| `GET /v1/businesses/{id}/pending`                   | NIP-98              | `{"pending": [{proposal, proposer, change, effectiveAt}]}`; 404 unless the caller is an owner or the recovery key                                 |
+| `GET /v1/epoch-keys?business=`                      | NIP-98              | `{"deliveries": [...]}`: the deliveries the caller is entitled to now                                                                             |
+| `GET /v1/rejections?after=`                         | NIP-98              | `{"cursor": n, "rejections": [...]}`: the caller's rejections, oldest first                                                                       |
+| `GET /health`                                       | None                | `ok`                                                                                                                                              |
 
 - **Acknowledgments are idempotent.** The proposal's event id is the key:
   sending the same event again returns the stored answer byte for byte.
+- **Signed answers are for members.** A rejection is signed and stored only
+  for a business that exists and a proposer who is one of its members or
+  its recovery key, and always by that business's own service key. Anyone
+  else gets an unsigned answer and nothing is stored: `404 {"error": "No
+such business."}` for a business that doesn't exist or a proposer who
+  isn't in it (the two look the same), and `422 {"error", "code"}` (with
+  `size` and `limit` for `tooLarge`) for a refused genesis, or a genesis
+  for a business that already exists from someone outside it. Keys cost
+  nothing to make, so this keeps strangers from growing the tables or
+  spending the service's signatures.
 - **NIP-98.** `nostr`'s `verify_auth_header` checks the kind (27235), the
   URL (`--public-url` plus the request's path and query), the method, the
   signature, and the time (at most 60 seconds old, 30 seconds ahead). Each
@@ -113,10 +147,20 @@ Replacing the key a business uses is an owner-level change
 - **Epoch keys.** A member who reads receives every epoch their history
   choice covers. A removed member, or one demoted to submitter, gets none,
   not even the ones delivered to them before.
-- **Limits.** The request body is at most 65,536 + 4,096 bytes (one event).
-  Each public key gets a token bucket: 60 proposals at once and 10 a second
-  after that, and 120 reads at once and 20 a second. The buckets are in
-  memory, so they are per instance.
+- **Limits.** Before any JSON is parsed or signature verified, every
+  request passes three cheap checks, in order: a declared body
+  (`Content-Length`) over 65,536 + 4,096 bytes (one event) is a 413; then
+  a bucket for all requests together (400 at once, 200 a second) and one
+  per client address (180 at once, 30 a second) answer 429 when empty.
+  After the signature, each public key gets its own buckets: 60 proposals
+  at once and 10 a second after that, and 120 reads at once and 20 a
+  second. Buckets are in memory, so they are per instance; each map keeps
+  at most 100,000 keys and forgets the one used longest ago, so no request
+  ever scans them all.
+- **The TLS proxy must also rate-limit per client address.** The service's
+  own limits bound its CPU, but a flood still costs the proxy's and the
+  network's; and without `--trusted-proxy` every client behind the proxy
+  shares one address bucket.
 
 ## One proposal, one transaction
 
@@ -145,8 +189,11 @@ Each proposal is handled in one database transaction:
    changed, the members, pending changes, any new epoch key and the
    deliveries now owed; then commit. All or nothing.
 
-Any rejection in step 5 is signed, stored as the acknowledgment and in the
-`audit` table, and committed. A rejection stores no acceptance, seq, snapshot
+Any rejection in step 6 for a member or the recovery key is signed with the
+business's service key, stored as the acknowledgment and in the `audit`
+table (its code, not its message), and committed. A proposal from anyone
+else, or for a business that doesn't exist, is answered unsigned and
+stores nothing, apart from any due change step 5 activated. A rejection stores no acceptance, seq, snapshot
 or record version. That includes `tooLarge`, which carries the size the
 acceptance would have been.
 
@@ -170,8 +217,11 @@ delivery per member who reads.
   Submitters, the recovery key and removed members receive nothing.
 - **Revocation is immediate.** Permissions are checked against the
   membership after the head acceptance, inside the business's lock, so the
-  first proposal after a removal is already refused, and reads check the
-  same state.
+  first proposal after a removal is already refused. A read of the chain
+  takes a share lock on the business row, which every proposal holds
+  `for update` before appending: it waits for a proposal in flight, and its
+  permission check and its page come from the same state, so a reader
+  removed by a proposal gets nothing that proposal appended.
 
 ### The scheduler
 
@@ -181,13 +231,21 @@ change whose time has come, an `activated` acceptance, or `lapsed` when the
 change no longer applies (`MembershipState::activate` fails), in the order
 the changes were accepted. Each business is one transaction under its lock.
 
-- **The loop** (`scheduler::spawn`) runs it every 30 seconds.
+- **The loop** (`scheduler::spawn`) runs it every 30 seconds, each run as
+  its own task: a run that fails or panics is logged at error level, and
+  the next tick runs anyway. The service keeps the loop's handle and logs
+  if it ever stops.
 - **Before anything else** for a business (a proposal, a read of its
   acceptances, its pending changes or its epoch keys) the service activates
-  that business's due changes. So a change takes effect at its time, not at
-  the next tick, and a veto that arrives after `effectiveAt` is refused
-  ("There is no pending change with this id."): the change has already
-  activated.
+  that business's due changes; `GET /v1/epoch-keys` without `?business=`
+  does so for every business it returns keys for. So a change takes effect
+  at its time, not at the next tick, and a veto that arrives after
+  `effectiveAt` is refused ("There is no pending change with this id."):
+  the change has already activated.
+- **If an activation fails** (a missing service key, say), it rolls back
+  and changes nothing, and the error is logged. A read goes on with the
+  committed state; a proposal fails with a 500, since the due change must
+  come first.
 - **Time** comes from the ledger's clock. The tests set it by hand and run
   `activate_due` directly; none waits.
 - **A pending change** is stored with its proposal event and plaintext
@@ -197,6 +255,18 @@ the changes were accepted. Each business is one transaction under its lock.
 
 Minimal, to normalize later. Event JSON is stored as text, exactly as
 signed, so it is served byte for byte.
+
+**The books are plaintext at rest.** The service is trusted with plaintext
+by design ([decision 0001](decisions/0001-nostr-security-model.md)): it
+decrypts every proposal to check it. So `businesses.snapshot` holds each
+business's complete current books, and `pending_changes.payload` the
+decrypted command of a change waiting out its 48 hours, both unencrypted;
+`record_versions` names record ids. Acceptances, deliveries and rejections
+are stored as the signed, encrypted events, and epoch secrets sealed to the
+service key. A copy of the database, a dump or a backup therefore exposes
+every business's books without the service key: protect it as you protect
+the key (see Deployment requirements). `audit` keeps each rejection's code
+and its encrypted event, never the message, which can quote the payload.
 
 | Table                        | Holds                                                                                                                    |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -208,8 +278,25 @@ signed, so it is served byte for byte.
 | `pending_changes`            | Owner-level changes waiting out 48 hours, with their proposal and payload                                                |
 | `epochs`, `epoch_deliveries` | Epoch keys (secrets sealed to the service key) and their deliveries                                                      |
 | `outbox`                     | Every acceptance and delivery, to publish to relays in stage 4                                                           |
-| `audit`                      | Signed rejections                                                                                                        |
+| `audit`                      | Signed rejections: the code and the encrypted event                                                                      |
 | `nip98_seen`                 | Used NIP-98 auth events                                                                                                  |
+
+## Deployment requirements
+
+For the deployment guide (the stage's last PR) to carry out:
+
+- **Full-disk encryption on the server**, covering Postgres's data
+  directory, since the books are plaintext at rest (see Storage).
+- **Backups and replicas protected like the key file**: encrypted, and
+  stored and accessed as carefully, since each holds every business's
+  books.
+- **A TLS-terminating proxy that rate-limits per client address**, named
+  with `--trusted-proxy` so the service's per-address limit sees clients.
+- **Stop with SIGTERM** (systemd's and Docker's default) or SIGINT; both
+  drain requests in flight.
+- **Every business's service key loaded at start**, and a pending
+  replacement's new key loaded before it falls due (see Replacing the
+  service key).
 
 ## `today()` on the service
 
