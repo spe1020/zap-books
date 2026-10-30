@@ -15,6 +15,7 @@ mod date;
 mod env;
 mod error;
 mod export;
+mod extraction;
 mod import;
 mod js;
 mod ledger;
@@ -27,6 +28,7 @@ pub use date::{normalize_import_date, valid_date, DateFormat};
 pub use env::{Env, SequentialEnv};
 pub use error::{LedgerError, Result};
 pub use export::{encode_csv, export_records, CsvExport, ExportFilter, ExportFormat};
+pub use extraction::outcomes_for;
 pub use import::{
     commit_import, guess_mapping, parse_csv, preview_import, CsvMapping, ImportKind, ImportOptions,
     ImportRow, PreviewSource, SignConvention,

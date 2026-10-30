@@ -1,0 +1,359 @@
+{
+ "profile": {
+  "id": "northstar",
+  "businessId": "northstar",
+  "name": "Northstar Studio",
+  "industry": "Design & creative services",
+  "initials": "NS",
+  "color": "#c8da78",
+  "currency": "USD"
+ },
+ "accounts": [
+  {
+   "id": "northstar-checking",
+   "businessId": "northstar",
+   "name": "Operating account",
+   "kind": "bank",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-card",
+   "businessId": "northstar",
+   "name": "Business card",
+   "kind": "card",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-reserve",
+   "businessId": "northstar",
+   "name": "Reserve account",
+   "kind": "bank",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-eur",
+   "businessId": "northstar",
+   "name": "Euro account",
+   "kind": "bank",
+   "currency": "EUR"
+  },
+  {
+   "id": "northstar-expense-0",
+   "businessId": "northstar",
+   "name": "Software & subscriptions",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-1",
+   "businessId": "northstar",
+   "name": "Office & supplies",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-2",
+   "businessId": "northstar",
+   "name": "Travel & meals",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-3",
+   "businessId": "northstar",
+   "name": "Professional services",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-4",
+   "businessId": "northstar",
+   "name": "Marketing & design",
+   "kind": "expense",
+   "currency": "USD"
+  }
+ ],
+ "categories": [
+  {
+   "id": "northstar-category-0",
+   "businessId": "northstar",
+   "name": "Software & subscriptions",
+   "accountId": "northstar-expense-0"
+  },
+  {
+   "id": "northstar-category-1",
+   "businessId": "northstar",
+   "name": "Office & supplies",
+   "accountId": "northstar-expense-1"
+  },
+  {
+   "id": "northstar-category-2",
+   "businessId": "northstar",
+   "name": "Travel & meals",
+   "accountId": "northstar-expense-2"
+  },
+  {
+   "id": "northstar-category-3",
+   "businessId": "northstar",
+   "name": "Professional services",
+   "accountId": "northstar-expense-3"
+  },
+  {
+   "id": "northstar-category-4",
+   "businessId": "northstar",
+   "name": "Marketing & design",
+   "accountId": "northstar-expense-4"
+  }
+ ],
+ "vendors": [],
+ "documents": [],
+ "payments": [],
+ "drafts": [
+  {
+   "id": "draft-read",
+   "businessId": "northstar",
+   "vendor": "Lantern Paper Co.",
+   "date": "2031-05-14",
+   "description": "Client brochures",
+   "amountMinor": 3150,
+   "currency": "USD",
+   "categoryId": "northstar-category-1",
+   "accountId": "northstar-checking",
+   "purpose": "Client deliverable",
+   "documentIds": [],
+   "status": "draft",
+   "duplicateReason": "",
+   "createdAt": "2026-10-15T12:00:00.000Z"
+  }
+ ],
+ "journals": [],
+ "approvals": [],
+ "rules": [
+  {
+   "id": "id-0001",
+   "businessId": "northstar",
+   "vendorIncludes": "Figma",
+   "categoryId": "northstar-category-0",
+   "purpose": "Design collaboration for client projects",
+   "enabled": true
+  }
+ ],
+ "audits": [],
+ "events": [],
+ "extractions": [
+  {
+   "id": "reading-pending",
+   "businessId": "northstar",
+   "documentId": "doc-read",
+   "draftId": "draft-read",
+   "model": "test-model",
+   "promptVersion": "test-1",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "fields": {
+    "vendor": {
+     "status": "found",
+     "value": "Lantern Paper Co.",
+     "evidence": "Invented printed line"
+    },
+    "date": {
+     "status": "found",
+     "value": "2031-05-15",
+     "evidence": "Invented printed line"
+    },
+    "total": {
+     "status": "found",
+     "value": 3150,
+     "evidence": "Invented printed line"
+    },
+    "currency": {
+     "status": "unclear",
+     "value": null,
+     "evidence": "Invented printed line"
+    },
+    "reference": {
+     "status": "found",
+     "value": "R-7",
+     "evidence": "Invented printed line"
+    },
+    "subtotal": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    },
+    "tax": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "fees": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "discounts": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "tip": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    },
+    "category": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    }
+   },
+   "accepted": [
+    "vendor",
+    "date",
+    "currency"
+   ],
+   "outcomes": null
+  },
+  {
+   "id": "reading-final",
+   "businessId": "northstar",
+   "documentId": "doc-read",
+   "draftId": "draft-read",
+   "model": "test-model",
+   "promptVersion": "test-1",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "fields": {
+    "vendor": {
+     "status": "found",
+     "value": "Lantern Paper Co.",
+     "evidence": "Invented printed line"
+    },
+    "date": {
+     "status": "found",
+     "value": "2031-05-15",
+     "evidence": "Invented printed line"
+    },
+    "total": {
+     "status": "found",
+     "value": 3150,
+     "evidence": "Invented printed line"
+    },
+    "currency": {
+     "status": "unclear",
+     "value": null,
+     "evidence": "Invented printed line"
+    },
+    "reference": {
+     "status": "found",
+     "value": "R-7",
+     "evidence": "Invented printed line"
+    },
+    "subtotal": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    },
+    "tax": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "fees": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "discounts": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "tip": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    },
+    "category": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    }
+   },
+   "accepted": [
+    "vendor"
+   ],
+   "outcomes": {
+    "vendor": "accepted"
+   }
+  },
+  {
+   "id": "reading-other",
+   "businessId": "northstar",
+   "documentId": "doc-read",
+   "draftId": "draft-other",
+   "model": "test-model",
+   "promptVersion": "test-1",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "fields": {
+    "vendor": {
+     "status": "found",
+     "value": "Lantern Paper Co.",
+     "evidence": "Invented printed line"
+    },
+    "date": {
+     "status": "found",
+     "value": "2031-05-15",
+     "evidence": "Invented printed line"
+    },
+    "total": {
+     "status": "found",
+     "value": 3150,
+     "evidence": "Invented printed line"
+    },
+    "currency": {
+     "status": "unclear",
+     "value": null,
+     "evidence": "Invented printed line"
+    },
+    "reference": {
+     "status": "found",
+     "value": "R-7",
+     "evidence": "Invented printed line"
+    },
+    "subtotal": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    },
+    "tax": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "fees": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "discounts": {
+     "status": "absent",
+     "value": null,
+     "lines": []
+    },
+    "tip": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    },
+    "category": {
+     "status": "absent",
+     "value": null,
+     "evidence": ""
+    }
+   },
+   "accepted": [
+    "vendor"
+   ],
+   "outcomes": null
+  }
+ ]
+}
