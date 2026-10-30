@@ -196,12 +196,14 @@ async fn an_unknown_or_malformed_token_is_refused() {
         http(&base, "POST", "/v1/session", Some(&get), "").await.0,
         401
     );
-    // A second on from the sign-in above, which signed the same event.
+    // A fresh event. The sign-in above used the real clock, which is at or
+    // past the service's hand-set one, so a second before that can't be the
+    // same event.
     let post = auth_at(
         &owner(),
         &url,
         HttpMethod::POST,
-        w.clock.now_millis() / 1000 + 1,
+        w.clock.now_millis() / 1000 - 1,
     );
     assert_eq!(
         http(&base, "POST", "/v1/session", Some(&post), "").await.0,
