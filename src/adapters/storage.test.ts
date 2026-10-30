@@ -214,3 +214,30 @@ describe("the database connection (WEB-7)", () => {
     expect(db.closed).toBe(true);
   });
 });
+
+describe("suggestions on load (decision 0004)", () => {
+  test("a business without suggestions keeps none", () => {
+    const loaded = checkWorkspace(seedWorkspace());
+    expect(loaded.businesses[0]).not.toHaveProperty("suggestions");
+  });
+
+  test("suggestions load, and a malformed one is set aside", () => {
+    const saved = seedWorkspace();
+    const b = saved.businesses[0];
+    const good = {
+      id: "invented-suggestion",
+      businessId: b.profile.id,
+      draftId: b.drafts[0].id,
+      author: "ef".repeat(32),
+      note: "Invented note",
+      evidence: ["Invented line"],
+      createdAt: "2026-01-02T03:04:05.000Z",
+    };
+    b.suggestions = [good, { ...good, id: "bad", author: "not a key" }];
+    const loaded = checkWorkspace(saved);
+    expect(loaded.businesses[0].suggestions).toEqual([good]);
+    expect(loaded.quarantine?.map((q) => [q.collection, q.id])).toEqual([
+      ["suggestions", "bad"],
+    ]);
+  });
+});

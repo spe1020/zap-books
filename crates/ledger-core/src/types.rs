@@ -508,6 +508,31 @@ pub struct BusinessData {
     pub audits: Vec<AuditEvent>,
     pub events: Vec<FinancialEvent>,
     pub extractions: Vec<ExtractionRecord>,
+    /// Absent in TypeScript until the first suggestion, so an empty list is
+    /// left out when written.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub suggestions: Vec<Suggestion>,
+}
+
+/// `Suggestion`: a proposal an assistant attaches to a draft (decision
+/// 0004). It never changes the draft.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Suggestion {
+    pub id: String,
+    pub business_id: String,
+    pub draft_id: String,
+    /// The assistant's public key, 64 lowercase hex characters.
+    pub author: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub purpose: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+    /// Untrusted text, shown as plain text.
+    pub evidence: Vec<String>,
+    pub created_at: String,
 }
 
 /// Wire records stay unchecked until their owning business's accounts and
@@ -531,6 +556,9 @@ struct StoredBusinessData {
     /// Absent in workspaces saved before receipt extraction existed.
     #[serde(default)]
     extractions: Vec<ExtractionRecord>,
+    /// Absent until the business's first suggestion.
+    #[serde(default)]
+    suggestions: Vec<Suggestion>,
 }
 
 impl<'de> Deserialize<'de> for BusinessData {
@@ -550,6 +578,7 @@ impl<'de> Deserialize<'de> for BusinessData {
             audits: raw.audits,
             events: raw.events,
             extractions: raw.extractions,
+            suggestions: raw.suggestions,
         };
         for entry in raw.journals {
             let checked = JournalEntry::new(&business, entry).map_err(serde::de::Error::custom)?;

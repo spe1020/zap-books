@@ -117,6 +117,7 @@ export class LocalRepository implements BusinessRepository {
       business.audits,
       business.events,
       business.extractions,
+      business.suggestions ?? [],
     ])
       if (records.some((r) => r.businessId !== businessId))
         throw new Error("Cross-business record rejected.");

@@ -143,6 +143,24 @@ export interface BusinessData {
   audits: AuditEvent[];
   events: FinancialEvent[];
   extractions: ExtractionRecord[];
+  /** Absent until the first suggestion; workspaces saved before have none. */
+  suggestions?: Suggestion[];
+}
+/**
+ * A proposal attached to a draft by an assistant (decision 0004): a
+ * category, a purpose or a note, with the evidence for it and the key that
+ * signed it. It never changes the draft; a person accepts or ignores it.
+ */
+export interface Suggestion extends Scoped {
+  draftId: string;
+  /** The assistant's public key, 64 lowercase hex characters. */
+  author: string;
+  categoryId?: string;
+  purpose?: string;
+  note?: string;
+  /** What the suggestion rests on; untrusted, shown as plain text. */
+  evidence: string[];
+  createdAt: string;
 }
 export interface Workspace {
   schemaVersion: 1;

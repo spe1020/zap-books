@@ -9,7 +9,7 @@ use std::collections::{HashMap, HashSet};
 use ledger_core::{
     Account, Approval, AuditEvent, Business, BusinessData, Category, ClassificationRule,
     ExpenseDraft, ExtractionRecord, FinancialEvent, ImportedTransaction, JournalEntry,
-    SourceDocument, UncheckedJournal, Vendor,
+    SourceDocument, Suggestion, UncheckedJournal, Vendor,
 };
 use serde::{Deserialize, Serialize};
 
@@ -38,6 +38,7 @@ pub enum RecordType {
     Audit,
     Event,
     Extraction,
+    Suggestion,
 }
 
 impl RecordType {
@@ -56,6 +57,7 @@ impl RecordType {
             RecordType::Audit => "audit",
             RecordType::Event => "event",
             RecordType::Extraction => "extraction",
+            RecordType::Suggestion => "suggestion",
         }
     }
 }
@@ -99,6 +101,7 @@ pub enum Record {
     Audit(AuditEvent),
     Event(FinancialEvent),
     Extraction(ExtractionRecord),
+    Suggestion(Suggestion),
 }
 
 impl Record {
@@ -117,6 +120,7 @@ impl Record {
             Record::Audit(r) => (RecordType::Audit, &r.id),
             Record::Event(r) => (RecordType::Event, &r.id),
             Record::Extraction(r) => (RecordType::Extraction, &r.id),
+            Record::Suggestion(r) => (RecordType::Suggestion, &r.id),
         };
         RecordKey::new(t, id.clone())
     }
@@ -189,7 +193,8 @@ keyed!(
     ClassificationRule,
     AuditEvent,
     FinancialEvent,
-    ExtractionRecord
+    ExtractionRecord,
+    Suggestion
 );
 
 /// Appends the changes for one collection: removals, then every record in
@@ -317,6 +322,13 @@ pub fn diff(before: &BusinessData, after: &BusinessData) -> Result<Vec<RecordCha
         T::Extraction,
         o,
     )?;
+    collection(
+        &before.suggestions,
+        &after.suggestions,
+        Record::Suggestion,
+        T::Suggestion,
+        o,
+    )?;
     if apply_changes(before, &out)? != *after {
         return Err(ProtocolError::ChangesIncomplete);
     }
@@ -372,6 +384,7 @@ macro_rules! on_list {
             RecordType::Audit => $f(&mut $b.audits $(, $arg)*),
             RecordType::Event => $f(&mut $b.events $(, $arg)*),
             RecordType::Extraction => $f(&mut $b.extractions $(, $arg)*),
+            RecordType::Suggestion => $f(&mut $b.suggestions $(, $arg)*),
         }
     };
 }
@@ -408,6 +421,7 @@ pub fn apply_changes(business: &BusinessData, changes: &[RecordChange]) -> Resul
             RecordChange::Put(Record::Audit(r)) => upsert(&mut b.audits, r),
             RecordChange::Put(Record::Event(r)) => upsert(&mut b.events, r),
             RecordChange::Put(Record::Extraction(r)) => upsert(&mut b.extractions, r),
+            RecordChange::Put(Record::Suggestion(r)) => upsert(&mut b.suggestions, r),
             RecordChange::Remove(r) => {
                 if r.of != RecordType::Extraction {
                     return Err(ProtocolError::RecordRemoved(r.of.name()));
@@ -454,9 +468,11 @@ pub fn targets(command: &Command, business: &BusinessData) -> Vec<RecordKey> {
             .map(|id| RecordKey::new(RecordType::Rule, id.clone()))
             .collect(),
         // Imports are deduplicated by fingerprint; membership commands are
-        // checked against the current membership, not a snapshot.
+        // checked against the current membership, not a snapshot; a
+        // suggestion only adds a record, and never changes its draft.
         Command::CreateBusiness { .. }
         | Command::CommitImport { .. }
+        | Command::Suggest { .. }
         | Command::ChangeMembership { .. }
         | Command::Veto { .. } => Vec::new(),
     }

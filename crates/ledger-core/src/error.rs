@@ -154,6 +154,18 @@ pub enum LedgerError {
     #[error("A rule for this vendor already exists.")]
     DuplicateRule,
 
+    // suggestions.ts suggest
+    #[error("A suggestion needs its author's key.")]
+    SuggestionAuthor,
+    #[error("Draft not found in this business.")]
+    DraftNotFound,
+    #[error("Suggestions can only be attached to drafts.")]
+    SuggestionNotDraft,
+    #[error("A suggestion needs a category, a purpose or a note.")]
+    SuggestionEmpty,
+    #[error("A suggestion needs its evidence.")]
+    SuggestionEvidence,
+
     // export.ts exportRecords
     #[error("Choose valid export dates.")]
     InvalidExportDates,

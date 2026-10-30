@@ -222,6 +222,7 @@ Records use `ledger-core`'s JSON shapes (`src/domain/types.ts`).
 | `ChangeMembership`   | `change` (see Membership)                                                                        | The membership rules          |
 | `Veto`               | `pending`: the proposal id of a pending change                                                   | The membership rules          |
 | `SubmitReceiptDraft` | `draft`, `documents`                                                                             | `save_draft`, for a new draft |
+| `Suggest`            | `suggestion`: `draftId`, `author`, `categoryId`, `purpose`, `note` (each optional), `evidence`   | `suggest`                     |
 
 `update_settings` and `save_rule` port `src/domain/settings.ts`, which holds
 the Settings screen's rules: names unique within their list ignoring case,
@@ -243,6 +244,16 @@ the service runs and auditors re-run:
   document.
 - `SubmitReceiptDraft` does the same as `SaveDraft` without a reading, and
   only for a draft id the business doesn't have yet.
+- `Suggest` adds a **suggestion** record ([decision 0004](decisions/0004-bring-your-own-ai.md)):
+  a proposed category, purpose or note for a draft, with its evidence and
+  the key of the assistant that made it. `suggest` ports
+  `src/domain/suggestions.ts`. The draft must be an open draft of this
+  business, the category one of its categories, and there must be at least
+  one of a category, a purpose or a note, and at least one line of
+  evidence. The service gives the record its own id and time. **A
+  suggestion never changes the draft**: a person reads it and accepts or
+  ignores it. Its `author` must be the key that signed the proposal (see
+  Permissions), so every suggestion is attributable.
 
 New records get ids from the service's environment, never from the
 proposal, except where `ledger-core` already takes the id from its input
@@ -416,7 +427,7 @@ key's public key**:
   - `{"type": <record type>, "record": <record>}`: a record created or
     replaced. Types: `profile`, `account`, `category`, `vendor`, `document`,
     `payment`, `draft`, `journal`, `approval`, `rule`, `audit`, `event`,
-    `extraction`;
+    `extraction`, `suggestion`;
   - `{"type": "order", "of": <record type>, "ids": [...]}`: the collection's
     records in this order. Saving a rule moves it to the end, which matters
     because the first matching rule wins;
@@ -571,7 +582,7 @@ chain has handed over to.
   current epoch's past data;
 - the service key is replaced.
 
-**Who receives which keys.** Owners, bookkeepers and viewers receive the
+**Who receives which keys.** Owners, bookkeepers, viewers and assistants receive the
 current epoch's key. A member added with **full history** (the default)
 receives every past epoch key too; a from-join-date member receives keys
 from the epoch their joining started. Submitters, the recovery key and
@@ -601,7 +612,14 @@ the business key can rebuild it from the chain and check each decision
 | `replaceServiceKey`  | `key`                                                              | Always                              |
 | `recover`            | `lost`, `replacement`                                              | Always; recovery key only           |
 
-Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
+Roles: `owner`, `bookkeeper`, `viewer`, `submitter`, `assistant`.
+
+**An assistant is an AI agent with its own key**
+([decision 0004](decisions/0004-bring-your-own-ai.md)). The user's harness
+holds the key, never Zap Books, so everything the agent proposes is signed
+by it. An owner adds it like anyone else, with a history choice, and
+removing it works like any removal: it is refused at once and the epoch
+rotates.
 
 - **Owner-level changes wait 48 hours.** They are accepted with outcome
   `pending` and `effectiveAt` = acceptance time + 48 hours, exactly: a
@@ -622,7 +640,8 @@ Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
   removed, or the recovery key replaced, their pending changes are
   cancelled.
 - **Other changes take effect immediately:** adding or removing a
-  bookkeeper, viewer or submitter, and changing a role between them.
+  bookkeeper, viewer, submitter or assistant, and changing a role between
+  them.
 - **The recovery key** can sign only `Veto` and `recover`. Recovery replaces
   a lost owner key with a new owner key (full history), after the same
   48-hour wait.
@@ -644,22 +663,48 @@ Roles: `owner`, `bookkeeper`, `viewer`, `submitter`.
 
 Enforced by the service, and re-checked by readers.
 
-| Command                                   | Owner    | Bookkeeper | Viewer | Submitter | Recovery key |
-| ----------------------------------------- | -------- | ---------- | ------ | --------- | ------------ |
-| SaveDraft, Approve, Correct, CommitImport | ✓        | ✓          |        |           |              |
-| UpdateSettings, SaveRule                  | ✓        | ✓          |        |           |              |
-| ChangeMembership (non-owner roles)        | ✓        |            |        |           |              |
-| ChangeMembership (owner-level)            | ✓ (48 h) |            |        |           |              |
-| ChangeMembership `recover`                |          |            |        |           | ✓ (48 h)     |
-| Veto                                      | ✓        |            |        |           | ✓            |
-| SubmitReceiptDraft                        | ✓        | ✓          |        | ✓         |              |
-| Read acceptances and receive epoch keys   | ✓        | ✓          | ✓      |           |              |
+| Command                                 | Owner    | Bookkeeper | Viewer | Submitter | Assistant          | Recovery key |
+| --------------------------------------- | -------- | ---------- | ------ | --------- | ------------------ | ------------ |
+| SaveDraft                               | ✓        | ✓          |        |           | Drafts it created  |              |
+| Approve, Correct, CommitImport          | ✓        | ✓          |        |           |                    |              |
+| UpdateSettings, SaveRule                | ✓        | ✓          |        |           |                    |              |
+| ChangeMembership (non-owner roles)      | ✓        |            |        |           |                    |              |
+| ChangeMembership (owner-level)          | ✓ (48 h) |            |        |           |                    |              |
+| ChangeMembership `recover`              |          |            |        |           |                    | ✓ (48 h)     |
+| Veto                                    | ✓        |            |        |           |                    | ✓            |
+| SubmitReceiptDraft                      | ✓        | ✓          |        | ✓         | ✓                  |              |
+| Suggest                                 |          |            |        |           | ✓ (any open draft) |              |
+| Read acceptances and receive epoch keys | ✓        | ✓          | ✓      |           | ✓                  |              |
+| See pending owner-level changes         | ✓        |            |        |           |                    | ✓            |
 
 No one can veto their own change, and the owner a `recover` names as lost
 can't veto that recovery.
 
 A removed member is an outsider and is refused everything at once, before
 any key rotation completes.
+
+**An assistant never approves.** Approval stays with a person, and that is
+enforced here and by the signature on every proposal, not by an interface.
+An assistant can't approve, correct or import, change settings, rules or
+membership, veto, recover, or see pending owner-level changes
+(`MembershipState::sees_pending`).
+
+**An assistant edits only the drafts it created.** It creates a draft with
+`SubmitReceiptDraft`, which accepts only a new draft id, and may then
+`SaveDraft` that draft; a `SaveDraft` of any other draft, including a new
+id, is refused ("Assistants can only edit drafts they created."). People
+can edit an assistant's drafts as usual. Which drafts each assistant
+created is part of the membership state (`assistantDrafts`, draft id to
+assistant key), derived from the chain like the rest of it: each accepted
+`SubmitReceiptDraft` signed by an assistant adds its draft
+(`MembershipState::accepted`). So a reader re-deriving the membership
+re-checks this rule too, and catches a service that let an assistant edit
+someone else's draft.
+
+**A suggestion names its signer.** A `Suggest` whose `author` isn't the
+hex public key that signed the proposal is refused ("A suggestion must name
+the key that signed it."). Only assistants suggest; people edit the draft
+instead.
 
 ## Stale proposals (`baseSeq`)
 
@@ -676,6 +721,7 @@ it. Reload it and try again."_ This replaces the browser's revision check.
 | UpdateSettings                | The profile, or the account or category renamed; none when adding |
 | SaveRule                      | The rule being replaced; none for a new rule                      |
 | CommitImport                  | None: rows are deduplicated by fingerprint                        |
+| Suggest                       | None: it adds a record and never changes the draft                |
 | ChangeMembership, Veto        | None: checked against the current membership                      |
 
 A `baseSeq` later than the chain head is malformed. So when two members

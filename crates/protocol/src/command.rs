@@ -3,7 +3,7 @@
 use std::ops::Deref;
 
 use ledger_core::{Account, Business, Category, ExpenseDraft, ExtractionRecord, ImportRow};
-pub use ledger_core::{RuleInput, SettingsChange};
+pub use ledger_core::{RuleInput, SettingsChange, SuggestionInput};
 use nostr::prelude::{EventId, PublicKey};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sha2::{Digest, Sha256};
@@ -172,13 +172,18 @@ pub enum Command {
     /// Cancels a pending owner-level change, named by its proposal id.
     #[serde(rename_all = "camelCase")]
     Veto { pending: EventId },
-    /// A new draft from a submitter, who can't read the books.
+    /// A new draft from a submitter, who can't read the books, or from an
+    /// assistant.
     #[serde(rename_all = "camelCase")]
     SubmitReceiptDraft {
         draft: ExpenseDraft,
         #[serde(default)]
         documents: Vec<DocumentRef>,
     },
+    /// A suggestion attached to a draft by an assistant (decision 0004). Its
+    /// `author` must be the key that signed the proposal.
+    #[serde(rename_all = "camelCase")]
+    Suggest { suggestion: SuggestionInput },
 }
 
 /// The unencrypted `cmd` tag's value, so the service can route a proposal
@@ -195,10 +200,11 @@ pub enum CommandType {
     ChangeMembership,
     Veto,
     SubmitReceiptDraft,
+    Suggest,
 }
 
 impl CommandType {
-    pub const ALL: [CommandType; 10] = [
+    pub const ALL: [CommandType; 11] = [
         CommandType::CreateBusiness,
         CommandType::SaveDraft,
         CommandType::Approve,
@@ -209,6 +215,7 @@ impl CommandType {
         CommandType::ChangeMembership,
         CommandType::Veto,
         CommandType::SubmitReceiptDraft,
+        CommandType::Suggest,
     ];
 
     pub fn as_str(self) -> &'static str {
@@ -223,6 +230,7 @@ impl CommandType {
             CommandType::ChangeMembership => "ChangeMembership",
             CommandType::Veto => "Veto",
             CommandType::SubmitReceiptDraft => "SubmitReceiptDraft",
+            CommandType::Suggest => "Suggest",
         }
     }
 
@@ -244,6 +252,7 @@ impl Command {
             Command::ChangeMembership { .. } => CommandType::ChangeMembership,
             Command::Veto { .. } => CommandType::Veto,
             Command::SubmitReceiptDraft { .. } => CommandType::SubmitReceiptDraft,
+            Command::Suggest { .. } => CommandType::Suggest,
         }
     }
 }
@@ -267,6 +276,10 @@ pub enum Role {
     Viewer,
     /// Write-only: proposes `SubmitReceiptDraft`, receives no epoch keys.
     Submitter,
+    /// An AI agent with its own key (decision 0004). It reads the books,
+    /// creates drafts and edits the ones it created, and attaches
+    /// suggestions; it never approves.
+    Assistant,
 }
 
 impl Role {

@@ -204,7 +204,8 @@ delivery per member who reads.
 ## Membership and keys
 
 - **Immediate changes** (adding, removing or changing the role of a
-  bookkeeper, viewer or submitter) take effect in their own acceptance.
+  bookkeeper, viewer, submitter or assistant) take effect in their own
+  acceptance.
 - **A new epoch** starts when a member who reads is removed or demoted to
   submitter, when someone starts reading with from-join-date history, on
   recovery, and on a service-key replacement. The acceptance that starts it

@@ -4,7 +4,7 @@
 //! readings checked here first.
 
 use ledger_core::{
-    approve, commit_import, correct, save_draft, save_rule, update_settings, AccountKind,
+    approve, commit_import, correct, save_draft, save_rule, suggest, update_settings, AccountKind,
     BusinessData, DocumentKind, Env, ExpenseDraft, ExtractionRecord, LedgerError, SourceDocument,
 };
 use thiserror::Error;
@@ -120,6 +120,7 @@ pub fn genesis_business(business: BusinessId, command: &Command) -> Result<Busin
         audits: Vec::new(),
         events: Vec::new(),
         extractions: Vec::new(),
+        suggestions: Vec::new(),
     })
 }
 
@@ -242,6 +243,7 @@ pub fn apply_command(
             }
             Ok(save_rule(business, rule, env)?)
         }
+        Command::Suggest { suggestion } => Ok(suggest(business, suggestion, env)?),
         Command::ChangeMembership { .. } | Command::Veto { .. } => Ok(business.clone()),
     }
 }
@@ -271,6 +273,7 @@ pub fn rebuild<'a>(
         audits: Vec::new(),
         events: Vec::new(),
         extractions: Vec::new(),
+        suggestions: Vec::new(),
     };
     let mut b = apply_changes(&empty, rest)?;
     for content in contents {

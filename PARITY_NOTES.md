@@ -156,6 +156,16 @@ final sigma, but the Unicode versions can differ, so a code point added in a
 newer Unicode release could map differently. JavaScript whitespace (`trim`,
 `\s`) and `\d` are reproduced exactly in `src/js.rs`.
 
+### D9. An empty suggestion list is left out
+
+A business has no `suggestions` list in TypeScript until its first
+suggestion (`src/domain/suggestions.ts`), so Rust reads a missing list as
+empty and writes an empty one as missing. TypeScript never writes `[]`
+there, so this only matters for hand-made JSON, which reads the same either
+way.
+
+Fixtures: every state round-trips unchanged; `suggestions/*`.
+
 ## W: TypeScript behavior that looked wrong
 
 Each item was ported exactly and pinned by a parity fixture, then decided by

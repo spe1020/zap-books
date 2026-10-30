@@ -18,7 +18,7 @@ use protocol::{
     diff, encrypt_to, genesis_business, genesis_changes, open_proposal, parse_proposal, targets,
     AcceptanceContent, AcceptanceHeader, Actor, BusinessId, Command, CommandType, CommittedPayload,
     EnvRecord, EpochKey, MembershipChange, MembershipState, Outcome, PendingChange, ProposalHeader,
-    ProtocolError, Reason, RecordChange, RecordKey, RecordingEnv, Role, PROTOCOL_VERSION,
+    ProtocolError, Reason, RecordChange, RecordKey, RecordingEnv, PROTOCOL_VERSION,
 };
 use serde::Serialize;
 use sqlx::{PgPool, Postgres, Row, Transaction};
@@ -374,7 +374,10 @@ impl Ledger {
                 Ok(state) => (state, Outcome::Applied),
                 Err(e) => return reject(&e),
             },
-            _ => (head.membership.clone(), Outcome::Applied),
+            _ => (
+                head.membership.accepted(&header.author, command),
+                Outcome::Applied,
+            ),
         };
         let next = Next {
             proposal: proposal.clone(),
@@ -1114,10 +1117,9 @@ impl Ledger {
         let Some(membership) = self.membership(business).await? else {
             return Ok(None);
         };
-        Ok(match membership.actor(reader) {
-            Actor::Member(Role::Owner) | Actor::RecoveryKey => Some(membership.pending),
-            _ => None,
-        })
+        Ok(membership
+            .sees_pending(reader)
+            .then_some(membership.pending))
     }
 
     /// `author`'s rejections, oldest first, after the cursor `after`.

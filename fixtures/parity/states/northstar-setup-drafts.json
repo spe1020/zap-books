@@ -1,0 +1,160 @@
+{
+ "profile": {
+  "id": "northstar",
+  "businessId": "northstar",
+  "name": "Northstar Studio",
+  "industry": "Design & creative services",
+  "initials": "NS",
+  "color": "#c8da78",
+  "currency": "USD"
+ },
+ "accounts": [
+  {
+   "id": "northstar-checking",
+   "businessId": "northstar",
+   "name": "Operating account",
+   "kind": "bank",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-card",
+   "businessId": "northstar",
+   "name": "Business card",
+   "kind": "card",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-reserve",
+   "businessId": "northstar",
+   "name": "Reserve account",
+   "kind": "bank",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-eur",
+   "businessId": "northstar",
+   "name": "Euro account",
+   "kind": "bank",
+   "currency": "EUR"
+  },
+  {
+   "id": "northstar-expense-0",
+   "businessId": "northstar",
+   "name": "Software & subscriptions",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-1",
+   "businessId": "northstar",
+   "name": "Office & supplies",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-2",
+   "businessId": "northstar",
+   "name": "Travel & meals",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-3",
+   "businessId": "northstar",
+   "name": "Professional services",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-4",
+   "businessId": "northstar",
+   "name": "Marketing & design",
+   "kind": "expense",
+   "currency": "USD"
+  }
+ ],
+ "categories": [
+  {
+   "id": "northstar-category-0",
+   "businessId": "northstar",
+   "name": "Software & subscriptions",
+   "accountId": "northstar-expense-0"
+  },
+  {
+   "id": "northstar-category-1",
+   "businessId": "northstar",
+   "name": "Office & supplies",
+   "accountId": "northstar-expense-1"
+  },
+  {
+   "id": "northstar-category-2",
+   "businessId": "northstar",
+   "name": "Travel & meals",
+   "accountId": "northstar-expense-2"
+  },
+  {
+   "id": "northstar-category-3",
+   "businessId": "northstar",
+   "name": "Professional services",
+   "accountId": "northstar-expense-3"
+  },
+  {
+   "id": "northstar-category-4",
+   "businessId": "northstar",
+   "name": "Marketing & design",
+   "accountId": "northstar-expense-4"
+  }
+ ],
+ "vendors": [],
+ "documents": [],
+ "payments": [],
+ "drafts": [
+  {
+   "id": "draft-open",
+   "businessId": "northstar",
+   "vendor": "Harbor Print",
+   "date": "2026-10-15",
+   "description": "Client brochures",
+   "amountMinor": 4200,
+   "currency": "USD",
+   "categoryId": "northstar-category-1",
+   "accountId": "northstar-checking",
+   "purpose": "Client deliverable",
+   "documentIds": [],
+   "status": "draft",
+   "duplicateReason": "",
+   "createdAt": "2026-10-15T12:00:00.000Z"
+  },
+  {
+   "id": "draft-posted",
+   "businessId": "northstar",
+   "vendor": "Harbor Print",
+   "date": "2026-10-15",
+   "description": "Client brochures",
+   "amountMinor": 4200,
+   "currency": "USD",
+   "categoryId": "northstar-category-1",
+   "accountId": "northstar-checking",
+   "purpose": "Client deliverable",
+   "documentIds": [],
+   "status": "posted",
+   "duplicateReason": "",
+   "createdAt": "2026-10-15T12:00:00.000Z"
+  }
+ ],
+ "journals": [],
+ "approvals": [],
+ "rules": [
+  {
+   "id": "id-0001",
+   "businessId": "northstar",
+   "vendorIncludes": "Figma",
+   "categoryId": "northstar-category-0",
+   "purpose": "Design collaboration for client projects",
+   "enabled": true
+  }
+ ],
+ "audits": [],
+ "events": [],
+ "extractions": []
+}

@@ -477,3 +477,101 @@ fn add(keys: &Keys, role: Role, history: History) -> MembershipChange {
         history,
     }
 }
+
+impl Books {
+    /// Proposes and accepts any other command as the service would, without
+    /// running it on the books: `follow` checks only who may propose it.
+    fn accept(&mut self, signer: &Keys, command: Command, now: u64) {
+        let payload = ProposalPayload {
+            v: PROTOCOL_VERSION,
+            salt: salt(),
+            business: business_id(),
+            base_seq: Some(self.chain.len() as u64 - 1),
+            command,
+        };
+        let proposal = build_proposal(signer, &pk(&service()), &payload, at(now)).unwrap();
+        let (header, payload) = open_proposal(&proposal, &service()).unwrap();
+        self.state
+            .authorize(&header.author, &payload.command)
+            .unwrap();
+        self.state = self.state.accepted(&header.author, &payload.command);
+        self.append(proposal, payload, Outcome::Applied, now);
+    }
+}
+
+/// An acceptance of `command`, signed by `signer`, that the service should
+/// have rejected, as the next link of `books`.
+fn forged(books: &Books, signer: &Keys, command: Command) -> (AcceptanceHeader, AcceptanceContent) {
+    let payload = ProposalPayload {
+        v: PROTOCOL_VERSION,
+        salt: salt(),
+        business: business_id(),
+        base_seq: Some(books.chain.len() as u64 - 1),
+        command,
+    };
+    let content = AcceptanceContent {
+        v: PROTOCOL_VERSION,
+        proposal: build_proposal(signer, &pk(&service()), &payload, at(T0)).unwrap(),
+        payload: CommittedPayload::new(payload).unwrap(),
+        env: EnvRecord {
+            ids: vec![],
+            now: "2027-01-15T08:00:00.000Z".into(),
+        },
+        changes: vec![],
+        outcome: Outcome::Applied,
+    };
+    (next_header(books, &content), content)
+}
+
+#[test]
+fn a_reader_rebuilds_which_drafts_an_assistant_may_edit() {
+    let mut books = Books::create();
+    books.change(
+        &owner(),
+        add(&assistant(), Role::Assistant, History::Full),
+        T0,
+    );
+    let (seed, _) = seed_business();
+    let mut own = seed.drafts[0].clone();
+    own.id = "assistant-draft".into();
+    books.accept(
+        &assistant(),
+        Command::SubmitReceiptDraft {
+            draft: own.clone(),
+            documents: vec![],
+        },
+        T0,
+    );
+    let save = |draft: &ledger_core::ExpenseDraft| Command::SaveDraft {
+        draft: draft.clone(),
+        documents: vec![],
+        extraction: None,
+    };
+    books.accept(&assistant(), save(&own), T0);
+
+    let rebuilt = follow_chain(&books.chain, &books.keys_for(&owner())).unwrap();
+    assert_eq!(rebuilt, books.state);
+    assert_eq!(
+        rebuilt.assistant_drafts.get("assistant-draft"),
+        Some(&pk(&assistant()))
+    );
+
+    // A service that let the assistant edit a person's draft is caught.
+    let (header, content) = forged(&books, &assistant(), save(&seed.drafts[0]));
+    assert_eq!(
+        rebuilt.follow(&header, &content, T0).unwrap_err(),
+        ProtocolError::AssistantOwnDraftsOnly
+    );
+    // So is one that let it approve its own draft.
+    let (header, content) = forged(
+        &books,
+        &assistant(),
+        Command::Approve {
+            expense_id: own.id.clone(),
+        },
+    );
+    assert_eq!(
+        rebuilt.follow(&header, &content, T0).unwrap_err(),
+        ProtocolError::Forbidden
+    );
+}

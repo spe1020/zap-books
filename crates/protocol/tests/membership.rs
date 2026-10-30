@@ -6,7 +6,7 @@ use common::*;
 use nostr::prelude::{EventId, Keys};
 use protocol::{
     Actor, Command, History, MembershipChange, MembershipState, Outcome, ProtocolError, Recovery,
-    Role, RuleInput, SettingsChange, OWNER_DELAY_SECS,
+    Role, RuleInput, SettingsChange, SuggestionInput, OWNER_DELAY_SECS,
 };
 
 const T0: u64 = 1_800_000_000;
@@ -23,8 +23,8 @@ fn add(keys: &Keys, role: Role, history: History) -> MembershipChange {
     }
 }
 
-/// Owner plus backup key, with a bookkeeper, a viewer and a submitter, all
-/// with full history.
+/// Owner plus backup key, with a bookkeeper, a viewer, a submitter and an
+/// assistant, all with full history.
 fn team() -> MembershipState {
     let mut s = MembershipState::genesis(
         business_id(),
@@ -37,6 +37,7 @@ fn team() -> MembershipState {
         (bookkeeper(), Role::Bookkeeper),
         (viewer(), Role::Viewer),
         (submitter(), Role::Submitter),
+        (assistant(), Role::Assistant),
     ]
     .iter()
     .enumerate()
@@ -134,8 +135,21 @@ fn every_command() -> Vec<(&'static str, Command)> {
         (
             "SubmitReceiptDraft",
             Command::SubmitReceiptDraft {
-                draft,
+                draft: draft.clone(),
                 documents: vec![],
+            },
+        ),
+        (
+            "Suggest",
+            Command::Suggest {
+                suggestion: SuggestionInput {
+                    draft_id: draft.id,
+                    author: pk(&assistant()).to_hex(),
+                    category_id: None,
+                    purpose: None,
+                    note: Some("Invented note".into()),
+                    evidence: vec!["Invented line".into()],
+                },
             },
         ),
     ]
@@ -144,36 +158,46 @@ fn every_command() -> Vec<(&'static str, Command)> {
 #[test]
 fn the_permission_table() {
     let s = team();
-    // Columns: owner, bookkeeper, viewer, submitter, recovery key, outsider.
+    // Columns: owner, bookkeeper, viewer, submitter, assistant, recovery
+    // key, outsider. The draft is the seed's, which a person created, so
+    // the assistant may not save it (see tests/assistant.rs for its own).
     let signers = [
         owner(),
         bookkeeper(),
         viewer(),
         submitter(),
+        assistant(),
         backup(),
         outsider(),
     ];
-    let expected: [(&str, [bool; 6]); 11] = [
-        ("SaveDraft", [true, true, false, false, false, false]),
-        ("Approve", [true, true, false, false, false, false]),
-        ("Correct", [true, true, false, false, false, false]),
-        ("CommitImport", [true, true, false, false, false, false]),
-        ("UpdateSettings", [true, true, false, false, false, false]),
-        ("SaveRule", [true, true, false, false, false, false]),
+    let expected: [(&str, [bool; 7]); 12] = [
+        ("SaveDraft", [true, true, false, false, false, false, false]),
+        ("Approve", [true, true, false, false, false, false, false]),
+        ("Correct", [true, true, false, false, false, false, false]),
+        (
+            "CommitImport",
+            [true, true, false, false, false, false, false],
+        ),
+        (
+            "UpdateSettings",
+            [true, true, false, false, false, false, false],
+        ),
+        ("SaveRule", [true, true, false, false, false, false, false]),
         (
             "ChangeMembership",
-            [true, false, false, false, false, false],
+            [true, false, false, false, false, false, false],
         ),
         (
             "ChangeMembership (owner-level)",
-            [true, false, false, false, false, false],
+            [true, false, false, false, false, false, false],
         ),
-        ("Recover", [false, false, false, false, true, false]),
-        ("Veto", [true, false, false, false, true, false]),
+        ("Recover", [false, false, false, false, false, true, false]),
+        ("Veto", [true, false, false, false, false, true, false]),
         (
             "SubmitReceiptDraft",
-            [true, true, false, true, false, false],
+            [true, true, false, true, true, false, false],
         ),
+        ("Suggest", [false, false, false, false, true, false, false]),
     ];
     for ((name, command), (row, allowed)) in every_command().iter().zip(expected) {
         assert_eq!(*name, row);

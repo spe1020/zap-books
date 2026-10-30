@@ -20,6 +20,7 @@ import * as L from "../src/domain/ledger";
 import * as I from "../src/domain/import";
 import * as X from "../src/domain/export";
 import * as S from "../src/domain/settings";
+import * as G from "../src/domain/suggestions";
 import { seedWorkspace } from "../src/domain/seed";
 
 const NOW = "2026-10-15T12:00:00.000Z";
@@ -2011,6 +2012,81 @@ function documentHashes(setup: BusinessData) {
   );
 }
 
+/**
+ * `suggest` (decision 0004). Recorded last, so no earlier ids shift. Runs on
+ * Northstar's setup with one open and one posted draft.
+ */
+function suggestions(setup: BusinessData, fw: BusinessData) {
+  const open = ready(setup, { id: "draft-open" });
+  const b = state("northstar-setup-drafts", {
+    ...setup,
+    drafts: [open, { ...open, id: "draft-posted", status: "posted" as const }],
+  });
+  const author = "ab".repeat(32);
+  const base = {
+    draftId: "draft-open",
+    author,
+    evidence: ["Invented evidence line"],
+  };
+  const add = (name: string, business: BusinessData, input: unknown) =>
+    record("suggestions", name, "suggest", { business, input }, (i) =>
+      G.suggest(i.business, i.input),
+    );
+  const first = add("suggest: category, purpose and note, trimmed", b, {
+    ...base,
+    categoryId: b.categories[0].id,
+    purpose: "  Client workshop ",
+    note: " Looks like supplies ",
+    evidence: ["  Printed line one ", "Printed line two"],
+  });
+  add("suggest: a second suggestion is appended", first, {
+    ...base,
+    note: "Another reading",
+  });
+  add("suggest: blank purpose and note are left out", b, {
+    ...base,
+    categoryId: b.categories[1].id,
+    purpose: " ",
+    note: "",
+  });
+  add("suggest: nothing suggested", b, { ...base, purpose: " ", note: " " });
+  add("suggest: author key in upper case", b, {
+    ...base,
+    author: author.toUpperCase(),
+    note: "A note",
+  });
+  add("suggest: author key too short", b, {
+    ...base,
+    author: "ab",
+    note: "A note",
+  });
+  add("suggest: unknown draft", b, {
+    ...base,
+    draftId: "missing",
+    note: "A note",
+  });
+  add("suggest: another business's draft", b, {
+    ...base,
+    draftId: fw.drafts[0].id,
+    note: "A note",
+  });
+  add("suggest: a posted expense", b, {
+    ...base,
+    draftId: "draft-posted",
+    note: "A note",
+  });
+  add("suggest: another business's category", b, {
+    ...base,
+    categoryId: fw.categories[0].id,
+  });
+  add("suggest: no evidence", b, { ...base, note: "A note", evidence: [] });
+  add("suggest: a blank evidence line", b, {
+    ...base,
+    note: "A note",
+    evidence: ["Printed line", "  "],
+  });
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -2046,6 +2122,7 @@ test("generate parity fixtures", () => {
     paymentOwner(ns);
     const setup = settings(ns, fw);
     documentHashes(setup);
+    suggestions(setup, fw);
     write();
   } finally {
     vi.useRealTimers();
