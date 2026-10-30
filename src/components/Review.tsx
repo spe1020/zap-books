@@ -309,9 +309,30 @@ export function Review({
           accepted: [...accepted],
         }
       : undefined;
+    // "Save as a rule" is its own command, with the Settings screen's
+    // checks: an existing rule for this vendor is replaced.
+    const existing = b.rules.find(
+      (r) =>
+        r.vendorIncludes.toLowerCase() === next.vendor.trim().toLowerCase(),
+    );
+    const rule: LedgerCommand[] = saveRule
+      ? [
+          {
+            type: "SaveRule",
+            rule: {
+              id: existing?.id,
+              vendorIncludes: next.vendor.trim(),
+              categoryId: next.categoryId,
+              purpose: next.purpose,
+              enabled: true,
+            },
+          },
+        ]
+      : [];
     const ok = await mutate(
       correcting
         ? [
+            ...rule,
             {
               type: "Correct",
               originalId: initial.id,
@@ -319,16 +340,15 @@ export function Review({
               reason,
               documents: docs,
               extraction: reading,
-              rememberRule: saveRule,
             },
           ]
         : [
+            ...rule,
             {
               type: "SaveDraft",
               draft: next,
               documents: docs,
               extraction: reading,
-              rememberRule: saveRule,
             },
             ...(post ? [{ type: "Approve" as const, expenseId: next.id }] : []),
           ],

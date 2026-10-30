@@ -1,8 +1,8 @@
 import type { BusinessData, Workspace } from "../domain/types";
-import { approve, correct, event, id, saveDraft } from "../domain/ledger";
+import { approve, correct, saveDraft } from "../domain/ledger";
 import { commitImport } from "../domain/import";
 import { saveRule, updateSettings } from "../domain/settings";
-import { finalizeExtractions, recordExtraction } from "../domain/extraction";
+import { recordExtraction } from "../domain/extraction";
 import { CommandClient, type LedgerCommand } from "./ledger-client";
 import { repository, type LocalRepository } from "./storage";
 
@@ -58,49 +58,19 @@ export function applyLocal(
         ...current,
         documents: [...current.documents, ...command.documents],
       };
-      if (command.rememberRule) {
-        const existing = updated.rules.find(
-          (r) =>
-            r.vendorIncludes.toLowerCase() === next.vendor.trim().toLowerCase(),
-        );
-        const rule = {
-          id: existing?.id ?? id(),
-          businessId: current.profile.id,
-          vendorIncludes: next.vendor.trim(),
-          categoryId: next.categoryId,
-          purpose: next.purpose,
-          enabled: true,
-        };
-        updated = {
-          ...updated,
-          rules: [...updated.rules.filter((r) => r.id !== rule.id), rule],
-        };
-        event(
-          updated,
-          "rule.saved",
-          rule.id,
-          `Explicitly saved classification rule for ${rule.vendorIncludes}`,
-        );
-      }
-      const reading = command.extraction;
-      const withReading = (state: BusinessData) =>
-        reading
-          ? recordExtraction(state, { draftId: next.id, ...reading })
-          : state;
-      if (command.type === "Correct")
-        return finalizeExtractions(
-          withReading(
-            correct(updated, command.originalId, next, command.reason),
-          ),
-          next.id,
-        );
-      return withReading(saveDraft(updated, next));
+      // The reading first, as on the service: correcting posts the
+      // replacement, and posting judges its readings.
+      if (command.extraction)
+        updated = recordExtraction(updated, {
+          draftId: next.id,
+          ...command.extraction,
+        });
+      return command.type === "Correct"
+        ? correct(updated, command.originalId, next, command.reason)
+        : saveDraft(updated, next);
     }
     case "Approve":
-      return finalizeExtractions(
-        approve(current, command.expenseId),
-        command.expenseId,
-      );
+      return approve(current, command.expenseId);
     case "CommitImport":
       return commitImport(current, command.rows, command.accountId);
     case "UpdateSettings":
