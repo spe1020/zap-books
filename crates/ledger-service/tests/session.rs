@@ -354,3 +354,42 @@ async fn a_session_is_for_members_and_the_recovery_key_only() {
     assert_eq!(read(&base, &token, &path).await.0, 404);
     w.finish().await;
 }
+
+#[tokio::test]
+async fn the_recovery_key_sees_owners_and_pending_changes_but_no_books() {
+    let w = World::new().await;
+    let base = w.serve().await;
+    w.create().await;
+    let incoming = key(41);
+    let ack = w.change(&owner(), add(&incoming, Role::Owner)).await;
+    assert_eq!(ack.status, ledger_service::Status::Accepted);
+
+    let backup_token = token(&base, &backup()).await;
+    let (status, body) = read(&base, &backup_token, "/v1/recovery").await;
+    assert_eq!(status, 200, "{body}");
+    let value: Value = serde_json::from_str(&body).unwrap();
+    let guarded = value["businesses"].as_array().unwrap();
+    assert_eq!(guarded.len(), 1);
+    let b = &guarded[0];
+    assert_eq!(b["business"], w.business.to_string());
+    assert_eq!(b["service"], service_keys().public_key().to_hex());
+    assert_eq!(
+        b["owners"],
+        serde_json::json!([owner().public_key().to_hex()])
+    );
+    let pending = b["pending"].as_array().unwrap();
+    assert_eq!(pending.len(), 1);
+    assert_eq!(pending[0]["proposer"], owner().public_key().to_hex());
+    assert_eq!(pending[0]["change"]["op"], "add");
+    // Nothing from the books.
+    let mut fields: Vec<&str> = b.as_object().unwrap().keys().map(|k| k.as_str()).collect();
+    fields.sort();
+    assert_eq!(fields, ["business", "owners", "pending", "service"]);
+
+    // A member guards nothing.
+    let owner_token = token(&base, &owner()).await;
+    let (status, body) = read(&base, &owner_token, "/v1/recovery").await;
+    assert_eq!(status, 200);
+    assert_eq!(body, r#"{"businesses":[]}"#);
+    w.finish().await;
+}

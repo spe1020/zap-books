@@ -3,7 +3,8 @@
  * database (the local demo's stays separate):
  *
  * - `books`: per signed-in key and business, the verified head, the books
- *   and the membership after it. Written only after a whole sync verified.
+ *   and the membership after it, and what the members screens show. Written
+ *   only after a whole sync verified.
  * - `queue`: signed proposals waiting to be sent, in order.
  * - `receipts`: receipt files, which stay in the browser that attached them.
  * - `known`: the businesses each key has opened or created here.
@@ -14,6 +15,7 @@
 import type { BusinessData } from "../domain/types";
 import type { LedgerCommand } from "../adapters/ledger-client";
 import type { Head, Membership, NostrEvent } from "./protocol";
+import type { People } from "./people";
 
 const DB = "zapbooks-remote-v1";
 
@@ -23,6 +25,8 @@ export interface StoredBooks {
   head: Head;
   snapshot: BusinessData;
   membership: Membership;
+  /** Join times and the like, for the members screens (`people.ts`). */
+  people: People;
 }
 
 /** One proposal waiting, or stopped by a rejection. */

@@ -47,6 +47,24 @@ impl Clock for FixedClock {
     }
 }
 
+/// The system clock moved by the number of milliseconds written in a file,
+/// read on every call; no file means no offset. Only in builds with the
+/// `e2e-clock` feature, which the remote e2e tests use to let a 48-hour
+/// wait pass.
+#[cfg(feature = "e2e-clock")]
+pub struct OffsetClock(pub std::path::PathBuf);
+
+#[cfg(feature = "e2e-clock")]
+impl Clock for OffsetClock {
+    fn now_millis(&self) -> u64 {
+        let offset = std::fs::read_to_string(&self.0)
+            .ok()
+            .and_then(|s| s.trim().parse::<i64>().ok())
+            .unwrap_or(0);
+        SystemClock.now_millis().saturating_add_signed(offset)
+    }
+}
+
 /// `new Date(millis).toISOString()`: `2026-10-15T12:00:00.000Z`.
 pub fn iso_millis(millis: u64) -> String {
     let secs = millis / 1000;

@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 use std::sync::Arc;
 
-use ledger_service::clock::{uuid, SystemClock};
+use ledger_service::clock::{uuid, Clock, SystemClock};
 use ledger_service::http::{cors, router, AppState};
 use ledger_service::{key, scheduler, Ledger};
 use sqlx::postgres::PgPoolOptions;
@@ -164,7 +164,7 @@ async fn main() -> ExitCode {
         return ExitCode::from(1);
     }
     let ledger = keys.fold(
-        Ledger::new(pool, primary, Arc::new(SystemClock), Arc::new(uuid)),
+        Ledger::new(pool, primary, clock(), Arc::new(uuid)),
         Ledger::with_key,
     );
     let ledger = Arc::new(ledger);
@@ -258,5 +258,23 @@ async fn shutdown() {
     #[cfg(not(unix))]
     {
         let _ = tokio::signal::ctrl_c().await;
+    }
+}
+
+#[cfg(not(feature = "e2e-clock"))]
+fn clock() -> Arc<dyn Clock> {
+    Arc::new(SystemClock)
+}
+
+/// The remote e2e tests' clock: moved by the offset in the file
+/// `ZAPBOOKS_E2E_CLOCK_FILE` names.
+#[cfg(feature = "e2e-clock")]
+fn clock() -> Arc<dyn Clock> {
+    match std::env::var_os("ZAPBOOKS_E2E_CLOCK_FILE") {
+        Some(path) => {
+            tracing::warn!("e2e-clock build: the clock follows a test file");
+            Arc::new(ledger_service::clock::OffsetClock(path.into()))
+        }
+        None => Arc::new(SystemClock),
     }
 }

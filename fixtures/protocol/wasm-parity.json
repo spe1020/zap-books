@@ -4730,6 +4730,253 @@
       "answer": "2"
     },
     {
+      "name": "isOwnerLevel: adding an owner",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "history": "full",
+          "member": "6776bee20c9bf74c421e703c23a132f6dbdf6c882c7f6634b128e66820139db1",
+          "op": "add",
+          "role": "owner"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "answer": "true"
+    },
+    {
+      "name": "isOwnerLevel: adding a bookkeeper",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "history": "full",
+          "member": "6776bee20c9bf74c421e703c23a132f6dbdf6c882c7f6634b128e66820139db1",
+          "op": "add",
+          "role": "bookkeeper"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "answer": "false"
+    },
+    {
+      "name": "isOwnerLevel: removing an owner",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "member": "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50",
+          "op": "remove"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "answer": "true"
+    },
+    {
+      "name": "isOwnerLevel: removing a viewer",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "member": "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1",
+          "op": "remove"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "answer": "false"
+    },
+    {
+      "name": "isOwnerLevel: making a viewer an owner",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "member": "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1",
+          "op": "changeRole",
+          "role": "owner"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "answer": "true"
+    },
+    {
+      "name": "isOwnerLevel: making a viewer an assistant",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "member": "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1",
+          "op": "changeRole",
+          "role": "assistant"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "answer": "false"
+    },
+    {
+      "name": "isOwnerLevel: recovering an owner",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "lost": "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50",
+          "op": "recover",
+          "replacement": "6776bee20c9bf74c421e703c23a132f6dbdf6c882c7f6634b128e66820139db1"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "answer": "true"
+    },
+    {
+      "name": "isOwnerLevel: an unknown change",
+      "function": "isOwnerLevel",
+      "request": {
+        "change": {
+          "member": "6776bee20c9bf74c421e703c23a132f6dbdf6c882c7f6634b128e66820139db1",
+          "op": "promote"
+        },
+        "state": {
+          "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "epoch": 0,
+          "members": {
+            "1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "viewer"
+            },
+            "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50": {
+              "history": "full",
+              "joinedEpoch": 0,
+              "role": "owner"
+            }
+          },
+          "pending": [],
+          "recoveryKey": "1428f3a3532ff4f1cac70f7292bfad06d1037f800ee8839b56ebba917a22e900",
+          "service": "baf7689c0a3558fb604589036a8d1e4b685d909f6e0e2c6018a14049ae64ec26"
+        }
+      },
+      "error": "The request is not valid for this function."
+    },
+    {
       "name": "buildProposal: a malformed command",
       "function": "buildProposal",
       "request": {

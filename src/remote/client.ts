@@ -7,6 +7,7 @@
  * only through verified sync: the service decides.
  */
 import type { BusinessData, Workspace } from "../domain/types";
+import type { MembershipChange, PendingChange } from "../domain/members";
 import { CommandClient, type LedgerCommand } from "../adapters/ledger-client";
 import { applyLocal } from "../adapters/local-ledger";
 import { Offline, ServiceError, type Acknowledgment, ServiceApi } from "./api";
@@ -39,7 +40,26 @@ export interface RemoteView {
   importing?: { batch: number; of: number };
 }
 
+/**
+ * A business the signed-in key is the recovery key of, as the service
+ * reports it (`GET /v1/recovery`). The recovery key reads no books, so this
+ * can't be verified here; the service checks every veto and recovery.
+ */
+export interface Guarded {
+  business: string;
+  service: string;
+  owners: string[];
+  pending: PendingChange[];
+}
+
 const now = () => Math.floor(Date.now() / 1000);
+
+/** Membership commands leave the books as they are. */
+function domainCheck(state: BusinessData, command: LedgerCommand) {
+  return command.type === "ChangeMembership" || command.type === "Veto"
+    ? state
+    : applyLocal(state, command);
+}
 
 export class RemoteLedgerClient extends CommandClient {
   readonly sync: Sync;
@@ -100,6 +120,11 @@ export class RemoteLedgerClient extends CommandClient {
   membership(business: string) {
     return this.books.get(business)?.membership;
   }
+  people(business: string) {
+    return this.books.get(business)?.people;
+  }
+  /** The businesses this key is the recovery key of, as last fetched. */
+  guarded: Guarded[] = [];
 
   workspace(): Workspace {
     return {
@@ -172,7 +197,10 @@ export class RemoteLedgerClient extends CommandClient {
           this.books.set(b, cached);
         }
       }
-      if (discover) await store.addKnown(owner, await this.sync.fetchKeys());
+      if (discover) {
+        await store.addKnown(owner, await this.sync.fetchKeys());
+        await this.fetchGuarded();
+      }
       for (const b of await store.known(owner)) {
         try {
           await this.syncBusiness(b);
@@ -212,7 +240,7 @@ export class RemoteLedgerClient extends CommandClient {
     const stopped = this.sync.stopped.get(businessId);
     if (stopped) throw new Error(stopped);
     // The domain rules first: the same messages as the local demo.
-    commands.reduce(applyLocal, this.withReceipts(books.snapshot));
+    commands.reduce(domainCheck, this.withReceipts(books.snapshot));
     const action = crypto.randomUUID();
     const items: QueueItem[] = [];
     const ahead = this.queue.filter((q) => q.business === businessId).length;
@@ -245,7 +273,7 @@ export class RemoteLedgerClient extends CommandClient {
           }),
         );
       }
-      state = applyLocal(state, command);
+      state = domainCheck(state, command);
     }
     await store.enqueue(items);
     this.queue = await store.queue(this.signer.pubkey);
@@ -486,7 +514,7 @@ export class RemoteLedgerClient extends CommandClient {
     const books = await this.syncBusiness(item.business);
     const state = this.withReceipts(books.snapshot);
     try {
-      applyLocal(state, item.command);
+      domainCheck(state, item.command);
     } catch (e) {
       item.rejected = (e as Error).message;
       await store.updateItem(item);
@@ -506,6 +534,89 @@ export class RemoteLedgerClient extends CommandClient {
     this.queue = await store.queue(this.signer.pubkey);
     this.changed();
     await this.flushAndSettle();
+  }
+
+  // People
+
+  /** Whether `change` waits 48 hours and can be vetoed, by the protocol's rule. */
+  isOwnerLevel(business: string, change: MembershipChange): boolean {
+    const state = this.books.get(business)?.membership;
+    return !!state && protocol.isOwnerLevel({ state, change });
+  }
+
+  /** Hides the after-recovery banner for good, in this browser. */
+  async dismissRecovery(business: string) {
+    const books = this.books.get(business);
+    if (!books?.people.recovered) return;
+    const next = {
+      ...books,
+      people: {
+        ...books.people,
+        recovered: { ...books.people.recovered, dismissed: true },
+      },
+    };
+    await store.saveBooks(next);
+    this.books.set(business, next);
+    this.changed();
+  }
+
+  /** Fetches the businesses this key is the recovery key of. */
+  async fetchGuarded(): Promise<Guarded[]> {
+    try {
+      ({ businesses: this.guarded } = await this.api.read<{
+        businesses: Guarded[];
+      }>("/v1/recovery"));
+    } catch (e) {
+      // A key with no standing anywhere has no session.
+      if (!(e instanceof ServiceError) || e.status !== 403) throw e;
+      this.guarded = [];
+    }
+    this.changed();
+    return this.guarded;
+  }
+
+  /**
+   * A veto or recovery signed with the recovery key. It reads no books, so
+   * it sends at once rather than queueing: `baseSeq` 0 is never stale for
+   * a membership command, which targets no records.
+   */
+  async proposeAsRecoveryKey(
+    business: string,
+    command:
+      | { type: "Veto"; pending: string }
+      | { type: "ChangeMembership"; change: MembershipChange },
+  ) {
+    const guarded = this.guarded.find((g) => g.business === business);
+    if (!guarded) throw new Error("This key doesn't guard that business.");
+    const parts = protocol.buildProposal({ business, baseSeq: 0, command });
+    const event = await this.sign(guarded.service, parts);
+    const ack = await this.api.propose(event);
+    if (ack.status !== "accepted") {
+      const service = ack.event.pubkey;
+      if (service !== guarded.service && service !== this.pinned)
+        throw new Error(
+          "A rejection came from a key that isn't this business's service.",
+        );
+      const { proposal } = protocol.parseRejection({
+        event: ack.event,
+        member: this.signer.pubkey,
+        service,
+      });
+      if (proposal !== event.id)
+        throw new Error(
+          "The service rejected a different proposal than the one sent.",
+        );
+      const plaintext = await this.signer.decrypt(service, ack.event.content);
+      throw new Error(
+        protocol.openRejection({
+          event: ack.event,
+          member: this.signer.pubkey,
+          service,
+          plaintext,
+        }).message,
+      );
+    }
+    await this.fetchGuarded();
   }
 
   // Business creation

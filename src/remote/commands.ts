@@ -6,6 +6,7 @@
 import type { BusinessData, SourceDocument } from "../domain/types";
 import { recordExtraction } from "../domain/extraction";
 import type { LedgerCommand, ReceiptReading } from "../adapters/ledger-client";
+import { aRole, type MembershipChange } from "../domain/members";
 
 /** SHA-256 of a file's bytes, lowercase hex. */
 export async function sha256(blob: Blob): Promise<string> {
@@ -115,9 +116,27 @@ export function describe(command: LedgerCommand): string {
     case "SaveRule":
       return `Save rule: ${command.rule.vendorIncludes.trim()}`;
     case "ChangeMembership":
-      return "Change membership";
+      return describeChange(command.change);
     case "Veto":
       return "Veto a pending change";
+  }
+}
+
+/** A membership change in a few words. */
+export function describeChange(change: MembershipChange): string {
+  switch (change.op) {
+    case "add":
+      return `Add ${aRole(change.role)}`;
+    case "remove":
+      return "Remove a member";
+    case "changeRole":
+      return `Make a member ${aRole(change.role)}`;
+    case "replaceRecoveryKey":
+      return change.key ? "Replace the backup key" : "Drop the backup key";
+    case "replaceServiceKey":
+      return "Move to a new service key";
+    case "recover":
+      return "Recover an owner";
   }
 }
 

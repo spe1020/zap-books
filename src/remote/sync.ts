@@ -19,6 +19,7 @@ import {
 } from "./protocol";
 import type { Signer } from "./signer";
 import { store, type StoredBooks } from "./store";
+import { noPeople, observe, type People } from "./people";
 
 /** Sync stopped for a business; its stored books are unchanged. */
 export class SyncStopped extends Error {}
@@ -102,6 +103,11 @@ export class Sync {
       await this.fetchKeys(business);
       secret = this.keys.get(business)?.get(epoch);
     }
+    const held = [...(this.keys.get(business)?.keys() ?? [])];
+    if (!secret && held.length && Math.min(...held) > epoch)
+      throw new SyncStopped(
+        "You were added with history from your join date, and this app can't yet open books without their earlier history. Ask an owner to add you again with full history.",
+      );
     if (!secret)
       throw new SyncStopped(
         `There's no key here for epoch ${epoch} of this business's books, so they can't be opened.`,
@@ -117,7 +123,8 @@ export class Sync {
         `/v1/businesses/${business}/acceptances?${query}`,
       );
     } catch (e) {
-      if (e instanceof ServiceError && e.status === 404)
+      // 403: the key has no standing anywhere now, so no session either.
+      if (e instanceof ServiceError && (e.status === 404 || e.status === 403))
         throw new SyncStopped(
           "You can't read this business's books: it doesn't exist, or you're no longer a member.",
         );
@@ -157,7 +164,10 @@ export class Sync {
 
   private async syncOnce(business: string): Promise<StoredBooks> {
     const owner = this.signer.pubkey;
-    const stored = await store.books(owner, business);
+    const saved = await store.books(owner, business);
+    // Books stored before the members screens have no `people`: verify
+    // them again from genesis, which must still pass through their head.
+    const stored = saved?.people ? saved : undefined;
     let events: NostrEvent[];
     if (stored) {
       // Fetch from the stored head itself, which must still be there.
@@ -168,7 +178,13 @@ export class Sync {
           `The service's history no longer matches what this browser verified at seq ${stored.head.seq}: the chain was forked or rewritten. Sync has stopped for this business.`,
         );
       events = fetched.slice(1);
-    } else events = await this.fetchAfter(business);
+    } else {
+      events = await this.fetchAfter(business);
+      if (saved && events[saved.head.seq]?.id !== saved.head.id)
+        throw new SyncStopped(
+          `The service's history no longer matches what this browser verified at seq ${saved.head.seq}: the chain was forked or rewritten. Sync has stopped for this business.`,
+        );
+    }
     if (!events.length) {
       if (stored) return stored;
       throw new SyncStopped("This business has no books yet.");
@@ -176,6 +192,7 @@ export class Sync {
     let head: Head | undefined = stored?.head;
     let snapshot: BusinessData | undefined = stored?.snapshot;
     let membership: Membership | undefined = stored?.membership;
+    let people: People = stored?.people ?? noPeople();
     for (const event of events) {
       try {
         const signer = head?.service ?? this.pinned;
@@ -193,10 +210,12 @@ export class Sync {
           service: signer,
           business,
         });
+        const before = membership;
         membership = protocol.followMembership({
           state: membership,
           acceptance: opened,
         });
+        people = observe(people, before, membership, opened, owner);
         snapshot = protocol.applyRecordChanges({
           snapshot,
           acceptance: opened,
@@ -215,6 +234,7 @@ export class Sync {
       head: head!,
       snapshot: snapshot!,
       membership: membership!,
+      people,
     };
     await store.saveBooks(books);
     return books;

@@ -72,3 +72,41 @@ export async function recordExpense(
 export async function openBusiness(page: Page) {
   return page.getByLabel("Switch business").inputValue();
 }
+
+/** Creates a business whose recovery party is a second owner. */
+export async function createWithSecondOwner(
+  page: Page,
+  name: string,
+  second: string,
+) {
+  await expect(
+    page.getByRole("heading", { name: "Create a business" }),
+  ).toBeVisible();
+  await page.getByLabel("Business name").fill(name);
+  await page.getByLabel("Industry").fill("Pottery");
+  await page.getByLabel("A second owner").check();
+  await page.getByLabel("Second owner's npub").fill(second);
+  await page.getByLabel("This matches the service key I was given").check();
+  await page.getByRole("button", { name: "Create business" }).click();
+  await expect(
+    page.getByRole("button", { name: /Sync status: Synced/ }),
+  ).toBeVisible();
+}
+
+/** Opens the Members screen. */
+export async function openMembers(page: Page) {
+  await page.getByRole("button", { name: "Members", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Members" }).first(),
+  ).toBeVisible();
+}
+
+/** Invites `npub` in `role` from the Members screen. */
+export async function invite(page: Page, npub: string, role: string) {
+  await openMembers(page);
+  await page.getByLabel("Their npub").fill(npub);
+  await page
+    .getByRole("combobox", { name: "Role", exact: true })
+    .selectOption({ label: role });
+  await page.getByRole("button", { name: "Invite", exact: true }).click();
+}

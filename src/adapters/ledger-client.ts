@@ -7,6 +7,7 @@ import type {
 } from "../domain/types";
 import type { ImportRow } from "../domain/import";
 import type { RuleInput, SettingsChange } from "../domain/settings";
+import type { MembershipChange } from "../domain/members";
 
 /** What the receipt reader proposed for a draft, and what the user took. */
 export interface ReceiptReading {
@@ -41,8 +42,8 @@ export type LedgerCommand =
   | { type: "CommitImport"; accountId: string; rows: ImportRow[] }
   | { type: "UpdateSettings"; change: SettingsChange }
   | { type: "SaveRule"; rule: RuleInput }
-  /** Membership needs the service; its shape arrives with the members screens. */
-  | { type: "ChangeMembership"; change: unknown }
+  /** Membership needs the service: the local demo has no members. */
+  | { type: "ChangeMembership"; change: MembershipChange }
   | { type: "Veto"; pending: string };
 
 type Input<T extends LedgerCommand["type"]> = Omit<

@@ -17,7 +17,7 @@ use nostr::prelude::{Event, EventBuilder, Keys, Kind, PublicKey, SecretKey, Tag,
 use protocol::{
     apply_command, build_acceptance, build_delivery, build_proposal, build_rejection, decrypt_from,
     diff, encrypt_to, genesis_business, genesis_changes, open_proposal, AcceptanceContent,
-    AcceptanceHeader, BusinessId, Command, CommittedPayload, EnvRecord, EpochKey, History,
+    AcceptanceHeader, BusinessId, Command, CommittedPayload, EnvRecord, EpochKey, History, Member,
     MembershipChange, MembershipState, Outcome, ProposalPayload, RecordingEnv, Recovery, Role,
     PROTOCOL_VERSION,
 };
@@ -64,6 +64,7 @@ fn call(function: &str, request: &str) -> api::Answer {
         "openRejection" => api::open_rejection(request),
         "nextBatch" => api::next_batch(request),
         "limits" => api::limits(),
+        "isOwnerLevel" => api::is_owner_level(request),
         other => panic!("no export named {other}"),
     }
 }
@@ -750,6 +751,67 @@ fn generate() -> Fixture {
             json!({ "rows": rows, "size": size, "limit": 65_536 }),
         );
     }
+
+    // Which membership changes wait 48 hours.
+    let mut state = MembershipState::genesis(
+        business(),
+        owner().public_key(),
+        svc,
+        Recovery::BackupKey {
+            pubkey: backup().public_key(),
+        },
+    )
+    .unwrap();
+    state.members.insert(
+        viewer().public_key(),
+        Member {
+            role: Role::Viewer,
+            history: History::Full,
+            joined_epoch: 0,
+        },
+    );
+    let newcomer = key(60).public_key();
+    for (name, change) in [
+        (
+            "adding an owner",
+            json!({ "op": "add", "member": newcomer, "role": "owner", "history": "full" }),
+        ),
+        (
+            "adding a bookkeeper",
+            json!({ "op": "add", "member": newcomer, "role": "bookkeeper", "history": "full" }),
+        ),
+        (
+            "removing an owner",
+            json!({ "op": "remove", "member": owner().public_key() }),
+        ),
+        (
+            "removing a viewer",
+            json!({ "op": "remove", "member": viewer().public_key() }),
+        ),
+        (
+            "making a viewer an owner",
+            json!({ "op": "changeRole", "member": viewer().public_key(), "role": "owner" }),
+        ),
+        (
+            "making a viewer an assistant",
+            json!({ "op": "changeRole", "member": viewer().public_key(), "role": "assistant" }),
+        ),
+        (
+            "recovering an owner",
+            json!({ "op": "recover", "lost": owner().public_key(), "replacement": newcomer }),
+        ),
+    ] {
+        c.ok(
+            &format!("isOwnerLevel: {name}"),
+            "isOwnerLevel",
+            json!({ "state": state, "change": change }),
+        );
+    }
+    c.err(
+        "isOwnerLevel: an unknown change",
+        "isOwnerLevel",
+        json!({ "state": state, "change": { "op": "promote", "member": newcomer } }),
+    );
 
     // buildProposal's answers carry a fresh salt; only its refusals are fixed.
     c.err(

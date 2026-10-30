@@ -23,6 +23,7 @@ import {
   Settings2,
   ShieldCheck,
   Sparkles,
+  Users,
   X,
 } from "lucide-react";
 import type {
@@ -46,6 +47,11 @@ import { localLedger } from "./adapters/local-ledger";
 import type { LedgerClient } from "./adapters/ledger-client";
 import type { RemoteLedgerClient, RemoteView } from "./remote";
 import { SyncStatus } from "./components/SyncStatus";
+import {
+  Members,
+  RecoveryBanner,
+  type PeopleTools,
+} from "./components/Members";
 import { transport } from "./adapters/transport";
 import { demoAI } from "./adapters/ai";
 import { PRODUCT_NAME } from "./config";
@@ -64,12 +70,17 @@ import { ImportDialog } from "./components/Import";
 import { ExportDialog } from "./components/Export";
 import { Settings } from "./components/Settings";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-type View = "overview" | "inbox" | "transactions" | "settings";
+type View = "overview" | "inbox" | "transactions" | "settings" | "members";
 const nav = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "inbox", label: "Expense inbox", icon: Inbox },
   { id: "transactions", label: "Transactions", icon: ArrowLeftRight },
   { id: "settings", label: "Settings", icon: Settings2 },
+] as const;
+/** Books on the service have members. */
+const remoteNav = [
+  ...nav,
+  { id: "members", label: "Members", icon: Users },
 ] as const;
 /** How often to sync while the window has focus. */
 const POLL_MS = 15_000;
@@ -80,13 +91,18 @@ const POLL_MS = 15_000;
 export default function App({
   remote,
   remoteNpub,
+  peopleTools,
   onSignOut,
   onNewBusiness,
+  onRecoveryMode,
 }: {
   remote?: RemoteLedgerClient;
   remoteNpub?: string;
+  peopleTools?: (business: string) => PeopleTools;
   onSignOut?: () => void;
   onNewBusiness?: () => void;
+  /** For a key that is also the backup key of some business. */
+  onRecoveryMode?: () => void;
 } = {}) {
   const client: LedgerClient = remote ?? localLedger;
   const [workspace, setWorkspace] = useState<Workspace>();
@@ -234,6 +250,18 @@ export default function App({
       </main>
     );
   const drafts = b.drafts.filter((d) => d.status === "draft");
+  const navItems = remote ? remoteNav : nav;
+  // Books on the service: what the signed-in key's role allows. The service
+  // decides; this only hides what it would refuse.
+  const membership = remote?.membership(b.profile.id);
+  const people = remote?.people(b.profile.id);
+  const me = remote?.signer.pubkey;
+  const role = me ? membership?.members[me]?.role : undefined;
+  const writes = !remote || role === "owner" || role === "bookkeeper";
+  const canEdit = (d: ExpenseDraft) =>
+    writes ||
+    (role === "assistant" && membership?.assistantDrafts?.[d.id] === me);
+  const tools = peopleTools?.(b.profile.id);
   return (
     <SaveErrorContext.Provider value={error}>
       <div className="app-shell">
@@ -280,7 +308,7 @@ export default function App({
           </div>
           <p className="nav-label">WORKSPACE</p>
           <nav aria-label="Main navigation">
-            {nav.map(({ id, label, icon: Icon }) => (
+            {navItems.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => navigate(id)}
@@ -303,6 +331,13 @@ export default function App({
               <h3>A place for every detail.</h3>
               <p>Your expenses, evidence, and decisions. All together.</p>
             </div>
+            {onRecoveryMode && (
+              <button className="help-button" onClick={onRecoveryMode}>
+                <KeyRound size={18} />
+                Backup key mode
+                <ArrowUpRight size={15} />
+              </button>
+            )}
             {remote && onNewBusiness && (
               <button className="help-button" onClick={onNewBusiness}>
                 <Plus size={18} />
@@ -365,7 +400,7 @@ export default function App({
               <Building2 size={15} />
               <span>{b.profile.name}</span>
               <span className="slash">/</span>
-              <strong>{nav.find((n) => n.id === view)?.label}</strong>
+              <strong>{navItems.find((n) => n.id === view)?.label}</strong>
             </div>
             <div className="topbar-actions">
               {remote && remoteView ? (
@@ -402,7 +437,9 @@ export default function App({
                       ? "FROM EVIDENCE TO ENTRY"
                       : view === "transactions"
                         ? "YOUR BUSINESS RECORD"
-                        : "MAKE IT YOURS"}
+                        : view === "members"
+                          ? "THE PEOPLE BEHIND THE BOOKS"
+                          : "MAKE IT YOURS"}
                 </p>
                 <h1>
                   {view === "overview"
@@ -411,7 +448,9 @@ export default function App({
                       ? "A clearer path to done."
                       : view === "transactions"
                         ? "Every entry. The full story."
-                        : "Workspace settings"}
+                        : view === "members"
+                          ? "Members"
+                          : "Workspace settings"}
                 </h1>
                 <p>
                   {view === "overview"
@@ -420,10 +459,12 @@ export default function App({
                       ? "Review the details, connect the evidence, and close the loop."
                       : view === "transactions"
                         ? "Posted expenses, transfers, and a history you can follow."
-                        : `The details that keep ${b.profile.name} running smoothly.`}
+                        : view === "members"
+                          ? `Who can read and change ${b.profile.name}'s books, and what's waiting to change.`
+                          : `The details that keep ${b.profile.name} running smoothly.`}
                 </p>
               </div>
-              {view !== "settings" && (
+              {view !== "settings" && view !== "members" && (
                 <div className="heading-actions">
                   <button
                     className="button secondary"
@@ -432,20 +473,24 @@ export default function App({
                     <Download size={17} />
                     Export
                   </button>
-                  <button
-                    className="button secondary"
-                    onClick={() => setImporting(true)}
-                  >
-                    <ArrowDownToLine size={17} />
-                    Import CSV
-                  </button>
-                  <button
-                    className="button primary"
-                    onClick={() => setReview(blankDraft(b))}
-                  >
-                    <Plus size={18} />
-                    New expense
-                  </button>
+                  {writes && (
+                    <>
+                      <button
+                        className="button secondary"
+                        onClick={() => setImporting(true)}
+                      >
+                        <ArrowDownToLine size={17} />
+                        Import CSV
+                      </button>
+                      <button
+                        className="button primary"
+                        onClick={() => setReview(blankDraft(b))}
+                      >
+                        <Plus size={18} />
+                        New expense
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -459,6 +504,16 @@ export default function App({
                   export uses them. Resetting the demo clears them.
                 </span>
               </div>
+            )}
+            {people && membership && tools && (
+              <RecoveryBanner
+                people={people}
+                membership={membership}
+                tools={tools}
+                mutate={mutate}
+                busy={busy}
+                onDismiss={() => void remote?.dismissRecovery(b.profile.id)}
+              />
             )}
             {remote?.stoppedFor(b.profile.id) && (
               <div role="alert" className="alert error global-error">
@@ -497,7 +552,8 @@ export default function App({
                   key={b.profile.id}
                   b={b}
                   open={setReview}
-                  create={() => setReview(blankDraft(b))}
+                  create={writes ? () => setReview(blankDraft(b)) : undefined}
+                  byAssistant={people?.byAssistant}
                 />
               )}
               {view === "transactions" && (
@@ -522,6 +578,16 @@ export default function App({
                           setReset(true);
                         }
                   }
+                />
+              )}
+              {view === "members" && membership && people && tools && (
+                <Members
+                  key={b.profile.id}
+                  membership={membership}
+                  people={people}
+                  tools={tools}
+                  mutate={mutate}
+                  busy={busy}
                 />
               )}
             </ErrorBoundary>
@@ -553,6 +619,9 @@ export default function App({
               onClose={() => setReview(null)}
               onOpen={setReview}
               busy={busy}
+              canEdit={canEdit(review)}
+              canApprove={writes}
+              byAssistant={!!people?.byAssistant[review.id]}
             />
           </ErrorBoundary>
         )}
@@ -965,11 +1034,14 @@ function ExpenseTable({
   rows,
   open,
   compact = false,
+  byAssistant,
 }: {
   b: BusinessData;
   rows: ExpenseDraft[];
   open: (d: ExpenseDraft) => void;
   compact?: boolean;
+  /** Drafts an AI assistant created, by id. */
+  byAssistant?: Record<string, string>;
 }) {
   return (
     <div className="table-scroll">
@@ -998,6 +1070,11 @@ function ExpenseTable({
                       {d.vendor || "Untitled expense"}
                     </button>
                     <span>{d.description || "Add a description"}</span>
+                    {byAssistant?.[d.id] && (
+                      <span className="badge blue assistant-mark">
+                        Created by an AI assistant
+                      </span>
+                    )}
                   </div>
                 </div>
               </td>
@@ -1048,10 +1125,13 @@ function InboxView({
   b,
   open,
   create,
+  byAssistant,
 }: {
   b: BusinessData;
   open: (d: ExpenseDraft) => void;
-  create: () => void;
+  /** Absent for a role that can't create drafts. */
+  create?: () => void;
+  byAssistant?: Record<string, string>;
 }) {
   const [filter, setFilter] = useState("All expenses"),
     [search, setSearch] = useState("");
@@ -1118,7 +1198,12 @@ function InboxView({
           </label>
         </div>
         {visible.length ? (
-          <ExpenseTable b={b} rows={visible} open={open} />
+          <ExpenseTable
+            b={b}
+            rows={visible}
+            open={open}
+            byAssistant={byAssistant}
+          />
         ) : (
           <Empty
             title={
@@ -1131,11 +1216,15 @@ function InboxView({
               "Try another search or filter."
             ) : (
               <>
-                <span>Create an expense to start a new review.</span>
-                <button className="button primary" onClick={create}>
-                  <Plus size={16} />
-                  New expense
-                </button>
+                {create && (
+                  <>
+                    <span>Create an expense to start a new review.</span>
+                    <button className="button primary" onClick={create}>
+                      <Plus size={16} />
+                      New expense
+                    </button>
+                  </>
+                )}
               </>
             )}
           </Empty>
