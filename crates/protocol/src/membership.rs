@@ -204,17 +204,27 @@ impl MembershipState {
     }
 
     /// The state after an accepted command that changes no membership: an
-    /// assistant's new draft is recorded as its own. A `SubmitReceiptDraft`
-    /// is always a new draft (`apply_command` refuses any other), and an
-    /// assistant's `SaveDraft` only ever edits one of its own.
+    /// assistant's new draft is recorded as its own, and a draft saved by
+    /// anyone but the assistant that created it stops being its own, so
+    /// from then on the assistant can only suggest on it. A
+    /// `SubmitReceiptDraft` is always a new draft (`apply_command` refuses
+    /// any other).
     pub fn accepted(&self, signer: &PublicKey, command: &Command) -> MembershipState {
         let mut next = self.clone();
-        if let Command::SubmitReceiptDraft { draft, .. } = command {
-            if self.actor(signer) == Actor::Member(Role::Assistant) {
+        match command {
+            Command::SubmitReceiptDraft { draft, .. }
+                if self.actor(signer) == Actor::Member(Role::Assistant) =>
+            {
                 next.assistant_drafts
                     .entry(draft.id.clone())
                     .or_insert(*signer);
             }
+            Command::SaveDraft { draft, .. }
+                if self.assistant_drafts.get(&draft.id) != Some(signer) =>
+            {
+                next.assistant_drafts.remove(&draft.id);
+            }
+            _ => {}
         }
         next
     }
@@ -253,7 +263,8 @@ impl MembershipState {
 
     /// Applies a change now, returning the new state and whether it started
     /// a new epoch. Pending changes from anyone who loses owner or recovery
-    /// standing are cancelled with it.
+    /// standing are cancelled with it, and so are the drafts of anyone who
+    /// is no longer an assistant.
     fn apply(&self, change: &MembershipChange) -> Result<(MembershipState, bool)> {
         let mut next = self.clone();
         let mut rotate = false;
@@ -350,6 +361,9 @@ impl MembershipState {
                 || next.recovery_key == Some(*k)
         };
         next.pending.retain(|p| standing(&p.proposer));
+        let members = &next.members;
+        next.assistant_drafts
+            .retain(|_, k| members.get(k).is_some_and(|m| m.role == Role::Assistant));
         next.check()?;
         Ok((next, rotate))
     }

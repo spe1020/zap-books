@@ -575,3 +575,88 @@ fn a_reader_rebuilds_which_drafts_an_assistant_may_edit() {
         ProtocolError::Forbidden
     );
 }
+
+#[test]
+fn a_reader_drops_an_assistants_drafts_when_a_person_saves_one_or_it_leaves() {
+    let mut books = Books::create(); // 0
+    books.change(
+        &owner(),
+        add(&assistant(), Role::Assistant, History::Full),
+        T0,
+    ); // 1
+    let (seed, _) = seed_business();
+    let draft = |id: &str| {
+        let mut d = seed.drafts[0].clone();
+        d.id = id.into();
+        d
+    };
+    let submit = |d: ledger_core::ExpenseDraft| Command::SubmitReceiptDraft {
+        draft: d,
+        documents: vec![],
+    };
+    let save = |d: ledger_core::ExpenseDraft| Command::SaveDraft {
+        draft: d,
+        documents: vec![],
+        extraction: None,
+    };
+    books.accept(&assistant(), submit(draft("taken-over")), T0); // 2
+    books.accept(&assistant(), submit(draft("kept")), T0); // 3
+                                                           // The owner saves one of them: it is no longer the assistant's.
+    books.accept(&owner(), save(draft("taken-over")), T0); // 4
+
+    let rebuilt = follow_chain(&books.chain, &books.keys_for(&owner())).unwrap();
+    assert_eq!(rebuilt, books.state);
+    assert_eq!(
+        rebuilt.assistant_drafts.keys().collect::<Vec<_>>(),
+        vec!["kept"]
+    );
+    // A service that let the assistant edit it again is caught.
+    let (header, content) = forged(&books, &assistant(), save(draft("taken-over")));
+    assert_eq!(
+        rebuilt.follow(&header, &content, T0).unwrap_err(),
+        ProtocolError::AssistantOwnDraftsOnly
+    );
+
+    // Removed and added back, it owns nothing.
+    books.change(
+        &owner(),
+        MembershipChange::Remove {
+            member: pk(&assistant()),
+        },
+        T0,
+    ); // 5, epoch 1
+    books.change(
+        &owner(),
+        add(&assistant(), Role::Assistant, History::Full),
+        T0,
+    ); // 6
+    let rebuilt = follow_chain(&books.chain, &books.keys_for(&owner())).unwrap();
+    assert_eq!(rebuilt, books.state);
+    assert!(rebuilt.assistant_drafts.is_empty());
+    let (header, content) = forged(&books, &assistant(), save(draft("kept")));
+    assert_eq!(
+        rebuilt.follow(&header, &content, T0).unwrap_err(),
+        ProtocolError::AssistantOwnDraftsOnly
+    );
+
+    // So too after a role change away and back.
+    books.accept(&assistant(), submit(draft("again")), T0); // 7
+    for role in [Role::Viewer, Role::Assistant] {
+        books.change(
+            &owner(),
+            MembershipChange::ChangeRole {
+                member: pk(&assistant()),
+                role,
+            },
+            T0,
+        ); // 8, 9
+    }
+    let rebuilt = follow_chain(&books.chain, &books.keys_for(&owner())).unwrap();
+    assert_eq!(rebuilt, books.state);
+    assert!(rebuilt.assistant_drafts.is_empty());
+    let (header, content) = forged(&books, &assistant(), save(draft("again")));
+    assert_eq!(
+        rebuilt.follow(&header, &content, T0).unwrap_err(),
+        ProtocolError::AssistantOwnDraftsOnly
+    );
+}

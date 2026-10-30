@@ -186,10 +186,10 @@ fn an_assistant_creates_drafts_and_edits_the_ones_it_created() {
         .unwrap();
     assert_eq!(stored.purpose, "Edited by the assistant");
 
-    // People keep editing it too.
-    let mut by_person = stored.clone();
-    by_person.purpose = "Edited by a person".into();
-    b.propose(&bookkeeper(), &save(by_person)).unwrap();
+    // Saving it again keeps it the assistant's.
+    let mut again = stored.clone();
+    again.purpose = "Edited again".into();
+    b.propose(&assistant(), &save(again)).unwrap();
     // A person's new draft is not recorded as anyone's.
     b.propose(
         &bookkeeper(),
@@ -197,6 +197,120 @@ fn an_assistant_creates_drafts_and_edits_the_ones_it_created() {
     )
     .unwrap();
     assert_eq!(b.state.assistant_drafts.len(), 1);
+}
+
+#[test]
+fn a_person_who_saves_an_assistants_draft_takes_it_over() {
+    let mut b = Books::new();
+    let mut draft = new_draft(&b, "assistant-draft");
+    b.propose(&assistant(), &submit(draft.clone(), vec![]))
+        .unwrap();
+    // Untouched drafts of the same assistant stay its own.
+    b.propose(&assistant(), &submit(new_draft(&b, "untouched"), vec![]))
+        .unwrap();
+
+    draft.purpose = "Edited by a person".into();
+    b.propose(&bookkeeper(), &save(draft.clone())).unwrap();
+    assert!(!b.state.assistant_drafts.contains_key("assistant-draft"));
+    assert!(b.state.assistant_drafts.contains_key("untouched"));
+
+    // From then on the assistant can only suggest on it.
+    assert_eq!(
+        b.propose(&assistant(), &save(draft.clone())),
+        forbidden(ProtocolError::AssistantOwnDraftsOnly)
+    );
+    b.propose(&assistant(), &suggestion(&assistant(), &draft.id))
+        .unwrap();
+
+    // An owner's save takes it over just the same.
+    let mut untouched = new_draft(&b, "untouched");
+    untouched.purpose = "Edited by the owner".into();
+    b.propose(&owner(), &save(untouched)).unwrap();
+    assert!(b.state.assistant_drafts.is_empty());
+}
+
+#[test]
+fn removing_an_assistant_or_changing_its_role_drops_its_drafts() {
+    let mut b = Books::new();
+    for (keys, id) in [
+        (assistant(), "first"),
+        (assistant(), "second"),
+        (other_assistant(), "theirs"),
+    ] {
+        b.propose(&keys, &submit(new_draft(&b, id), vec![]))
+            .unwrap();
+    }
+    let change = |b: &mut Books, n: u8, change: MembershipChange| {
+        b.state = b
+            .state
+            .propose(id(n), &pk(&owner()), &change, T0)
+            .unwrap()
+            .state;
+    };
+    let mine = |b: &Books, keys: &Keys| {
+        b.state
+            .assistant_drafts
+            .values()
+            .filter(|k| **k == pk(keys))
+            .count()
+    };
+
+    // Removed: every entry goes, and the other assistant keeps its own.
+    change(
+        &mut b,
+        1,
+        MembershipChange::Remove {
+            member: pk(&assistant()),
+        },
+    );
+    assert_eq!(mine(&b, &assistant()), 0);
+    assert_eq!(mine(&b, &other_assistant()), 1);
+    // Added back, it doesn't get them back.
+    change(&mut b, 2, add(&assistant(), Role::Assistant, History::Full));
+    assert_eq!(mine(&b, &assistant()), 0);
+    assert_eq!(
+        b.propose(&assistant(), &save(new_draft(&b, "first"))),
+        forbidden(ProtocolError::AssistantOwnDraftsOnly)
+    );
+
+    // A role change to anything but assistant drops them too, and changing
+    // back doesn't restore them.
+    for (n, role) in [Role::Viewer, Role::Assistant].into_iter().enumerate() {
+        change(
+            &mut b,
+            n as u8 + 3,
+            MembershipChange::ChangeRole {
+                member: pk(&other_assistant()),
+                role,
+            },
+        );
+        assert_eq!(mine(&b, &other_assistant()), 0);
+    }
+    assert!(b.state.assistant_drafts.is_empty());
+}
+
+#[test]
+fn every_role_change_away_from_assistant_drops_its_drafts() {
+    for role in [Role::Bookkeeper, Role::Viewer, Role::Submitter, Role::Owner] {
+        let mut b = Books::new();
+        b.propose(&assistant(), &submit(new_draft(&b, "mine"), vec![]))
+            .unwrap();
+        let change = MembershipChange::ChangeRole {
+            member: pk(&assistant()),
+            role,
+        };
+        let u = b.state.propose(id(1), &pk(&owner()), &change, T0).unwrap();
+        let state = match u.outcome {
+            // Becoming an owner waits 48 hours: it keeps its drafts until
+            // then, since it is still an assistant.
+            Outcome::Pending { effective_at } => {
+                assert_eq!(u.state.assistant_drafts.len(), 1);
+                u.state.activate(&id(1), effective_at).unwrap().0
+            }
+            _ => u.state,
+        };
+        assert!(state.assistant_drafts.is_empty(), "{role:?}");
+    }
 }
 
 // Can't: edit drafts created by people.

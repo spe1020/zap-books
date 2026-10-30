@@ -663,19 +663,19 @@ rotates.
 
 Enforced by the service, and re-checked by readers.
 
-| Command                                 | Owner    | Bookkeeper | Viewer | Submitter | Assistant          | Recovery key |
-| --------------------------------------- | -------- | ---------- | ------ | --------- | ------------------ | ------------ |
-| SaveDraft                               | ✓        | ✓          |        |           | Drafts it created  |              |
-| Approve, Correct, CommitImport          | ✓        | ✓          |        |           |                    |              |
-| UpdateSettings, SaveRule                | ✓        | ✓          |        |           |                    |              |
-| ChangeMembership (non-owner roles)      | ✓        |            |        |           |                    |              |
-| ChangeMembership (owner-level)          | ✓ (48 h) |            |        |           |                    |              |
-| ChangeMembership `recover`              |          |            |        |           |                    | ✓ (48 h)     |
-| Veto                                    | ✓        |            |        |           |                    | ✓            |
-| SubmitReceiptDraft                      | ✓        | ✓          |        | ✓         | ✓                  |              |
-| Suggest                                 |          |            |        |           | ✓ (any open draft) |              |
-| Read acceptances and receive epoch keys | ✓        | ✓          | ✓      |           | ✓                  |              |
-| See pending owner-level changes         | ✓        |            |        |           |                    | ✓            |
+| Command                                 | Owner    | Bookkeeper | Viewer | Submitter | Assistant              | Recovery key |
+| --------------------------------------- | -------- | ---------- | ------ | --------- | ---------------------- | ------------ |
+| SaveDraft                               | ✓        | ✓          |        |           | Its own drafts (below) |              |
+| Approve, Correct, CommitImport          | ✓        | ✓          |        |           |                        |              |
+| UpdateSettings, SaveRule                | ✓        | ✓          |        |           |                        |              |
+| ChangeMembership (non-owner roles)      | ✓        |            |        |           |                        |              |
+| ChangeMembership (owner-level)          | ✓ (48 h) |            |        |           |                        |              |
+| ChangeMembership `recover`              |          |            |        |           |                        | ✓ (48 h)     |
+| Veto                                    | ✓        |            |        |           |                        | ✓            |
+| SubmitReceiptDraft                      | ✓        | ✓          |        | ✓         | ✓                      |              |
+| Suggest                                 |          |            |        |           | ✓ (any open draft)     |              |
+| Read acceptances and receive epoch keys | ✓        | ✓          | ✓      |           | ✓                      |              |
+| See pending owner-level changes         | ✓        |            |        |           |                        | ✓            |
 
 No one can veto their own change, and the owner a `recover` names as lost
 can't veto that recovery.
@@ -689,17 +689,29 @@ An assistant can't approve, correct or import, change settings, rules or
 membership, veto, recover, or see pending owner-level changes
 (`MembershipState::sees_pending`).
 
-**An assistant edits only the drafts it created.** It creates a draft with
-`SubmitReceiptDraft`, which accepts only a new draft id, and may then
-`SaveDraft` that draft; a `SaveDraft` of any other draft, including a new
-id, is refused ("Assistants can only edit drafts they created."). People
-can edit an assistant's drafts as usual. Which drafts each assistant
-created is part of the membership state (`assistantDrafts`, draft id to
-assistant key), derived from the chain like the rest of it: each accepted
-`SubmitReceiptDraft` signed by an assistant adds its draft
-(`MembershipState::accepted`). So a reader re-deriving the membership
-re-checks this rule too, and catches a service that let an assistant edit
-someone else's draft.
+**An assistant edits only the drafts it created, until someone else
+saves them.** It creates a draft with `SubmitReceiptDraft`, which accepts
+only a new draft id, and may then `SaveDraft` that draft; a `SaveDraft` of
+any other draft, including a new id, is refused ("Assistants can only edit
+drafts they created."). People can edit an assistant's drafts as usual.
+
+Which drafts each assistant may still edit is part of the membership state
+(`assistantDrafts`, draft id to assistant key), derived from the chain like
+the rest of it:
+
+- each accepted `SubmitReceiptDraft` signed by an assistant adds its draft
+  (`MembershipState::accepted`);
+- an accepted `SaveDraft` signed by anyone but that assistant removes the
+  draft: a person who saves it takes it over, and from then on the
+  assistant can only `Suggest` on it;
+- removing an assistant, or changing its role to anything but `assistant`,
+  removes all of its drafts. They don't come back if it is added again or
+  changed back. A change to `owner` waits 48 hours like any owner-level
+  change, and the drafts go when it activates.
+
+So a reader re-deriving the membership re-checks this rule too, and catches
+a service that let an assistant edit a draft that isn't, or is no longer,
+its own.
 
 **A suggestion names its signer.** A `Suggest` whose `author` isn't the
 hex public key that signed the proposal is refused ("A suggestion must name
