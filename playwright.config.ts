@@ -11,7 +11,10 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:5173",
     headless: true,
-    launchOptions: { executablePath: chromium, args: ["--no-sandbox"] },
+    // No "--no-sandbox" here: Playwright already launches Chromium without
+    // its sandbox unless `chromiumSandbox: true` is set (its default is
+    // false), so the flag only repeated that, and CI passes without it.
+    launchOptions: { executablePath: chromium },
     screenshot: "only-on-failure",
   },
   webServer: {

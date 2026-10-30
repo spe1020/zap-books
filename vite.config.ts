@@ -26,6 +26,12 @@ export default defineConfig(({ command, mode }) => {
   });
   return {
     plugins: [react(), csp(policy)],
-    test: { include: ["src/**/*.test.ts", "scripts/hooks/**/*.test.mjs"] },
+    test: {
+      include: [
+        "src/**/*.test.ts",
+        "scripts/*.test.mjs",
+        "scripts/hooks/**/*.test.mjs",
+      ],
+    },
   };
 });
