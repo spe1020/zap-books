@@ -595,6 +595,18 @@ removed members receive nothing.
 A removed member keeps whatever they already received. Rotation protects
 only the future, as decision 0001 says.
 
+**From-join members can't rebuild the books yet.** A reader rebuilds the
+books and the membership by replaying the chain from genesis, and a
+from-join-date member holds no keys for the epochs before their join, so
+they can't. The protocol supports from-join history, and its tests stay,
+but the browser invites members with full history only until this is
+solved. The planned design: such a member starts from a settings-only
+snapshot at their join (the profile, accounts, categories and rules, and
+the membership, with no records from before), plus the activity from their
+join on, and verifies the earlier part of the chain against its headers
+only: links, seqs and the service's signatures, without opening content
+they can't decrypt.
+
 Relays never see an epoch key. In stage 2 there are no relays; in stage 4
 deliveries are still encrypted to each member.
 
