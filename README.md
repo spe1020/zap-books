@@ -15,12 +15,23 @@ Open the address printed by Vite in your browser. Keep the terminal running; pre
 
 If using nvm, run `nvm use` first. No API keys, database service, bank connection, or environment variables are needed. Node.js 22.12+ is supported by the toolchain; Node.js 24 is recommended and tested.
 
-For a local production build:
+For a local production build (it builds `crates/protocol-wasm` first, so it needs Rust and `wasm-pack`; see Rust ledger core):
 
 ```bash
 npm run build
 npm run preview
 ```
+
+### With the ledger service
+
+Set the service's address and its public key, and the app starts at sign-in, with the local demo a click away:
+
+```bash
+npm run wasm:build   # once, and after protocol changes
+VITE_SERVICE_URL=http://127.0.0.1:8787 VITE_SERVICE_PUBKEY=<hex public key> npm run dev
+```
+
+Start the service with `--allowed-origin` set to the app's address (`docs/service.md`). Signing in needs a NIP-07 signer extension that supports NIP-44: the app never asks for a secret key.
 
 The built files are in `dist/`. Preview uses a different port, which means a separate browser storage origin and a fresh demonstration workspace.
 
@@ -93,6 +104,7 @@ Use **Export** to download current posted expenses or the full journal history, 
 npm test                 # Financial domain tests
 npm run build            # TypeScript checks and production bundle
 npm run test:e2e         # Chromium browser workflows and accessibility
+npm run test:e2e:remote  # The app against a local ledger service (needs DATABASE_URL)
 npm run format:check     # Source formatting
 ```
 
@@ -102,6 +114,8 @@ Browser tests use `/usr/bin/chromium` if present, or a Playwright-managed Chromi
 npx playwright install chromium
 npm run test:e2e
 ```
+
+`test:e2e:remote` starts the ledger service (with an invented test key) on Postgres from `DATABASE_URL`, and a second Vite server configured for it. Each test injects a test-only NIP-07 signer whose keys stay in the Playwright process; the app has no signer of its own.
 
 Set `CHROMIUM_PATH` if you want to use a different Chromium executable. Tests start Vite automatically when needed and use isolated browser contexts. They cover posting and totals, attachment persistence, import/re-import, corrections, business switching, explicit rules, errors and empty reports, deliberate reset, stale-tab conflicts, keyboard focus, mobile layout, and automated accessibility checks. These checks are not a complete manual accessibility certification or cross-browser support matrix.
 

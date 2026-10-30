@@ -85,6 +85,13 @@ jobs:
       - name: npm run test:e2e
         run: npm run test:e2e
 
+      # The app against a locally started ledger service and the Postgres
+      # service above, with a test-only NIP-07 signer (tests/remote).
+      - name: npm run test:e2e:remote
+        run: npm run test:e2e:remote
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+
       - name: Parity fixtures match the TypeScript
         run: |
           npm run parity:fixtures
