@@ -92,6 +92,11 @@ mod exports {
         js(api::next_batch(request))
     }
 
+    #[wasm_bindgen(js_name = isOwnerLevel)]
+    pub fn is_owner_level(request: &str) -> Result<String, JsError> {
+        js(api::is_owner_level(request))
+    }
+
     #[wasm_bindgen(js_name = generateRecoveryKeypair)]
     pub fn generate_recovery_keypair() -> Result<String, JsError> {
         js(api::generate_recovery_keypair())

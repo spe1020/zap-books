@@ -11,7 +11,7 @@ use ledger_core::BusinessData;
 use nostr::prelude::{Event, EventId, Keys, PublicKey, SecretKey, Tag};
 use protocol::{
     AcceptanceContent, AcceptanceHeader, BusinessId, ChainHead, Command, CommittedPayload,
-    EpochKey, MembershipState, ProposalPayload, ProtocolError,
+    EpochKey, MembershipChange, MembershipState, ProposalPayload, ProtocolError,
 };
 use serde::{Deserialize, Serialize};
 
@@ -466,6 +466,23 @@ pub fn limits() -> Answer {
 pub fn next_batch(json: &str) -> Answer {
     let req: NextBatch = request(json)?;
     answer(&protocol::next_batch(req.rows, req.size, req.limit))
+}
+
+// Membership
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct OwnerLevel {
+    state: MembershipState,
+    change: MembershipChange,
+}
+
+/// Whether `change` waits 48 hours and can be vetoed, in the membership
+/// `state` ([`MembershipState::is_owner_level`]): what the members screen
+/// says before sending it.
+pub fn is_owner_level(json: &str) -> Answer {
+    let req: OwnerLevel = request(json)?;
+    answer(&req.state.is_owner_level(&req.change))
 }
 
 // Business creation
