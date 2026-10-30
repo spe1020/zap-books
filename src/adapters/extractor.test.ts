@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { extractor, isExtractionResult } from "./extractor";
+import {
+  extractor,
+  isExtractionResult,
+  readingPlace,
+  readyNote,
+} from "./extractor";
 import type { SourceDocument } from "../domain/types";
 
 const found = (value: unknown, evidence = "seen") => ({
@@ -124,4 +129,29 @@ describe("extract (WEB-2)", () => {
       "Receipt reading returned an answer the app can't use. Enter the details manually.",
     );
   });
+});
+
+test("the app says receipts stay on this computer only when they do (WEB-5)", () => {
+  for (const url of [
+    "http://127.0.0.1:8787",
+    "http://localhost:8787",
+    "http://[::1]:8787",
+    "http://127.0.0.2:9000",
+  ]) {
+    expect(readingPlace(url)).toBe("on this computer");
+    expect(readyNote("invented-model", url)).toBe(
+      "Reads the receipt with invented-model on this computer. Nothing is sent anywhere else.",
+    );
+  }
+  for (const url of [
+    "https://reader.invalid",
+    "http://192.0.2.10:8787",
+    "http://127.example.invalid:8787",
+  ]) {
+    const host = new URL(url).host;
+    expect(readingPlace(url)).toBe(`at ${host}`);
+    expect(readyNote("invented-model", url)).toBe(
+      `Reads the receipt with invented-model at ${host}. The receipt is sent there to be read.`,
+    );
+  }
 });

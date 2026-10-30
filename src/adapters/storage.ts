@@ -5,29 +5,17 @@ import type {
   Workspace,
 } from "../domain/types";
 import { seedWorkspace } from "../domain/seed";
-import { upgradeExtractionFields } from "../domain/extraction";
+import { checkWorkspace } from "./workspace-check";
 const DB = "business-finance-v1";
-/**
- * Fills fields added after a workspace was first saved, so older saved
- * workspaces load unchanged otherwise.
- */
-export function upgradeWorkspace(state: Workspace): Workspace {
-  return {
-    ...state,
-    businesses: state.businesses.map((b) => ({
-      ...b,
-      extractions: (b.extractions ?? []).map((x) => ({
-        ...x,
-        fields: upgradeExtractionFields(x.fields),
-      })),
-    })),
-  };
-}
 async function database(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const r = indexedDB.open(DB, 1);
     r.onupgradeneeded = () => r.result.createObjectStore("workspace");
-    r.onsuccess = () => resolve(r.result);
+    r.onsuccess = () => {
+      // Another tab opening a newer version waits until this one lets go.
+      r.result.onversionchange = () => r.result.close();
+      resolve(r.result);
+    };
     r.onerror = () => reject(r.error);
   });
 }
@@ -42,20 +30,19 @@ export class LocalRepository implements BusinessRepository {
   }
   private async loadOnce(): Promise<Workspace> {
     const db = await database();
-    const state = await new Promise<Workspace | undefined>(
-      (resolve, reject) => {
+    let state: unknown;
+    try {
+      state = await new Promise<unknown>((resolve, reject) => {
         const tx = db.transaction("workspace");
         const r = tx.objectStore("workspace").get("state");
         r.onsuccess = () => resolve(r.result);
         r.onerror = () => reject(r.error);
-        tx.oncomplete = () => db.close();
-      },
-    );
-    if (state) {
-      if (state.schemaVersion !== 1)
-        throw new Error("Unsupported workspace version.");
-      return upgradeWorkspace(state);
+      });
+    } finally {
+      // Whether the read worked or not; a pending transaction still ends.
+      db.close();
     }
+    if (state !== undefined) return checkWorkspace(state);
     return this.write(seedWorkspace(), -1);
   }
   private async write(

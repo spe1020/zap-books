@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Open the address printed by Vite in your browser. Keep the terminal running; press **Ctrl+C** to stop. This starts a local development server, not an external deployment. Do not open `index.html` directly from your file manager. The `dev` script listens on available network interfaces for cloud development; for use only on your own computer, run `npm run dev -- --host 127.0.0.1`.
+Open the address printed by Vite in your browser. Keep the terminal running; press **Ctrl+C** to stop. This starts a local development server, not an external deployment. Do not open `index.html` directly from your file manager. The `dev` and `preview` scripts listen on `127.0.0.1` only, so nothing else on your network can reach them. For cloud development, where the browser runs on another machine, use `npm run dev:cloud` (or `npm run preview:cloud`), which listen on every network interface.
 
 If using nvm, run `nvm use` first. No API keys, database service, bank connection, or environment variables are needed. Node.js 22.12+ is supported by the toolchain; Node.js 24 is recommended and tested.
 

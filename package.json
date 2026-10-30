@@ -4,9 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite --host 127.0.0.1",
+    "dev:cloud": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --host 0.0.0.0",
+    "preview": "vite preview --host 127.0.0.1",
+    "preview:cloud": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "check": "npm run test && npm run build",

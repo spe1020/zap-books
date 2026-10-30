@@ -665,7 +665,10 @@ pub fn commit_import(
         draft.category_id = row.category_id.clone().unwrap_or_default();
         draft.purpose = row.purpose.clone().unwrap_or_default();
         let (source_id, detail) = match import_source {
-            Some(source) => {
+            // A new record's id comes from here, never from the rows, as
+            // every other record's does: the preview's source id is not kept.
+            Some(mut source) => {
+                source.id = env.new_id();
                 let detail = format!(
                     "Expense history imported from {}; source record retained for review. This is not bank payment evidence.",
                     source.provider.as_str()

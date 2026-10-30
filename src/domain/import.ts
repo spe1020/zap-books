@@ -426,8 +426,10 @@ export function commitImport(
       accountId,
       categoryId: row.categoryId ?? "",
       purpose: row.purpose ?? "",
+      // A new record's id comes from here, never from the rows, as every
+      // other record's does: the preview's source id is not kept.
       ...(row.importSource
-        ? { importSource: row.importSource }
+        ? { importSource: { ...row.importSource, id: id() } }
         : { paymentId: id() }),
     };
     if (draft.paymentId) {
@@ -453,7 +455,7 @@ export function commitImport(
       row.importSource
         ? `Expense history imported from ${row.importSource.provider}; source record retained for review. This is not bank payment evidence.`
         : "Imported payment linked to one draft. Attach receipts to this draft.",
-      [row.importSource?.id ?? draft.paymentId!],
+      [draft.importSource?.id ?? draft.paymentId!],
     );
   }
   return b;

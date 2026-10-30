@@ -58,6 +58,61 @@ describe("settings", () => {
     ).toThrow("Category not found in this business.");
   });
 
+  test("a category and its expense account keep one name (ACC-3)", () => {
+    const b = fresh();
+    const bank = b.accounts.find((a) => a.kind === "bank")!;
+    // A category's name must be free among the accounts too.
+    expect(() =>
+      updateSettings(b, {
+        op: "addCategory",
+        name: bank.name.toLowerCase(),
+        currency: "USD",
+      }),
+    ).toThrow("That name is already in use.");
+    // An expense account is renamed through its category...
+    const category = b.categories[0];
+    expect(() =>
+      updateSettings(b, {
+        op: "renameAccount",
+        id: category.accountId,
+        name: "Invented spend",
+      }),
+    ).toThrow("Rename an expense account through its category.");
+    // ...which renames both.
+    const renamed = updateSettings(b, {
+      op: "renameCategory",
+      id: category.id,
+      name: "Invented spend",
+    });
+    expect(renamed.categories[0].name).toBe("Invented spend");
+    expect(
+      renamed.accounts.find((a) => a.id === category.accountId)!.name,
+    ).toBe("Invented spend");
+    // Its own account's name doesn't count as taken; another account's does.
+    expect(() =>
+      updateSettings(b, {
+        op: "renameCategory",
+        id: category.id,
+        name: category.name.toUpperCase(),
+      }),
+    ).not.toThrow();
+    expect(() =>
+      updateSettings(b, {
+        op: "renameCategory",
+        id: category.id,
+        name: bank.name,
+      }),
+    ).toThrow("That name is already in use.");
+    // Bank and card accounts are still renamed directly.
+    expect(
+      updateSettings(b, {
+        op: "renameAccount",
+        id: bank.id,
+        name: "Invented bank",
+      }).accounts.find((a) => a.id === bank.id)!.name,
+    ).toBe("Invented bank");
+  });
+
   test("a saved rule moves to the end and vendors stay unique", () => {
     const b = updateSettings(fresh(), {
       op: "profile",

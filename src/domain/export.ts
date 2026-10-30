@@ -12,12 +12,20 @@ export interface CSVExport {
   filename: string;
   csv: string;
 }
+/**
+ * Quotes every cell and neutralizes text a spreadsheet would run as a
+ * formula by prefixing `'`: a cell starting (after any whitespace or BOM)
+ * with `=`, `+`, `-`, `@` or `|`, or with a tab, CR or LF. A sign followed
+ * only by digits, `.` and `,` (`-12.50`, `+1`) is left alone: a spreadsheet
+ * reads it as a number, and a formula needs a name, a reference or an
+ * operator. Other signed text (`-x`, `+1 x`, ` -5`) is still prefixed,
+ * since a spreadsheet would evaluate it.
+ */
 function csvCell(value: string) {
-  // Quote delimiters and neutralize formulas in spreadsheet applications.
-  const literal =
-    /^[\s\uFEFF]*[=+\-@]/.test(value) || /^[\t\r\n]/.test(value)
-      ? `'${value}`
-      : value;
+  const formula =
+    (/^[\s\uFEFF]*[=+\-@|]/.test(value) && !/^[+-]\d[\d.,]*$/.test(value)) ||
+    /^[\t\r\n]/.test(value);
+  const literal = formula ? `'${value}` : value;
   return `"${literal.replaceAll('"', '""')}"`;
 }
 export function encodeCSV(rows: string[][]) {

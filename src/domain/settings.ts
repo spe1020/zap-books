@@ -23,7 +23,9 @@ export type RuleInput = Omit<ClassificationRule, "id" | "businessId"> & {
 /**
  * Applies one Settings edit and logs it. Account and category names are
  * unique within their list, ignoring case. Adding a category also adds its
- * expense account.
+ * expense account, under the same name: a category's name must be free
+ * among the accounts too, renaming the category renames its account, and an
+ * expense account can't be renamed on its own.
  */
 export function updateSettings(
   business: BusinessData,
@@ -46,10 +48,18 @@ export function updateSettings(
   if (!name) throw new Error("Enter a name.");
   const list = type === "account" ? b.accounts : b.categories;
   const editing = "id" in change ? change.id : undefined;
+  const taken = (x: { id: string; name: string }, except?: string) =>
+    x.id !== except && x.name.toLowerCase() === name.toLowerCase();
+  // The account a renamed category shares its name with.
+  const paired =
+    change.op === "renameCategory"
+      ? b.categories.find(
+          (c) => c.id === change.id && c.businessId === b.profile.id,
+        )?.accountId
+      : undefined;
   if (
-    list.some(
-      (x) => x.id !== editing && x.name.toLowerCase() === name.toLowerCase(),
-    )
+    list.some((x) => taken(x, editing)) ||
+    (type === "category" && b.accounts.some((x) => taken(x, paired)))
   )
     throw new Error("That name is already in use.");
   if (change.op === "renameAccount" || change.op === "renameCategory") {
@@ -62,7 +72,17 @@ export function updateSettings(
           ? "Account not found in this business."
           : "Category not found in this business.",
       );
+    if ("kind" in record && record.kind === "expense")
+      throw new Error("Rename an expense account through its category.");
     record.name = name;
+    if (change.op === "renameCategory")
+      for (const a of b.accounts)
+        if (
+          a.id === paired &&
+          a.businessId === b.profile.id &&
+          a.kind === "expense"
+        )
+          a.name = name;
   } else {
     if (!currencies.includes(change.currency))
       throw new Error("Choose a supported currency.");

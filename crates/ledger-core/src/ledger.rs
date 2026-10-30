@@ -143,15 +143,22 @@ pub fn assert_balanced(b: &BusinessData, entry: &UncheckedJournal) -> Result<()>
             .filter(|a| a.kind == AccountKind::Expense || a.currency == entry.currency)
             .ok_or(LedgerError::InvalidJournalAccount)?;
         check_line_amounts(line)?;
-        if let Some(category_id) = truthy(&line.category_id) {
-            let known = b.categories.iter().any(|c| {
-                c.id == category_id
-                    && c.business_id == entry.business_id
-                    && c.account_id == account.id
-            });
-            if !known {
-                return Err(LedgerError::InvalidJournalCategory);
+        // A category's line is spend, so it sits on an expense account; every
+        // other line moves money between bank and card accounts.
+        let is_expense = account.kind == AccountKind::Expense;
+        let category_ok = match truthy(&line.category_id) {
+            Some(category_id) => {
+                is_expense
+                    && b.categories.iter().any(|c| {
+                        c.id == category_id
+                            && c.business_id == entry.business_id
+                            && c.account_id == account.id
+                    })
             }
+            None => !is_expense,
+        };
+        if !category_ok {
+            return Err(LedgerError::InvalidJournalCategory);
         }
         debit = debit.checked_add(line.debit)?;
         credit = credit.checked_add(line.credit)?;

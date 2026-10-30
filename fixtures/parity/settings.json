@@ -3,7 +3,7 @@
   "name": "profile: trimmed and logged",
   "call": "updateSettings",
   "env": {
-   "nextId": 598,
+   "nextId": 624,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -142,7 +142,7 @@
    ],
    "audits": [
     {
-     "id": "id-0599",
+     "id": "id-0625",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -153,7 +153,7 @@
    ],
    "events": [
     {
-     "id": "id-0598",
+     "id": "id-0624",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -173,7 +173,7 @@
   "name": "profile: empty name",
   "call": "updateSettings",
   "env": {
-   "nextId": 600,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -193,7 +193,7 @@
   "name": "profile: empty industry",
   "call": "updateSettings",
   "env": {
-   "nextId": 600,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -213,7 +213,7 @@
   "name": "addAccount: card",
   "call": "updateSettings",
   "env": {
-   "nextId": 600,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -303,7 +303,7 @@
      "currency": "USD"
     },
     {
-     "id": "id-0600",
+     "id": "id-0626",
      "businessId": "northstar",
      "name": "Travel card",
      "kind": "card",
@@ -360,7 +360,7 @@
    ],
    "audits": [
     {
-     "id": "id-0602",
+     "id": "id-0628",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -371,7 +371,7 @@
    ],
    "events": [
     {
-     "id": "id-0601",
+     "id": "id-0627",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -391,7 +391,7 @@
   "name": "addAccount: name taken, ignoring case",
   "call": "updateSettings",
   "env": {
-   "nextId": 603,
+   "nextId": 629,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -412,7 +412,7 @@
   "name": "addAccount: a category's expense account name is taken",
   "call": "updateSettings",
   "env": {
-   "nextId": 603,
+   "nextId": 629,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -433,7 +433,7 @@
   "name": "addAccount: expense kind",
   "call": "updateSettings",
   "env": {
-   "nextId": 603,
+   "nextId": 629,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -454,7 +454,7 @@
   "name": "addAccount: empty name",
   "call": "updateSettings",
   "env": {
-   "nextId": 603,
+   "nextId": 629,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -475,7 +475,7 @@
   "name": "renameAccount: own name in another case",
   "call": "updateSettings",
   "env": {
-   "nextId": 603,
+   "nextId": 629,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -614,7 +614,7 @@
    ],
    "audits": [
     {
-     "id": "id-0604",
+     "id": "id-0630",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -625,7 +625,7 @@
    ],
    "events": [
     {
-     "id": "id-0603",
+     "id": "id-0629",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -645,7 +645,7 @@
   "name": "renameAccount: another business's account",
   "call": "updateSettings",
   "env": {
-   "nextId": 605,
+   "nextId": 631,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -665,7 +665,7 @@
   "name": "addCategory: with its expense account",
   "call": "updateSettings",
   "env": {
-   "nextId": 605,
+   "nextId": 631,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -754,7 +754,7 @@
      "currency": "USD"
     },
     {
-     "id": "id-0605",
+     "id": "id-0631",
      "businessId": "northstar",
      "name": "Field trips",
      "kind": "expense",
@@ -793,10 +793,10 @@
      "accountId": "northstar-expense-4"
     },
     {
-     "id": "id-0606",
+     "id": "id-0632",
      "businessId": "northstar",
      "name": "Field trips",
-     "accountId": "id-0605"
+     "accountId": "id-0631"
     }
    ],
    "vendors": [],
@@ -817,7 +817,7 @@
    ],
    "audits": [
     {
-     "id": "id-0608",
+     "id": "id-0634",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -828,7 +828,7 @@
    ],
    "events": [
     {
-     "id": "id-0607",
+     "id": "id-0633",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -848,7 +848,7 @@
   "name": "renameCategory: name taken",
   "call": "updateSettings",
   "env": {
-   "nextId": 609,
+   "nextId": 635,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -865,10 +865,10 @@
   "error": "That name is already in use."
  },
  {
-  "name": "renameCategory: renamed, its account unchanged",
+  "name": "renameCategory: renamed with its expense account",
   "call": "updateSettings",
   "env": {
-   "nextId": 609,
+   "nextId": 635,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -924,7 +924,7 @@
     {
      "id": "northstar-expense-0",
      "businessId": "northstar",
-     "name": "Software & subscriptions",
+     "name": "Renamed category",
      "kind": "expense",
      "currency": "USD"
     },
@@ -1007,7 +1007,7 @@
    ],
    "audits": [
     {
-     "id": "id-0610",
+     "id": "id-0636",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -1018,7 +1018,7 @@
    ],
    "events": [
     {
-     "id": "id-0609",
+     "id": "id-0635",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -1035,10 +1035,240 @@
   }
  },
  {
+  "name": "renameCategory: another account's name is taken",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 637,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameCategory",
+    "id": "northstar-category-0",
+    "name": "operating account"
+   }
+  },
+  "error": "That name is already in use."
+ },
+ {
+  "name": "renameCategory: its own account's name, in another case",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 637,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameCategory",
+    "id": "northstar-category-0",
+    "name": "SOFTWARE & SUBSCRIPTIONS"
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "SOFTWARE & SUBSCRIPTIONS",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "SOFTWARE & SUBSCRIPTIONS",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [],
+   "documents": [],
+   "payments": [],
+   "drafts": [],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-0638",
+     "businessId": "northstar",
+     "action": "settings.updated",
+     "entityId": "northstar",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "category saved: SOFTWARE & SUBSCRIPTIONS"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-0637",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "settings.updated",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "northstar",
+     "payload": {
+      "detail": "category saved: SOFTWARE & SUBSCRIPTIONS"
+     }
+    }
+   ],
+   "extractions": []
+  }
+ },
+ {
+  "name": "addCategory: a bank account's name is taken",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 639,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "addCategory",
+    "name": "OPERATING ACCOUNT",
+    "currency": "USD"
+   }
+  },
+  "error": "That name is already in use."
+ },
+ {
+  "name": "renameAccount: an expense account",
+  "call": "updateSettings",
+  "env": {
+   "nextId": 639,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup"
+   },
+   "change": {
+    "op": "renameAccount",
+    "id": "northstar-expense-0",
+    "name": "Renamed account"
+   }
+  },
+  "error": "Rename an expense account through its category."
+ },
+ {
   "name": "renameCategory: unknown id",
   "call": "updateSettings",
   "env": {
-   "nextId": 611,
+   "nextId": 639,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1058,7 +1288,7 @@
   "name": "saveRule: new rule, trimmed",
   "call": "saveRule",
   "env": {
-   "nextId": 611,
+   "nextId": 639,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1196,7 +1426,7 @@
      "enabled": true
     },
     {
-     "id": "id-0611",
+     "id": "id-0639",
      "businessId": "northstar",
      "vendorIncludes": "Paper Shop",
      "categoryId": "northstar-category-0",
@@ -1206,10 +1436,10 @@
    ],
    "audits": [
     {
-     "id": "id-0613",
+     "id": "id-0641",
      "businessId": "northstar",
      "action": "rule.saved",
-     "entityId": "id-0611",
+     "entityId": "id-0639",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Classification rule saved:   Paper Shop "
@@ -1217,14 +1447,14 @@
    ],
    "events": [
     {
-     "id": "id-0612",
+     "id": "id-0640",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "rule.saved",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [],
-     "entityId": "id-0611",
+     "entityId": "id-0639",
      "payload": {
       "detail": "Classification rule saved:   Paper Shop "
      }
@@ -1237,7 +1467,7 @@
   "name": "saveRule: edited rule moves to the end",
   "call": "saveRule",
   "env": {
-   "nextId": 614,
+   "nextId": 642,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1365,7 +1595,7 @@
       "enabled": true
      },
      {
-      "id": "id-0611",
+      "id": "id-0639",
       "businessId": "northstar",
       "vendorIncludes": "Paper Shop",
       "categoryId": "northstar-category-0",
@@ -1375,10 +1605,10 @@
     ],
     "audits": [
      {
-      "id": "id-0613",
+      "id": "id-0641",
       "businessId": "northstar",
       "action": "rule.saved",
-      "entityId": "id-0611",
+      "entityId": "id-0639",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Classification rule saved:   Paper Shop "
@@ -1386,14 +1616,14 @@
     ],
     "events": [
      {
-      "id": "id-0612",
+      "id": "id-0640",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "rule.saved",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [],
-      "entityId": "id-0611",
+      "entityId": "id-0639",
       "payload": {
        "detail": "Classification rule saved:   Paper Shop "
       }
@@ -1525,7 +1755,7 @@
    "approvals": [],
    "rules": [
     {
-     "id": "id-0611",
+     "id": "id-0639",
      "businessId": "northstar",
      "vendorIncludes": "Paper Shop",
      "categoryId": "northstar-category-0",
@@ -1543,16 +1773,16 @@
    ],
    "audits": [
     {
-     "id": "id-0613",
+     "id": "id-0641",
      "businessId": "northstar",
      "action": "rule.saved",
-     "entityId": "id-0611",
+     "entityId": "id-0639",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Classification rule saved:   Paper Shop "
     },
     {
-     "id": "id-0615",
+     "id": "id-0643",
      "businessId": "northstar",
      "action": "rule.saved",
      "entityId": "id-0001",
@@ -1563,20 +1793,20 @@
    ],
    "events": [
     {
-     "id": "id-0612",
+     "id": "id-0640",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "rule.saved",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [],
-     "entityId": "id-0611",
+     "entityId": "id-0639",
      "payload": {
       "detail": "Classification rule saved:   Paper Shop "
      }
     },
     {
-     "id": "id-0614",
+     "id": "id-0642",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "rule.saved",
@@ -1596,7 +1826,7 @@
   "name": "saveRule: vendor taken, ignoring case",
   "call": "saveRule",
   "env": {
-   "nextId": 616,
+   "nextId": 644,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1724,7 +1954,7 @@
       "enabled": true
      },
      {
-      "id": "id-0611",
+      "id": "id-0639",
       "businessId": "northstar",
       "vendorIncludes": "Paper Shop",
       "categoryId": "northstar-category-0",
@@ -1734,10 +1964,10 @@
     ],
     "audits": [
      {
-      "id": "id-0613",
+      "id": "id-0641",
       "businessId": "northstar",
       "action": "rule.saved",
-      "entityId": "id-0611",
+      "entityId": "id-0639",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Classification rule saved:   Paper Shop "
@@ -1745,14 +1975,14 @@
     ],
     "events": [
      {
-      "id": "id-0612",
+      "id": "id-0640",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "rule.saved",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [],
-      "entityId": "id-0611",
+      "entityId": "id-0639",
       "payload": {
        "detail": "Classification rule saved:   Paper Shop "
       }
@@ -1773,7 +2003,7 @@
   "name": "saveRule: empty purpose",
   "call": "saveRule",
   "env": {
-   "nextId": 616,
+   "nextId": 644,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1794,7 +2024,7 @@
   "name": "saveRule: another business's category",
   "call": "saveRule",
   "env": {
-   "nextId": 616,
+   "nextId": 644,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },

@@ -7,6 +7,7 @@ import type {
   ImportedTransaction,
 } from "../domain/types";
 import { money } from "../domain/ledger";
+import { readingPlace } from "../adapters/extractor";
 import {
   applicableFields,
   compareWithPayment,
@@ -190,7 +191,7 @@ export function Suggestions({
         <span className="badge neutral">{result.model}</span>
       </div>
       <p className="suggestions-note">
-        Read by a model on this computer. Check each value before approving.
+        Read by a model {readingPlace()}. Check each value before approving.
       </p>
       {result.warnings.length > 0 && (
         <ul className="suggestion-warnings">

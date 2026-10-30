@@ -391,3 +391,132 @@ test("bank-linked corrections explain locked amounts and preserve payment eviden
     "Corrected project description",
   );
 });
+
+test("the app runs under its Content-Security-Policy and never opens a stored SVG (WEB-4)", async ({
+  page,
+}) => {
+  const policy = await page
+    .locator('meta[http-equiv="Content-Security-Policy"]')
+    .getAttribute("content");
+  expect(policy).toContain("default-src 'self'");
+  expect(policy).toContain("object-src blob:");
+  // The browser enforces it: a request anywhere but the app and the
+  // extractor is refused and reported.
+  const refused = await page.evaluate(async () => {
+    const violation = new Promise<string>((resolve) =>
+      document.addEventListener("securitypolicyviolation", (e) =>
+        resolve(e.effectiveDirective),
+      ),
+    );
+    const sent = await fetch("https://elsewhere.invalid/").then(
+      () => "sent",
+      () => "refused",
+    );
+    return [sent, await violation];
+  });
+  expect(refused).toEqual(["refused", "connect-src"]);
+  // A seeded receipt is an SVG: shown as an image, with no Open link.
+  await page.getByRole("button", { name: /Expense inbox/ }).click();
+  await page.getByRole("button", { name: "Review Figma", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(
+    dialog.getByRole("img", { name: "Receipt evidence: figma-receipt.svg" }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("link", { name: "Open attachment in new tab" }),
+  ).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Close dialog" }).click();
+  // An uploaded image can still be opened.
+  await page.getByRole("button", { name: "New expense", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByLabel("Attach receipt", { exact: true })
+    .setInputFiles({ name: "receipt.png", mimeType: "image/png", buffer: png });
+  await expect(
+    page
+      .getByRole("dialog")
+      .getByRole("link", { name: "Open attachment in new tab" }),
+  ).toHaveAttribute("rel", "noopener noreferrer");
+});
+
+test("a damaged saved record is set aside and reported, and the app still opens (WEB-3)", async ({
+  page,
+}) => {
+  // Damage one stored draft the way a bad write or another extension could:
+  // an unsupported currency, which used to crash every render of the inbox.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open("business-finance-v1", 1);
+        open.onerror = () => reject(open.error);
+        open.onsuccess = () => {
+          const db = open.result;
+          const tx = db.transaction("workspace", "readwrite");
+          const store = tx.objectStore("workspace");
+          const get = store.get("state");
+          get.onsuccess = () => {
+            const state = get.result;
+            const draft = state.businesses[0].drafts.find(
+              (d: { status: string }) => d.status === "draft",
+            );
+            draft.currency = "zz";
+            store.put(state, "state");
+          };
+          tx.oncomplete = () => {
+            db.close();
+            resolve();
+          };
+          tx.onerror = () => reject(tx.error);
+        };
+      }),
+  );
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Your business, at a glance." }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("1 saved record was damaged and has been set aside."),
+  ).toBeVisible();
+  await page.getByRole("button", { name: /Expense inbox/ }).click();
+  await expect(
+    page.getByRole("button", { name: /^Review / }).first(),
+  ).toBeVisible();
+  // A save writes the workspace back with the record still set aside, so
+  // it is reported after a reload, not lost.
+  await page.getByRole("button", { name: "New expense", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByLabel("Vendor", { exact: true })
+    .fill("Invented Vendor");
+  await page.getByRole("button", { name: "Save draft", exact: true }).click();
+  await expect(page.getByText("Draft saved.")).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByText("1 saved record was damaged and has been set aside."),
+  ).toBeVisible();
+  const stored = await page.evaluate(
+    () =>
+      new Promise<unknown>((resolve) => {
+        const open = indexedDB.open("business-finance-v1", 1);
+        open.onsuccess = () => {
+          const get = open.result
+            .transaction("workspace")
+            .objectStore("workspace")
+            .get("state");
+          get.onsuccess = () => {
+            open.result.close();
+            const q = get.result.quarantine;
+            resolve(
+              q.map(
+                (x: { collection: string; record: { currency: string } }) => [
+                  x.collection,
+                  x.record.currency,
+                ],
+              ),
+            );
+          };
+        };
+      }),
+  );
+  expect(stored).toEqual([["drafts", "zz"]]);
+});

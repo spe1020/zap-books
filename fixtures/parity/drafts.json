@@ -10655,7 +10655,7 @@
   "name": "blankDraft: evening before in New York",
   "call": "blankDraft",
   "env": {
-   "nextId": 596,
+   "nextId": 622,
    "now": "2026-10-15T02:00:00.000Z",
    "today": "2026-10-14"
   },
@@ -10665,7 +10665,7 @@
    }
   },
   "output": {
-   "id": "id-0596",
+   "id": "id-0622",
    "businessId": "northstar",
    "vendor": "",
    "date": "2026-10-14",
@@ -10685,7 +10685,7 @@
   "name": "currentPeriod: evening before in New York",
   "call": "currentPeriod",
   "env": {
-   "nextId": 597,
+   "nextId": 623,
    "now": "2026-10-15T02:00:00.000Z",
    "today": "2026-10-14"
   },
@@ -10696,7 +10696,7 @@
   "name": "blankDraft: last evening of October in New York",
   "call": "blankDraft",
   "env": {
-   "nextId": 597,
+   "nextId": 623,
    "now": "2026-11-01T01:30:00.000Z",
    "today": "2026-10-31"
   },
@@ -10706,7 +10706,7 @@
    }
   },
   "output": {
-   "id": "id-0597",
+   "id": "id-0623",
    "businessId": "northstar",
    "vendor": "",
    "date": "2026-10-31",
@@ -10726,7 +10726,7 @@
   "name": "currentPeriod: last evening of October in New York",
   "call": "currentPeriod",
   "env": {
-   "nextId": 598,
+   "nextId": 624,
    "now": "2026-11-01T01:30:00.000Z",
    "today": "2026-10-31"
   },
@@ -10737,7 +10737,7 @@
   "name": "currentPeriod: frozen clock",
   "call": "currentPeriod",
   "env": {
-   "nextId": 598,
+   "nextId": 624,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },

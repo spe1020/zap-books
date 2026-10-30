@@ -3,7 +3,7 @@
   "name": "saveDraft: a draft referring to a document with a hash",
   "call": "saveDraft",
   "env": {
-   "nextId": 617,
+   "nextId": 645,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -12,7 +12,7 @@
     "$state": "northstar-setup-hashed-document"
    },
    "draft": {
-    "id": "id-0616",
+    "id": "id-0644",
     "businessId": "northstar",
     "vendor": "Harbor Print",
     "date": "2026-10-15",
@@ -139,7 +139,7 @@
    ],
    "vendors": [
     {
-     "id": "id-0617",
+     "id": "id-0645",
      "businessId": "northstar",
      "name": "Harbor Print"
     }
@@ -160,7 +160,7 @@
    "payments": [],
    "drafts": [
     {
-     "id": "id-0616",
+     "id": "id-0644",
      "businessId": "northstar",
      "vendor": "Harbor Print",
      "date": "2026-10-15",
@@ -192,10 +192,10 @@
    ],
    "audits": [
     {
-     "id": "id-0619",
+     "id": "id-0647",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0616",
+     "entityId": "id-0644",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
@@ -203,7 +203,7 @@
    ],
    "events": [
     {
-     "id": "id-0618",
+     "id": "id-0646",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
@@ -212,7 +212,7 @@
      "sourceIds": [
       "doc-hashed"
      ],
-     "entityId": "id-0616",
+     "entityId": "id-0644",
      "payload": {
       "detail": "Expense draft created"
      }

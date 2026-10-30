@@ -37,7 +37,7 @@ import {
 } from "../domain/ledger";
 import { attachment } from "../adapters/attachments";
 import { demoAI } from "../adapters/ai";
-import { extractor } from "../adapters/extractor";
+import { extractor, readingPlace, readyNote } from "../adapters/extractor";
 import {
   acceptAllFound,
   applySuggestion,
@@ -80,6 +80,9 @@ export function DocumentPreview({ document }: { document?: SourceDocument }) {
       </div>
     );
   if (!url) return <p className="document-caption">Loading attachment…</p>;
+  // A blob: URL opened in a tab runs in the app's origin, and an SVG
+  // document can carry script, so an SVG is only ever shown as an <img>.
+  const openable = document.mime !== "image/svg+xml";
   return (
     <>
       <div className="document-toolbar">
@@ -87,14 +90,16 @@ export function DocumentPreview({ document }: { document?: SourceDocument }) {
           <FileText size={16} />
           {document.name}
         </span>
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Open attachment in new tab"
-        >
-          Open <ChevronRight size={14} />
-        </a>
+        {openable && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open attachment in new tab"
+          >
+            Open <ChevronRight size={14} />
+          </a>
+        )}
       </div>
       {document.mime === "application/pdf" ? (
         <object
@@ -113,8 +118,9 @@ export function DocumentPreview({ document }: { document?: SourceDocument }) {
         </object>
       ) : failedUrl === url ? (
         <p className="alert error" role="alert">
-          This image could not be displayed. Open the attachment to inspect it,
-          or attach a valid image.
+          This image could not be displayed.{" "}
+          {openable ? "Open the attachment to inspect it, or attach" : "Attach"}{" "}
+          a valid image.
         </p>
       ) : (
         <img
@@ -410,11 +416,11 @@ export function Review({
               )}
               <p id="read-receipt-note" className="small muted" role="status">
                 {reading
-                  ? "Reading on this computer. You can keep editing."
+                  ? `Reading ${readingPlace()}. You can keep editing.`
                   : health === null
-                    ? "Checking for receipt reading on this computer…"
+                    ? `Checking for receipt reading ${readingPlace()}…`
                     : health.ready
-                      ? `Reads the receipt with ${health.model} on this computer. Nothing is sent anywhere else.`
+                      ? readyNote(health.model)
                       : health.reason}
               </p>
               {readError && (
