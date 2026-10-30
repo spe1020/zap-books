@@ -317,6 +317,19 @@ async fn a_token_reads_only_its_own_keys_deliveries_and_rejections() {
 }
 
 #[tokio::test]
+async fn the_service_reports_the_key_genesis_must_name() {
+    let w = World::new().await;
+    let base = w.serve().await;
+    let (status, body) = http(&base, "GET", "/v1/service", None, "").await;
+    assert_eq!(status, 200);
+    assert_eq!(
+        body,
+        format!(r#"{{"pubkey":"{}"}}"#, service_keys().public_key().to_hex())
+    );
+    w.finish().await;
+}
+
+#[tokio::test]
 async fn a_session_is_for_members_and_the_recovery_key_only() {
     let w = World::new().await;
     let base = w.serve().await;

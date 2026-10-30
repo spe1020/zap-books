@@ -15,8 +15,8 @@ use ledger_core::{BusinessData, Env};
 use nostr::event::FinalizeEvent;
 use nostr::prelude::{Event, EventBuilder, Keys, Kind, PublicKey, SecretKey, Tag, Timestamp};
 use protocol::{
-    apply_command, build_acceptance, build_delivery, build_proposal, decrypt_from, diff,
-    encrypt_to, genesis_business, genesis_changes, open_proposal, AcceptanceContent,
+    apply_command, build_acceptance, build_delivery, build_proposal, build_rejection, decrypt_from,
+    diff, encrypt_to, genesis_business, genesis_changes, open_proposal, AcceptanceContent,
     AcceptanceHeader, BusinessId, Command, CommittedPayload, EnvRecord, EpochKey, History,
     MembershipChange, MembershipState, Outcome, ProposalPayload, RecordingEnv, Recovery, Role,
     PROTOCOL_VERSION,
@@ -60,6 +60,10 @@ fn call(function: &str, request: &str) -> api::Answer {
         "applyRecordChanges" => api::apply_record_changes(request),
         "parseDelivery" => api::parse_delivery(request),
         "openDelivery" => api::open_delivery(request),
+        "parseRejection" => api::parse_rejection(request),
+        "openRejection" => api::open_rejection(request),
+        "nextBatch" => api::next_batch(request),
+        "limits" => api::limits(),
         other => panic!("no export named {other}"),
     }
 }
@@ -686,6 +690,66 @@ fn generate() -> Fixture {
         "checkSignedProposal",
         json!({ "event": chain[3], "plaintext": text, "author": svc }),
     );
+
+    // Rejections: what the proposer receives, and what the extension decrypts.
+    let header = protocol::parse_proposal(&proposal).unwrap();
+    let rejections: Vec<(Event, String)> = [
+        protocol::Reason::rejected(protocol::CHANGED_SINCE_OPENED),
+        protocol::Reason::from_error(&protocol::ProtocolError::EventTooLarge {
+            size: 70_000,
+            max: 65_536,
+        }),
+    ]
+    .iter()
+    .map(|reason| {
+        let event = build_rejection(&service(), &header, reason, at(T0 + 20)).unwrap();
+        let text = decrypt_from(owner().secret_key(), &svc, &event.content).unwrap();
+        (event, text)
+    })
+    .collect();
+    for (n, (event, text)) in rejections.iter().enumerate() {
+        c.ok(
+            &format!("parseRejection: {n}"),
+            "parseRejection",
+            json!({ "event": event, "member": owner().public_key(), "service": svc }),
+        );
+        c.ok(
+            &format!("openRejection: {n}"),
+            "openRejection",
+            json!({ "event": event, "member": owner().public_key(), "service": svc, "plaintext": text }),
+        );
+    }
+    let (event, _) = &rejections[0];
+    c.err(
+        "parseRejection: addressed to someone else",
+        "parseRejection",
+        json!({ "event": event, "member": viewer().public_key(), "service": svc }),
+    );
+    c.err(
+        "parseRejection: another expected signer",
+        "parseRejection",
+        json!({ "event": event, "member": owner().public_key(), "service": owner().public_key() }),
+    );
+    c.err(
+        "parseRejection: altered content",
+        "parseRejection",
+        json!({ "event": tampered(event), "member": owner().public_key(), "service": svc }),
+    );
+    c.err(
+        "openRejection: content that isn't a rejection",
+        "openRejection",
+        json!({ "event": event, "member": owner().public_key(), "service": svc, "plaintext": "{}" }),
+    );
+
+    // Import batching.
+    c.ok("limits", "limits", json!({}));
+    for (rows, size) in [(25, 70_000), (25, 131_072), (1, 900_000), (3, 65_537)] {
+        c.ok(
+            &format!("nextBatch: {rows} rows, {size} bytes"),
+            "nextBatch",
+            json!({ "rows": rows, "size": size, "limit": 65_536 }),
+        );
+    }
 
     // buildProposal's answers carry a fresh salt; only its refusals are fixed.
     c.err(

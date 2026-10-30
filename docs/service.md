@@ -125,6 +125,7 @@ Replacing the key a business uses is an owner-level change
 | `GET /v1/businesses/{id}/pending`                   | NIP-98              | `{"pending": [{proposal, proposer, change, effectiveAt}]}`; 404 unless the caller is an owner or the recovery key                                 |
 | `GET /v1/epoch-keys?business=`                      | NIP-98              | `{"deliveries": [...]}`: the deliveries the caller is entitled to now                                                                             |
 | `GET /v1/rejections?after=`                         | NIP-98              | `{"cursor": n, "rejections": [...]}`: the caller's rejections, oldest first                                                                       |
+| `GET /v1/service`                                   | None                | `{"pubkey"}`: the primary key, which every genesis must name                                                                                      |
 | `POST /v1/session`                                  | NIP-98 (`POST`)     | `{"token", "expiresAt"}`: a read session for an hour; 403 unless the caller is a member or recovery key of some business                          |
 | `GET /health`                                       | None                | `ok`                                                                                                                                              |
 

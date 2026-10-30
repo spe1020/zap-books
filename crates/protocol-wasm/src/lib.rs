@@ -6,7 +6,8 @@
 //! Member keys stay in the NIP-07 signer extension, so the browser's part of
 //! encryption and signing happens there: [`api::build_proposal`] gives the
 //! plaintext and tags for the extension to encrypt and sign, and
-//! [`api::open_delivery`] reads a delivery the extension decrypted.
+//! [`api::open_delivery`] and [`api::open_rejection`] read what the
+//! extension decrypted.
 //!
 //! Each export takes one JSON request as text and answers JSON text, or
 //! throws an `Error` with the message. Build with
@@ -69,6 +70,26 @@ mod exports {
     #[wasm_bindgen(js_name = openDelivery)]
     pub fn open_delivery(request: &str) -> Result<String, JsError> {
         js(api::open_delivery(request))
+    }
+
+    #[wasm_bindgen(js_name = parseRejection)]
+    pub fn parse_rejection(request: &str) -> Result<String, JsError> {
+        js(api::parse_rejection(request))
+    }
+
+    #[wasm_bindgen(js_name = openRejection)]
+    pub fn open_rejection(request: &str) -> Result<String, JsError> {
+        js(api::open_rejection(request))
+    }
+
+    #[wasm_bindgen]
+    pub fn limits() -> Result<String, JsError> {
+        js(api::limits())
+    }
+
+    #[wasm_bindgen(js_name = nextBatch)]
+    pub fn next_batch(request: &str) -> Result<String, JsError> {
+        js(api::next_batch(request))
     }
 
     #[wasm_bindgen(js_name = generateRecoveryKeypair)]

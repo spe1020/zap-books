@@ -371,6 +371,103 @@ pub fn open_delivery(json: &str) -> Answer {
     })
 }
 
+// Rejections
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ParseRejection {
+    event: Event,
+    /// The signed-in member, who proposed.
+    member: PublicKey,
+    service: PublicKey,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RejectedProposal {
+    proposal: EventId,
+}
+
+/// Checks a rejection before the extension decrypts it: signed by `service`
+/// and addressed to `member`. Answers the proposal it rejects.
+pub fn parse_rejection(json: &str) -> Answer {
+    let req: ParseRejection = request(json)?;
+    let proposal =
+        protocol::parse_rejection(&req.event, &req.member, &req.service).map_err(protocol)?;
+    answer(&RejectedProposal { proposal })
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct OpenRejection {
+    event: Event,
+    member: PublicKey,
+    service: PublicKey,
+    /// The content as the extension decrypted it.
+    plaintext: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RejectionReason {
+    proposal: EventId,
+    code: protocol::RejectionCode,
+    message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    size: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    limit: Option<u64>,
+}
+
+/// Reads a rejection the extension decrypted, checking the event again.
+pub fn open_rejection(json: &str) -> Answer {
+    let req: OpenRejection = request(json)?;
+    let proposal =
+        protocol::parse_rejection(&req.event, &req.member, &req.service).map_err(protocol)?;
+    let r = protocol::read_rejection(proposal, &req.plaintext).map_err(protocol)?;
+    answer(&RejectionReason {
+        proposal: r.proposal,
+        code: r.reason.code,
+        message: r.reason.message,
+        size: r.reason.size,
+        limit: r.reason.limit,
+    })
+}
+
+// Imports
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct NextBatch {
+    rows: usize,
+    size: u64,
+    limit: u64,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Limits {
+    /// Rows in an import's first `CommitImport`.
+    import_batch_start: usize,
+    /// The largest event, in bytes.
+    max_event_bytes: usize,
+}
+
+/// The size limits a client works to.
+pub fn limits() -> Answer {
+    answer(&Limits {
+        import_batch_start: protocol::IMPORT_BATCH_START,
+        max_event_bytes: protocol::MAX_EVENT_BYTES,
+    })
+}
+
+/// The batch to try after a `tooLarge` rejection of `rows` rows whose event
+/// would have been `size` bytes against `limit` ([`protocol::next_batch`]).
+pub fn next_batch(json: &str) -> Answer {
+    let req: NextBatch = request(json)?;
+    answer(&protocol::next_batch(req.rows, req.size, req.limit))
+}
+
 // Business creation
 
 #[derive(Serialize)]
