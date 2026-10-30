@@ -1,7 +1,10 @@
 import { useState } from "react";
 import App from "./App";
 import { CreateBusiness } from "./components/CreateBusiness";
-import { npub, type RemoteLedgerClient } from "./remote";
+import { RecoveryMode } from "./components/RecoveryMode";
+import { npub, peopleTools, type RemoteLedgerClient } from "./remote";
+
+type Screen = "books" | "create" | "recovery";
 
 /** A signed-in member's businesses on the ledger service. */
 export default function RemoteWorkspace({
@@ -11,10 +14,37 @@ export default function RemoteWorkspace({
   client: RemoteLedgerClient;
   onSignOut: () => void;
 }) {
-  const [creating, setCreating] = useState(
-    () => !client.workspace().businesses.length,
+  const hasBooks = () => client.workspace().businesses.length > 0;
+  const [screen, setScreen] = useState<Screen>(() =>
+    hasBooks() ? "books" : client.guarded.length ? "recovery" : "create",
   );
-  if (creating)
+  if (screen === "recovery")
+    return (
+      <RecoveryMode
+        client={client}
+        tools={peopleTools(client, "")}
+        onSignOut={onSignOut}
+        onBack={hasBooks() ? () => setScreen("books") : undefined}
+      />
+    );
+  const stopped = [...client.sync.stopped.values()];
+  if (screen === "create" && !hasBooks() && stopped.length)
+    return (
+      <main className="loading sign-in">
+        <section className="card sign-in-card">
+          <h2>Your books couldn't be opened</h2>
+          {stopped.map((m) => (
+            <p key={m} role="alert" className="alert error">
+              {m}
+            </p>
+          ))}
+          <button className="button secondary" onClick={onSignOut}>
+            Sign out
+          </button>
+        </section>
+      </main>
+    );
+  if (screen === "create")
     return (
       <CreateBusiness
         client={client}
@@ -24,13 +54,9 @@ export default function RemoteWorkspace({
           } catch {
             /* Preference persistence is optional. */
           }
-          setCreating(false);
+          setScreen("books");
         }}
-        onCancel={
-          client.workspace().businesses.length
-            ? () => setCreating(false)
-            : undefined
-        }
+        onCancel={hasBooks() ? () => setScreen("books") : undefined}
       />
     );
   return (
@@ -38,8 +64,12 @@ export default function RemoteWorkspace({
       key={client.signer.pubkey}
       remote={client}
       remoteNpub={npub(client.signer.pubkey)}
+      peopleTools={(business) => peopleTools(client, business)}
       onSignOut={onSignOut}
-      onNewBusiness={() => setCreating(true)}
+      onNewBusiness={() => setScreen("create")}
+      onRecoveryMode={
+        client.guarded.length ? () => setScreen("recovery") : undefined
+      }
     />
   );
 }

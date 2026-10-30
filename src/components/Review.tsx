@@ -156,6 +156,9 @@ export function Review({
   onClose,
   onOpen,
   busy,
+  canEdit = true,
+  canApprove = true,
+  byAssistant = false,
 }: {
   b: BusinessData;
   initial: ExpenseDraft;
@@ -163,6 +166,12 @@ export function Review({
   onClose: () => void;
   onOpen: (d: ExpenseDraft) => void;
   busy: boolean;
+  /** Whether this key may save this draft (books on the service). */
+  canEdit?: boolean;
+  /** Whether this key may approve, correct and import. */
+  canApprove?: boolean;
+  /** Whether an AI assistant created this draft. */
+  byAssistant?: boolean;
 }) {
   const [draft, setDraft] = useState<ExpenseDraft>(structuredClone(initial));
   const [amount, setAmount] = useState(
@@ -188,7 +197,7 @@ export function Review({
   // Fields the user changed since clicking Read receipt.
   const [edited, setEdited] = useState<Set<ApplicableField>>(new Set());
   const [accepted, setAccepted] = useState<Set<ExtractionFieldName>>(new Set());
-  const readOnly = initial.status !== "draft" && !correcting;
+  const readOnly = (initial.status !== "draft" || !canEdit) && !correcting;
   const working = { ...b, documents: [...b.documents, ...docs] };
   const suggestion = demoAI.propose(working, draft);
   const details = missingDetails(working, draft);
@@ -394,6 +403,11 @@ export function Review({
       <div className="review-subhead">
         <span className="eyebrow">{b.profile.name}</span>
         <Status b={b} d={initial} />
+        {byAssistant && (
+          <span className="badge blue assistant-mark">
+            Created by an AI assistant
+          </span>
+        )}
       </div>
       <div className="review-grid">
         <section className="evidence-pane" aria-label="Receipt evidence">
@@ -735,7 +749,7 @@ export function Review({
                 </label>
               </div>
             )}
-            {!readOnly && (
+            {!readOnly && canApprove && (
               <label className="checkbox-label">
                 <input
                   type="checkbox"
@@ -853,7 +867,7 @@ export function Review({
         <div>
           {readOnly ? (
             <>
-              {initial.status === "posted" && (
+              {initial.status === "posted" && canApprove && (
                 <button
                   className="button secondary"
                   onClick={() => {
@@ -887,18 +901,20 @@ export function Review({
                   Save draft
                 </button>
               )}
-              <button
-                className="button primary"
-                onClick={() => void submit(true)}
-                disabled={busy || loadingFile}
-              >
-                <Check size={16} />
-                {busy
-                  ? "Saving…"
-                  : correcting
-                    ? "Post correction"
-                    : "Approve & post"}
-              </button>
+              {canApprove && (
+                <button
+                  className="button primary"
+                  onClick={() => void submit(true)}
+                  disabled={busy || loadingFile}
+                >
+                  <Check size={16} />
+                  {busy
+                    ? "Saving…"
+                    : correcting
+                      ? "Post correction"
+                      : "Approve & post"}
+                </button>
+              )}
             </>
           )}
         </div>

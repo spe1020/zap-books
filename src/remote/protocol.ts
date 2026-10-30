@@ -7,6 +7,9 @@
 import init, * as wasm from "../../crates/protocol-wasm/pkg/protocol_wasm.js";
 import wasmUrl from "../../crates/protocol-wasm/pkg/protocol_wasm_bg.wasm?url";
 import type { BusinessData } from "../domain/types";
+import type { Membership, MembershipChange } from "../domain/members";
+
+export type { Membership };
 
 let ready: Promise<unknown> | undefined;
 /** Loads the WebAssembly module once. */
@@ -54,20 +57,6 @@ export interface Opened {
     outcome: { type: string; effectiveAt?: number };
     [key: string]: unknown;
   };
-}
-
-/** The protocol's `MembershipState`, as stored. */
-export interface Membership {
-  business: string;
-  members: Record<
-    string,
-    { role: string; history: string; joinedEpoch: number }
-  >;
-  recoveryKey: string | null;
-  service: string;
-  epoch: number;
-  pending: unknown[];
-  assistantDrafts?: Record<string, string>;
 }
 
 function call<T>(fn: (request: string) => string, request: unknown): T {
@@ -146,6 +135,8 @@ export const protocol = {
     },
   nextBatch: (r: { rows: number; size: number; limit: number }) =>
     call<number>(wasm.nextBatch, r),
+  isOwnerLevel: (r: { state: Membership; change: MembershipChange }) =>
+    call<boolean>(wasm.isOwnerLevel, r),
   generateRecoveryKeypair: () =>
     JSON.parse(wasm.generateRecoveryKeypair()) as {
       secretKey: string;
