@@ -77,6 +77,10 @@ pub enum ProtocolError {
     OwnVeto,
     #[error("The owner key being recovered can't veto its recovery.")]
     RecoveredVeto,
+    #[error("Assistants can only edit drafts they created.")]
+    AssistantOwnDraftsOnly,
+    #[error("A suggestion must name the key that signed it.")]
+    SuggestionAuthor,
     #[error("This change is not due yet.")]
     NotDue,
     #[error("This business already exists.")]

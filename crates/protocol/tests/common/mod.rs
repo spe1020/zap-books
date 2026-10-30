@@ -34,6 +34,9 @@ pub fn submitter() -> Keys {
 pub fn outsider() -> Keys {
     key(7)
 }
+pub fn assistant() -> Keys {
+    key(8)
+}
 
 pub fn business_id() -> BusinessId {
     BusinessId::from_bytes([0xab; 32])

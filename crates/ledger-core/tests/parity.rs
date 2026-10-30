@@ -196,6 +196,7 @@ fn run(call: &str, a: &Args, env: &mut SequentialEnv) -> std::result::Result<Val
         )),
         "updateSettings" => out(update_settings(&business(), &a.get("change"), env)),
         "saveRule" => out(save_rule(&business(), &a.get("input"), env)),
+        "suggest" => out(suggest(&business(), &a.get("input"), env)),
         "encodeCSV" => ok(encode_csv(&a.get::<Vec<Vec<String>>>("rows"))),
         "exportRecords" => out(export_records(
             &business(),

@@ -1,9 +1,10 @@
 //! Membership and permissions, as pure functions.
 //!
 //! The state is derived from accepted `CreateBusiness`, `ChangeMembership`
-//! and `Veto` commands, so anyone holding the business key can rebuild it
-//! from the chain ([`MembershipState::follow`]) and check the service's
-//! decisions. Times are Unix seconds, passed in by the caller.
+//! and `Veto` commands, and from the drafts assistants create, so anyone
+//! holding the business key can rebuild it from the chain
+//! ([`MembershipState::follow`]) and check the service's decisions. Times
+//! are Unix seconds, passed in by the caller.
 
 use std::collections::BTreeMap;
 use std::ops::RangeInclusive;
@@ -53,6 +54,11 @@ pub struct MembershipState {
     pub epoch: u64,
     /// Owner-level changes not yet active, in the order they were accepted.
     pub pending: Vec<PendingChange>,
+    /// The drafts assistants created, by draft id, with the assistant that
+    /// created each. An assistant may edit only its own (decision 0004).
+    /// Absent in states saved before the assistant role.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub assistant_drafts: BTreeMap<String, PublicKey>,
 }
 
 /// Who signed a proposal, as far as this business is concerned.
@@ -96,6 +102,7 @@ impl MembershipState {
             service,
             epoch: 0,
             pending: Vec::new(),
+            assistant_drafts: BTreeMap::new(),
         };
         match recovery {
             Recovery::SecondOwner { pubkey } => {
@@ -148,13 +155,19 @@ impl MembershipState {
     /// The permission table in `docs/protocol.md`. A removed member is an
     /// outsider and is refused everything.
     pub fn authorize(&self, signer: &PublicKey, command: &Command) -> Result<()> {
-        use Role::{Bookkeeper, Owner, Submitter};
+        use Role::{Assistant, Bookkeeper, Owner, Submitter};
         let actor = self.actor(signer);
         if actor == Actor::Outsider {
             return Err(ProtocolError::NotMember);
         }
         let allowed = match command {
             Command::CreateBusiness { .. } => return Err(ProtocolError::AlreadyCreated),
+            Command::SaveDraft { draft, .. } if actor == Actor::Member(Assistant) => {
+                if self.assistant_drafts.get(&draft.id) != Some(signer) {
+                    return Err(ProtocolError::AssistantOwnDraftsOnly);
+                }
+                true
+            }
             Command::SaveDraft { .. }
             | Command::Approve { .. }
             | Command::Correct { .. }
@@ -169,13 +182,60 @@ impl MembershipState {
             Command::ChangeMembership { .. } => actor == Actor::Member(Owner),
             Command::Veto { .. } => matches!(actor, Actor::Member(Owner) | Actor::RecoveryKey),
             Command::SubmitReceiptDraft { .. } => {
-                matches!(actor, Actor::Member(Owner | Bookkeeper | Submitter))
+                matches!(
+                    actor,
+                    Actor::Member(Owner | Bookkeeper | Submitter | Assistant)
+                )
+            }
+            Command::Suggest { suggestion } => {
+                if actor != Actor::Member(Assistant) {
+                    return Err(ProtocolError::Forbidden);
+                }
+                if suggestion.author != signer.to_hex() {
+                    return Err(ProtocolError::SuggestionAuthor);
+                }
+                true
             }
         };
         if !allowed {
             return Err(ProtocolError::Forbidden);
         }
         Ok(())
+    }
+
+    /// The state after an accepted command that changes no membership: an
+    /// assistant's new draft is recorded as its own, and a draft saved by
+    /// anyone but the assistant that created it stops being its own, so
+    /// from then on the assistant can only suggest on it. A
+    /// `SubmitReceiptDraft` is always a new draft (`apply_command` refuses
+    /// any other).
+    pub fn accepted(&self, signer: &PublicKey, command: &Command) -> MembershipState {
+        let mut next = self.clone();
+        match command {
+            Command::SubmitReceiptDraft { draft, .. }
+                if self.actor(signer) == Actor::Member(Role::Assistant) =>
+            {
+                next.assistant_drafts
+                    .entry(draft.id.clone())
+                    .or_insert(*signer);
+            }
+            Command::SaveDraft { draft, .. }
+                if self.assistant_drafts.get(&draft.id) != Some(signer) =>
+            {
+                next.assistant_drafts.remove(&draft.id);
+            }
+            _ => {}
+        }
+        next
+    }
+
+    /// Whether `key` may see the pending owner-level changes: owners and
+    /// the recovery key, who can veto them.
+    pub fn sees_pending(&self, key: &PublicKey) -> bool {
+        matches!(
+            self.actor(key),
+            Actor::Member(Role::Owner) | Actor::RecoveryKey
+        )
     }
 
     /// Owner-level changes wait 48 hours and can be vetoed: adding or
@@ -203,7 +263,8 @@ impl MembershipState {
 
     /// Applies a change now, returning the new state and whether it started
     /// a new epoch. Pending changes from anyone who loses owner or recovery
-    /// standing are cancelled with it.
+    /// standing are cancelled with it, and so are the drafts of anyone who
+    /// is no longer an assistant.
     fn apply(&self, change: &MembershipChange) -> Result<(MembershipState, bool)> {
         let mut next = self.clone();
         let mut rotate = false;
@@ -300,6 +361,9 @@ impl MembershipState {
                 || next.recovery_key == Some(*k)
         };
         next.pending.retain(|p| standing(&p.proposer));
+        let members = &next.members;
+        next.assistant_drafts
+            .retain(|_, k| members.get(k).is_some_and(|m| m.role == Role::Assistant));
         next.check()?;
         Ok((next, rotate))
     }
@@ -519,7 +583,7 @@ impl MembershipState {
             (Command::Veto { pending }, Outcome::Applied) => self.veto(&proposer, pending),
             (command, Outcome::Applied) => {
                 self.authorize(&proposer, command)?;
-                Ok(self.clone())
+                Ok(self.accepted(&proposer, command))
             }
             _ => Err(ProtocolError::BadChange(
                 "unexpected outcome for this command".into(),

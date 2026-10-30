@@ -225,6 +225,15 @@ const records: Record<Exclude<keyof BusinessData, "profile">, Check> = {
             Object.hasOwn(outcomes, x),
         )),
   }),
+  suggestions: shape({
+    draftId: text,
+    author: (v) => typeof v === "string" && /^[0-9a-f]{64}$/.test(v),
+    categoryId: optionalText,
+    purpose: optionalText,
+    note: optionalText,
+    evidence: texts,
+    createdAt: text,
+  }),
 };
 
 // Accounts and categories first: journals are checked against those kept.
@@ -241,6 +250,7 @@ const order = [
   "audits",
   "events",
   "extractions",
+  "suggestions",
 ] as const satisfies readonly (keyof typeof records)[];
 
 const profile = shape({
@@ -256,10 +266,12 @@ function checkBusiness(
   raw: unknown,
   set: (q: Omit<QuarantinedRecord, "at">) => void,
 ): BusinessData | undefined {
-  // Workspaces saved before extraction records have none (storage.ts).
+  // Workspaces saved before extraction records have none (storage.ts), and
+  // a business has no suggestion list until its first suggestion.
+  const optional = (k: string) => k === "extractions" || k === "suggestions";
   const listed = (r: Fields) =>
     order.every(
-      (k) => Array.isArray(r[k]) || (k === "extractions" && r[k] === undefined),
+      (k) => Array.isArray(r[k]) || (optional(k) && r[k] === undefined),
     );
   if (
     !isObject(raw) ||
@@ -283,6 +295,7 @@ function checkBusiness(
   const businessId = (raw.profile as Fields).id as string;
   const b = { profile: raw.profile } as BusinessData;
   for (const key of order) {
+    if (key === "suggestions" && raw[key] === undefined) continue;
     const kept: unknown[] = [];
     (b as unknown as Record<string, unknown[]>)[key] = kept;
     for (const record of (raw[key] ?? []) as unknown[]) {

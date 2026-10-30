@@ -458,6 +458,92 @@ async fn a_submitter_can_only_submit_receipt_drafts_and_receives_no_keys() {
 }
 
 #[tokio::test]
+async fn an_assistant_reads_drafts_and_suggests_but_edits_only_its_own() {
+    let w = World::new().await;
+    w.create().await;
+    assert_accepted(&w.send(&owner(), Some(0), save(w.business, "draft-1")).await); // 1
+    let assistant = key(41);
+    assert_accepted(
+        &w.change(&owner(), add(&assistant, Role::Assistant, History::Full))
+            .await,
+    ); // 2
+
+    // It creates a draft, and edits it.
+    let mut own = draft(w.business, "assistant-1");
+    let submit = Command::SubmitReceiptDraft {
+        draft: own.clone(),
+        documents: vec![],
+    };
+    assert_accepted(&w.send(&assistant, Some(2), submit).await); // 3
+    own.purpose = "Edited by the assistant".into();
+    let edit = Command::SaveDraft {
+        draft: own,
+        documents: vec![],
+        extraction: None,
+    };
+    assert_accepted(&w.send(&assistant, Some(3), edit).await); // 4
+    assert_eq!(
+        w.membership().await.assistant_drafts.get("assistant-1"),
+        Some(&pk(&assistant))
+    );
+
+    // It can't edit a person's draft, but it can attach a suggestion to it.
+    let theirs = w
+        .send(&assistant, Some(4), save(w.business, "draft-1"))
+        .await;
+    assert_rejected(&theirs, &assistant, ProtocolError::AssistantOwnDraftsOnly);
+    let before = w.snapshot().await;
+    let suggest = Command::Suggest {
+        suggestion: ledger_core::SuggestionInput {
+            draft_id: "draft-1".into(),
+            author: pk(&assistant).to_hex(),
+            category_id: None,
+            purpose: Some("Invented purpose".into()),
+            note: None,
+            evidence: vec!["Invented line".into()],
+        },
+    };
+    assert_accepted(&w.send(&assistant, Some(4), suggest).await); // 5
+    let after = w.snapshot().await;
+    assert_eq!(after.suggestions.len(), 1);
+    assert_eq!(after.drafts, before.drafts);
+
+    // It never approves, not even its own draft.
+    for command in [approve("assistant-1"), approve("draft-1")] {
+        let ack = w.send(&assistant, Some(5), command).await;
+        assert_rejected(&ack, &assistant, ProtocolError::Forbidden);
+    }
+
+    // It reads the books, but not the pending owner changes.
+    assert!(!w.keys_for(&assistant).await.is_empty());
+    assert!(w
+        .ledger
+        .acceptances(&w.business, &pk(&assistant), None, 100)
+        .await
+        .unwrap()
+        .is_some());
+    assert!(w
+        .ledger
+        .pending(&w.business, &pk(&assistant))
+        .await
+        .unwrap()
+        .is_none());
+
+    // A reader re-derives which drafts are the assistant's, and the books.
+    let (events, contents) = w.read(&owner()).await;
+    let mut state = MembershipState::from_genesis(&contents[0]).unwrap();
+    for (event, content) in events.iter().zip(&contents).skip(1) {
+        let header = parse_acceptance(event).unwrap();
+        state = state
+            .follow(&header, content, event.created_at.as_secs())
+            .unwrap();
+    }
+    assert_eq!(state, w.membership().await);
+    assert_eq!(rebuild(&contents).unwrap(), w.snapshot().await);
+    w.finish().await;
+}
+
+#[tokio::test]
 async fn a_stolen_owner_key_cant_veto_its_recovery() {
     // The only owner's key is stolen: whoever holds `owner()` now is the
     // thief. The owner recovers with the backup key.
