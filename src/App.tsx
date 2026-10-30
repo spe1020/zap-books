@@ -14,7 +14,9 @@ import {
   CircleHelp,
   FileText,
   Inbox,
+  KeyRound,
   LayoutDashboard,
+  LogOut,
   Menu,
   Plus,
   Search,
@@ -41,6 +43,9 @@ import {
   totals,
 } from "./domain/ledger";
 import { localLedger } from "./adapters/local-ledger";
+import type { LedgerClient } from "./adapters/ledger-client";
+import type { RemoteLedgerClient, RemoteView } from "./remote";
+import { SyncStatus } from "./components/SyncStatus";
 import { transport } from "./adapters/transport";
 import { demoAI } from "./adapters/ai";
 import { PRODUCT_NAME } from "./config";
@@ -66,8 +71,28 @@ const nav = [
   { id: "transactions", label: "Transactions", icon: ArrowLeftRight },
   { id: "settings", label: "Settings", icon: Settings2 },
 ] as const;
-export default function App() {
+/** How often to sync while the window has focus. */
+const POLL_MS = 15_000;
+/**
+ * The workspace. With `remote`, its books are on the ledger service;
+ * otherwise they are the local demo's.
+ */
+export default function App({
+  remote,
+  remoteNpub,
+  onSignOut,
+  onNewBusiness,
+}: {
+  remote?: RemoteLedgerClient;
+  remoteNpub?: string;
+  onSignOut?: () => void;
+  onNewBusiness?: () => void;
+} = {}) {
+  const client: LedgerClient = remote ?? localLedger;
   const [workspace, setWorkspace] = useState<Workspace>();
+  const [remoteView, setRemoteView] = useState<RemoteView | undefined>(
+    remote?.view(),
+  );
   const [businessId, setBusinessId] = useState(() => {
     try {
       return localStorage.getItem("business-finance-active") || "northstar";
@@ -92,8 +117,27 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
   useEffect(() => {
+    if (!remote) return;
+    const update = () => {
+      setWorkspace(remote.workspace());
+      setRemoteView(remote.view());
+    };
+    const unsubscribe = remote.subscribe(update);
+    const poll = () => {
+      if (document.hasFocus()) void remote.refresh();
+    };
+    const timer = setInterval(poll, POLL_MS);
+    const onFocus = () => void remote.refresh();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      unsubscribe();
+      clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [remote]);
+  useEffect(() => {
     let active = true;
-    localLedger
+    client
       .load()
       .then((w) => {
         if (active) setWorkspace(w);
@@ -104,7 +148,7 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [client]);
   useEffect(() => {
     if (toast) {
       const t = setTimeout(() => setToast(""), 5000);
@@ -121,7 +165,7 @@ export default function App() {
       setBusy(true);
       setError("");
       try {
-        const saved = await localLedger.run(b.profile.id, commands);
+        const saved = await client.run(b.profile.id, commands);
         setWorkspace(saved);
         const next = saved.businesses.find(
           (x) => x.profile.id === b.profile.id,
@@ -130,6 +174,11 @@ export default function App() {
         setToast(message);
         return true;
       } catch (e) {
+        // Signed and queued: it goes when the service can be reached.
+        if ((e as Error).name === "Waiting") {
+          setToast((e as Error).message);
+          return true;
+        }
         setError((e as Error).message);
         return false;
       } finally {
@@ -137,7 +186,7 @@ export default function App() {
         setBusy(false);
       }
     },
-    [b, workspace],
+    [b, workspace, client],
   );
   function switchBusiness(next: string) {
     setBusinessId(next);
@@ -254,6 +303,13 @@ export default function App() {
               <h3>A place for every detail.</h3>
               <p>Your expenses, evidence, and decisions. All together.</p>
             </div>
+            {remote && onNewBusiness && (
+              <button className="help-button" onClick={onNewBusiness}>
+                <Plus size={18} />
+                New business
+                <ArrowUpRight size={15} />
+              </button>
+            )}
             <button
               className="help-button"
               onClick={() => {
@@ -265,14 +321,35 @@ export default function App() {
               Workspace guide
               <ArrowUpRight size={15} />
             </button>
-            <div className="sidebar-user">
-              <span className="user-avatar">JD</span>
-              <div>
-                <strong>Jamie Davis</strong>
-                <small>Demo workspace owner</small>
+            {remote ? (
+              <div className="sidebar-user">
+                <span className="user-avatar">
+                  <KeyRound size={15} />
+                </span>
+                <div>
+                  <strong title={remoteNpub}>
+                    {remoteNpub?.slice(0, 12)}…{remoteNpub?.slice(-6)}
+                  </strong>
+                  <small>Signed in with {remote.signer.name}</small>
+                </div>
+                <button
+                  className="icon-button"
+                  aria-label="Sign out"
+                  onClick={onSignOut}
+                >
+                  <LogOut size={15} />
+                </button>
               </div>
-              <span className="online-dot" />
-            </div>
+            ) : (
+              <div className="sidebar-user">
+                <span className="user-avatar">JD</span>
+                <div>
+                  <strong>Jamie Davis</strong>
+                  <small>Demo workspace owner</small>
+                </div>
+                <span className="online-dot" />
+              </div>
+            )}
           </div>
         </aside>
         <div className="main-shell">
@@ -291,10 +368,18 @@ export default function App() {
               <strong>{nav.find((n) => n.id === view)?.label}</strong>
             </div>
             <div className="topbar-actions">
-              <span className="demo-indicator">
-                <span />
-                Demo data
-              </span>
+              {remote && remoteView ? (
+                <SyncStatus
+                  view={remoteView}
+                  onDiscard={(id) => void remote.discard(id)}
+                  onRedo={(id) => void remote.redo(id)}
+                />
+              ) : (
+                <span className="demo-indicator">
+                  <span />
+                  Demo data
+                </span>
+              )}
               <button
                 className="assistant-button"
                 onClick={() => {
@@ -375,7 +460,12 @@ export default function App() {
                 </span>
               </div>
             )}
-            {error && (
+            {remote?.stoppedFor(b.profile.id) && (
+              <div role="alert" className="alert error global-error">
+                <span>{remote.stoppedFor(b.profile.id)}</span>
+              </div>
+            )}
+            {error && error !== remote?.stoppedFor(b.profile.id) && (
               <div role="alert" className="alert error global-error">
                 <span>{error}</span>
                 <button
@@ -424,17 +514,23 @@ export default function App() {
                   b={b}
                   mutate={mutate}
                   busy={busy}
-                  onReset={() => {
-                    setResetText("");
-                    setReset(true);
-                  }}
+                  onReset={
+                    remote
+                      ? undefined
+                      : () => {
+                          setResetText("");
+                          setReset(true);
+                        }
+                  }
                 />
               )}
             </ErrorBoundary>
             <footer className="page-footer">
               <span>
                 <span className="local-dot" />
-                Saved on this device
+                {remote
+                  ? "Books from the ledger service, verified in this browser"
+                  : "Saved on this device"}
               </span>
               <span>
                 {PRODUCT_NAME} <span className="footer-separator">/</span> A
