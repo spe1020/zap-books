@@ -8,9 +8,12 @@
 //!   their 48 hours, for owners and the recovery key.
 //! - `GET /v1/epoch-keys?business=`: my epoch key deliveries.
 //! - `GET /v1/rejections?after=`: my rejections.
+//! - `POST /v1/session`: a read session (see [`crate::session`]).
 //! - `GET /health`.
 //!
-//! Reads need NIP-98 auth. Before anything is parsed or verified, every
+//! Reads need NIP-98 auth, or `Authorization: Bearer <token>` with a token
+//! from `POST /v1/session`, which itself needs NIP-98. Either way, each
+//! read checks the reader's membership. Before anything is parsed or verified, every
 //! request passes three cheap checks: its declared body size, a limit on
 //! all requests together, and a limit per client address. After the
 //! signature, it is also rate limited per public key.
@@ -35,6 +38,7 @@ use tower_http::cors::{AllowOrigin, CorsLayer};
 use crate::ledger::{Ledger, LedgerError};
 use crate::nip98;
 use crate::ratelimit::RateLimit;
+use crate::session::{self, SESSION_SECS};
 
 /// A proposal is one event of at most [`MAX_EVENT_BYTES`]; the body limit
 /// leaves room for whitespace around it.
@@ -214,6 +218,7 @@ pub fn router(state: Arc<AppState>) -> Result<Router, String> {
         .route("/v1/businesses/{id}/pending", get(pending))
         .route("/v1/epoch-keys", get(epoch_keys))
         .route("/v1/rejections", get(rejections))
+        .route("/v1/session", post(create_session))
         .layer(DefaultBodyLimit::max(MAX_BODY_BYTES));
     let api = match cors {
         Some(cors) => api.layer(cors),
@@ -298,36 +303,55 @@ async fn submit(State(state): State<Arc<AppState>>, body: Bytes) -> Response {
     }
 }
 
-/// Checks NIP-98 auth for a GET of `uri`, refusing replays.
+fn unauthorized() -> Box<Response> {
+    Box::new(error(
+        StatusCode::UNAUTHORIZED,
+        "Sign this request with NIP-98, or send a session token.",
+    ))
+}
+
+fn too_many() -> Box<Response> {
+    Box::new(error(
+        StatusCode::TOO_MANY_REQUESTS,
+        "Too many requests. Wait and try again.",
+    ))
+}
+
+/// Who a read is from: a NIP-98 signature for this GET, or a session.
 async fn authorize(
     state: &AppState,
     headers: &HeaderMap,
     uri: &axum::http::Uri,
 ) -> Result<PublicKey, Box<Response>> {
-    let unauthorized = || {
-        Box::new(error(
-            StatusCode::UNAUTHORIZED,
-            "Sign this request with NIP-98.",
-        ))
-    };
     let header = headers
         .get(header::AUTHORIZATION)
         .and_then(|v| v.to_str().ok())
         .ok_or_else(unauthorized)?;
+    match header.strip_prefix("Bearer ") {
+        Some(token) => session_key(state, token).await,
+        None => signed(state, header, uri, HttpMethod::GET).await,
+    }
+}
+
+/// Checks a NIP-98 `header` for a request to `uri` with `method`, refusing
+/// replays.
+async fn signed(
+    state: &AppState,
+    header: &str,
+    uri: &axum::http::Uri,
+    method: HttpMethod,
+) -> Result<PublicKey, Box<Response>> {
     let path = uri.path_and_query().map_or("/", |p| p.as_str());
     let url = Url::parse(&format!("{}{path}", state.public_url.trim_end_matches('/')))
         .map_err(|_| unauthorized())?;
     let now = state.ledger.clock().now_secs();
-    let auth = nip98::check(header, &url, HttpMethod::GET, Timestamp::from_secs(now))
-        .ok_or_else(unauthorized)?;
+    let auth =
+        nip98::check(header, &url, method, Timestamp::from_secs(now)).ok_or_else(unauthorized)?;
     if !state
         .reads
         .allow(&auth.pubkey, state.ledger.clock().now_millis())
     {
-        return Err(Box::new(error(
-            StatusCode::TOO_MANY_REQUESTS,
-            "Too many requests. Wait and try again.",
-        )));
+        return Err(too_many());
     }
     match state
         .ledger
@@ -340,6 +364,79 @@ async fn authorize(
             "This authorization was already used. Sign a new one.",
         ))),
         Err(e) => Err(Box::new(failure(e))),
+    }
+}
+
+/// The key a session token is for. An unknown or expired token is a 401,
+/// and so is one whose key is no longer a member or recovery key anywhere;
+/// the client signs in again.
+async fn session_key(state: &AppState, token: &str) -> Result<PublicKey, Box<Response>> {
+    let expired = || {
+        Box::new(error(
+            StatusCode::UNAUTHORIZED,
+            "Your session has expired. Sign in again.",
+        ))
+    };
+    let hash = session::hash(token).ok_or_else(expired)?;
+    let now = state.ledger.clock().now_secs();
+    let key = match state.ledger.session(&hash, now).await {
+        Ok(Some(key)) => key,
+        Ok(None) => return Err(expired()),
+        Err(e) => return Err(Box::new(failure(e))),
+    };
+    match state.ledger.has_standing(&key).await {
+        Ok(true) => {}
+        Ok(false) => return Err(expired()),
+        Err(e) => return Err(Box::new(failure(e))),
+    }
+    if !state.reads.allow(&key, state.ledger.clock().now_millis()) {
+        return Err(too_many());
+    }
+    Ok(key)
+}
+
+/// `POST /v1/session`, signed with NIP-98: a token for reads, valid for an
+/// hour, for a key that is a member or recovery key of some business.
+/// Anyone else is refused unsigned, and nothing is stored for them.
+async fn create_session(
+    State(state): State<Arc<AppState>>,
+    OriginalUri(uri): OriginalUri,
+    headers: HeaderMap,
+) -> Response {
+    let Some(header) = headers
+        .get(header::AUTHORIZATION)
+        .and_then(|v| v.to_str().ok())
+    else {
+        return *unauthorized();
+    };
+    // A session can't be had with a session.
+    if header.starts_with("Bearer ") {
+        return *unauthorized();
+    }
+    let key = match signed(&state, header, &uri, HttpMethod::POST).await {
+        Ok(k) => k,
+        Err(r) => return *r,
+    };
+    match state.ledger.has_standing(&key).await {
+        Ok(true) => {}
+        Ok(false) => {
+            return error(
+                StatusCode::FORBIDDEN,
+                "This key isn't a member of any business yet.",
+            )
+        }
+        Err(e) => return failure(e),
+    }
+    let (token, hash) = session::generate();
+    let now = state.ledger.clock().now_secs();
+    let expires_at = now.saturating_add(SESSION_SECS);
+    match state
+        .ledger
+        .create_session(&hash, &key, expires_at, now)
+        .await
+    {
+        Ok(()) => json(serde_json::json!({ "token": token, "expiresAt": expires_at }).to_string()),
+        Err(e) => failure(e),
     }
 }
 

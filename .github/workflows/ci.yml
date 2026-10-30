@@ -65,6 +65,14 @@ jobs:
       - name: npm test
         run: npm test
 
+      # crates/protocol-wasm, built with wasm-pack, and the WebAssembly half
+      # of its parity test (cargo test runs the native half).
+      - name: Install wasm-pack
+        run: cargo install wasm-pack --version 0.15.0 --locked
+
+      - name: npm run test:wasm
+        run: npm run test:wasm
+
       - name: npm run build
         run: npm run build
 

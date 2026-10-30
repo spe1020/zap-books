@@ -178,6 +178,15 @@ pub fn build_proposal(
     payload: &ProposalPayload,
     at: Timestamp,
 ) -> Result<Event> {
+    let (committed, tags) = proposal_parts(payload)?;
+    seal_and_sign(member, service, committed.text(), kinds::PROPOSAL, tags, at)
+}
+
+/// A proposal before encryption and signing: the exact plaintext to encrypt
+/// to the service, and the tags, the payload commitment among them. For a
+/// signer that holds the member's key elsewhere (a NIP-07 extension):
+/// it encrypts the text and signs, then [`check_proposal`] checks the result.
+pub fn proposal_parts(payload: &ProposalPayload) -> Result<(CommittedPayload, Vec<Tag>)> {
     if !payload.valid_salt() {
         return Err(ProtocolError::BadContent("invalid salt"));
     }
@@ -193,7 +202,7 @@ pub fn build_proposal(
         tags.push(custom(tag::SERVICE, service.to_hex()));
     }
     tags.push(custom(tag::PAYLOAD, committed.hash()));
-    seal_and_sign(member, service, committed.text(), kinds::PROPOSAL, tags, at)
+    Ok((committed, tags))
 }
 
 /// Checks a proposal's signature and tags without decrypting it.
@@ -265,6 +274,15 @@ fn check_payload(header: &ProposalHeader, committed: &CommittedPayload) -> Resul
         }
     }
     Ok(())
+}
+
+/// Checks a signed proposal against the payload it was built from, without
+/// decrypting it: its signature, kind, size and tags, then that the tags
+/// commit to exactly `committed`.
+pub fn check_proposal(event: &Event, committed: &CommittedPayload) -> Result<ProposalHeader> {
+    let header = parse_proposal(event)?;
+    check_payload(&header, committed)?;
+    Ok(header)
 }
 
 /// The service's view: checks and decrypts a proposal. A genesis proposal
@@ -649,19 +667,37 @@ pub fn build_delivery(
 
 /// The member's view: decrypts a delivery from `service`.
 pub fn open_delivery(event: &Event, member: &Keys, service: &PublicKey) -> Result<Delivery> {
+    let (business, epoch) = parse_delivery(event, &member.public_key(), service)?;
+    let text = decrypt_from(member.secret_key(), service, &event.content)?;
+    read_delivery(business, epoch, &text)
+}
+
+/// Checks a delivery without decrypting it: signed by `service`, addressed
+/// to `member`. Returns the business and epoch its tags name.
+pub fn parse_delivery(
+    event: &Event,
+    member: &PublicKey,
+    service: &PublicKey,
+) -> Result<(BusinessId, u64)> {
     verified(event, kinds::EPOCH_KEY_DELIVERY)?;
     if event.pubkey != *service {
         return Err(ProtocolError::WrongService);
     }
-    if public_key(required(event, tag::PUBKEY)?, tag::PUBKEY)? != member.public_key() {
+    if public_key(required(event, tag::PUBKEY)?, tag::PUBKEY)? != *member {
         return Err(ProtocolError::TagMismatch(tag::PUBKEY));
     }
     let business: BusinessId = required(event, tag::BUSINESS)?
         .parse()
         .map_err(|_| ProtocolError::BadTag(tag::BUSINESS))?;
     let epoch = number(required(event, tag::EPOCH)?, tag::EPOCH)?;
-    let text = decrypt_from(member.secret_key(), service, &event.content)?;
-    let content: DeliveryContent = from_json(&text)?;
+    Ok((business, epoch))
+}
+
+/// Reads a delivery's decrypted content, `text`, against the business and
+/// epoch [`parse_delivery`] returned. For a member whose key is held
+/// elsewhere (a NIP-07 extension), which decrypts the content.
+pub fn read_delivery(business: BusinessId, epoch: u64, text: &str) -> Result<Delivery> {
+    let content: DeliveryContent = from_json(text)?;
     check_version(content.v)?;
     if content.business != business {
         return Err(ProtocolError::TagMismatch(tag::BUSINESS));

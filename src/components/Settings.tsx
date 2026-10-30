@@ -15,7 +15,6 @@ import type {
 } from "../domain/types";
 import { currencies } from "../domain/types";
 import { id } from "../domain/ledger";
-import { saveRule, updateSettings } from "../domain/settings";
 import type { Mutation } from "./Review";
 import { Modal } from "./common";
 export function Settings({
@@ -47,10 +46,10 @@ export function Settings({
     }
     const { type, name, currency, kind } = editor;
     const ok = await mutate(
-      (current) =>
-        updateSettings(
-          current,
-          editor.id
+      [
+        {
+          type: "UpdateSettings",
+          change: editor.id
             ? {
                 op: type === "account" ? "renameAccount" : "renameCategory",
                 id: editor.id,
@@ -59,7 +58,8 @@ export function Settings({
             : type === "account"
               ? { op: "addAccount", name, kind, currency }
               : { op: "addCategory", name, currency },
-        ),
+        },
+      ],
       `${type === "account" ? "Account" : "Category"} saved.`,
     );
     if (ok) setEditor(undefined);
@@ -78,8 +78,12 @@ export function Settings({
               e.preventDefault();
               if (!name.trim() || !industry.trim()) return;
               await mutate(
-                (current) =>
-                  updateSettings(current, { op: "profile", name, industry }),
+                [
+                  {
+                    type: "UpdateSettings",
+                    change: { op: "profile", name, industry },
+                  },
+                ],
                 "Business profile saved.",
               );
             }}
@@ -291,7 +295,7 @@ export function Settings({
                 return;
               }
               const ok = await mutate(
-                (current) => saveRule(current, rule),
+                [{ type: "SaveRule", rule }],
                 "Classification rule saved.",
               );
               if (ok) setRule(null);

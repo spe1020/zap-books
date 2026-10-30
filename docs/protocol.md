@@ -15,7 +15,8 @@ relays without changing the format. In stage 2 they travel over HTTPS only:
 
 - `POST /v1/proposals`, with a proposal event as the body;
 - reads authenticated with NIP-98 (a kind-27235 event in the
-  `Authorization` header).
+  `Authorization` header), or with a session token obtained that way
+  (`docs/service.md`, Sessions).
 
 The HTTP API, NIP-98 checks and storage belong to `crates/ledger-service`
 (PR 2). This document covers the events and the rules for them.

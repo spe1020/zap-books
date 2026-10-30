@@ -8,3 +8,5 @@ target/
 bench-results*.md
 *.details.local.md
 /corpus/
+# The WASM build (npm run wasm:build). CI builds it; it is never committed.
+crates/protocol-wasm/pkg/

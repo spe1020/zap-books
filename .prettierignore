@@ -6,3 +6,5 @@ package-lock.json
 *.tsbuildinfo
 fixtures/parity
 target
+fixtures/protocol
+crates/protocol-wasm/pkg

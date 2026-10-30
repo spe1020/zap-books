@@ -11,6 +11,8 @@
     "preview:cloud": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "wasm:build": "node scripts/build-wasm.mjs",
+    "test:wasm": "npm run wasm:build && vitest run --config scripts/vitest.wasm.config.mjs",
     "check": "npm run test && npm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -23,33 +23,29 @@ import type {
 import { currencies } from "../domain/types";
 import {
   amountInput,
-  approve,
-  correct,
   duplicates,
-  event,
   id,
   missingDetails,
   money,
   now,
   parseMoney,
-  saveDraft,
   validation,
 } from "../domain/ledger";
 import { attachment } from "../adapters/attachments";
 import { demoAI } from "../adapters/ai";
 import { extractor, readingPlace, readyNote } from "../adapters/extractor";
+import type { LedgerCommand } from "../adapters/ledger-client";
 import {
   acceptAllFound,
   applySuggestion,
-  finalizeExtractions,
-  recordExtraction,
   type ApplicableField,
   type FormValues,
 } from "../domain/extraction";
 import { Modal, Status } from "./common";
 import { Suggestions } from "./Suggestions";
+/** Runs one action's commands through the app's `LedgerClient`. */
 export type Mutation = (
-  fn: (b: BusinessData) => BusinessData,
+  commands: LedgerCommand[],
   message: string,
 ) => Promise<boolean>;
 export function DocumentPreview({ document }: { document?: SourceDocument }) {
@@ -306,56 +302,36 @@ export function Review({
       setError("Explain the correction to preserve its history.");
       return;
     }
-    const ok = await mutate(
-      (current) => {
-        let updated = {
-          ...current,
-          documents: [...current.documents, ...docs],
-        };
-        if (saveRule) {
-          const existing = updated.rules.find(
-            (r) =>
-              r.vendorIncludes.toLowerCase() ===
-              next.vendor.trim().toLowerCase(),
-          );
-          const rule = {
-            id: existing?.id ?? id(),
-            businessId: b.profile.id,
-            vendorIncludes: next.vendor.trim(),
-            categoryId: next.categoryId,
-            purpose: next.purpose,
-            enabled: true,
-          };
-          updated = {
-            ...updated,
-            rules: [...updated.rules.filter((r) => r.id !== rule.id), rule],
-          };
-          event(
-            updated,
-            "rule.saved",
-            rule.id,
-            `Explicitly saved classification rule for ${rule.vendorIncludes}`,
-          );
+    const reading = extraction
+      ? {
+          documentId: extraction.documentId,
+          result: extraction.result,
+          accepted: [...accepted],
         }
-        const withReading = (state: BusinessData) =>
-          extraction
-            ? recordExtraction(state, {
-                draftId: next.id,
-                documentId: extraction.documentId,
-                result: extraction.result,
-                accepted: [...accepted],
-              })
-            : state;
-        if (correcting)
-          return finalizeExtractions(
-            withReading(correct(updated, initial.id, next, reason)),
-            next.id,
-          );
-        updated = withReading(saveDraft(updated, next));
-        return post
-          ? finalizeExtractions(approve(updated, next.id), next.id)
-          : updated;
-      },
+      : undefined;
+    const ok = await mutate(
+      correcting
+        ? [
+            {
+              type: "Correct",
+              originalId: initial.id,
+              replacement: next,
+              reason,
+              documents: docs,
+              extraction: reading,
+              rememberRule: saveRule,
+            },
+          ]
+        : [
+            {
+              type: "SaveDraft",
+              draft: next,
+              documents: docs,
+              extraction: reading,
+              rememberRule: saveRule,
+            },
+            ...(post ? [{ type: "Approve" as const, expenseId: next.id }] : []),
+          ],
       correcting
         ? "Correction posted. Original history preserved."
         : post

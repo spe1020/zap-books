@@ -1,12 +1,7 @@
 import { useMemo, useState } from "react";
 import { Upload, FileSpreadsheet, Check, Download } from "lucide-react";
 import type { BusinessData, ImportProvider } from "../domain/types";
-import {
-  commitImport,
-  parseCSV,
-  previewImport,
-  guessMapping,
-} from "../domain/import";
+import { parseCSV, previewImport, guessMapping } from "../domain/import";
 import type { CSVMapping, DateFormat } from "../domain/import";
 import { currentPeriod, money } from "../domain/ledger";
 import { Modal } from "./common";
@@ -372,7 +367,7 @@ export function ImportDialog({
             disabled={!valid || errors > 0 || busy}
             onClick={async () => {
               const ok = await mutate(
-                (current) => commitImport(current, preview, account),
+                [{ type: "CommitImport", accountId: account, rows: preview }],
                 `${valid} expense drafts imported.`,
               );
               if (ok) onClose();
