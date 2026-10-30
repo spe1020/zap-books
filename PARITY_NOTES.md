@@ -85,9 +85,16 @@ read as `UncheckedJournal`, then passed to `JournalEntry::new`.
 
 Deserialize `BusinessData` or `Workspace` to load saved state. The loader reads
 raw journals privately and validates each one against its containing business
-before returning any state. The JSON shape is unchanged. The TypeScript
-browser adapter still loads stored journals without this validation; malformed
-stored state is therefore an intentional Rust loading difference.
+before returning any state. The JSON shape is unchanged.
+
+The TypeScript browser adapter checks stored state on load too
+(`src/adapters/workspace-check.ts`, audit WEB-3): field types, enum values,
+safe-integer amounts, each record's business, and every journal through
+`assertBalanced`. It differs in what happens next: Rust refuses the whole
+business, while the browser sets each failing record aside in the
+workspace's `quarantine` list, reports it, and loads the rest, so one
+damaged record can't lock the user out. Rust drops `quarantine` as an
+unknown key (D7).
 
 Tests: `d3_unbalanced_stored_journals_do_not_deserialize`,
 `stored_journals_validate_business_accounts_categories_and_currency`, and the

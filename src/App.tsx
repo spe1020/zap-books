@@ -366,6 +366,17 @@ export default function App() {
                 </div>
               )}
             </div>
+            {!!workspace.quarantine?.length && (
+              <div role="alert" className="alert error global-error">
+                <span>
+                  {workspace.quarantine.length === 1
+                    ? "1 saved record was damaged and has been set aside."
+                    : `${workspace.quarantine.length} saved records were damaged and have been set aside.`}{" "}
+                  They stay in storage on this device, but no screen, total or
+                  export uses them. Resetting the demo clears them.
+                </span>
+              </div>
+            )}
             {error && (
               <div role="alert" className="alert error global-error">
                 <span>{error}</span>

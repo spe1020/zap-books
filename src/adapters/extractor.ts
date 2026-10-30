@@ -2,6 +2,7 @@ import type {
   Currency,
   ExtractionAdapter,
   ExtractionFieldName,
+  ExtractionFields,
   ExtractionResult,
   ExtractorHealth,
 } from "../domain/types";
@@ -12,15 +13,38 @@ import {
   type ExtractionListName,
 } from "../domain/types";
 import { validDate } from "../domain/ledger";
+import { DEFAULT_EXTRACTOR_URL } from "../config";
 
 /** The local extractor (crates/extractor). Override with VITE_EXTRACTOR_URL. */
 export const extractorUrl = (
   (import.meta.env.VITE_EXTRACTOR_URL as string | undefined) ||
-  "http://127.0.0.1:8787"
+  DEFAULT_EXTRACTOR_URL
 ).replace(/\/$/, "");
 
-const UNAVAILABLE =
-  "Receipt reading isn't running on this computer. Enter the details manually.";
+/** Whether `url` is on this computer: a loopback host. */
+export function isLoopback(url: string): boolean {
+  const host = new URL(url).hostname;
+  return (
+    host === "localhost" || host === "[::1]" || /^127(\.\d{1,3}){3}$/.test(host)
+  );
+}
+
+/**
+ * Where receipts are read, for the sentences that say so: "on this
+ * computer" only when the extractor really is on it.
+ */
+export function readingPlace(url = extractorUrl): string {
+  return isLoopback(url) ? "on this computer" : `at ${new URL(url).host}`;
+}
+
+/** What the Review screen says once the extractor is ready. */
+export function readyNote(model: string, url = extractorUrl): string {
+  return isLoopback(url)
+    ? `Reads the receipt with ${model} on this computer. Nothing is sent anywhere else.`
+    : `Reads the receipt with ${model} at ${new URL(url).host}. The receipt is sent there to be read.`;
+}
+
+const UNAVAILABLE = `Receipt reading isn't running ${readingPlace()}. Enter the details manually.`;
 const TOO_SLOW =
   "Receipt reading took too long. Try again, or enter the details manually.";
 /**
@@ -73,6 +97,22 @@ function isLines(f: Record<string, unknown>): boolean {
   });
 }
 
+/** Every field's shape, and a found value's type. */
+export function isExtractionFields(x: unknown): x is ExtractionFields {
+  if (!x || typeof x !== "object") return false;
+  const fields = x as Record<string, unknown>;
+  return extractionFields.every((name) => {
+    const f = fields[name] as Record<string, unknown> | undefined;
+    return (
+      !!f &&
+      typeof f === "object" &&
+      statuses.includes(f.status as string) &&
+      (isList(name) ? isLines(f) : typeof f.evidence === "string") &&
+      (f.status === "found" ? valueChecks[name](f.value) : f.value === null)
+    );
+  });
+}
+
 /**
  * The service validates everything, but its answer is still checked here:
  * every field's shape, and a found value's type.
@@ -80,18 +120,8 @@ function isLines(f: Record<string, unknown>): boolean {
 export function isExtractionResult(x: unknown): x is ExtractionResult {
   if (!x || typeof x !== "object") return false;
   const r = x as Record<string, unknown>;
-  const fields = r.fields as Record<string, unknown> | undefined;
-  if (!fields || typeof fields !== "object") return false;
   return (
-    extractionFields.every((name) => {
-      const f = fields[name] as Record<string, unknown> | undefined;
-      return (
-        !!f &&
-        statuses.includes(f.status as string) &&
-        (isList(name) ? isLines(f) : typeof f.evidence === "string") &&
-        (f.status === "found" ? valueChecks[name](f.value) : f.value === null)
-      );
-    }) &&
+    isExtractionFields(r.fields) &&
     Array.isArray(r.warnings) &&
     r.warnings.every((w) => typeof w === "string") &&
     typeof r.model === "string" &&
@@ -153,7 +183,7 @@ export const extractor: ExtractionAdapter = {
       throw new Error(
         typeof message === "string"
           ? message
-          : "Receipt reading failed on this computer. Enter the details manually.",
+          : `Receipt reading failed ${readingPlace()}. Enter the details manually.`,
       );
     }
     if (!isExtractionResult(body))

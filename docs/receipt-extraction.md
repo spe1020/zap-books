@@ -14,7 +14,9 @@ total happens in the extractor with `ledger-core`'s money rules.
 **Privacy:** receipts never leave your computer. The browser sends the receipt
 to the extractor service on `127.0.0.1`, which sends it to Ollama on
 `127.0.0.1`. There is no cloud model, and the service refuses to use an Ollama
-address that isn't on this computer.
+address that isn't on this computer. A build made with `VITE_EXTRACTOR_URL`
+pointing at another host sends receipts there instead, and the Review screen
+then names that host rather than saying the receipt stays on this computer.
 
 ## Set up on a Mac
 

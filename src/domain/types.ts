@@ -148,6 +148,23 @@ export interface Workspace {
   schemaVersion: 1;
   revision: number;
   businesses: BusinessData[];
+  /** Stored records that failed the check on load, kept as they were. */
+  quarantine?: QuarantinedRecord[];
+}
+/**
+ * A stored record set aside because it failed the check on load. It is kept
+ * so nothing is lost, but no screen, total or export reads it.
+ */
+export interface QuarantinedRecord {
+  /** Null when the business itself couldn't be read. */
+  businessId: string | null;
+  /** `business` for a whole business, else the list it was in. */
+  collection: string;
+  id: string | null;
+  /** A fixed description of the check that failed; never record text. */
+  reason: string;
+  record: unknown;
+  at: string;
 }
 export interface AIProposal {
   categoryId?: string;
