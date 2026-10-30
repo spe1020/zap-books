@@ -116,6 +116,12 @@ cargo test --locked
 npm run parity:fixtures
 ```
 
+`crates/protocol-wasm` builds the protocol for the browser with [wasm-pack](https://rustwasm.github.io/wasm-pack/) (`cargo install wasm-pack --version 0.15.0 --locked`). The build goes to `crates/protocol-wasm/pkg`, which is never committed. Its parity test checks that the WebAssembly build gives exactly the native build's answers:
+
+```bash
+npm run test:wasm    # builds the package, then runs fixtures/protocol through it
+```
+
 `cargo test` also runs the receipt extractor's tests (`crates/extractor`) against a fake model server; its PDF tests need Poppler (`brew install poppler`). No real model runs in tests.
 
 The parity fixtures compare both implementations, including rejected imports and duplicate postings. Commit regenerated fixtures with any shared behavior change. See [Parity notes](PARITY_NOTES.md) for deliberate differences.

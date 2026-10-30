@@ -1,4 +1,7 @@
 [toolchain]
 channel = "1.99.1"
-components = ["rustfmt", "clippy"]
+# llvm-tools provides llvm-ar, which crates/protocol-wasm's build needs
+# (scripts/build-wasm.mjs).
+components = ["rustfmt", "clippy", "llvm-tools"]
+targets = ["wasm32-unknown-unknown"]
 profile = "minimal"
