@@ -225,7 +225,8 @@ Records use `ledger-core`'s JSON shapes (`src/domain/types.ts`).
 
 `update_settings` and `save_rule` port `src/domain/settings.ts`, which holds
 the Settings screen's rules: names unique within their list ignoring case,
-a new category with its own expense account, and a saved rule moving to the
+a new category with its own expense account under the same name (renamed
+with it, and free among the accounts too), and a saved rule moving to the
 end of the list.
 
 Every command is applied by one function, `protocol::apply_command`, which
@@ -246,7 +247,19 @@ the service runs and auditors re-run:
 New records get ids from the service's environment, never from the
 proposal, except where `ledger-core` already takes the id from its input
 (a draft's own id, a document's id from its reference, a rule being
-replaced).
+replaced). An import source is not an exception: `commit_import` replaces
+the id each row's preview gave it.
+
+**A `CommitImport` is trusted as previewed.** The rows are the member's own
+preview of their own file, and the service never sees the file. Commit
+checks each row's business, account and scope (its fingerprint), that its
+values are valid, and that a reference already imported keeps its date,
+amount and currency. It can't check that a row matches the file, so a
+member can commit rows with any valid date, description and amount: the
+same thing they could do by editing the file before previewing it. A
+referenced row's fingerprint is its scope and reference only, on purpose,
+so that a changed row under a reference already imported is caught as a
+conflict rather than imported twice.
 
 ### Large imports
 

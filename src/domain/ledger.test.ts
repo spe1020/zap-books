@@ -52,6 +52,29 @@ describe("financial invariants", () => {
     j.lines[0].debit++;
     expect(() => assertBalanced(b, j)).toThrow("balance");
   });
+  test("spend sits on an expense account, and only spend does (ACC-2)", () => {
+    const b = fresh();
+    const expense = b.journals.find((j) => j.kind === "expense")!;
+    const spend = expense.lines.find((l) => l.categoryId)!;
+    const paid = expense.lines.find((l) => !l.categoryId)!;
+    // A category pointed at the paying account would book spend that moves
+    // no balance, and totals would still count it.
+    const moved = structuredClone(b);
+    moved.categories.find((c) => c.id === spend.categoryId)!.accountId =
+      paid.accountId;
+    const sameAccount = structuredClone(expense);
+    sameAccount.lines[expense.lines.indexOf(spend)].accountId = paid.accountId;
+    expect(() => assertBalanced(moved, sameAccount)).toThrow(
+      "Invalid journal category.",
+    );
+    // An expense account line without a category is spend nobody can see.
+    const uncategorized = structuredClone(expense);
+    delete uncategorized.lines[expense.lines.indexOf(spend)].categoryId;
+    expect(() => assertBalanced(b, uncategorized)).toThrow(
+      "Invalid journal category.",
+    );
+    expect(() => assertBalanced(b, expense)).not.toThrow();
+  });
   test("required fields and invalid transitions prevent posting", () => {
     const b = fresh(),
       d = blankDraft(b);
@@ -454,7 +477,9 @@ test("import evidence can only be added by an import", () => {
     categoryId: b.categories[0].id,
     purpose: "Client workshop",
   };
-  expect(draft.importSource).toEqual(source);
+  // ...under an id of its own, not the preview's (ACC-5).
+  expect(draft.importSource).toEqual({ ...source, id: expect.any(String) });
+  expect(draft.importSource!.id).not.toBe(source.id);
   const posted = approve(saveDraft(imported, draft), draft.id);
   // Correcting an imported expense keeps its evidence on the replacement.
   const original = posted.drafts.find((d) => d.id === draft.id)!;
@@ -467,8 +492,43 @@ test("import evidence can only be added by an import", () => {
   const corrected = correct(posted, original.id, replacement, "Fix total");
   expect(corrected.drafts.find((d) => d.id === replacement.id)).toMatchObject({
     status: "posted",
-    importSource: source,
+    importSource: draft.importSource,
   });
+});
+
+test("a committed import source gets its own id, whatever the rows say (ACC-5)", () => {
+  const b = fresh();
+  const rows = parseCSV(
+    "date,vendor,description,amount,currency,reference\n2026-10-20,Invented Paper,Workshop materials,42.50,USD,HIST-1\n2026-10-21,Invented Paper,More materials,12.00,USD,HIST-2",
+  );
+  const preview = previewImport(
+    b,
+    rows,
+    guessMapping(rows[0]),
+    b.accounts[0].id,
+    "positive",
+    { kind: "expense-history" },
+  );
+  // Rows that name an existing record's id, and one another's.
+  const taken = b.documents[0].id;
+  const forged = preview.map((r) => ({
+    ...r,
+    importSource: { ...r.importSource!, id: taken },
+  }));
+  const imported = commitImport(b, forged, b.accounts[0].id);
+  const sources = imported.drafts.slice(-2).map((d) => d.importSource!);
+  const ids = [
+    ...imported.documents,
+    ...imported.payments,
+    ...imported.drafts,
+    ...imported.journals,
+  ].map((r) => r.id);
+  for (const s of sources) {
+    expect(s.id).not.toBe(taken);
+    expect(ids).not.toContain(s.id);
+  }
+  expect(sources[0].id).not.toBe(sources[1].id);
+  expect(imported.events.at(-1)!.sourceIds).toEqual([sources[1].id]);
 });
 
 test("dates before 1900 are rejected with the caller's existing message", () => {

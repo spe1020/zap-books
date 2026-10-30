@@ -311,3 +311,141 @@ fn corrections_hand_the_payment_to_the_replacement() {
         Err(LedgerError::PaymentOfOtherExpense)
     );
 }
+
+/// ACC-2: a categorized line is spend and sits on an expense account, and a
+/// line on an expense account is categorized; the loader holds stored
+/// journals to the same rule.
+#[test]
+fn spend_sits_on_an_expense_account_and_only_spend_does() {
+    let (b, _) = fresh();
+    let expense = b
+        .journals
+        .iter()
+        .find(|j| j.kind == JournalKind::Expense)
+        .unwrap()
+        .to_unchecked();
+    let spend = expense
+        .lines
+        .iter()
+        .position(|l| l.category_id.is_some())
+        .unwrap();
+    let paid = expense
+        .lines
+        .iter()
+        .position(|l| l.category_id.is_none())
+        .unwrap();
+    let paying = expense.lines[paid].account_id.clone();
+    let mut moved = b.clone();
+    let category = moved
+        .categories
+        .iter_mut()
+        .find(|c| Some(&c.id) == expense.lines[spend].category_id.as_ref())
+        .unwrap();
+    category.account_id = paying.clone();
+    let mut same_account = expense.clone();
+    same_account.lines[spend].account_id = paying;
+    assert_eq!(
+        assert_balanced(&moved, &same_account),
+        Err(LedgerError::InvalidJournalCategory)
+    );
+    let mut uncategorized = expense.clone();
+    uncategorized.lines[spend].category_id = None;
+    assert_eq!(
+        assert_balanced(&b, &uncategorized),
+        Err(LedgerError::InvalidJournalCategory)
+    );
+    assert_eq!(assert_balanced(&b, &expense), Ok(()));
+    // A stored business whose spend is on a bank account doesn't load.
+    let mut stored = serde_json::to_value(&moved).unwrap();
+    let n = moved
+        .journals
+        .iter()
+        .position(|j| j.id == expense.id)
+        .unwrap();
+    stored["journals"][n] = serde_json::to_value(&same_account).unwrap();
+    assert!(serde_json::from_value::<BusinessData>(stored).is_err());
+}
+
+/// ACC-3: a category and its expense account keep one name.
+#[test]
+fn a_category_and_its_expense_account_keep_one_name() {
+    let (b, mut env) = fresh();
+    let bank = b
+        .accounts
+        .iter()
+        .find(|a| a.kind == AccountKind::Bank)
+        .unwrap()
+        .clone();
+    let add = SettingsChange::AddCategory {
+        name: bank.name.to_lowercase(),
+        currency: Currency::Usd,
+    };
+    assert_eq!(
+        update_settings(&b, &add, &mut env),
+        Err(LedgerError::NameInUse)
+    );
+    let category = b.categories[0].clone();
+    let rename_account = SettingsChange::RenameAccount {
+        id: category.account_id.clone(),
+        name: "Invented spend".into(),
+    };
+    assert_eq!(
+        update_settings(&b, &rename_account, &mut env),
+        Err(LedgerError::ExpenseAccountRename)
+    );
+    let rename = |name: &str| SettingsChange::RenameCategory {
+        id: category.id.clone(),
+        name: name.into(),
+    };
+    let renamed = update_settings(&b, &rename("Invented spend"), &mut env).unwrap();
+    assert_eq!(renamed.categories[0].name, "Invented spend");
+    let account = renamed
+        .accounts
+        .iter()
+        .find(|a| a.id == category.account_id)
+        .unwrap();
+    assert_eq!(account.name, "Invented spend");
+    assert!(update_settings(&b, &rename(&category.name.to_uppercase()), &mut env).is_ok());
+    assert_eq!(
+        update_settings(&b, &rename(&bank.name), &mut env),
+        Err(LedgerError::NameInUse)
+    );
+    let rename_bank = SettingsChange::RenameAccount {
+        id: bank.id.clone(),
+        name: "Invented bank".into(),
+    };
+    assert!(update_settings(&b, &rename_bank, &mut env).is_ok());
+}
+
+/// ACC-5: an import source's id comes from the environment, never from the
+/// rows, so rows can't name an existing record's id, or one another's.
+#[test]
+fn a_committed_import_source_gets_its_own_id() {
+    let (b, mut env) = fresh();
+    let account = b.accounts[0].id.clone();
+    let mut rows = preview(&b, &account, true, "AUDIT-ONE", &mut env);
+    rows.extend(preview(&b, &account, true, "AUDIT-TWO", &mut env));
+    for (n, row) in rows.iter_mut().enumerate() {
+        row.row = n as u64 + 2;
+    }
+    let taken = b.documents[0].id.clone();
+    for row in &mut rows {
+        row.import_source.as_mut().unwrap().id = taken.clone();
+    }
+    let imported = commit_import(&b, &rows, &account, &mut env).unwrap();
+    let sources: Vec<_> = imported.drafts[imported.drafts.len() - 2..]
+        .iter()
+        .map(|d| d.import_source.clone().unwrap())
+        .collect();
+    assert_eq!(sources.len(), 2);
+    assert_ne!(sources[0].id, sources[1].id);
+    for s in &sources {
+        assert_ne!(s.id, taken);
+        assert!(!imported.drafts.iter().any(|d| d.id == s.id));
+        assert!(!imported.documents.iter().any(|d| d.id == s.id));
+    }
+    assert_eq!(
+        imported.events.last().unwrap().source_ids,
+        vec![sources[1].id.clone()]
+    );
+}

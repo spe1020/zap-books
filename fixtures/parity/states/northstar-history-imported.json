@@ -152,7 +152,7 @@
    "name": "Common Ground"
   },
   {
-   "id": "id-0390",
+   "id": "id-0391",
    "businessId": "northstar",
    "name": "Paper & Pine"
   }
@@ -495,7 +495,7 @@
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
    "importSource": {
-    "id": "id-0388",
+    "id": "id-0390",
     "businessId": "northstar",
     "provider": "quickbooks",
     "reference": "QB-901",
@@ -1030,7 +1030,7 @@
    "detail": "Balanced journal entry recorded"
   },
   {
-   "id": "id-0392",
+   "id": "id-0393",
    "businessId": "northstar",
    "action": "expense.created",
    "entityId": "id-0389",
@@ -1039,7 +1039,7 @@
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0394",
+   "id": "id-0395",
    "businessId": "northstar",
    "action": "expense.matched",
    "entityId": "id-0389",
@@ -1455,14 +1455,14 @@
    }
   },
   {
-   "id": "id-0391",
+   "id": "id-0392",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0388"
+    "id-0390"
    ],
    "entityId": "id-0389",
    "payload": {
@@ -1470,14 +1470,14 @@
    }
   },
   {
-   "id": "id-0393",
+   "id": "id-0394",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "expense.matched",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0388"
+    "id-0390"
    ],
    "entityId": "id-0389",
    "payload": {

@@ -3,7 +3,7 @@
   "name": "exportRecords: expenses, northstar",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -148,7 +148,7 @@
   "name": "exportRecords: expenses, fieldwork",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -293,7 +293,7 @@
   "name": "exportRecords: expenses, EUR only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -353,7 +353,7 @@
   "name": "exportRecords: expenses, GBP only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -395,7 +395,7 @@
   "name": "exportRecords: expenses, date range",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -506,7 +506,7 @@
   "name": "exportRecords: expenses, from only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -600,7 +600,7 @@
   "name": "exportRecords: expenses, to only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -711,7 +711,7 @@
   "name": "exportRecords: expenses, empty range",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -753,7 +753,7 @@
   "name": "exportRecords: expenses, mixed businesses",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2855,7 +2855,7 @@
   "name": "exportRecords: journal, northstar",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3204,7 +3204,7 @@
   "name": "exportRecords: journal, fieldwork",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3553,7 +3553,7 @@
   "name": "exportRecords: journal, EUR only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3630,7 +3630,7 @@
   "name": "exportRecords: journal, GBP only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3672,7 +3672,7 @@
   "name": "exportRecords: journal, date range",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3953,7 +3953,7 @@
   "name": "exportRecords: journal, from only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4098,7 +4098,7 @@
   "name": "exportRecords: journal, to only",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4379,7 +4379,7 @@
   "name": "exportRecords: journal, empty range",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4421,7 +4421,7 @@
   "name": "exportRecords: journal, mixed businesses",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6744,7 +6744,7 @@
   "name": "exportRecords: invalid from date",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6765,7 +6765,7 @@
   "name": "exportRecords: invalid to date",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6786,7 +6786,7 @@
   "name": "exportRecords: reversed range",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6807,7 +6807,7 @@
   "name": "exportRecords: same-day range",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6867,7 +6867,7 @@
   "name": "exportRecords: formula-injection escaping 0",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8416,7 +8416,7 @@
   "name": "exportRecords: formula-injection escaping 1",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -9965,7 +9965,7 @@
   "name": "exportRecords: formula-injection escaping 2",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -11514,7 +11514,7 @@
   "name": "exportRecords: formula-injection escaping 3",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13063,7 +13063,7 @@
   "name": "exportRecords: formula-injection escaping 4",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -14612,7 +14612,7 @@
   "name": "exportRecords: formula-injection escaping 5",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -16161,7 +16161,7 @@
   "name": "exportRecords: formula-injection escaping 6",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -17710,7 +17710,7 @@
   "name": "exportRecords: formula-injection escaping 7",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -19259,7 +19259,7 @@
   "name": "exportRecords: formula-injection escaping 8",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -20808,7 +20808,7 @@
   "name": "exportRecords: formula-injection escaping 9",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -22357,7 +22357,7 @@
   "name": "exportRecords: formula-injection escaping 10",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -23906,7 +23906,7 @@
   "name": "exportRecords: filename for \"Café Ünïcode & Co.\"",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -25659,7 +25659,7 @@
   "name": "exportRecords: filename for \"!!!\"",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -27412,7 +27412,7 @@
   "name": "exportRecords: filename for \"  --Northstar--  \"",
   "call": "exportRecords",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -29165,7 +29165,7 @@
   "name": "encodeCSV: empty",
   "call": "encodeCSV",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -29178,7 +29178,7 @@
   "name": "encodeCSV: header only",
   "call": "encodeCSV",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -29196,7 +29196,7 @@
   "name": "encodeCSV: escaping",
   "call": "encodeCSV",
   "env": {
-   "nextId": 480,
+   "nextId": 504,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -29225,7 +29225,7 @@
   "name": "exportRecords: from before 1900",
   "call": "exportRecords",
   "env": {
-   "nextId": 598,
+   "nextId": 624,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },

@@ -212,6 +212,51 @@ the Rust follow, so both languages still agree on every fixture.
   `a saved draft cannot claim a correction or a journal (W13)` and
   `a_saved_draft_cannot_claim_a_correction_or_a_journal`.
 
+- **W14.** `assertBalanced` holds every line to its account's kind: a line
+  with a category is spend and must sit on an expense account (the
+  category's own), and a line without one must not sit on an expense
+  account. Both fail with "Invalid journal category.". Why: the category
+  check only required `category.accountId === line.accountId`, so a
+  category pointed at a bank or card account let `approve` post
+  `[debit bank, credit bank]`, which balanced, moved no balance and still
+  counted as spend in `totals`. Only damaged state could do it (`addCategory`
+  and genesis always use an expense account), but the Rust loader accepted
+  such journals too. The seed and every fixture already keep the rule
+  (2026-10-28 audit, ACC-2). Fixtures: `validation/assertBalanced: category
+on the paying account`, `validation/assertBalanced: expense account line
+without a category`; tests `spend sits on an expense account, and only
+spend does (ACC-2)` and `spend_sits_on_an_expense_account_and_only_spend_does`.
+- **W15.** A category and its expense account keep one name. `addCategory`
+  and `renameCategory` refuse a name any account uses ("That name is already
+  in use.", the category's own account excepted), `renameCategory` renames
+  the category's expense account with it, and `renameAccount` refuses an
+  expense account ("Rename an expense account through its category."). Why:
+  `addCategory` checked only the category list although it also adds an
+  account, and an expense account could be renamed apart from its category,
+  so the journal export's Account column could disagree with its Category
+  column (2026-10-28 audit, ACC-3). The Settings screen already listed only
+  bank and card accounts for renaming. Fixtures:
+  `settings/renameCategory: renamed with its expense account` (was
+  `renamed, its account unchanged`), `settings/addCategory: a bank account's
+name is taken`, `settings/renameAccount: an expense account`,
+  `settings/renameCategory: another account's name is taken`,
+  `settings/renameCategory: its own account's name, in another case`; tests
+  `a category and its expense account keep one name (ACC-3)` and
+  `a_category_and_its_expense_account_keep_one_name`.
+- **W16.** `commitImport` gives each import source a fresh id, asked for
+  after the draft's own id, instead of keeping the id the preview chose; the
+  `expense.matched` event names the new id. Why: on the shared ledger the
+  rows come from a member's proposal, and every other new record's id comes
+  from the service's environment, so rows could pick ids that collide with
+  other records or with each other (2026-10-28 audit, ACC-5). The preview
+  still generates an id, so `ImportRow` keeps its shape. Commit still trusts
+  a referenced row's previewed date, amount and description: see
+  `docs/protocol.md`. Every expense-history `commitImport` fixture now uses
+  one more id; the ones that differ beyond renumbering differ only in source
+  ids. Fixture: `history/commitImport: source ids from the rows are
+replaced`; tests `a committed import source gets its own id, whatever the
+rows say (ACC-5)` and `a_committed_import_source_gets_its_own_id`.
+
 `74c382e` also removed the `correctionOf` exemptions from the posted payment
 and import-source uniqueness checks. A real correction first reverses its
 original and marks it corrected, then posts the replacement; merely naming an

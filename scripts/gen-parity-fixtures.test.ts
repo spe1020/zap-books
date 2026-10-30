@@ -449,6 +449,46 @@ function validation(ns: BusinessData, fw: BusinessData) {
       { ...j.lines[1], credit: MAX },
     ],
   });
+  // ACC-2: a categorized line is spend and sits on an expense account; any
+  // other line is not on one. An invented date of their own.
+  const acc2: JournalEntry = { ...j, date: "2026-06-11" };
+  const spend = j.lines.findIndex((l) => l.categoryId);
+  const paid = j.lines.findIndex((l) => !l.categoryId);
+  // A category on the paying account: added, not moved, so the stored
+  // journals still load.
+  balanced(
+    "category on the paying account",
+    {
+      ...ns,
+      categories: [
+        ...ns.categories,
+        {
+          id: "category-on-bank",
+          businessId: ns.profile.id,
+          name: "Invented spend",
+          accountId: j.lines[paid].accountId,
+        },
+      ],
+    },
+    {
+      ...acc2,
+      lines: j.lines.map((l, n) =>
+        n === spend
+          ? {
+              ...l,
+              accountId: j.lines[paid].accountId,
+              categoryId: "category-on-bank",
+            }
+          : l,
+      ),
+    },
+  );
+  balanced("expense account line without a category", ns, {
+    ...acc2,
+    lines: j.lines.map((l, n) =>
+      n === spend ? { ...l, categoryId: undefined } : l,
+    ),
+  });
 }
 
 function drafts(ns: BusinessData, fw: BusinessData) {
@@ -1230,6 +1270,26 @@ function history(ns: BusinessData, fw: BusinessData) {
     migration,
     fw.accounts[0].id,
   );
+  // ACC-5: a source's id comes from the environment, not from the rows,
+  // even rows that name an existing record and each other. Invented rows.
+  const named = I.parseCSV(
+    "Expense Date,Vendor Name,Description,Expense Amount,Currency Code,Reference Number\n06/11/2026,Invented Supply,Folders,12.00,USD,QB-1\n06/12/2026,Invented Supply,Labels,8.00,USD,QB-2",
+  );
+  commit(
+    "source ids from the rows are replaced",
+    ns,
+    I.previewImport(
+      ns,
+      named,
+      I.guessMapping(named[0]),
+      account,
+      "positive",
+      quickbooks,
+    ).map((r) => ({
+      ...r,
+      importSource: { ...r.importSource!, id: ns.drafts[0].id },
+    })),
+  );
   const d: ExpenseDraft = imported.drafts.at(-1);
   record(
     "history",
@@ -1841,10 +1901,31 @@ function settings(seeded: BusinessData, fw: BusinessData): BusinessData {
     id: ns.categories[0].id,
     name: ns.categories[1].name,
   });
-  update("renameCategory: renamed, its account unchanged", ns, {
+  // ACC-3: a category and its expense account share one name.
+  update("renameCategory: renamed with its expense account", ns, {
     op: "renameCategory",
     id: ns.categories[0].id,
     name: "Renamed category",
+  });
+  update("renameCategory: another account's name is taken", ns, {
+    op: "renameCategory",
+    id: ns.categories[0].id,
+    name: ns.accounts[0].name.toLowerCase(),
+  });
+  update("renameCategory: its own account's name, in another case", ns, {
+    op: "renameCategory",
+    id: ns.categories[0].id,
+    name: ns.categories[0].name.toUpperCase(),
+  });
+  update("addCategory: a bank account's name is taken", ns, {
+    op: "addCategory",
+    name: ns.accounts[0].name.toUpperCase(),
+    currency: "USD",
+  });
+  update("renameAccount: an expense account", ns, {
+    op: "renameAccount",
+    id: ns.categories[0].accountId,
+    name: "Renamed account",
   });
   update("renameCategory: unknown id", ns, {
     op: "renameCategory",

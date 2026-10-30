@@ -141,6 +141,8 @@ pub enum LedgerError {
     AccountNotFound,
     #[error("Category not found in this business.")]
     CategoryNotFound,
+    #[error("Rename an expense account through its category.")]
+    ExpenseAccountRename,
     #[error("Choose a bank or card account.")]
     AccountKindInvalid,
 

@@ -154,14 +154,18 @@ export function assertBalanced(b: BusinessData, entry: JournalEntry) {
       (line.debit > 0 && line.credit > 0)
     )
       throw new Error("Invalid journal amounts.");
+    // A category's line is spend, so it sits on an expense account; every
+    // other line moves money between bank and card accounts.
     if (
-      line.categoryId &&
-      !b.categories.some(
-        (c) =>
-          c.id === line.categoryId &&
-          c.businessId === entry.businessId &&
-          c.accountId === account.id,
-      )
+      line.categoryId
+        ? account.kind !== "expense" ||
+          !b.categories.some(
+            (c) =>
+              c.id === line.categoryId &&
+              c.businessId === entry.businessId &&
+              c.accountId === account.id,
+          )
+        : account.kind === "expense"
     )
       throw new Error("Invalid journal category.");
     debit = sum(debit, line.debit);

@@ -51,7 +51,10 @@ fn lower(s: &str) -> String {
 
 /// `updateSettings`: applies one Settings edit and logs it. Account and
 /// category names are unique within their list, ignoring case. Adding a
-/// category also adds its expense account.
+/// category also adds its expense account, under the same name: a
+/// category's name must be free among the accounts too, renaming the
+/// category renames its account, and an expense account can't be renamed on
+/// its own.
 pub fn update_settings(
     business: &BusinessData,
     change: &SettingsChange,
@@ -86,13 +89,26 @@ pub fn update_settings(
         return Err(LedgerError::NameRequired);
     }
     let wanted = lower(&name);
-    let taken = |id: &str, existing: &str| {
-        Some(id) != editing.map(String::as_str) && lower(existing) == wanted
+    let taken = |id: &str, existing: &str, except: Option<&str>| {
+        Some(id) != except && lower(existing) == wanted
+    };
+    let editing = editing.map(String::as_str);
+    // The account a renamed category shares its name with.
+    let paired = match change {
+        SettingsChange::RenameCategory { id, .. } => b
+            .categories
+            .iter()
+            .find(|c| c.id == *id && c.business_id == profile_id)
+            .map(|c| c.account_id.clone()),
+        _ => None,
     };
     let in_use = if is_account {
-        b.accounts.iter().any(|x| taken(&x.id, &x.name))
+        b.accounts.iter().any(|x| taken(&x.id, &x.name, editing))
     } else {
-        b.categories.iter().any(|x| taken(&x.id, &x.name))
+        b.categories.iter().any(|x| taken(&x.id, &x.name, editing))
+            || b.accounts
+                .iter()
+                .any(|x| taken(&x.id, &x.name, paired.as_deref()))
     };
     if in_use {
         return Err(LedgerError::NameInUse);
@@ -104,6 +120,9 @@ pub fn update_settings(
                 .iter_mut()
                 .find(|x| x.id == *id && x.business_id == profile_id)
                 .ok_or(LedgerError::AccountNotFound)?;
+            if record.kind == AccountKind::Expense {
+                return Err(LedgerError::ExpenseAccountRename);
+            }
             record.name = name.clone();
         }
         SettingsChange::RenameCategory { id, .. } => {
@@ -113,6 +132,14 @@ pub fn update_settings(
                 .find(|x| x.id == *id && x.business_id == profile_id)
                 .ok_or(LedgerError::CategoryNotFound)?;
             record.name = name.clone();
+            for a in &mut b.accounts {
+                if Some(&a.id) == paired.as_ref()
+                    && a.business_id == profile_id
+                    && a.kind == AccountKind::Expense
+                {
+                    a.name = name.clone();
+                }
+            }
         }
         // `currencies.includes(currency)` holds by construction (D2).
         SettingsChange::AddAccount { kind, currency, .. } => {
