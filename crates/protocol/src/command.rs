@@ -157,6 +157,13 @@ pub enum Command {
         original_id: String,
         replacement: ExpenseDraft,
         reason: String,
+        /// References to documents first attached in this correction.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        documents: Vec<DocumentRef>,
+        /// A receipt reading for the replacement, checked as for `SaveDraft`.
+        /// The correction posts the replacement, so it is finalized at once.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        extraction: Option<ExtractionRecord>,
     },
     #[serde(rename_all = "camelCase")]
     CommitImport {

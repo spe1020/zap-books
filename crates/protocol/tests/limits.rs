@@ -330,6 +330,8 @@ fn an_oversized_event_is_refused_with_its_size() {
             // About 50 KB of text: within NIP-44, but over the event limit
             // once encrypted and base64-encoded.
             reason: "x".repeat(50_000),
+            documents: vec![],
+            extraction: None,
         },
     );
     let err = build_proposal(&bookkeeper(), &pk(&service()), &payload, at(1)).unwrap_err();

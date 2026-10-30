@@ -28,8 +28,6 @@ export type LedgerCommand =
       /** Receipts first attached in this save. */
       documents: SourceDocument[];
       extraction?: ReceiptReading;
-      /** Also save the draft's vendor, category and purpose as a rule. */
-      rememberRule?: boolean;
     }
   | { type: "Approve"; expenseId: string }
   | {
@@ -39,7 +37,6 @@ export type LedgerCommand =
       reason: string;
       documents: SourceDocument[];
       extraction?: ReceiptReading;
-      rememberRule?: boolean;
     }
   | { type: "CommitImport"; accountId: string; rows: ImportRow[] }
   | { type: "UpdateSettings"; change: SettingsChange }

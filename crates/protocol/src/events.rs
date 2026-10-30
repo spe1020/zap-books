@@ -595,16 +595,29 @@ pub fn build_rejection(
 /// The proposer's view of a rejection. Fails unless `service` signed it and
 /// it is addressed to `member`.
 pub fn open_rejection(event: &Event, member: &Keys, service: &PublicKey) -> Result<Rejection> {
+    let proposal = parse_rejection(event, &member.public_key(), service)?;
+    let text = decrypt_from(member.secret_key(), service, &event.content)?;
+    read_rejection(proposal, &text)
+}
+
+/// Checks a rejection without decrypting it: signed by `service`, addressed
+/// to `member`. Returns the proposal it rejects.
+pub fn parse_rejection(event: &Event, member: &PublicKey, service: &PublicKey) -> Result<EventId> {
     verified(event, kinds::REJECTION)?;
     if event.pubkey != *service {
         return Err(ProtocolError::WrongService);
     }
-    if public_key(required(event, tag::PUBKEY)?, tag::PUBKEY)? != member.public_key() {
+    if public_key(required(event, tag::PUBKEY)?, tag::PUBKEY)? != *member {
         return Err(ProtocolError::TagMismatch(tag::PUBKEY));
     }
-    let proposal = event_id(required(event, tag::EVENT)?, tag::EVENT)?;
-    let text = decrypt_from(member.secret_key(), service, &event.content)?;
-    let content: RejectionContent = from_json(&text)?;
+    event_id(required(event, tag::EVENT)?, tag::EVENT)
+}
+
+/// Reads a rejection's decrypted content, `text`, for the proposal
+/// [`parse_rejection`] returned. For a member whose key is held elsewhere
+/// (a NIP-07 extension), which decrypts the content.
+pub fn read_rejection(proposal: EventId, text: &str) -> Result<Rejection> {
+    let content: RejectionContent = from_json(text)?;
     check_version(content.v)?;
     Ok(Rejection {
         proposal,

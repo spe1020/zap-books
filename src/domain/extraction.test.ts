@@ -175,6 +175,8 @@ describe("recording what the reader proposed", () => {
     // Unposted drafts keep pending outcomes.
     expect(finalizeExtractions(b, draft.id)).toEqual(b);
     const posted = finalizeExtractions(approve(b, draft.id), draft.id);
+    // Approval itself finalizes them; finalizing again changes nothing.
+    expect(approve(b, draft.id).extractions).toEqual(posted.extractions);
     expect(posted.extractions[0]).toMatchObject({
       businessId: b.profile.id,
       draftId: draft.id,

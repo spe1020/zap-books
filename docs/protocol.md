@@ -211,19 +211,19 @@ copy stale.
 
 Records use `ledger-core`'s JSON shapes (`src/domain/types.ts`).
 
-| `type`               | Fields                                                                                           | Applied with                  |
-| -------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------- |
-| `CreateBusiness`     | `service`, `recovery`, `profile`, `accounts`, `categories`                                       | Genesis (see below)           |
-| `SaveDraft`          | `draft`, `documents` (document references, see below), `extraction` (optional receipt reading)   | `save_draft`                  |
-| `Approve`            | `expenseId`                                                                                      | `approve`                     |
-| `Correct`            | `originalId`, `replacement`, `reason`                                                            | `correct`                     |
-| `CommitImport`       | `accountId`, `rows` (previewed rows)                                                             | `commit_import`               |
-| `UpdateSettings`     | `change`: `profile`, `addAccount`, `renameAccount`, `addCategory`, `renameCategory` (`op` field) | `update_settings`             |
-| `SaveRule`           | `rule`: `id` (absent for a new rule), `vendorIncludes`, `categoryId`, `purpose`, `enabled`       | `save_rule`                   |
-| `ChangeMembership`   | `change` (see Membership)                                                                        | The membership rules          |
-| `Veto`               | `pending`: the proposal id of a pending change                                                   | The membership rules          |
-| `SubmitReceiptDraft` | `draft`, `documents`                                                                             | `save_draft`, for a new draft |
-| `Suggest`            | `suggestion`: `draftId`, `author`, `categoryId`, `purpose`, `note` (each optional), `evidence`   | `suggest`                     |
+| `type`               | Fields                                                                                                  | Applied with                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `CreateBusiness`     | `service`, `recovery`, `profile`, `accounts`, `categories`                                              | Genesis (see below)           |
+| `SaveDraft`          | `draft`, `documents` (document references, see below), `extraction` (optional receipt reading)          | `save_draft`                  |
+| `Approve`            | `expenseId`                                                                                             | `approve`                     |
+| `Correct`            | `originalId`, `replacement`, `reason`, `documents` and `extraction` (each optional, as for `SaveDraft`) | `correct`                     |
+| `CommitImport`       | `accountId`, `rows` (previewed rows)                                                                    | `commit_import`               |
+| `UpdateSettings`     | `change`: `profile`, `addAccount`, `renameAccount`, `addCategory`, `renameCategory` (`op` field)        | `update_settings`             |
+| `SaveRule`           | `rule`: `id` (absent for a new rule), `vendorIncludes`, `categoryId`, `purpose`, `enabled`              | `save_rule`                   |
+| `ChangeMembership`   | `change` (see Membership)                                                                               | The membership rules          |
+| `Veto`               | `pending`: the proposal id of a pending change                                                          | The membership rules          |
+| `SubmitReceiptDraft` | `draft`, `documents`                                                                                    | `save_draft`, for a new draft |
+| `Suggest`            | `suggestion`: `draftId`, `author`, `categoryId`, `purpose`, `note` (each optional), `evidence`          | `suggest`                     |
 
 `update_settings` and `save_rule` port `src/domain/settings.ts`, which holds
 the Settings screen's rules: names unique within their list ignoring case,
@@ -243,6 +243,9 @@ the service runs and auditors re-run:
   be approved yet. The service gives it its own id and time. Like the
   browser, it replaces an earlier unapproved reading of the same draft and
   document.
+- `Correct` checks and adds its document references and stores its reading
+  (for the replacement) the same way, before calling `correct`. Posting the
+  replacement finalizes the reading's outcomes, as approving a draft does.
 - `SubmitReceiptDraft` does the same as `SaveDraft` without a reading, and
   only for a draft id the business doesn't have yet.
 - `Suggest` adds a **suggestion** record ([decision 0004](decisions/0004-bring-your-own-ai.md)):

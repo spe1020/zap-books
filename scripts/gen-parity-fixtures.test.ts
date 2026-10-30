@@ -2087,6 +2087,113 @@ function suggestions(setup: BusinessData, fw: BusinessData) {
   });
 }
 
+/**
+ * Approving a draft judges its pending receipt readings against what was
+ * posted (`finalizeExtractions`, run by `approve`, and so by `correct` for
+ * the replacement). Recorded last, so no earlier fixture's ids move.
+ */
+function readingOutcomes(setup: BusinessData) {
+  const draft = ready(setup, {
+    id: "draft-read",
+    vendor: "Lantern Paper Co.",
+    date: "2031-05-14",
+    amountMinor: 3150,
+  });
+  const field = <T>(
+    status: "found" | "unclear" | "absent",
+    value: T | null,
+  ) => ({
+    status,
+    value: status === "found" ? value : null,
+    evidence: status === "absent" ? "" : "Invented printed line",
+  });
+  const lines = { status: "absent", value: null, lines: [] };
+  const reading = (
+    recordId: string,
+    draftId: string,
+    accepted: string[],
+    outcomes: Record<string, string> | null = null,
+  ) => ({
+    id: recordId,
+    businessId: setup.profile.id,
+    documentId: "doc-read",
+    draftId,
+    model: "test-model",
+    promptVersion: "test-1",
+    createdAt: NOW,
+    fields: {
+      // Accepted and kept: accepted. Accepted, then changed: edited.
+      vendor: field("found", "Lantern Paper Co."),
+      date: field("found", "2031-05-15"),
+      // Found but not accepted: ignored.
+      total: field("found", 3150),
+      // Unclear: unclear, whatever was accepted. Absent: no outcome.
+      currency: field("unclear", null),
+      reference: field("found", "R-7"),
+      subtotal: field("absent", null),
+      tax: lines,
+      fees: lines,
+      discounts: lines,
+      tip: field("absent", null),
+      category: field("absent", null),
+    },
+    accepted,
+    outcomes,
+  });
+  const b = state("northstar-setup-reading", {
+    ...setup,
+    drafts: [draft],
+    extractions: [
+      reading("reading-pending", "draft-read", ["vendor", "date", "currency"]),
+      reading("reading-final", "draft-read", ["vendor"], {
+        vendor: "accepted",
+      }),
+      reading("reading-other", "draft-other", ["vendor"]),
+    ],
+  });
+  const approved = record(
+    "approve",
+    "readings: approval finalizes the draft's pending readings",
+    "approve",
+    { business: b, expenseId: "draft-read" },
+    (i) => L.approve(i.business, i.expenseId),
+  );
+  record(
+    "approve",
+    "readings: a failed approval finalizes nothing",
+    "approve",
+    {
+      business: { ...b, drafts: [{ ...draft, categoryId: "" }] },
+      expenseId: "draft-read",
+    },
+    (i) => L.approve(i.business, i.expenseId),
+  );
+  const replacement = {
+    ...draft,
+    id: "draft-read-correction",
+    amountMinor: 3250,
+    createdAt: NOW,
+  };
+  record(
+    "correct",
+    "readings: a correction finalizes its replacement's readings",
+    "correct",
+    {
+      business: {
+        ...approved,
+        extractions: [
+          ...approved.extractions,
+          reading("reading-replacement", replacement.id, ["vendor", "total"]),
+        ],
+      },
+      originalId: "draft-read",
+      replacement,
+      reason: "The total was misread.",
+    },
+    (i) => L.correct(i.business, i.originalId, i.replacement, i.reason),
+  );
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -2123,6 +2230,7 @@ test("generate parity fixtures", () => {
     const setup = settings(ns, fw);
     documentHashes(setup);
     suggestions(setup, fw);
+    readingOutcomes(setup);
     write();
   } finally {
     vi.useRealTimers();

@@ -12,6 +12,7 @@ use serde::Serialize;
 use crate::date::valid_date;
 use crate::env::Env;
 use crate::error::{LedgerError, Result};
+use crate::extraction::finalize_extractions;
 use crate::js;
 use crate::money::{Currency, Minor};
 use crate::types::{
@@ -508,6 +509,8 @@ fn approve_in(b: &mut BusinessData, expense_id: &str, env: &mut impl Env) -> Res
         "Balanced journal entry recorded",
         vec![journal_id],
     );
+    // The receipt readings for this draft are judged against what was posted.
+    finalize_extractions(b, &d.id);
     Ok(())
 }
 

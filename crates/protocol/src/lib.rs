@@ -41,9 +41,9 @@ pub use error::{ProtocolError, Result};
 pub use events::{
     build_acceptance, build_delivery, build_proposal, build_rejection, check_proposal,
     open_acceptance, open_delivery, open_proposal, open_rejection, parse_acceptance,
-    parse_delivery, parse_proposal, proposal_parts, read_delivery, AcceptanceContent,
-    AcceptanceHeader, Delivery, Outcome, ProposalHeader, Reason, Rejection, RejectionCode,
-    RejectionContent,
+    parse_delivery, parse_proposal, parse_rejection, proposal_parts, read_delivery, read_rejection,
+    AcceptanceContent, AcceptanceHeader, Delivery, Outcome, ProposalHeader, Reason, Rejection,
+    RejectionCode, RejectionContent,
 };
 pub use limits::{next_batch, IMPORT_BATCH_START, MAX_EVENT_BYTES};
 pub use membership::{

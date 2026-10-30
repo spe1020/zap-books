@@ -340,9 +340,13 @@ Fixture: `import/previewImport: combined amount exceeds the safe range`.
 
 ## Not ported
 
-- `src/domain/extraction.ts` (applying receipt suggestions and recording
-  their outcomes). It is Review-screen logic, not a ledger rule. Rust has the
-  `ExtractionRecord` types only (serde, `extractions` defaults to `[]`).
+- Most of `src/domain/extraction.ts` (applying receipt suggestions to the
+  form). It is Review-screen logic, not a ledger rule. Rust has the
+  `ExtractionRecord` types (serde, `extractions` defaults to `[]`), and
+  `outcomesFor` and `finalizeExtractions` (`crates/ledger-core/src/extraction.rs`),
+  which `approve` runs, and so `correct` for its replacement: the service
+  judges a draft's readings when it posts it, as the browser does.
+  Fixtures: `approve/readings: *`, `correct/readings: *`.
 - `money()` display formatting (uses `Intl`; a UI concern).
 - `seed.ts`. Rust tests load the seed recorded by the fixture generator
   (`fixtures/parity/states/seed.json`).

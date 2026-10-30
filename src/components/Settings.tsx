@@ -25,7 +25,8 @@ export function Settings({
 }: {
   b: BusinessData;
   mutate: Mutation;
-  onReset: () => void;
+  /** The local demo only. */
+  onReset?: () => void;
   busy: boolean;
 }) {
   const [name, setName] = useState(b.profile.name),
@@ -271,19 +272,21 @@ export function Settings({
           ))}
         </div>
       </section>
-      <section className="reset-panel">
-        <div>
-          <h3>Your demo workspace</h3>
-          <p>
-            Records and attachments stay in this browser. Reset replaces both
-            businesses with fresh demonstration data.
-          </p>
-        </div>
-        <button className="button danger" onClick={onReset}>
-          <RotateCcw size={15} />
-          Reset demo
-        </button>
-      </section>
+      {onReset && (
+        <section className="reset-panel">
+          <div>
+            <h3>Your demo workspace</h3>
+            <p>
+              Records and attachments stay in this browser. Reset replaces both
+              businesses with fresh demonstration data.
+            </p>
+          </div>
+          <button className="button danger" onClick={onReset}>
+            <RotateCcw size={15} />
+            Reset demo
+          </button>
+        </section>
+      )}
       {rule && (
         <Modal title="Classification rule" onClose={() => setRule(null)}>
           <form

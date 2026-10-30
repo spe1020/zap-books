@@ -1,27 +1,18 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { seedWorkspace } from "../domain/seed";
-import {
-  approve,
-  blankDraft,
-  correct,
-  event,
-  id,
-  saveDraft,
-} from "../domain/ledger";
+import { blankDraft } from "../domain/ledger";
 import { commitImport, parseCSV, previewImport } from "../domain/import";
 import { saveRule, updateSettings } from "../domain/settings";
-import { finalizeExtractions, recordExtraction } from "../domain/extraction";
 import type {
   BusinessData,
   ExpenseDraft,
   ExtractionResult,
   SourceDocument,
 } from "../domain/types";
-import type { LedgerCommand, ReceiptReading } from "./ledger-client";
+import type { LedgerCommand } from "./ledger-client";
 import { applyLocal } from "./local-ledger";
 
-// Fixed ids and time, so the old path and the new one can be compared
-// record for record.
+// Fixed ids and time, so two runs can be compared record for record.
 let counter = 0;
 beforeEach(() => {
   counter = 0;
@@ -36,107 +27,6 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
-
-/**
- * The Review screen's save, exactly as it was before `LedgerClient`
- * (`src/components/Review.tsx` at the parent of this change).
- */
-function reviewBefore(
-  b: BusinessData,
-  current: BusinessData,
-  o: {
-    docs: SourceDocument[];
-    next: ExpenseDraft;
-    saveRule: boolean;
-    extraction?: { documentId: string; result: ExtractionResult };
-    accepted: string[];
-    correcting: boolean;
-    initialId: string;
-    reason: string;
-    post: boolean;
-  },
-): BusinessData {
-  const { docs, next, saveRule, extraction, accepted, correcting, post } = o;
-  let updated = {
-    ...current,
-    documents: [...current.documents, ...docs],
-  };
-  if (saveRule) {
-    const existing = updated.rules.find(
-      (r) =>
-        r.vendorIncludes.toLowerCase() === next.vendor.trim().toLowerCase(),
-    );
-    const rule = {
-      id: existing?.id ?? id(),
-      businessId: b.profile.id,
-      vendorIncludes: next.vendor.trim(),
-      categoryId: next.categoryId,
-      purpose: next.purpose,
-      enabled: true,
-    };
-    updated = {
-      ...updated,
-      rules: [...updated.rules.filter((r) => r.id !== rule.id), rule],
-    };
-    event(
-      updated,
-      "rule.saved",
-      rule.id,
-      `Explicitly saved classification rule for ${rule.vendorIncludes}`,
-    );
-  }
-  const withReading = (state: BusinessData) =>
-    extraction
-      ? recordExtraction(state, {
-          draftId: next.id,
-          documentId: extraction.documentId,
-          result: extraction.result,
-          accepted: [...accepted] as ReceiptReading["accepted"],
-        })
-      : state;
-  if (correcting)
-    return finalizeExtractions(
-      withReading(correct(updated, o.initialId, next, o.reason)),
-      next.id,
-    );
-  updated = withReading(saveDraft(updated, next));
-  return post
-    ? finalizeExtractions(approve(updated, next.id), next.id)
-    : updated;
-}
-
-/** The Review screen's commands now, as it builds them. */
-function reviewNow(o: Parameters<typeof reviewBefore>[2]): LedgerCommand[] {
-  const reading = o.extraction
-    ? {
-        documentId: o.extraction.documentId,
-        result: o.extraction.result,
-        accepted: [...o.accepted] as ReceiptReading["accepted"],
-      }
-    : undefined;
-  return o.correcting
-    ? [
-        {
-          type: "Correct",
-          originalId: o.initialId,
-          replacement: o.next,
-          reason: o.reason,
-          documents: o.docs,
-          extraction: reading,
-          rememberRule: o.saveRule,
-        },
-      ]
-    : [
-        {
-          type: "SaveDraft",
-          draft: o.next,
-          documents: o.docs,
-          extraction: reading,
-          rememberRule: o.saveRule,
-        },
-        ...(o.post ? [{ type: "Approve" as const, expenseId: o.next.id }] : []),
-      ];
-}
 
 const found = <T>(value: T, evidence: string) => ({
   status: "found" as const,
@@ -204,108 +94,117 @@ function draft(b: BusinessData): ExpenseDraft {
   };
 }
 
-/** Runs `run` twice from the same ids and time: the results must match. */
-function same(run: (b: BusinessData) => BusinessData) {
-  const b = seedWorkspace().businesses[0];
-  const reset = () => {
-    counter = 0;
-    vi.setSystemTime(new Date("2026-10-15T12:00:00.000Z"));
+const run = (b: BusinessData, commands: LedgerCommand[]) =>
+  commands.reduce(applyLocal, b);
+
+function save(b: BusinessData, withReading: boolean): LedgerCommand {
+  const doc = receipt(b);
+  return {
+    type: "SaveDraft",
+    draft: draft(b),
+    documents: [doc],
+    extraction: withReading
+      ? { ...reading(doc.id), accepted: ["vendor", "total"] }
+      : undefined,
   };
-  reset();
-  const a = run(structuredClone(b));
-  reset();
-  return { a, b, reset };
 }
 
-describe("LocalLedgerClient applies each action as the screens did", () => {
-  const cases = [
-    { name: "save a draft", post: false, correcting: false, rule: false },
-    {
-      name: "save with a reading and a rule",
-      post: false,
-      correcting: false,
-      rule: true,
-    },
-    { name: "save and approve", post: true, correcting: false, rule: false },
-    {
-      name: "save and approve with a rule",
-      post: true,
-      correcting: false,
-      rule: true,
-    },
-  ];
-  for (const c of cases)
-    for (const withReading of [false, true])
-      test(`${c.name}${withReading ? ", read" : ""}`, () => {
-        const {
-          a: before,
-          b,
-          reset,
-        } = same((x) => {
-          const doc = receipt(x);
-          return reviewBefore(x, x, {
-            docs: [doc],
-            next: draft(x),
-            saveRule: c.rule,
-            extraction: withReading ? reading(doc.id) : undefined,
-            accepted: ["vendor", "total"],
-            correcting: false,
-            initialId: "draft-harbor",
-            reason: "",
-            post: c.post,
-          });
-        });
-        reset();
-        const x = structuredClone(b);
-        const doc = receipt(x);
-        const after = reviewNow({
-          docs: [doc],
-          next: draft(x),
-          saveRule: c.rule,
-          extraction: withReading ? reading(doc.id) : undefined,
-          accepted: ["vendor", "total"],
-          correcting: false,
-          initialId: "draft-harbor",
-          reason: "",
-          post: c.post,
-        }).reduce(applyLocal, x);
-        expect(after).toEqual(before);
-        if (c.post)
-          expect(
-            after.drafts.find((d) => d.id === "draft-harbor")?.status,
-          ).toBe("posted");
-      });
+const ruleFor = (d: ExpenseDraft, id?: string): LedgerCommand => ({
+  type: "SaveRule",
+  rule: {
+    id,
+    vendorIncludes: d.vendor.trim(),
+    categoryId: d.categoryId,
+    purpose: d.purpose,
+    enabled: true,
+  },
+});
 
-  test("correct a posted expense, with a reading and a rule", () => {
-    const options = (x: BusinessData) => {
-      const doc = receipt(x);
-      const original = x.drafts.find((d) => d.status === "posted")!;
-      return {
-        docs: [doc],
-        next: {
+describe("LocalLedgerClient applies each command with the domain functions", () => {
+  test("saving attaches receipts and keeps a reading pending", () => {
+    const b = seedWorkspace().businesses[0];
+    const after = run(b, [save(b, true)]);
+    expect(after.documents.at(-1)?.id).toBe("doc-harbor");
+    const record = after.extractions.find((x) => x.draftId === "draft-harbor");
+    expect(record?.outcomes).toBeNull();
+  });
+
+  test("approving posts the draft and judges its reading", () => {
+    const b = seedWorkspace().businesses[0];
+    const after = run(b, [
+      save(b, true),
+      { type: "Approve", expenseId: "draft-harbor" },
+    ]);
+    expect(after.drafts.find((d) => d.id === "draft-harbor")?.status).toBe(
+      "posted",
+    );
+    const record = after.extractions.find((x) => x.draftId === "draft-harbor");
+    expect(record?.outcomes).toEqual({
+      vendor: "edited",
+      date: "ignored",
+      total: "accepted",
+      currency: "ignored",
+      category: "ignored",
+    });
+  });
+
+  test("a correction attaches receipts and judges the replacement's reading", () => {
+    const b = seedWorkspace().businesses[0];
+    const original = b.drafts.find((d) => d.status === "posted")!;
+    const doc = receipt(b);
+    const after = run(b, [
+      {
+        type: "Correct",
+        originalId: original.id,
+        replacement: {
           ...original,
           id: "draft-correction",
-          amountMinor: original.amountMinor + 100,
-          status: "draft" as const,
+          amountMinor: 3317,
+          status: "draft",
           documentIds: [...original.documentIds, doc.id],
         },
-        saveRule: true,
-        extraction: reading(doc.id),
-        accepted: ["vendor"],
-        correcting: true,
-        initialId: original.id,
-        reason: "The receipt shows a higher total.",
-        post: false,
-      };
-    };
-    const { a: before, b, reset } = same((x) => reviewBefore(x, x, options(x)));
-    reset();
-    const x = structuredClone(b);
-    const after = reviewNow(options(x)).reduce(applyLocal, x);
-    expect(after).toEqual(before);
-    const original = options(b).initialId;
-    expect(after.drafts.find((d) => d.id === original)?.status).toBe(
+        reason: "The receipt shows a different total.",
+        documents: [doc],
+        extraction: { ...reading(doc.id), accepted: ["total"] },
+      },
+    ]);
+    expect(after.drafts.find((d) => d.id === original.id)?.status).toBe(
       "corrected",
+    );
+    const record = after.extractions.find(
+      (x) => x.draftId === "draft-correction",
+    );
+    expect(record?.outcomes?.total).toBe("accepted");
+  });
+
+  test("a rule from the Review screen goes through saveRule's checks", () => {
+    const b = seedWorkspace().businesses[0];
+    const d = draft(b);
+    const after = run(b, [ruleFor(d), save(b, false)]);
+    const rule = after.rules.find(
+      (r) => r.vendorIncludes === "Harbor Ink Supply",
+    );
+    // saveRule trims the purpose and logs its own message.
+    expect(rule).toMatchObject({
+      purpose: "Ink for client proofs",
+      enabled: true,
+    });
+    expect(
+      after.audits.some(
+        (a) => a.detail === "Classification rule saved: Harbor Ink Supply",
+      ),
+    ).toBe(true);
+    // Saving it again replaces it.
+    const again = run(after, [ruleFor(d, rule!.id)]);
+    expect(
+      again.rules.filter((r) => r.vendorIncludes === "Harbor Ink Supply"),
+    ).toHaveLength(1);
+    // A rule saveRule refuses fails the whole action.
+    expect(() =>
+      run(b, [ruleFor({ ...d, purpose: " " }), save(b, false)]),
+    ).toThrow("Vendor and purpose are required.");
+    expect(() => run(after, [ruleFor(d), save(b, false)])).toThrow(
+      "A rule for this vendor already exists.",
     );
   });
 
@@ -313,10 +212,10 @@ describe("LocalLedgerClient applies each action as the screens did", () => {
     const b = seedWorkspace().businesses[0];
     const invalid = { ...draft(b), categoryId: "" };
     expect(() =>
-      [
+      run(b, [
         { type: "SaveDraft", draft: invalid, documents: [] },
         { type: "Approve", expenseId: invalid.id },
-      ].reduce(applyLocal as never, b),
+      ]),
     ).toThrow();
   });
 

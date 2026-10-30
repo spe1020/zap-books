@@ -430,6 +430,8 @@ fn an_assistant_cannot_approve_correct_or_import() {
             original_id: mine.id.clone(),
             replacement: new_draft(&b, "replacement"),
             reason: "Invented reason".into(),
+            documents: vec![],
+            extraction: None,
         },
         Command::CommitImport {
             account_id: b.books.accounts[0].id.clone(),

@@ -9,6 +9,7 @@
 //! - `GET /v1/epoch-keys?business=`: my epoch key deliveries.
 //! - `GET /v1/rejections?after=`: my rejections.
 //! - `POST /v1/session`: a read session (see [`crate::session`]).
+//! - `GET /v1/service`: the key new businesses must name.
 //! - `GET /health`.
 //!
 //! Reads need NIP-98 auth, or `Authorization: Bearer <token>` with a token
@@ -213,6 +214,7 @@ pub fn router(state: Arc<AppState>) -> Result<Router, String> {
         .transpose()?;
     let api = Router::new()
         .route("/health", get(|| async { "ok" }))
+        .route("/v1/service", get(service_key))
         .route("/v1/proposals", post(submit))
         .route("/v1/businesses/{id}/acceptances", get(acceptances))
         .route("/v1/businesses/{id}/pending", get(pending))
@@ -276,6 +278,13 @@ fn failure(e: LedgerError) -> Response {
             )
         }
     }
+}
+
+/// The primary key, which every genesis must name. A client compares it
+/// with the key it was configured with before creating a business; after
+/// that it follows the chain's own hand-overs.
+async fn service_key(State(state): State<Arc<AppState>>) -> Response {
+    json(serde_json::json!({ "pubkey": state.ledger.public_key().to_hex() }).to_string())
 }
 
 async fn submit(State(state): State<Arc<AppState>>, body: Bytes) -> Response {

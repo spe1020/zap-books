@@ -52,7 +52,7 @@ export function DocumentPreview({ document }: { document?: SourceDocument }) {
   const [url, setUrl] = useState("");
   const [failedUrl, setFailedUrl] = useState("");
   useEffect(() => {
-    if (!document) {
+    if (!document?.blob) {
       setUrl("");
       return;
     }
@@ -72,6 +72,21 @@ export function DocumentPreview({ document }: { document?: SourceDocument }) {
           Attach a receipt to keep the full story
           <br />
           alongside this expense.
+        </p>
+      </div>
+    );
+  // On the ledger service, a receipt stays in the browser that attached it.
+  if (!document.blob)
+    return (
+      <div className="document-empty elsewhere">
+        <div className="paper-icon">
+          <FileText size={36} strokeWidth={1.3} />
+        </div>
+        <h3>This receipt was attached on another device</h3>
+        <p>
+          {document.name}
+          <br />
+          SHA-256 <code className="hash">{document.sha256 ?? "unknown"}</code>
         </p>
       </div>
     );
@@ -309,9 +324,30 @@ export function Review({
           accepted: [...accepted],
         }
       : undefined;
+    // "Save as a rule" is its own command, with the Settings screen's
+    // checks: an existing rule for this vendor is replaced.
+    const existing = b.rules.find(
+      (r) =>
+        r.vendorIncludes.toLowerCase() === next.vendor.trim().toLowerCase(),
+    );
+    const rule: LedgerCommand[] = saveRule
+      ? [
+          {
+            type: "SaveRule",
+            rule: {
+              id: existing?.id,
+              vendorIncludes: next.vendor.trim(),
+              categoryId: next.categoryId,
+              purpose: next.purpose,
+              enabled: true,
+            },
+          },
+        ]
+      : [];
     const ok = await mutate(
       correcting
         ? [
+            ...rule,
             {
               type: "Correct",
               originalId: initial.id,
@@ -319,16 +355,15 @@ export function Review({
               reason,
               documents: docs,
               extraction: reading,
-              rememberRule: saveRule,
             },
           ]
         : [
+            ...rule,
             {
               type: "SaveDraft",
               draft: next,
               documents: docs,
               extraction: reading,
-              rememberRule: saveRule,
             },
             ...(post ? [{ type: "Approve" as const, expenseId: next.id }] : []),
           ],
@@ -369,7 +404,7 @@ export function Review({
           <div className="document-stage">
             <DocumentPreview document={document} />
           </div>
-          {!readOnly && document && (
+          {!readOnly && document?.blob && (
             <div className="read-receipt">
               <button
                 type="button"

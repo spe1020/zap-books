@@ -229,9 +229,18 @@ pub fn apply_command(
             original_id,
             replacement,
             reason,
+            documents,
+            extraction,
         } => {
             check_id(&replacement.id)?;
-            Ok(correct(business, original_id, replacement, reason, env)?)
+            // As for SaveDraft: documents, then the reading, which `correct`
+            // finalizes when it posts the replacement.
+            let mut b = business.clone();
+            attach(&mut b, documents, env)?;
+            if let Some(reading) = extraction {
+                record_extraction(&mut b, replacement, reading, env)?;
+            }
+            Ok(correct(&b, original_id, replacement, reason, env)?)
         }
         Command::CommitImport { account_id, rows } => {
             Ok(commit_import(business, rows, account_id, env)?)

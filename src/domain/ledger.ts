@@ -11,6 +11,7 @@ import type {
   LedgerQueries,
 } from "./types";
 import { currencies } from "./types";
+import { finalizeExtractions } from "./extraction";
 export const id = () => crypto.randomUUID();
 export const now = () => new Date().toISOString();
 /** The user's local calendar date as `YYYY-MM-DD`. Timestamps stay UTC. */
@@ -470,7 +471,8 @@ export function approve(
   event(b, "expense.posted", d.id, "Balanced journal entry recorded", [
     journal.id,
   ]);
-  return b;
+  // The receipt readings for this draft are judged against what was posted.
+  return finalizeExtractions(b, d.id);
 }
 export function correct(
   business: BusinessData,
