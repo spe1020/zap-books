@@ -40,7 +40,7 @@ import {
   money,
   totals,
 } from "./domain/ledger";
-import { repository } from "./adapters/storage";
+import { localLedger } from "./adapters/local-ledger";
 import { transport } from "./adapters/transport";
 import { demoAI } from "./adapters/ai";
 import { PRODUCT_NAME } from "./config";
@@ -93,7 +93,7 @@ export default function App() {
   const lock = useRef(false);
   useEffect(() => {
     let active = true;
-    repository
+    localLedger
       .load()
       .then((w) => {
         if (active) setWorkspace(w);
@@ -115,20 +115,18 @@ export default function App() {
     workspace?.businesses.find((b) => b.profile.id === businessId) ??
     workspace?.businesses[0];
   const mutate: Mutation = useCallback(
-    async (fn, message) => {
+    async (commands, message) => {
       if (!workspace || !b || lock.current) return false;
       lock.current = true;
       setBusy(true);
       setError("");
       try {
-        const next = fn(b);
-        const saved = await repository.commit(
-          b.profile.id,
-          next,
-          workspace.revision,
-        );
+        const saved = await localLedger.run(b.profile.id, commands);
         setWorkspace(saved);
-        await transport.publish(next.events);
+        const next = saved.businesses.find(
+          (x) => x.profile.id === b.profile.id,
+        );
+        await transport.publish(next?.events ?? []);
         setToast(message);
         return true;
       } catch (e) {
@@ -566,7 +564,7 @@ export default function App() {
                   lock.current = true;
                   setBusy(true);
                   try {
-                    const fresh = await repository.reset(workspace.revision);
+                    const fresh = await localLedger.reset();
                     setWorkspace(fresh);
                     setReset(false);
                     setView("overview");
