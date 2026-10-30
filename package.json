@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "dev:cloud": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
+    "build": "npm run wasm:build && tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "preview:cloud": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:remote": "playwright test --config playwright.remote.config.ts",
     "wasm:build": "node scripts/build-wasm.mjs",
     "test:wasm": "npm run wasm:build && vitest run --config scripts/vitest.wasm.config.mjs",
     "check": "npm run test && npm run build",
@@ -21,6 +22,7 @@
   },
   "dependencies": {
     "lucide-react": "^1.61.0",
+    "nostr-tools": "2.25.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

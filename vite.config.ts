@@ -23,6 +23,7 @@ export default defineConfig(({ command, mode }) => {
   const policy = contentSecurityPolicy({
     dev: command === "serve",
     extractorUrl: env.VITE_EXTRACTOR_URL || DEFAULT_EXTRACTOR_URL,
+    serviceUrl: env.VITE_SERVICE_URL || undefined,
   });
   return {
     plugins: [react(), csp(policy)],

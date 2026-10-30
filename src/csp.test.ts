@@ -40,6 +40,22 @@ describe("Content-Security-Policy (WEB-4)", () => {
     expect(p["connect-src"]).toEqual(["'self'", "https://reader.invalid:9000"]);
   });
 
+  test("with a service: exactly its origin, and the app's own WebAssembly", () => {
+    const p = directives(
+      contentSecurityPolicy({
+        dev: false,
+        extractorUrl: "http://127.0.0.1:8787",
+        serviceUrl: "https://ledger.invalid:8443/base/",
+      }),
+    );
+    expect(p["connect-src"]).toEqual([
+      "'self'",
+      "http://127.0.0.1:8787",
+      "https://ledger.invalid:8443",
+    ]);
+    expect(p["script-src"]).toEqual(["'self'", "'wasm-unsafe-eval'"]);
+  });
+
   test("only the dev server gets inline scripts and its WebSocket", () => {
     const p = directives(
       contentSecurityPolicy({
