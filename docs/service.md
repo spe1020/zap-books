@@ -123,6 +123,7 @@ Replacing the key a business uses is an owner-level change
 | `POST /v1/proposals`, a proposal event as the body  | The proposal itself | 200 `{"status": "accepted" \| "rejected", "event": …}`; 400 if not a validly signed proposal; 404 / 422 unsigned (below); 413 over the body limit |
 | `GET /v1/businesses/{id}/acceptances?after=&limit=` | NIP-98              | `{"head": seq, "acceptances": [...]}`, in seq order; 404 unless the caller reads this business                                                    |
 | `GET /v1/businesses/{id}/pending`                   | NIP-98              | `{"pending": [{proposal, proposer, change, effectiveAt}]}`; 404 unless the caller is an owner or the recovery key                                 |
+| `GET /v1/recovery`                                  | NIP-98              | `{"businesses": [{business, service, owners, pending}]}`: each business the caller is the recovery key of; never its books                        |
 | `GET /v1/epoch-keys?business=`                      | NIP-98              | `{"deliveries": [...]}`: the deliveries the caller is entitled to now                                                                             |
 | `GET /v1/rejections?after=`                         | NIP-98              | `{"cursor": n, "rejections": [...]}`: the caller's rejections, oldest first                                                                       |
 | `GET /v1/service`                                   | None                | `{"pubkey"}`: the primary key, which every genesis must name                                                                                      |
@@ -264,7 +265,10 @@ the changes were accepted. Each business is one transaction under its lock.
   committed state; a proposal fails with a 500, since the due change must
   come first.
 - **Time** comes from the ledger's clock. The tests set it by hand and run
-  `activate_due` directly; none waits.
+  `activate_due` directly; none waits. The remote e2e tests run a build
+  with the test-only `e2e-clock` feature, whose clock is the system's moved
+  by an offset the tests write to a file (`ZAPBOOKS_E2E_CLOCK_FILE`). Never
+  build the service with that feature for anything else.
 - **A pending change** is stored with its proposal event and plaintext
   payload, which the activating acceptance repeats.
 

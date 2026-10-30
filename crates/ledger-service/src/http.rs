@@ -8,6 +8,8 @@
 //!   their 48 hours, for owners and the recovery key.
 //! - `GET /v1/epoch-keys?business=`: my epoch key deliveries.
 //! - `GET /v1/rejections?after=`: my rejections.
+//! - `GET /v1/recovery`: the businesses I am the recovery key of, with their
+//!   owners and pending changes.
 //! - `POST /v1/session`: a read session (see [`crate::session`]).
 //! - `GET /v1/service`: the key new businesses must name.
 //! - `GET /health`.
@@ -218,6 +220,7 @@ pub fn router(state: Arc<AppState>) -> Result<Router, String> {
         .route("/v1/proposals", post(submit))
         .route("/v1/businesses/{id}/acceptances", get(acceptances))
         .route("/v1/businesses/{id}/pending", get(pending))
+        .route("/v1/recovery", get(recovery))
         .route("/v1/epoch-keys", get(epoch_keys))
         .route("/v1/rejections", get(rejections))
         .route("/v1/session", post(create_session))
@@ -508,6 +511,26 @@ async fn pending(
             }
         }
         Ok(None) => error(StatusCode::NOT_FOUND, "No such business."),
+        Err(e) => failure(e),
+    }
+}
+
+async fn recovery(
+    State(state): State<Arc<AppState>>,
+    OriginalUri(uri): OriginalUri,
+    headers: HeaderMap,
+) -> Response {
+    let key = match authorize(&state, &headers, &uri).await {
+        Ok(k) => k,
+        Err(r) => return *r,
+    };
+    match state.ledger.guarded(&key).await {
+        Ok(businesses) => {
+            match serde_json::to_string(&serde_json::json!({ "businesses": businesses })) {
+                Ok(body) => json(body),
+                Err(e) => failure(LedgerError::Internal(e.to_string())),
+            }
+        }
         Err(e) => failure(e),
     }
 }

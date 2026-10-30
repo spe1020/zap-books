@@ -18,7 +18,7 @@ use protocol::{
     diff, encrypt_to, genesis_business, genesis_changes, open_proposal, parse_proposal, targets,
     AcceptanceContent, AcceptanceHeader, Actor, BusinessId, Command, CommandType, CommittedPayload,
     EnvRecord, EpochKey, MembershipChange, MembershipState, Outcome, PendingChange, ProposalHeader,
-    ProtocolError, Reason, RecordChange, RecordKey, RecordingEnv, PROTOCOL_VERSION,
+    ProtocolError, Reason, RecordChange, RecordKey, RecordingEnv, Role, PROTOCOL_VERSION,
 };
 use serde::Serialize;
 use sqlx::{PgPool, Postgres, Row, Transaction};
@@ -99,6 +99,18 @@ pub struct Page {
     pub events: Vec<String>,
     /// The chain's head seq.
     pub head: u64,
+}
+
+/// What a recovery key may know about a business it guards: who its owners
+/// are (to name the lost one), the key to encrypt proposals to, and the
+/// pending changes it can veto. Never the books.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Guarded {
+    pub business: BusinessId,
+    pub service: PublicKey,
+    pub owners: Vec<PublicKey>,
+    pub pending: Vec<PendingChange>,
 }
 
 pub struct Ledger {
@@ -1120,6 +1132,41 @@ impl Ledger {
         Ok(membership
             .sees_pending(reader)
             .then_some(membership.pending))
+    }
+
+    /// The businesses `key` is the recovery key of, in id order, each after
+    /// its due changes.
+    pub async fn guarded(&self, key: &PublicKey) -> Result<Vec<Guarded>, LedgerError> {
+        let ids: Vec<String> = sqlx::query_scalar(
+            "select id from businesses where membership->>'recoveryKey' = $1 order by id",
+        )
+        .bind(key.to_hex())
+        .fetch_all(&self.pool)
+        .await?;
+        let mut guarded = Vec::new();
+        for id in ids {
+            let business: BusinessId = id.parse().map_err(LedgerError::internal)?;
+            self.catch_up(&business).await;
+            // A due change may have replaced the recovery key meanwhile.
+            let Some(state) = self.membership(&business).await? else {
+                continue;
+            };
+            if state.recovery_key != Some(*key) {
+                continue;
+            }
+            guarded.push(Guarded {
+                business,
+                service: state.service,
+                owners: state
+                    .members
+                    .iter()
+                    .filter(|(_, m)| m.role == Role::Owner)
+                    .map(|(k, _)| *k)
+                    .collect(),
+                pending: state.pending,
+            });
+        }
+        Ok(guarded)
     }
 
     /// `author`'s rejections, oldest first, after the cursor `after`.
