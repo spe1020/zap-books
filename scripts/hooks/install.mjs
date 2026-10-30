@@ -1,37 +1,70 @@
-// `npm run hooks:install`: installs scripts/hooks/pre-commit as this
-// clone's pre-commit and commit-msg hooks. A hook that isn't ours is left
-// alone.
+// `npm run hooks:install`: points core.hooksPath at this folder in the main
+// checkout, so the pre-commit, commit-msg and pre-push hooks here run in
+// every worktree and checkout of this clone, at whatever commit each is on.
+// Hooks in .git/hooks stop running once core.hooksPath is set, so it refuses
+// if one there isn't the privacy guard, or if core.hooksPath already points
+// somewhere else.
 
 import { execFileSync } from "node:child_process";
-import {
-  chmodSync,
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-} from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { basename, dirname, join, resolve } from "node:path";
 
 const MARKER = "zapbooks privacy guard";
-const git = (...args) => execFileSync("git", args, { encoding: "utf8" }).trim();
 
-const root = git("rev-parse", "--show-toplevel");
-const hooks = resolve(root, git("rev-parse", "--git-path", "hooks"));
-const source = join(root, "scripts", "hooks", "pre-commit");
-mkdirSync(hooks, { recursive: true });
-
-let failed = false;
-for (const name of ["pre-commit", "commit-msg"]) {
-  const target = join(hooks, name);
-  if (existsSync(target) && !readFileSync(target, "utf8").includes(MARKER)) {
-    console.error(
-      `${target} already exists and isn't the privacy guard; left it alone.`,
-    );
-    failed = true;
-    continue;
+const git = (cwd, ...args) => {
+  try {
+    return execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+  } catch {
+    return "";
   }
-  copyFileSync(source, target);
-  chmodSync(target, 0o755);
-  console.log(`Installed ${target}`);
+};
+
+/** Sets core.hooksPath for the clone at `cwd`; returns [exit code, message]. */
+export function install(cwd = process.cwd()) {
+  const top = git(cwd, "rev-parse", "--show-toplevel");
+  const common = resolve(
+    top,
+    git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir"),
+  );
+  // The main checkout holds .git; a linked worktree's own folder may go away.
+  const main = basename(common) === ".git" ? dirname(common) : top;
+  const hooks = join(main, "scripts", "hooks");
+  if (!existsSync(join(hooks, "privacy-guard.mjs")))
+    return [
+      1,
+      `${hooks} has no privacy guard; check out a current branch there first.`,
+    ];
+
+  const current = git(cwd, "config", "--get", "core.hooksPath");
+  if (current && resolve(main, current) !== hooks)
+    return [
+      1,
+      `core.hooksPath is already ${current}; left it alone. Unset it to install.`,
+    ];
+
+  const old = join(common, "hooks");
+  const foreign = existsSync(old)
+    ? readdirSync(old).filter(
+        (name) =>
+          !name.endsWith(".sample") &&
+          !readFileSync(join(old, name), "utf8").includes(MARKER),
+      )
+    : [];
+  if (foreign.length)
+    return [
+      1,
+      `${old} holds hooks that would stop running (${foreign.join(", ")}); left everything alone.`,
+    ];
+
+  execFileSync("git", ["config", "core.hooksPath", hooks], { cwd });
+  return [0, `core.hooksPath is now ${hooks}.`];
 }
-process.exit(failed ? 1 : 0);
+
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === resolve(import.meta.filename)
+) {
+  const [code, message] = install();
+  (code ? console.error : console.log)(message);
+  process.exit(code);
+}

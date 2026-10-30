@@ -5,13 +5,20 @@ on:
     branches: [business-finance-mvp]
   pull_request:
 
+# Nothing here writes to the repository, so the token can only read it.
+permissions:
+  contents: read
+
+# Actions are pinned to full commit SHAs, with the release in a comment: a
+# tag can be moved to other code, a commit can't. Images are pinned too, so a
+# runner or Postgres update can't change a run without a commit.
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # The ledger service's tests each create and drop their own database.
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16.15@sha256:1beaa3084eee2676f20a9cd9928f0bf2c5bf674f8e49f81017912183d377c61c
         env:
           POSTGRES_PASSWORD: postgres
         ports:
@@ -22,9 +29,9 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -33,7 +40,7 @@ jobs:
       - name: Install Rust toolchain
         run: rustup show active-toolchain || rustup toolchain install
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
 
       - run: npm ci
 
@@ -45,11 +52,13 @@ jobs:
       - name: cargo fmt --check
         run: cargo fmt --check
 
+      # --locked: fail if Cargo.lock doesn't match the manifests, rather than
+      # test a dependency set nobody reviewed.
       - name: cargo clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --all-targets --locked -- -D warnings
 
       - name: cargo test
-        run: cargo test
+        run: cargo test --locked
         env:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
 
