@@ -8,7 +8,7 @@ export type SettingsChange =
   | {
       op: "addAccount";
       name: string;
-      kind: "bank" | "card";
+      kind: "bank" | "card" | "liability" | "equity";
       currency: Currency;
     }
   | { op: "renameAccount"; id: string; name: string }
@@ -87,7 +87,9 @@ export function updateSettings(
     if (!currencies.includes(change.currency))
       throw new Error("Choose a supported currency.");
     if (change.op === "addAccount") {
-      if (change.kind !== "bank" && change.kind !== "card")
+      // The message predates loan and equity accounts; only an expense
+      // account, which comes with its category, reaches it.
+      if (!["bank", "card", "liability", "equity"].includes(change.kind))
         throw new Error("Choose a bank or card account.");
       b.accounts.push({
         id: id(),

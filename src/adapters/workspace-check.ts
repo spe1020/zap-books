@@ -82,6 +82,8 @@ const eventTypes: Record<EventType, true> = {
   "expense.updated": true,
   "rule.saved": true,
   "settings.updated": true,
+  "transfer.recorded": true,
+  "transfer.reversed": true,
 };
 const outcomes: Record<ExtractionOutcome, true> = {
   accepted: true,
@@ -120,7 +122,7 @@ const line = shape({
 const records: Record<Exclude<keyof BusinessData, "profile">, Check> = {
   accounts: shape({
     name: text,
-    kind: oneOf("bank", "card", "expense"),
+    kind: oneOf("bank", "card", "expense", "liability", "equity"),
     currency,
   }),
   categories: shape({ name: text, accountId: text }),
@@ -172,6 +174,20 @@ const records: Record<Exclude<keyof BusinessData, "profile">, Check> = {
     reversesId: optionalText,
     memo: text,
     createdAt: text,
+    transferType: (v) =>
+      v === undefined ||
+      oneOf(
+        "ownerLoan",
+        "ownerContribution",
+        "loanRepayment",
+        "ownerDraw",
+        "betweenAccounts",
+        "openingBalance",
+      )(v),
+    purpose: optionalText,
+    reference: optionalText,
+    documentIds: (v) => v === undefined || texts(v),
+    correctionOf: optionalText,
   }),
   approvals: shape({
     expenseId: text,

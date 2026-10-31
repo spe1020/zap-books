@@ -11,9 +11,15 @@ export interface Business extends Scoped {
   initials: string;
   color: string;
 }
+/**
+ * `liability` is money the business owes (a loan from the owner, say) and
+ * `equity` the owner's stake. Both can pay an expense: from a liability the
+ * business now owes it, from equity the owner contributed it.
+ */
+export type AccountKind = "bank" | "card" | "expense" | "liability" | "equity";
 export interface Account extends Scoped {
   name: string;
-  kind: "bank" | "card" | "expense";
+  kind: AccountKind;
   currency: Currency;
 }
 export interface Category extends Scoped {
@@ -81,6 +87,17 @@ export interface JournalLine {
   debit: number;
   credit: number;
 }
+/**
+ * What a transfer journal records. `openingBalance` is set only by
+ * `recordOpeningBalance`; the others are chosen by the user.
+ */
+export type TransferType =
+  | "ownerLoan"
+  | "ownerContribution"
+  | "loanRepayment"
+  | "ownerDraw"
+  | "betweenAccounts"
+  | "openingBalance";
 export interface JournalEntry extends Scoped {
   date: string;
   currency: Currency;
@@ -90,6 +107,13 @@ export interface JournalEntry extends Scoped {
   reversesId?: string;
   memo: string;
   createdAt: string;
+  /** Transfers, and their reversals. Absent on transfers made before types. */
+  transferType?: TransferType;
+  purpose?: string;
+  reference?: string;
+  documentIds?: string[];
+  /** On a transfer that replaced a corrected one: the original's id. */
+  correctionOf?: string;
 }
 export interface Approval extends Scoped {
   expenseId: string;
@@ -118,7 +142,9 @@ export type EventType =
   | "expense.reversed"
   | "expense.updated"
   | "rule.saved"
-  | "settings.updated";
+  | "settings.updated"
+  | "transfer.recorded"
+  | "transfer.reversed";
 // Application-defined schema. This is not a Nostr accounting standard.
 export interface FinancialEvent extends Scoped {
   schemaVersion: 1;

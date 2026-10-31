@@ -8,6 +8,7 @@ import type {
 import type { ImportRow } from "../domain/import";
 import type { RuleInput, SettingsChange } from "../domain/settings";
 import type { MembershipChange } from "../domain/members";
+import type { OpeningBalanceInput, TransferInput } from "../domain/transfers";
 
 /** What the receipt reader proposed for a draft, and what the user took. */
 export interface ReceiptReading {
@@ -42,6 +43,14 @@ export type LedgerCommand =
   | { type: "CommitImport"; accountId: string; rows: ImportRow[] }
   | { type: "UpdateSettings"; change: SettingsChange }
   | { type: "SaveRule"; rule: RuleInput }
+  | { type: "RecordTransfer"; transfer: TransferInput }
+  | {
+      type: "CorrectTransfer";
+      originalId: string;
+      replacement: TransferInput;
+      reason: string;
+    }
+  | { type: "RecordOpeningBalance"; openingBalance: OpeningBalanceInput }
   /** Membership needs the service: the local demo has no members. */
   | { type: "ChangeMembership"; change: MembershipChange }
   | { type: "Veto"; pending: string };
@@ -70,6 +79,18 @@ export interface LedgerClient {
     input: Input<"UpdateSettings">,
   ): Promise<Workspace>;
   saveRule(businessId: string, input: Input<"SaveRule">): Promise<Workspace>;
+  recordTransfer(
+    businessId: string,
+    input: Input<"RecordTransfer">,
+  ): Promise<Workspace>;
+  correctTransfer(
+    businessId: string,
+    input: Input<"CorrectTransfer">,
+  ): Promise<Workspace>;
+  recordOpeningBalance(
+    businessId: string,
+    input: Input<"RecordOpeningBalance">,
+  ): Promise<Workspace>;
   changeMembership(
     businessId: string,
     input: Input<"ChangeMembership">,
@@ -107,6 +128,18 @@ export abstract class CommandClient implements LedgerClient {
   }
   saveRule(businessId: string, input: Input<"SaveRule">) {
     return this.run(businessId, [{ type: "SaveRule", ...input }]);
+  }
+  recordTransfer(businessId: string, input: Input<"RecordTransfer">) {
+    return this.run(businessId, [{ type: "RecordTransfer", ...input }]);
+  }
+  correctTransfer(businessId: string, input: Input<"CorrectTransfer">) {
+    return this.run(businessId, [{ type: "CorrectTransfer", ...input }]);
+  }
+  recordOpeningBalance(
+    businessId: string,
+    input: Input<"RecordOpeningBalance">,
+  ) {
+    return this.run(businessId, [{ type: "RecordOpeningBalance", ...input }]);
   }
   changeMembership(businessId: string, input: Input<"ChangeMembership">) {
     return this.run(businessId, [{ type: "ChangeMembership", ...input }]);

@@ -3,6 +3,11 @@ import { approve, correct, saveDraft } from "../domain/ledger";
 import { commitImport } from "../domain/import";
 import { saveRule, updateSettings } from "../domain/settings";
 import { recordExtraction } from "../domain/extraction";
+import {
+  correctTransfer,
+  recordOpeningBalance,
+  recordTransfer,
+} from "../domain/transfers";
 import { CommandClient, type LedgerCommand } from "./ledger-client";
 import { repository, type LocalRepository } from "./storage";
 
@@ -77,6 +82,17 @@ export function applyLocal(
       return updateSettings(current, command.change);
     case "SaveRule":
       return saveRule(current, command.rule);
+    case "RecordTransfer":
+      return recordTransfer(current, command.transfer);
+    case "CorrectTransfer":
+      return correctTransfer(
+        current,
+        command.originalId,
+        command.replacement,
+        command.reason,
+      );
+    case "RecordOpeningBalance":
+      return recordOpeningBalance(current, command.openingBalance);
     case "ChangeMembership":
     case "Veto":
       throw new Error(

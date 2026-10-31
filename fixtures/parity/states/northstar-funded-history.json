@@ -1,0 +1,448 @@
+{
+ "profile": {
+  "id": "northstar",
+  "businessId": "northstar",
+  "name": "Northstar Studio",
+  "industry": "Design & creative services",
+  "initials": "NS",
+  "color": "#c8da78",
+  "currency": "USD"
+ },
+ "accounts": [
+  {
+   "id": "northstar-checking",
+   "businessId": "northstar",
+   "name": "Operating account",
+   "kind": "bank",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-card",
+   "businessId": "northstar",
+   "name": "Business card",
+   "kind": "card",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-reserve",
+   "businessId": "northstar",
+   "name": "Reserve account",
+   "kind": "bank",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-eur",
+   "businessId": "northstar",
+   "name": "Euro account",
+   "kind": "bank",
+   "currency": "EUR"
+  },
+  {
+   "id": "northstar-expense-0",
+   "businessId": "northstar",
+   "name": "Software & subscriptions",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-1",
+   "businessId": "northstar",
+   "name": "Office & supplies",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-2",
+   "businessId": "northstar",
+   "name": "Travel & meals",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-3",
+   "businessId": "northstar",
+   "name": "Professional services",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "northstar-expense-4",
+   "businessId": "northstar",
+   "name": "Marketing & design",
+   "kind": "expense",
+   "currency": "USD"
+  },
+  {
+   "id": "id-1000",
+   "businessId": "northstar",
+   "name": "Loan from owner",
+   "kind": "liability",
+   "currency": "USD"
+  },
+  {
+   "id": "id-1003",
+   "businessId": "northstar",
+   "name": "Owner contributions",
+   "kind": "equity",
+   "currency": "USD"
+  },
+  {
+   "id": "id-1127",
+   "businessId": "northstar",
+   "name": "Opening balances",
+   "kind": "equity",
+   "currency": "USD"
+  }
+ ],
+ "categories": [
+  {
+   "id": "northstar-category-0",
+   "businessId": "northstar",
+   "name": "Software & subscriptions",
+   "accountId": "northstar-expense-0"
+  },
+  {
+   "id": "northstar-category-1",
+   "businessId": "northstar",
+   "name": "Office & supplies",
+   "accountId": "northstar-expense-1"
+  },
+  {
+   "id": "northstar-category-2",
+   "businessId": "northstar",
+   "name": "Travel & meals",
+   "accountId": "northstar-expense-2"
+  },
+  {
+   "id": "northstar-category-3",
+   "businessId": "northstar",
+   "name": "Professional services",
+   "accountId": "northstar-expense-3"
+  },
+  {
+   "id": "northstar-category-4",
+   "businessId": "northstar",
+   "name": "Marketing & design",
+   "accountId": "northstar-expense-4"
+  }
+ ],
+ "vendors": [],
+ "documents": [],
+ "payments": [],
+ "drafts": [],
+ "journals": [
+  {
+   "id": "id-1130",
+   "businessId": "northstar",
+   "date": "2026-01-01",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "northstar-checking",
+     "debit": 100000,
+     "credit": 0
+    },
+    {
+     "accountId": "id-1127",
+     "debit": 0,
+     "credit": 100000
+    }
+   ],
+   "kind": "transfer",
+   "memo": "Opening balances → Operating account",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "openingBalance",
+   "purpose": "Opening balance"
+  },
+  {
+   "id": "id-1133",
+   "businessId": "northstar",
+   "date": "2026-02-01",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "northstar-checking",
+     "debit": 50000,
+     "credit": 0
+    },
+    {
+     "accountId": "id-1000",
+     "debit": 0,
+     "credit": 50000
+    }
+   ],
+   "kind": "transfer",
+   "memo": "Loan from owner → Operating account",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "ownerLoan",
+   "purpose": "Invented purpose"
+  },
+  {
+   "id": "id-1136",
+   "businessId": "northstar",
+   "date": "2026-04-01",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "id-1000",
+     "debit": 11700,
+     "credit": 0
+    },
+    {
+     "accountId": "northstar-checking",
+     "debit": 0,
+     "credit": 11700
+    }
+   ],
+   "kind": "transfer",
+   "memo": "Operating account → Loan from owner",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "loanRepayment",
+   "purpose": "Invented purpose"
+  },
+  {
+   "id": "id-1139",
+   "businessId": "northstar",
+   "date": "2026-02-01",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "northstar-checking",
+     "debit": 0,
+     "credit": 50000
+    },
+    {
+     "accountId": "id-1000",
+     "debit": 50000,
+     "credit": 0
+    }
+   ],
+   "kind": "reversal",
+   "memo": "Correction: Smaller loan",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "ownerLoan",
+   "purpose": "Invented purpose",
+   "reversesId": "id-1133"
+  },
+  {
+   "id": "id-1140",
+   "businessId": "northstar",
+   "date": "2026-02-01",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "northstar-checking",
+     "debit": 30000,
+     "credit": 0
+    },
+    {
+     "accountId": "id-1000",
+     "debit": 0,
+     "credit": 30000
+    }
+   ],
+   "kind": "transfer",
+   "memo": "Loan from owner → Operating account",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "ownerLoan",
+   "purpose": "Invented purpose",
+   "correctionOf": "id-1133"
+  }
+ ],
+ "approvals": [],
+ "rules": [
+  {
+   "id": "id-0001",
+   "businessId": "northstar",
+   "vendorIncludes": "Figma",
+   "categoryId": "northstar-category-0",
+   "purpose": "Design collaboration for client projects",
+   "enabled": true
+  }
+ ],
+ "audits": [
+  {
+   "id": "id-1002",
+   "businessId": "northstar",
+   "action": "settings.updated",
+   "entityId": "northstar",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "account saved: Loan from owner"
+  },
+  {
+   "id": "id-1005",
+   "businessId": "northstar",
+   "action": "settings.updated",
+   "entityId": "northstar",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "account saved: Owner contributions"
+  },
+  {
+   "id": "id-1129",
+   "businessId": "northstar",
+   "action": "settings.updated",
+   "entityId": "northstar",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "account saved: Opening balances"
+  },
+  {
+   "id": "id-1132",
+   "businessId": "northstar",
+   "action": "transfer.recorded",
+   "entityId": "id-1130",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Opening balance recorded"
+  },
+  {
+   "id": "id-1135",
+   "businessId": "northstar",
+   "action": "transfer.recorded",
+   "entityId": "id-1133",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Owner loan recorded"
+  },
+  {
+   "id": "id-1138",
+   "businessId": "northstar",
+   "action": "transfer.recorded",
+   "entityId": "id-1136",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Loan repayment recorded"
+  },
+  {
+   "id": "id-1142",
+   "businessId": "northstar",
+   "action": "transfer.recorded",
+   "entityId": "id-1140",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Owner loan recorded"
+  },
+  {
+   "id": "id-1144",
+   "businessId": "northstar",
+   "action": "transfer.reversed",
+   "entityId": "id-1133",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Smaller loan"
+  }
+ ],
+ "events": [
+  {
+   "id": "id-1001",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "settings.updated",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "northstar",
+   "payload": {
+    "detail": "account saved: Loan from owner"
+   }
+  },
+  {
+   "id": "id-1004",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "settings.updated",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "northstar",
+   "payload": {
+    "detail": "account saved: Owner contributions"
+   }
+  },
+  {
+   "id": "id-1128",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "settings.updated",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "northstar",
+   "payload": {
+    "detail": "account saved: Opening balances"
+   }
+  },
+  {
+   "id": "id-1131",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "transfer.recorded",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-1130",
+   "payload": {
+    "detail": "Opening balance recorded"
+   }
+  },
+  {
+   "id": "id-1134",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "transfer.recorded",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-1133",
+   "payload": {
+    "detail": "Owner loan recorded"
+   }
+  },
+  {
+   "id": "id-1137",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "transfer.recorded",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-1136",
+   "payload": {
+    "detail": "Loan repayment recorded"
+   }
+  },
+  {
+   "id": "id-1141",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "transfer.recorded",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-1140",
+   "payload": {
+    "detail": "Owner loan recorded"
+   }
+  },
+  {
+   "id": "id-1143",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "transfer.reversed",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-1133",
+    "id-1139",
+    "id-1140"
+   ],
+   "entityId": "id-1133",
+   "payload": {
+    "detail": "Smaller loan"
+   }
+  }
+ ],
+ "extractions": []
+}

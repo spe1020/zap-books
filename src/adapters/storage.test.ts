@@ -2,6 +2,8 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { LocalRepository } from "./storage";
 import { checkWorkspace } from "./workspace-check";
 import { seedWorkspace } from "../domain/seed";
+import { updateSettings } from "../domain/settings";
+import { correctTransfer, recordTransfer } from "../domain/transfers";
 
 test("a workspace saved before extraction records loads with none", () => {
   const saved = seedWorkspace();
@@ -239,5 +241,56 @@ describe("suggestions on load (decision 0004)", () => {
     expect(loaded.quarantine?.map((q) => [q.collection, q.id])).toEqual([
       ["suggestions", "bad"],
     ]);
+  });
+});
+
+describe("owner funding on load", () => {
+  test("loan and equity accounts and typed transfers load unchanged", () => {
+    const saved = seedWorkspace();
+    let b = updateSettings(saved.businesses[0], {
+      op: "addAccount",
+      name: "Loan from owner",
+      kind: "liability",
+      currency: "USD",
+    });
+    const loan = b.accounts.at(-1)!.id;
+    b = recordTransfer(b, {
+      date: "2026-10-20",
+      amountMinor: 50000,
+      currency: "USD",
+      fromAccountId: loan,
+      toAccountId: b.accounts[0].id,
+      transferType: "ownerLoan",
+      purpose: "Invented working capital",
+      reference: "INV-1",
+    });
+    b = correctTransfer(
+      b,
+      b.journals.at(-1)!.id,
+      {
+        date: "2026-10-20",
+        amountMinor: 40000,
+        currency: "USD",
+        fromAccountId: loan,
+        toAccountId: b.accounts[0].id,
+        transferType: "ownerLoan",
+        purpose: "Invented working capital",
+      },
+      "Invented correction",
+    );
+    saved.businesses[0] = b;
+    const loaded = checkWorkspace(saved);
+    expect(loaded).toEqual(saved);
+    expect(loaded).not.toHaveProperty("quarantine");
+  });
+
+  test("an unknown transfer type is set aside", () => {
+    const saved = seedWorkspace();
+    const transfer = saved.businesses[0].journals.find(
+      (j) => j.kind === "transfer",
+    )!;
+    (transfer as { transferType?: string }).transferType = "ownerGift";
+    const loaded = checkWorkspace(saved);
+    expect(loaded.quarantine!.map((x) => x.id)).toEqual([transfer.id]);
   });
 });
