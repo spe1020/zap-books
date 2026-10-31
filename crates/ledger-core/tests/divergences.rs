@@ -62,6 +62,26 @@ fn d2_unrepresentable_values_are_rejected_at_deserialization() {
         bad[field] = value;
         assert!(serde_json::from_value::<ExpenseDraft>(bad).is_err());
     }
+    // A transfer's type and currency are enums too, and its amount a `Minor`.
+    let transfer = json!({
+        "date": "2026-10-20",
+        "amountMinor": 100,
+        "currency": "USD",
+        "fromAccountId": "a",
+        "toAccountId": "b",
+        "transferType": "ownerLoan",
+        "purpose": "Invented",
+    });
+    assert!(serde_json::from_value::<TransferInput>(transfer.clone()).is_ok());
+    for (field, value) in [
+        ("amountMinor", json!(1.5)),
+        ("currency", json!("JPY")),
+        ("transferType", json!("ownerGift")),
+    ] {
+        let mut bad = transfer.clone();
+        bad[field] = value;
+        assert!(serde_json::from_value::<TransferInput>(bad).is_err());
+    }
 }
 
 // D3: a stored journal that does not balance cannot be loaded.

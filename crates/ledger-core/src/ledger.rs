@@ -145,7 +145,7 @@ pub fn assert_balanced(b: &BusinessData, entry: &UncheckedJournal) -> Result<()>
             .ok_or(LedgerError::InvalidJournalAccount)?;
         check_line_amounts(line)?;
         // A category's line is spend, so it sits on an expense account; every
-        // other line moves money between bank and card accounts.
+        // other line moves money between bank, card, loan and equity accounts.
         let is_expense = account.kind == AccountKind::Expense;
         let category_ok = match truthy(&line.category_id) {
             Some(category_id) => {
@@ -478,6 +478,11 @@ fn approve_in(b: &mut BusinessData, expense_id: &str, env: &mut impl Env) -> Res
         reverses_id: None,
         memo: format!("{} · {}", d.vendor, d.description),
         created_at: env.now(),
+        transfer_type: None,
+        purpose: None,
+        reference: None,
+        document_ids: None,
+        correction_of: None,
     };
     let journal = JournalEntry::new(b, journal)?;
     let journal_id = journal.id.clone();

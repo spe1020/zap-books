@@ -49,7 +49,7 @@ export function validDate(date: string) {
     new Date(date).toISOString().slice(0, 10) === date
   );
 }
-function sum(a: number, b: number) {
+export function sum(a: number, b: number) {
   const result = a + b;
   if (!Number.isSafeInteger(result))
     throw new Error("Financial total exceeds supported range.");
@@ -156,7 +156,7 @@ export function assertBalanced(b: BusinessData, entry: JournalEntry) {
     )
       throw new Error("Invalid journal amounts.");
     // A category's line is spend, so it sits on an expense account; every
-    // other line moves money between bank and card accounts.
+    // other line moves money between bank, card, loan and equity accounts.
     if (
       line.categoryId
         ? account.kind !== "expense" ||

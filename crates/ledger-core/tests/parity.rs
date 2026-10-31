@@ -197,6 +197,16 @@ fn run(call: &str, a: &Args, env: &mut SequentialEnv) -> std::result::Result<Val
         "updateSettings" => out(update_settings(&business(), &a.get("change"), env)),
         "saveRule" => out(save_rule(&business(), &a.get("input"), env)),
         "suggest" => out(suggest(&business(), &a.get("input"), env)),
+        "recordTransfer" => out(record_transfer(&business(), &a.get("input"), env)),
+        "correctTransfer" => out(correct_transfer(
+            &business(),
+            &a.str("originalId"),
+            &a.get("replacement"),
+            &a.str("reason"),
+            env,
+        )),
+        "recordOpeningBalance" => out(record_opening_balance(&business(), &a.get("input"), env)),
+        "balances" => out(balances(&business(), &a.str("asOf"), a.get("currency"))),
         "encodeCSV" => ok(encode_csv(&a.get::<Vec<Vec<String>>>("rows"))),
         "exportRecords" => out(export_records(
             &business(),

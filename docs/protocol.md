@@ -211,25 +211,84 @@ copy stale.
 
 Records use `ledger-core`'s JSON shapes (`src/domain/types.ts`).
 
-| `type`               | Fields                                                                                                  | Applied with                  |
-| -------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| `CreateBusiness`     | `service`, `recovery`, `profile`, `accounts`, `categories`                                              | Genesis (see below)           |
-| `SaveDraft`          | `draft`, `documents` (document references, see below), `extraction` (optional receipt reading)          | `save_draft`                  |
-| `Approve`            | `expenseId`                                                                                             | `approve`                     |
-| `Correct`            | `originalId`, `replacement`, `reason`, `documents` and `extraction` (each optional, as for `SaveDraft`) | `correct`                     |
-| `CommitImport`       | `accountId`, `rows` (previewed rows)                                                                    | `commit_import`               |
-| `UpdateSettings`     | `change`: `profile`, `addAccount`, `renameAccount`, `addCategory`, `renameCategory` (`op` field)        | `update_settings`             |
-| `SaveRule`           | `rule`: `id` (absent for a new rule), `vendorIncludes`, `categoryId`, `purpose`, `enabled`              | `save_rule`                   |
-| `ChangeMembership`   | `change` (see Membership)                                                                               | The membership rules          |
-| `Veto`               | `pending`: the proposal id of a pending change                                                          | The membership rules          |
-| `SubmitReceiptDraft` | `draft`, `documents`                                                                                    | `save_draft`, for a new draft |
-| `Suggest`            | `suggestion`: `draftId`, `author`, `categoryId`, `purpose`, `note` (each optional), `evidence`          | `suggest`                     |
+| `type`                 | Fields                                                                                                  | Applied with                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `CreateBusiness`       | `service`, `recovery`, `profile`, `accounts`, `categories`                                              | Genesis (see below)           |
+| `SaveDraft`            | `draft`, `documents` (document references, see below), `extraction` (optional receipt reading)          | `save_draft`                  |
+| `Approve`              | `expenseId`                                                                                             | `approve`                     |
+| `Correct`              | `originalId`, `replacement`, `reason`, `documents` and `extraction` (each optional, as for `SaveDraft`) | `correct`                     |
+| `CommitImport`         | `accountId`, `rows` (previewed rows)                                                                    | `commit_import`               |
+| `UpdateSettings`       | `change`: `profile`, `addAccount`, `renameAccount`, `addCategory`, `renameCategory` (`op` field)        | `update_settings`             |
+| `SaveRule`             | `rule`: `id` (absent for a new rule), `vendorIncludes`, `categoryId`, `purpose`, `enabled`              | `save_rule`                   |
+| `ChangeMembership`     | `change` (see Membership)                                                                               | The membership rules          |
+| `Veto`                 | `pending`: the proposal id of a pending change                                                          | The membership rules          |
+| `SubmitReceiptDraft`   | `draft`, `documents`                                                                                    | `save_draft`, for a new draft |
+| `Suggest`              | `suggestion`: `draftId`, `author`, `categoryId`, `purpose`, `note` (each optional), `evidence`          | `suggest`                     |
+| `RecordTransfer`       | `transfer` (see Transfers)                                                                              | `record_transfer`             |
+| `CorrectTransfer`      | `originalId`, `replacement` (a `transfer`), `reason`                                                    | `correct_transfer`            |
+| `RecordOpeningBalance` | `openingBalance`: `accountId`, `date`, `amountMinor`, `reference` (optional)                            | `record_opening_balance`      |
 
 `update_settings` and `save_rule` port `src/domain/settings.ts`, which holds
 the Settings screen's rules: names unique within their list ignoring case,
 a new category with its own expense account under the same name (renamed
 with it, and free among the accounts too), and a saved rule moving to the
-end of the list.
+end of the list. `addAccount` takes a `kind` of `bank`, `card`,
+`liability` (money the business owes, such as a loan from the owner) or
+`equity` (the owner's stake). Any of these four can pay an expense.
+
+### Transfers
+
+`record_transfer`, `correct_transfer`, `record_opening_balance` and the
+`balances` query port `src/domain/transfers.ts`
+([owner funding brief](briefs/owner-funding.md)). A `transfer` is:
+
+```json
+{
+  "date": "2027-01-15",
+  "amountMinor": 50000,
+  "currency": "USD",
+  "fromAccountId": "…",
+  "toAccountId": "…",
+  "transferType": "ownerLoan",
+  "purpose": "Working capital",
+  "reference": "optional",
+  "documentIds": []
+}
+```
+
+- The journal (kind `transfer`) debits the to-account and credits the
+  from-account, and stores the transfer type, the purpose and any
+  reference and document ids. It posts at once (there are no transfer
+  drafts) and never counts as spending.
+- The type must fit the accounts: `ownerLoan` from a liability to a bank or
+  card account; `ownerContribution` from equity to a bank or card account;
+  `loanRepayment` from a bank or card account to a liability; `ownerDraw`
+  from a bank or card account to equity; `betweenAccounts` between bank or
+  card accounts. Both accounts are this business's, differ, and are in the
+  transfer's currency.
+- `CorrectTransfer` posts an exact reversal of the original (its
+  `reversesId` names the original) and the replacement (its
+  `correctionOf` names the original), all or nothing. A transfer already
+  reversed can't be corrected again.
+- `RecordOpeningBalance` posts a transfer of type `openingBalance` between
+  the account (bank, card or liability) and an equity account named
+  "Opening balances", added the first time it's needed ("Opening balances
+  (EUR)" for a currency other than the business's). `amountMinor` is the
+  balance as `balances` reports it (what's in a bank account, or what's
+  owed on a card or loan account), and may be negative. Each account has
+  at most one, dated on or before the business's first other entry. It is
+  corrected with `CorrectTransfer`, by a replacement of type
+  `openingBalance` on the same account and opening balances account,
+  still dated on or before the first other entry ("An opening balance
+  correction keeps its account.").
+- `RecordTransfer` refuses the type `openingBalance`, and
+  `CorrectTransfer` replaces an opening balance only with another.
+- `balances` gives a bank account's balance as debits minus credits, and a
+  card, liability or equity account's as credits minus debits: a card's
+  balance is what's owed on it.
+
+Document ids must name documents the business already has; these commands
+attach no new files.
 
 Every command is applied by one function, `protocol::apply_command`, which
 the service runs and auditors re-run:
@@ -684,6 +743,8 @@ Enforced by the service, and re-checked by readers.
 | SaveDraft                               | ✓        | ✓          |        |           | Its own drafts (below) |              |
 | Approve, Correct, CommitImport          | ✓        | ✓          |        |           |                        |              |
 | UpdateSettings, SaveRule                | ✓        | ✓          |        |           |                        |              |
+| RecordTransfer, CorrectTransfer         | ✓        | ✓          |        |           |                        |              |
+| RecordOpeningBalance                    | ✓        | ✓          |        |           |                        |              |
 | ChangeMembership (non-owner roles)      | ✓        |            |        |           |                        |              |
 | ChangeMembership (owner-level)          | ✓ (48 h) |            |        |           |                        |              |
 | ChangeMembership `recover`              |          |            |        |           |                        | ✓ (48 h)     |
@@ -701,8 +762,9 @@ any key rotation completes.
 
 **An assistant never approves.** Approval stays with a person, and that is
 enforced here and by the signature on every proposal, not by an interface.
-An assistant can't approve, correct or import, change settings, rules or
-membership, veto, recover, or see pending owner-level changes
+An assistant can't approve, correct or import, record or correct
+transfers or opening balances, change settings, rules or membership, veto,
+recover, or see pending owner-level changes
 (`MembershipState::sees_pending`).
 
 **An assistant edits only the drafts it created, until someone else
@@ -741,16 +803,19 @@ service rejects a command whose **target records** changed in an acceptance
 after `baseSeq`, with the message _"This record changed since you opened
 it. Reload it and try again."_ This replaces the browser's revision check.
 
-| Command                       | Targets                                                           |
-| ----------------------------- | ----------------------------------------------------------------- |
-| SaveDraft, SubmitReceiptDraft | The draft                                                         |
-| Approve                       | The expense                                                       |
-| Correct                       | The original expense                                              |
-| UpdateSettings                | The profile, or the account or category renamed; none when adding |
-| SaveRule                      | The rule being replaced; none for a new rule                      |
-| CommitImport                  | None: rows are deduplicated by fingerprint                        |
-| Suggest                       | None: it adds a record and never changes the draft                |
-| ChangeMembership, Veto        | None: checked against the current membership                      |
+| Command                       | Targets                                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| SaveDraft, SubmitReceiptDraft | The draft                                                                                             |
+| Approve                       | The expense                                                                                           |
+| Correct                       | The original expense                                                                                  |
+| UpdateSettings                | The profile, or the account or category renamed; none when adding                                     |
+| SaveRule                      | The rule being replaced; none for a new rule                                                          |
+| CommitImport                  | None: rows are deduplicated by fingerprint                                                            |
+| Suggest                       | None: it adds a record and never changes the draft                                                    |
+| RecordTransfer                | None: it adds records                                                                                 |
+| CorrectTransfer               | The original journal, which never changes once posted; a transfer already reversed is refused instead |
+| RecordOpeningBalance          | None: a second opening balance for an account is refused                                              |
+| ChangeMembership, Veto        | None: checked against the current membership                                                          |
 
 A `baseSeq` later than the chain head is malformed. So when two members
 approve the same expense from the same `baseSeq`, the first acceptance

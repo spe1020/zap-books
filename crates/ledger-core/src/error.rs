@@ -166,6 +166,49 @@ pub enum LedgerError {
     #[error("A suggestion needs its evidence.")]
     SuggestionEvidence,
 
+    // transfers.ts
+    #[error("A valid transfer date is required.")]
+    InvalidTransferDate,
+    #[error("Amount must be greater than zero in whole minor units.")]
+    TransferAmount,
+    #[error("Purpose is required.")]
+    TransferPurpose,
+    #[error("Choose accounts in this business.")]
+    TransferAccounts,
+    #[error("Choose two different accounts.")]
+    TransferSameAccount,
+    #[error("Both accounts must be in the transfer's currency.")]
+    TransferCurrency,
+    /// The transfer type's own message: its accounts don't fit it.
+    #[error("{0}")]
+    TransferShape(&'static str),
+    #[error("Receipt does not belong to this business.")]
+    TransferReceipt,
+    #[error("Record an opening balance from its own step.")]
+    OpeningBalanceNotTransfer,
+    #[error("A posted transfer and correction reason are required.")]
+    TransferCorrectionRequiresPosted,
+    #[error("This transfer has already been corrected.")]
+    TransferAlreadyCorrected,
+    #[error("Correct an opening balance with an opening balance, and a transfer with a transfer.")]
+    TransferCorrectionKind,
+    #[error("An opening balance correction keeps its account.")]
+    OpeningBalanceAccountChanged,
+    #[error("Choose an account in this business.")]
+    OpeningBalanceAccountNotFound,
+    #[error("Opening balances are for bank, card and loan accounts.")]
+    OpeningBalanceAccountKind,
+    #[error("Enter an opening balance other than zero.")]
+    OpeningBalanceZero,
+    #[error("This account already has an opening balance. Correct it instead.")]
+    OpeningBalanceExists,
+    #[error("An opening balance must be dated on or before the first entry, {0}.")]
+    OpeningBalanceTooLate(String),
+    #[error("Another account is named {0}. Rename it to record opening balances.")]
+    OpeningBalancesNameTaken(String),
+    #[error("Choose a valid date.")]
+    InvalidBalanceDate,
+
     // export.ts exportRecords
     #[error("Choose valid export dates.")]
     InvalidExportDates,

@@ -45,12 +45,16 @@ pub struct Business {
     pub color: String,
 }
 
+/// `liability` is money the business owes (a loan from the owner, say) and
+/// `equity` the owner's stake. Both can pay an expense.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AccountKind {
     Bank,
     Card,
     Expense,
+    Liability,
+    Equity,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -309,6 +313,19 @@ pub enum JournalKind {
     Reversal,
 }
 
+/// What a transfer journal records. `OpeningBalance` is set only by
+/// [`crate::record_opening_balance`]; the others are chosen by the user.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum TransferType {
+    OwnerLoan,
+    OwnerContribution,
+    LoanRepayment,
+    OwnerDraw,
+    BetweenAccounts,
+    OpeningBalance,
+}
+
 /// The fields of a journal entry before any checks. Build one, then turn it
 /// into a [`JournalEntry`] with [`JournalEntry::new`].
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -326,6 +343,19 @@ pub struct UncheckedJournal {
     pub reverses_id: Option<String>,
     pub memo: String,
     pub created_at: String,
+    /// Transfers, and their reversals. Absent on transfers made before
+    /// transfer types.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transfer_type: Option<TransferType>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub purpose: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reference: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub document_ids: Option<Vec<String>>,
+    /// On a transfer that replaced a corrected one: the original's id.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub correction_of: Option<String>,
 }
 
 pub(crate) fn check_line_amounts(line: &JournalLine) -> Result<()> {
@@ -449,6 +479,10 @@ pub enum EventType {
     RuleSaved,
     #[serde(rename = "settings.updated")]
     SettingsUpdated,
+    #[serde(rename = "transfer.recorded")]
+    TransferRecorded,
+    #[serde(rename = "transfer.reversed")]
+    TransferReversed,
 }
 
 impl EventType {
@@ -462,6 +496,8 @@ impl EventType {
             EventType::ExpenseUpdated => "expense.updated",
             EventType::RuleSaved => "rule.saved",
             EventType::SettingsUpdated => "settings.updated",
+            EventType::TransferRecorded => "transfer.recorded",
+            EventType::TransferReversed => "transfer.reversed",
         }
     }
 }

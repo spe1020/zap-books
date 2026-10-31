@@ -4,8 +4,9 @@
 //! readings checked here first.
 
 use ledger_core::{
-    approve, commit_import, correct, save_draft, save_rule, suggest, update_settings, AccountKind,
-    BusinessData, DocumentKind, Env, ExpenseDraft, ExtractionRecord, LedgerError, SourceDocument,
+    approve, commit_import, correct, correct_transfer, record_opening_balance, record_transfer,
+    save_draft, save_rule, suggest, update_settings, AccountKind, BusinessData, DocumentKind, Env,
+    ExpenseDraft, ExtractionRecord, LedgerError, SourceDocument,
 };
 use thiserror::Error;
 
@@ -253,6 +254,21 @@ pub fn apply_command(
             Ok(save_rule(business, rule, env)?)
         }
         Command::Suggest { suggestion } => Ok(suggest(business, suggestion, env)?),
+        Command::RecordTransfer { transfer } => Ok(record_transfer(business, transfer, env)?),
+        Command::CorrectTransfer {
+            original_id,
+            replacement,
+            reason,
+        } => Ok(correct_transfer(
+            business,
+            original_id,
+            replacement,
+            reason,
+            env,
+        )?),
+        Command::RecordOpeningBalance { opening_balance } => {
+            Ok(record_opening_balance(business, opening_balance, env)?)
+        }
         Command::ChangeMembership { .. } | Command::Veto { .. } => Ok(business.clone()),
     }
 }

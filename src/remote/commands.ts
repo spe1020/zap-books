@@ -93,6 +93,20 @@ export function protocolCommand(
       return { type: "UpdateSettings", change: command.change };
     case "SaveRule":
       return { type: "SaveRule", rule: command.rule };
+    case "RecordTransfer":
+      return { type: "RecordTransfer", transfer: command.transfer };
+    case "CorrectTransfer":
+      return {
+        type: "CorrectTransfer",
+        originalId: command.originalId,
+        replacement: command.replacement,
+        reason: command.reason,
+      };
+    case "RecordOpeningBalance":
+      return {
+        type: "RecordOpeningBalance",
+        openingBalance: command.openingBalance,
+      };
     case "ChangeMembership":
       return { type: "ChangeMembership", change: command.change };
     case "Veto":
@@ -115,6 +129,12 @@ export function describe(command: LedgerCommand): string {
       return "Update settings";
     case "SaveRule":
       return `Save rule: ${command.rule.vendorIncludes.trim()}`;
+    case "RecordTransfer":
+      return "Record a transfer";
+    case "CorrectTransfer":
+      return "Correct a transfer";
+    case "RecordOpeningBalance":
+      return "Record an opening balance";
     case "ChangeMembership":
       return describeChange(command.change);
     case "Veto":

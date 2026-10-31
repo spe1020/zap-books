@@ -33,7 +33,8 @@ pub use business_id::BusinessId;
 pub use chain::{verify_chain, ChainHead};
 pub use command::{
     Command, CommandType, CommittedPayload, DocumentRef, History, MembershipChange,
-    ProposalPayload, Recovery, Role, RuleInput, SettingsChange, SuggestionInput, PROTOCOL_VERSION,
+    OpeningBalanceInput, ProposalPayload, Recovery, Role, RuleInput, SettingsChange,
+    SuggestionInput, TransferInput, PROTOCOL_VERSION,
 };
 pub use crypto::{decrypt_from, encrypt_to, encrypted_len, EpochKey, MAX_PLAINTEXT};
 pub use env::{EnvRecord, RecordingEnv, ReplayEnv};

@@ -173,7 +173,10 @@ impl MembershipState {
             | Command::Correct { .. }
             | Command::CommitImport { .. }
             | Command::UpdateSettings { .. }
-            | Command::SaveRule { .. } => {
+            | Command::SaveRule { .. }
+            | Command::RecordTransfer { .. }
+            | Command::CorrectTransfer { .. }
+            | Command::RecordOpeningBalance { .. } => {
                 matches!(actor, Actor::Member(Owner | Bookkeeper))
             }
             Command::ChangeMembership {

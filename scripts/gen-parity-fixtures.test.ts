@@ -21,6 +21,7 @@ import * as I from "../src/domain/import";
 import * as X from "../src/domain/export";
 import * as S from "../src/domain/settings";
 import * as G from "../src/domain/suggestions";
+import * as T from "../src/domain/transfers";
 import { seedWorkspace } from "../src/domain/seed";
 
 const NOW = "2026-10-15T12:00:00.000Z";
@@ -2194,6 +2195,500 @@ function readingOutcomes(setup: BusinessData) {
   );
 }
 
+/**
+ * Owner funding: loan and equity accounts, transfers and their corrections,
+ * opening balances, expenses paid personally, and balances. Recorded last,
+ * so earlier fixtures keep their ids.
+ */
+function ownerFunding(setup: BusinessData, ns: BusinessData) {
+  // Start at the next thousand, so these ids stay put when earlier areas
+  // gain fixtures.
+  nextId = Math.ceil(nextId / 1000) * 1000;
+  const update = (name: string, b: BusinessData, change: unknown) =>
+    record("transfers", name, "updateSettings", { business: b, change }, (i) =>
+      S.updateSettings(i.business, i.change),
+    );
+  const withLoan = update("addAccount: a loan account", setup, {
+    op: "addAccount",
+    name: "Loan from owner",
+    kind: "liability",
+    currency: "USD",
+  });
+  const funded = state(
+    "northstar-funded",
+    update("addAccount: an owner equity account", withLoan, {
+      op: "addAccount",
+      name: "Owner contributions",
+      kind: "equity",
+      currency: "USD",
+    }),
+  );
+  const named = (b: BusinessData, name: string) =>
+    b.accounts.find((a) => a.name === name)!.id;
+  const accounts = {
+    bank: named(funded, "Operating account"),
+    card: named(funded, "Business card"),
+    loan: named(funded, "Loan from owner"),
+    equity: named(funded, "Owner contributions"),
+  };
+  const reserve = named(funded, "Reserve account");
+  const euro = named(funded, "Euro account");
+  const transfer = (
+    transferType: string,
+    from: string,
+    to: string,
+    extra: Record<string, unknown> = {},
+  ) => ({
+    date: "2026-09-10",
+    amountMinor: 50000,
+    currency: "USD",
+    fromAccountId: from,
+    toAccountId: to,
+    transferType,
+    purpose: "Invented purpose",
+    ...extra,
+  });
+  const rec = (name: string, business: BusinessData, input: unknown) =>
+    record("transfers", name, "recordTransfer", { business, input }, (i) =>
+      T.recordTransfer(i.business, i.input),
+    );
+  const fix = (
+    name: string,
+    business: BusinessData,
+    originalId: string,
+    replacement: unknown,
+    reason = "Invented reason",
+  ) =>
+    record(
+      "transfers",
+      name,
+      "correctTransfer",
+      { business, originalId, replacement, reason },
+      (i) =>
+        T.correctTransfer(i.business, i.originalId, i.replacement, i.reason),
+    );
+  const open = (name: string, business: BusinessData, input: unknown) =>
+    record(
+      "transfers",
+      name,
+      "recordOpeningBalance",
+      { business, input },
+      (i) => T.recordOpeningBalance(i.business, i.input),
+    );
+
+  // Every transfer type, with every pair of bank, card, loan and equity
+  // accounts: the valid ones post, the others are refused with the type's
+  // message.
+  const valid: Record<string, [string[], string[]]> = {
+    ownerLoan: [["loan"], ["bank", "card"]],
+    ownerContribution: [["equity"], ["bank", "card"]],
+    loanRepayment: [["bank", "card"], ["loan"]],
+    ownerDraw: [["bank", "card"], ["equity"]],
+    betweenAccounts: [
+      ["bank", "card"],
+      ["bank", "card"],
+    ],
+  };
+  const posted: Record<string, BusinessData> = {};
+  for (const [type, [froms, tos]] of Object.entries(valid))
+    for (const [fromKind, from] of Object.entries(accounts))
+      for (const [toKind, to] of Object.entries(accounts)) {
+        if (from === to) continue;
+        const ok = froms.includes(fromKind) && tos.includes(toKind);
+        const out = rec(
+          `recordTransfer: ${type} from ${fromKind} to ${toKind}${ok ? "" : " refused"}`,
+          funded,
+          transfer(type, from, to),
+        );
+        if (ok && !posted[type]) posted[type] = out;
+      }
+  rec(
+    "recordTransfer: between two bank accounts, with a reference",
+    funded,
+    transfer("betweenAccounts", accounts.bank, reserve, {
+      reference: "  INV-TR-1 ",
+      purpose: "  Move to reserve ",
+    }),
+  );
+  rec(
+    "recordTransfer: with a receipt",
+    {
+      ...funded,
+      documents: [
+        {
+          id: "doc-loan",
+          businessId: funded.profile.id,
+          name: "loan.pdf",
+          mime: "application/pdf",
+          size: 1000,
+          kind: "receipt",
+          createdAt: NOW,
+          demo: false,
+        },
+      ],
+    },
+    transfer("ownerLoan", accounts.loan, accounts.bank, {
+      documentIds: ["doc-loan"],
+    }),
+  );
+  rec(
+    "recordTransfer: a receipt from elsewhere",
+    funded,
+    transfer("ownerLoan", accounts.loan, accounts.bank, {
+      documentIds: ["doc-missing"],
+    }),
+  );
+  rec(
+    "recordTransfer: an expense account",
+    funded,
+    transfer("ownerLoan", accounts.loan, funded.categories[0].accountId),
+  );
+  rec(
+    "recordTransfer: the same account",
+    funded,
+    transfer("betweenAccounts", accounts.bank, accounts.bank),
+  );
+  rec(
+    "recordTransfer: between currencies",
+    funded,
+    transfer("betweenAccounts", accounts.bank, euro),
+  );
+  rec(
+    "recordTransfer: accounts in another currency than the transfer",
+    funded,
+    transfer("betweenAccounts", accounts.bank, reserve, { currency: "EUR" }),
+  );
+  rec(
+    "recordTransfer: an account from another business",
+    funded,
+    transfer("betweenAccounts", accounts.bank, "fieldwork-checking"),
+  );
+  rec(
+    "recordTransfer: zero amount",
+    funded,
+    transfer("ownerLoan", accounts.loan, accounts.bank, { amountMinor: 0 }),
+  );
+  rec(
+    "recordTransfer: negative amount",
+    funded,
+    transfer("ownerLoan", accounts.loan, accounts.bank, { amountMinor: -5 }),
+  );
+  rec(
+    "recordTransfer: invalid date",
+    funded,
+    transfer("ownerLoan", accounts.loan, accounts.bank, {
+      date: "2026-02-30",
+    }),
+  );
+  rec(
+    "recordTransfer: blank purpose",
+    funded,
+    transfer("ownerLoan", accounts.loan, accounts.bank, { purpose: "  " }),
+  );
+  rec(
+    "recordTransfer: an opening balance is its own step",
+    funded,
+    transfer("openingBalance", accounts.loan, accounts.bank),
+  );
+
+  // Corrections.
+  const lent = posted.ownerLoan;
+  const loanId = lent.journals.at(-1)!.id;
+  const corrected = fix(
+    "correctTransfer: reversed exactly, replacement linked",
+    lent,
+    loanId,
+    transfer("ownerLoan", accounts.loan, accounts.card, { amountMinor: 45000 }),
+    "Deposited to the card account",
+  );
+  fix(
+    "correctTransfer: a second correction is refused",
+    corrected,
+    loanId,
+    transfer("ownerLoan", accounts.loan, accounts.bank),
+  );
+  const replacementId = corrected.journals.at(-1)!.id;
+  const again = fix(
+    "correctTransfer: the replacement can be corrected",
+    corrected,
+    replacementId,
+    transfer("ownerLoan", accounts.loan, accounts.card, { amountMinor: 40000 }),
+  );
+  fix(
+    "correctTransfer: a reversal can't be corrected",
+    again,
+    again.journals.find((j: JournalEntry) => j.reversesId === loanId)!.id,
+    transfer("ownerLoan", accounts.loan, accounts.bank),
+  );
+  fix(
+    "correctTransfer: blank reason",
+    lent,
+    loanId,
+    transfer("ownerLoan", accounts.loan, accounts.bank),
+    " ",
+  );
+  fix(
+    "correctTransfer: unknown transfer",
+    lent,
+    "missing",
+    transfer("ownerLoan", accounts.loan, accounts.bank),
+  );
+  fix(
+    "correctTransfer: an invalid replacement changes nothing",
+    lent,
+    loanId,
+    transfer("ownerLoan", accounts.bank, accounts.loan),
+  );
+  fix(
+    "correctTransfer: a transfer can't become an opening balance",
+    lent,
+    loanId,
+    transfer("openingBalance", accounts.loan, accounts.bank),
+  );
+  const seededTransfer = ns.journals.find(
+    (j: JournalEntry) => j.kind === "transfer",
+  )!;
+  fix(
+    "correctTransfer: a seeded transfer without a type",
+    ns,
+    seededTransfer.id,
+    transfer("betweenAccounts", seededTransfer.lines[1].accountId, reserve, {
+      date: seededTransfer.date,
+      amountMinor: 150000,
+    }),
+  );
+  fix(
+    "correctTransfer: an expense journal",
+    ns,
+    ns.journals.find((j: JournalEntry) => j.kind === "expense")!.id,
+    transfer("betweenAccounts", accounts.bank, reserve),
+  );
+
+  // Opening balances.
+  const opened = open("recordOpeningBalance: a bank account", funded, {
+    accountId: accounts.bank,
+    date: "2026-01-01",
+    amountMinor: 120000,
+    reference: " Statement ",
+  });
+  open("recordOpeningBalance: a card, as the amount owed", funded, {
+    accountId: accounts.card,
+    date: "2026-01-01",
+    amountMinor: 30000,
+  });
+  open("recordOpeningBalance: an overdrawn bank account", funded, {
+    accountId: accounts.bank,
+    date: "2026-01-01",
+    amountMinor: -4000,
+  });
+  const owed = open("recordOpeningBalance: a loan account", opened, {
+    accountId: accounts.loan,
+    date: "2026-01-01",
+    amountMinor: 25000,
+  });
+  open("recordOpeningBalance: a second for the same account", opened, {
+    accountId: accounts.bank,
+    date: "2026-01-01",
+    amountMinor: 5000,
+  });
+  open("recordOpeningBalance: an equity account", funded, {
+    accountId: accounts.equity,
+    date: "2026-01-01",
+    amountMinor: 5000,
+  });
+  open("recordOpeningBalance: an expense account", funded, {
+    accountId: funded.categories[0].accountId,
+    date: "2026-01-01",
+    amountMinor: 5000,
+  });
+  open("recordOpeningBalance: unknown account", funded, {
+    accountId: "missing",
+    date: "2026-01-01",
+    amountMinor: 5000,
+  });
+  open("recordOpeningBalance: zero", funded, {
+    accountId: accounts.bank,
+    date: "2026-01-01",
+    amountMinor: 0,
+  });
+  open("recordOpeningBalance: invalid date", funded, {
+    accountId: accounts.bank,
+    date: "2026-13-01",
+    amountMinor: 5000,
+  });
+  open("recordOpeningBalance: another currency gets its own account", funded, {
+    accountId: euro,
+    date: "2026-01-01",
+    amountMinor: 8000,
+  });
+  open(
+    "recordOpeningBalance: another account has the name",
+    S.updateSettings(funded, {
+      op: "addAccount",
+      name: "opening balances",
+      kind: "bank",
+      currency: "USD",
+    }),
+    { accountId: accounts.bank, date: "2026-01-01", amountMinor: 5000 },
+  );
+  const first = [...ns.journals].map((j) => j.date).sort()[0];
+  const withLoanAccount = S.updateSettings(ns, {
+    op: "addAccount",
+    name: "Loan from owner",
+    kind: "liability",
+    currency: "USD",
+  });
+  open("recordOpeningBalance: dated after the first entry", withLoanAccount, {
+    accountId: accounts.bank.replace(funded.profile.id, ns.profile.id),
+    date: "2026-12-01",
+    amountMinor: 5000,
+  });
+  const onFirst = open(
+    "recordOpeningBalance: dated on the first entry",
+    withLoanAccount,
+    {
+      accountId: accounts.bank.replace(funded.profile.id, ns.profile.id),
+      date: first,
+      amountMinor: 5000,
+    },
+  );
+  const openingId = opened.journals.at(-1)!.id;
+  const opening = named(opened, "Opening balances");
+  const reopened = fix(
+    "correctTransfer: an opening balance corrected",
+    opened,
+    openingId,
+    transfer("openingBalance", opening, accounts.bank, {
+      date: "2026-01-01",
+      amountMinor: 110000,
+      purpose: "Opening balance",
+    }),
+  );
+  fix(
+    "correctTransfer: an opening balance moved to another account",
+    owed,
+    openingId,
+    transfer("openingBalance", accounts.loan, opening, {
+      date: "2026-01-01",
+      purpose: "Opening balance",
+    }),
+  );
+  fix(
+    "correctTransfer: an opening balance can't become a transfer",
+    opened,
+    openingId,
+    transfer("ownerLoan", accounts.loan, accounts.bank),
+  );
+  fix(
+    "correctTransfer: an opening balance against another equity account",
+    opened,
+    openingId,
+    transfer("openingBalance", accounts.equity, accounts.bank, {
+      date: "2026-01-01",
+      purpose: "Opening balance",
+    }),
+  );
+  fix(
+    "correctTransfer: an opening balance turned overdrawn",
+    opened,
+    openingId,
+    transfer("openingBalance", accounts.bank, opening, {
+      date: "2026-01-01",
+      amountMinor: 700,
+      purpose: "Opening balance",
+    }),
+  );
+  const firstOpening = onFirst.journals.at(-1)!;
+  const nsOpening = named(onFirst, "Opening balances");
+  fix(
+    "correctTransfer: an opening balance moved after the first entry",
+    onFirst,
+    firstOpening.id,
+    transfer("openingBalance", nsOpening, firstOpening.lines[0].accountId, {
+      date: "2026-12-01",
+      purpose: "Opening balance",
+    }),
+  );
+
+  // Expenses paid personally.
+  const paidFrom = (name: string, accountId: string) => {
+    const draft = { ...ready(funded, { accountId }), id: `draft-${name}` };
+    return record(
+      "transfers",
+      `approve: paid from ${name}`,
+      "approve",
+      { business: L.saveDraft(funded, draft), expenseId: draft.id },
+      (i) => L.approve(i.business, i.expenseId),
+    );
+  };
+  const personally = paidFrom("a loan account", accounts.loan);
+  paidFrom("an equity account", accounts.equity);
+
+  // Balances.
+  const sheet = (
+    name: string,
+    business: BusinessData,
+    asOf: string,
+    currency = "USD",
+  ) =>
+    record("balances", name, "balances", { business, asOf, currency }, (i) =>
+      T.balances(i.business, i.asOf, i.currency),
+    );
+  let history = T.recordOpeningBalance(funded, {
+    accountId: accounts.bank,
+    date: "2026-01-01",
+    amountMinor: 100000,
+  });
+  history = T.recordTransfer(
+    history,
+    transfer("ownerLoan", accounts.loan, accounts.bank, { date: "2026-02-01" }),
+  );
+  const toCorrect = history.journals.at(-1)!.id;
+  history = T.recordTransfer(
+    history,
+    transfer("loanRepayment", accounts.bank, accounts.loan, {
+      date: "2026-04-01",
+      amountMinor: 11700,
+    }),
+  );
+  history = T.correctTransfer(
+    history,
+    toCorrect,
+    transfer("ownerLoan", accounts.loan, accounts.bank, {
+      date: "2026-02-01",
+      amountMinor: 30000,
+    }),
+    "Smaller loan",
+  );
+  history = state("northstar-funded-history", history);
+  for (const asOf of [
+    "2025-12-31",
+    "2026-01-01",
+    "2026-02-01",
+    "2026-03-15",
+    "2026-04-01",
+    "2027-01-01",
+  ])
+    sheet(`balances: as of ${asOf}`, history, asOf);
+  sheet("balances: another currency", history, "2027-01-01", "EUR");
+  sheet("balances: invalid date", history, "2026-02-30");
+  sheet("balances: a personally paid expense", personally, "2026-12-31");
+  sheet("balances: the seeded transfer", ns, "2026-12-31");
+  sheet("balances: after a corrected opening balance", reopened, "2026-12-31");
+  const purchase = {
+    ...ready(funded, { accountId: accounts.card, amountMinor: 2500 }),
+    id: "draft-card-purchase",
+  };
+  let card = L.approve(L.saveDraft(funded, purchase), purchase.id);
+  card = T.recordTransfer(
+    card,
+    transfer("betweenAccounts", accounts.bank, accounts.card, {
+      amountMinor: 1000,
+    }),
+  );
+  sheet("balances: a card purchase and a payment", card, "2026-12-31");
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -2231,6 +2726,7 @@ test("generate parity fixtures", () => {
     documentHashes(setup);
     suggestions(setup, fw);
     readingOutcomes(setup);
+    ownerFunding(setup, ns);
     write();
   } finally {
     vi.useRealTimers();
