@@ -69,6 +69,12 @@ message. The affected checks are always true in Rust:
   it, since the input itself wouldn't deserialize; the TypeScript is pinned
   by "a saved draft keeps to the values Rust can load (ACC-4, WEB-1)" in
   `src/domain/ledger.test.ts`, the Rust by the test below.
+- `src/domain/transfers.ts` (`post`, behind `recordTransfer`,
+  `correctTransfer` and `recordOpeningBalance`): "Choose a supported
+  currency." and "Choose a transfer type." are unreachable, and "Amount must
+  be greater than zero in whole minor units." fires only for `<= 0`: a
+  `TransferInput` with an unknown currency or transfer type, or a
+  non-integer amount, doesn't deserialize.
 - `src/domain/ledger.ts:36` and `:52` (`parseMoney`, `sum`) and
   `src/domain/import.ts:311` (combined import amount) are ported as explicit
   range checks against `MAX_MINOR`, with the same messages.
@@ -165,6 +171,70 @@ there, so this only matters for hand-made JSON, which reads the same either
 way.
 
 Fixtures: every state round-trips unchanged; `suggestions/*`.
+
+## O: Owner funding design choices
+
+Choices the [owner funding brief](docs/briefs/owner-funding.md) left open,
+made the same way in both languages and pinned by the `transfers` and
+`balances` fixtures. Tests: `src/domain/transfers.test.ts` and
+`crates/ledger-core/tests/transfers.rs`.
+
+- **O1. An opening balance is a transfer.** It is a journal of kind
+  `transfer` with the type `openingBalance`, not a new journal kind, so
+  every reader of journals already handles it and it never counts as
+  spending. `recordTransfer` refuses that type ("Record an opening balance
+  from its own step."). It is corrected with `correctTransfer`, whose
+  replacement must then also be an opening balance, and an ordinary
+  transfer only by an ordinary one ("Correct an opening balance with an
+  opening balance, and a transfer with a transfer."). That keeps the
+  brief's three commands. Fixtures: `transfers/correctTransfer: an opening
+balance *`.
+- **O2. An opening balance is signed.** `amountMinor` is the balance as
+  `balances` reports it: debits minus credits for a bank or card account,
+  credits minus debits for a loan account. The brief gives cards the bank
+  convention, so a card that owes money opens negative, as does an
+  overdrawn bank account. Zero is refused. Fixture:
+  `transfers/recordOpeningBalance: a card that owes money`.
+- **O3. One opening balances account per currency.** Every account has one
+  currency and names are unique, so a single "Opening balances" account
+  can't take a balance in another currency. The business's own currency
+  uses "Opening balances"; any other uses "Opening balances (EUR)", say.
+  An existing equity account of that name and currency is reused; any other
+  account with the name, ignoring case, refuses the opening balance ("Another
+  account is named Opening balances. Rename it to record opening
+  balances."). Creating the account logs `settings.updated`, as adding an
+  account does. Fixtures: `transfers/recordOpeningBalance: another currency
+gets its own account`, `… another account has the name`.
+- **O4. "The first other entry"** is the earliest date among the
+  business's journals other than opening balances and their reversals. The
+  check runs when an opening balance is recorded or corrected; a later
+  entry dated before an existing opening balance isn't refused. The message
+  names the date. Fixtures: `transfers/recordOpeningBalance: dated after
+the first entry`, `… dated on the first entry`.
+- **O5. Linked both ways without changing the original.** Posted journals
+  never change, so the original transfer isn't edited. The reversal names
+  it (`reversesId`), the replacement names it (`correctionOf`), and the
+  `transfer.reversed` event lists all three ids. A reversal doesn't copy its
+  original's `correctionOf`. "Already corrected" means some journal reverses
+  it. Fixtures: `transfers/correctTransfer: *`.
+- **O6. Type and purpose are optional on stored journals.** The seed's
+  transfers, and any stored before this change, have neither; they load
+  unchanged and can be corrected like any transfer. Every new transfer has
+  both. Fixture: `transfers/correctTransfer: a seeded transfer without a
+type`.
+- **O7. The memo** of a new transfer is "from → to" with the account names,
+  as the seed's transfers already were. Events are `transfer.recorded`
+  ("Owner loan recorded", "Opening balance recorded", …) and
+  `transfer.reversed` (the reason).
+- **O8. `addAccount`'s refusal keeps its message.** It now accepts
+  `liability` and `equity`, and only `expense` reaches "Choose a bank or
+  card account.", which `settings/addAccount: expense kind` pins.
+- **O9. Imports still accept any non-expense account**, as before:
+  `previewImport` and `commitImport` check `kind !== "expense"`, so a CSV of
+  expenses paid personally can be imported to a loan account. Imports
+  remain expense outflows only.
+- **O10. Balances list every non-expense account in the currency**, in
+  account order, including those with a zero balance.
 
 ## W: TypeScript behavior that looked wrong
 
