@@ -186,15 +186,23 @@ made the same way in both languages and pinned by the `transfers` and
   from its own step."). It is corrected with `correctTransfer`, whose
   replacement must then also be an opening balance, and an ordinary
   transfer only by an ordinary one ("Correct an opening balance with an
-  opening balance, and a transfer with a transfer."). That keeps the
-  brief's three commands. Fixtures: `transfers/correctTransfer: an opening
-balance *`.
-- **O2. An opening balance is signed.** `amountMinor` is the balance as
-  `balances` reports it: debits minus credits for a bank or card account,
-  credits minus debits for a loan account. The brief gives cards the bank
-  convention, so a card that owes money opens negative, as does an
-  overdrawn bank account. Zero is refused. Fixture:
-  `transfers/recordOpeningBalance: a card that owes money`.
+  opening balance, and a transfer with a transfer."). The replacement must
+  be between the same two accounts, the account and its opening balances
+  account ("An opening balance correction keeps its account."), and keeps
+  the date rule (O4); its amount, direction and date may change. That
+  keeps the brief's three commands. Fixtures: `transfers/correctTransfer:
+an opening balance *`.
+- **O2. A card's balance is what's owed, and an opening balance is
+  signed.** `balances` reports a bank account's debits minus credits, and
+  a card's, like a loan's or equity's, credits minus debits: a purchase on
+  the card raises it and a payment to the card lowers it (decided for PR
+  32, and the brief's balance rule updated). An opening balance's
+  `amountMinor` is the balance in that convention: what's in a bank
+  account, or what's owed on a card or loan account. An overdrawn bank
+  account opens negative. Zero is refused. Fixtures:
+  `transfers/recordOpeningBalance: a card, as the amount owed`, `… an
+overdrawn bank account`, `balances/balances: a card purchase and a
+payment`.
 - **O3. One opening balances account per currency.** Every account has one
   currency and names are unique, so a single "Opening balances" account
   can't take a balance in another currency. The business's own currency

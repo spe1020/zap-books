@@ -62,17 +62,17 @@ A new command, `correctTransfer`, takes the original transfer's id, a full repla
 
 A new command, `recordOpeningBalance`, sets an account's balance as of the business's start date:
 
-- for bank, card and liability accounts;
+- for bank, card and liability accounts. A card's opening balance is entered as the amount owed on it;
 - it posts against an `equity` account named "Opening balances", created automatically the first time it's needed;
-- at most one opening balance per account, and it can be corrected the same way as a transfer;
+- at most one opening balance per account, and it can be corrected the same way as a transfer. The correction keeps the type `openingBalance`, the same account, and the date rule below;
 - it's dated on or before the business's first other entry. A later date is refused.
 
 ### Balances
 
 A new query, `balances(business, asOf, currency)`, returns every non-expense account's balance as of a date, from posted journals only:
 
-- bank and card balances: debits minus credits;
-- liability and equity balances: credits minus debits;
+- bank balances: debits minus credits;
+- card, liability and equity balances: credits minus debits. A card's balance is what's owed on it: purchases raise it, and payments lower it;
 - reversals offset their originals, as everywhere else.
 
 It returns one row per account with its kind. Currencies are never combined.

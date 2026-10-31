@@ -192,6 +192,8 @@ pub enum LedgerError {
     TransferAlreadyCorrected,
     #[error("Correct an opening balance with an opening balance, and a transfer with a transfer.")]
     TransferCorrectionKind,
+    #[error("An opening balance correction keeps its account.")]
+    OpeningBalanceAccountChanged,
     #[error("Choose an account in this business.")]
     OpeningBalanceAccountNotFound,
     #[error("Opening balances are for bank, card and loan accounts.")]

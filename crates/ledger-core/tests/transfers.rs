@@ -274,7 +274,8 @@ fn correcting_a_transfer_reverses_it_exactly_and_links_the_replacement() {
     assert_eq!(posted.kind, JournalKind::Transfer);
     // The original and its reversal net to zero on both of its accounts.
     assert_eq!(balance(&fixed, &a.bank, "2026-12-31"), 0);
-    assert_eq!(balance(&fixed, &a.card, "2026-12-31"), 45_000);
+    // Money paid into a card leaves it in credit: less than nothing owed.
+    assert_eq!(balance(&fixed, &a.card, "2026-12-31"), -45_000);
     assert_eq!(balance(&fixed, &a.loan, "2026-12-31"), 45_000);
     let last = fixed.events.last().unwrap();
     assert_eq!(last.event_type, EventType::TransferReversed);
@@ -386,7 +387,7 @@ fn balances_are_right_before_between_and_after_entries_with_reversals() {
     assert_eq!(balance(&b, &a.bank, "2026-02-01"), 130_000);
     assert_eq!(balance(&b, &a.loan, "2026-02-01"), 30_000);
     assert_eq!(balance(&b, &a.card, "2026-03-11"), 0);
-    assert_eq!(balance(&b, &a.card, "2026-03-12"), -2_000);
+    assert_eq!(balance(&b, &a.card, "2026-03-12"), 2_000);
     assert_eq!(balance(&b, &a.bank, "2027-01-01"), 130_000);
     let euros: Vec<String> = balances(&b, "2026-12-31", Currency::Eur)
         .unwrap()
@@ -398,6 +399,135 @@ fn balances_are_right_before_between_and_after_entries_with_reversals() {
         balances(&b, "2026-02-30", Currency::Usd).unwrap_err(),
         LedgerError::InvalidBalanceDate
     );
+}
+
+#[test]
+fn a_cards_balance_is_whats_owed_purchases_raise_it_and_payments_lower_it() {
+    let (b, mut env) = setup();
+    let a = ids(&b);
+    let b = expense(&b, &mut env, &a.card, 2_500);
+    assert_eq!(balance(&b, &a.card, "2026-12-31"), 2_500);
+    let b = expense(&b, &mut env, &a.card, 1_500);
+    assert_eq!(balance(&b, &a.card, "2026-12-31"), 4_000);
+    let payment = with(
+        transfer(TransferType::BetweenAccounts, &a.bank, &a.card),
+        3_000,
+        "2026-03-20",
+    );
+    let b = record_transfer(&b, &payment, &mut env).unwrap();
+    assert_eq!(balance(&b, &a.card, "2026-12-31"), 1_000);
+    assert_eq!(balance(&b, &a.bank, "2026-12-31"), -3_000);
+}
+
+#[test]
+fn a_cards_opening_balance_is_entered_as_the_amount_owed() {
+    let (b, mut env) = setup();
+    let a = ids(&b);
+    let input = OpeningBalanceInput {
+        account_id: a.card.clone(),
+        date: "2026-01-01".into(),
+        amount_minor: minor(8_000),
+        reference: None,
+    };
+    let owed = record_opening_balance(&b, &input, &mut env).unwrap();
+    assert_eq!(balance(&owed, &a.card, "2026-12-31"), 8_000);
+    // The card is credited, as a purchase would credit it.
+    let line = owed
+        .journals
+        .last()
+        .unwrap()
+        .lines
+        .iter()
+        .find(|l| l.account_id == a.card)
+        .unwrap()
+        .clone();
+    assert_eq!((line.debit, line.credit), (Minor::ZERO, minor(8_000)));
+    let bought = expense(&owed, &mut env, &a.card, 500);
+    assert_eq!(balance(&bought, &a.card, "2026-12-31"), 8_500);
+}
+
+/// A bank account with an opening balance, its journal id and the opening
+/// balances account.
+fn opened() -> (BusinessData, SequentialEnv, String, String) {
+    let (b, mut env) = setup();
+    let input = OpeningBalanceInput {
+        account_id: ids(&b).bank,
+        date: "2026-01-01".into(),
+        amount_minor: minor(10_000),
+        reference: None,
+    };
+    let b = record_opening_balance(&b, &input, &mut env).unwrap();
+    let journal = b.journals.last().unwrap().id.clone();
+    let opening = account(&b, "Opening balances");
+    (b, env, journal, opening)
+}
+
+fn opening_replacement(from: &str, to: &str, amount: i64, date: &str) -> TransferInput {
+    let mut t = with(
+        transfer(TransferType::OpeningBalance, from, to),
+        amount,
+        date,
+    );
+    t.purpose = "Opening balance".into();
+    t
+}
+
+#[test]
+fn an_opening_balance_correction_may_change_the_amount_its_direction_and_the_date() {
+    let (b, mut env, journal, opening) = opened();
+    let bank = ids(&b).bank;
+    let smaller = opening_replacement(&opening, &bank, 9_000, "2025-12-31");
+    let fixed = correct_transfer(&b, &journal, &smaller, "Statement misread", &mut env).unwrap();
+    assert_eq!(balance(&fixed, &bank, "2026-12-31"), 9_000);
+    let overdrawn = opening_replacement(&bank, &opening, 700, "2026-01-01");
+    let fixed = correct_transfer(&b, &journal, &overdrawn, "Overdrawn", &mut env).unwrap();
+    assert_eq!(balance(&fixed, &bank, "2026-12-31"), -700);
+}
+
+#[test]
+fn an_opening_balance_correction_refuses_another_type() {
+    let (b, mut env, journal, opening) = opened();
+    let mut replacement = opening_replacement(&opening, &ids(&b).bank, 9_000, "2026-01-01");
+    replacement.transfer_type = TransferType::BetweenAccounts;
+    assert_eq!(
+        correct_transfer(&b, &journal, &replacement, "Invented reason", &mut env).unwrap_err(),
+        LedgerError::TransferCorrectionKind
+    );
+}
+
+#[test]
+fn an_opening_balance_correction_refuses_another_account() {
+    let (b, mut env, journal, opening) = opened();
+    let a = ids(&b);
+    for (from, to) in [
+        (&opening, &a.reserve),
+        (&a.card, &opening),
+        (&a.loan, &opening),
+        // Nor against another equity account.
+        (&a.equity, &a.bank),
+    ] {
+        let replacement = opening_replacement(from, to, 9_000, "2026-01-01");
+        assert_eq!(
+            correct_transfer(&b, &journal, &replacement, "Invented reason", &mut env).unwrap_err(),
+            LedgerError::OpeningBalanceAccountChanged
+        );
+    }
+}
+
+#[test]
+fn an_opening_balance_correction_refuses_a_date_after_the_first_entry() {
+    let (b, mut env, journal, opening) = opened();
+    let a = ids(&b);
+    let started = expense(&b, &mut env, &a.card, 1_000); // dated 2026-03-12
+    let late = opening_replacement(&opening, &a.bank, 12_300, "2026-03-13");
+    assert_eq!(
+        correct_transfer(&started, &journal, &late, "Invented reason", &mut env)
+            .unwrap_err()
+            .to_string(),
+        "An opening balance must be dated on or before the first entry, 2026-03-12."
+    );
+    let on_time = opening_replacement(&opening, &a.bank, 12_300, "2026-03-12");
+    assert!(correct_transfer(&started, &journal, &on_time, "Invented reason", &mut env).is_ok());
 }
 
 #[derive(Debug, Clone)]
@@ -521,7 +651,7 @@ proptest! {
             .unwrap()
             .iter()
             .map(|r| match r.kind {
-                AccountKind::Bank | AccountKind::Card => r.balance.get(),
+                AccountKind::Bank => r.balance.get(),
                 _ => -r.balance.get(),
             })
             .sum();

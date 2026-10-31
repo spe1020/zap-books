@@ -31,9 +31,9 @@ export interface TransferInput {
 
 /**
  * An account's balance before the business's first entry. `amountMinor` is
- * the balance as `balances` reports it: debits minus credits for a bank or
- * card account, credits minus debits for a loan account. It may be negative
- * (an overdrawn bank account, or a card that owes money), never zero.
+ * the balance as `balances` reports it: what's in a bank account, or what's
+ * owed on a card or loan account. It may be negative (an overdrawn bank
+ * account, say), never zero.
  */
 export interface OpeningBalanceInput {
   accountId: string;
@@ -243,7 +243,8 @@ export function recordTransfer(
  * Reverses a posted transfer exactly and posts `replacement` in its place,
  * all or nothing. The reversal names the original (`reversesId`), and so
  * does the replacement (`correctionOf`). A transfer already reversed can't
- * be corrected again. An opening balance is corrected by another.
+ * be corrected again. An opening balance is corrected by another, on the
+ * same account.
  */
 export function correctTransfer(
   business: BusinessData,
@@ -263,6 +264,15 @@ export function correctTransfer(
     throw new Error(
       "Correct an opening balance with an opening balance, and a transfer with a transfer.",
     );
+  // The same account and the same opening balances account; the amount,
+  // its direction and the date may change.
+  if (
+    isOpening(original) &&
+    ![replacement.fromAccountId, replacement.toAccountId].every((id) =>
+      original.lines.some((l) => l.accountId === id),
+    )
+  )
+    throw new Error("An opening balance correction keeps its account.");
   const { correctionOf: _, ...prior } = original;
   const reversal: JournalEntry = {
     ...prior,
@@ -307,8 +317,9 @@ export function recordOpeningBalance(
   if (!Number.isSafeInteger(input.amountMinor) || input.amountMinor === 0)
     throw new Error("Enter an opening balance other than zero.");
   const equity = openingBalancesAccount(b, account.currency);
-  // A debit balance for a bank or card account, a credit one for a loan.
-  const debit = (account.kind === "liability") !== input.amountMinor > 0;
+  // A bank account's balance is a debit; what's owed on a card or loan is
+  // a credit.
+  const debit = (account.kind === "bank") === input.amountMinor > 0;
   post(b, {
     date: input.date,
     amountMinor: Math.abs(input.amountMinor),
@@ -351,8 +362,9 @@ function openingBalancesAccount(b: BusinessData, currency: Currency) {
 
 /**
  * Every non-expense account in `currency` with its balance on `asOf`, from
- * posted journals dated on or before it: debits minus credits for bank and
- * card accounts, credits minus debits for loan and equity accounts.
+ * posted journals dated on or before it: debits minus credits for bank
+ * accounts, and credits minus debits for card, loan and equity accounts, so
+ * a card's balance is what's owed on it.
  * Reversals offset their originals. Currencies are never combined.
  */
 export function balances(
@@ -378,9 +390,10 @@ export function balances(
       for (const line of j.lines) {
         const row = rows.find((r) => r.accountId === line.accountId);
         if (!row) continue;
-        const delta = paying(row.kind)
-          ? line.debit - line.credit
-          : line.credit - line.debit;
+        const delta =
+          row.kind === "bank"
+            ? line.debit - line.credit
+            : line.credit - line.debit;
         row.balance = sum(row.balance, delta);
       }
   return rows;

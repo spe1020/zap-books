@@ -202,7 +202,8 @@ describe("owner funding merge gates", () => {
     expect(replacement.kind).toBe("transfer");
     // The original and its reversal net to zero on both accounts.
     expect(balanceOf(fixed, bank)).toBe(0);
-    expect(balanceOf(fixed, card)).toBe(45000);
+    // Money paid into a card leaves it in credit: less than nothing owed.
+    expect(balanceOf(fixed, card)).toBe(-45000);
     expect(balanceOf(fixed, loan)).toBe(45000);
     expect(fixed.events.at(-1)).toMatchObject({
       type: "transfer.reversed",
@@ -323,7 +324,7 @@ describe("owner funding merge gates", () => {
     expect(balanceOf(b, bank, "2026-02-01")).toBe(130000);
     expect(balanceOf(b, loan, "2026-02-01")).toBe(30000);
     expect(balanceOf(b, card, "2026-03-11")).toBe(0);
-    expect(balanceOf(b, card, "2026-03-12")).toBe(-2000);
+    expect(balanceOf(b, card, "2026-03-12")).toBe(2000);
     expect(balanceOf(b, bank, "2027-01-01")).toBe(130000);
     expect(balances(b, "2026-12-31", "EUR").map((r) => r.name)).toEqual([
       "Euro account",
@@ -331,6 +332,145 @@ describe("owner funding merge gates", () => {
     expect(() => balances(b, "2026-02-30", "USD")).toThrow(
       "Choose a valid date.",
     );
+  });
+  test("a card's balance is what's owed: purchases raise it, payments lower it", () => {
+    let b = setup();
+    const { bank, card } = ids(b);
+    b = expense(b, card, 2500);
+    expect(balanceOf(b, card)).toBe(2500);
+    b = expense(b, card, 1500);
+    expect(balanceOf(b, card)).toBe(4000);
+    b = recordTransfer(
+      b,
+      transfer("betweenAccounts", bank, card, { amountMinor: 3000 }),
+    );
+    expect(balanceOf(b, card)).toBe(1000);
+    expect(balanceOf(b, bank)).toBe(-3000);
+  });
+
+  test("a card's opening balance is entered as the amount owed", () => {
+    const b = setup();
+    const { card } = ids(b);
+    const owed = recordOpeningBalance(b, {
+      accountId: card,
+      date: "2026-01-01",
+      amountMinor: 8000,
+    });
+    expect(balanceOf(owed, card)).toBe(8000);
+    // The card is credited, as a purchase would credit it.
+    const line = owed.journals.at(-1)!.lines.find((l) => l.accountId === card)!;
+    expect(line).toMatchObject({ debit: 0, credit: 8000 });
+    expect(balanceOf(expense(owed, card, 500), card)).toBe(8500);
+  });
+
+  describe("correcting an opening balance", () => {
+    function opened() {
+      const b = setup();
+      const { bank } = ids(b);
+      const next = recordOpeningBalance(b, {
+        accountId: bank,
+        date: "2026-01-01",
+        amountMinor: 12300,
+      });
+      const journal = next.journals.at(-1)!;
+      const opening = account(next, "Opening balances");
+      return { b: next, journal, opening, ...ids(next) };
+    }
+    const replacement = (
+      from: string,
+      to: string,
+      extra: Partial<TransferInput> = {},
+    ) =>
+      transfer("openingBalance", from, to, {
+        date: "2026-01-01",
+        purpose: "Opening balance",
+        ...extra,
+      });
+
+    test("may change the amount, its direction and the date", () => {
+      const { b, journal, opening, bank } = opened();
+      const smaller = correctTransfer(
+        b,
+        journal.id,
+        replacement(opening, bank, { amountMinor: 9000, date: "2025-12-31" }),
+        "Statement misread",
+      );
+      expect(balanceOf(smaller, bank)).toBe(9000);
+      const overdrawn = correctTransfer(
+        b,
+        journal.id,
+        replacement(bank, opening, { amountMinor: 700 }),
+        "Overdrawn",
+      );
+      expect(balanceOf(overdrawn, bank)).toBe(-700);
+    });
+
+    test("refuses a replacement that isn't an opening balance", () => {
+      const { b, journal, opening, bank } = opened();
+      expect(() =>
+        correctTransfer(
+          b,
+          journal.id,
+          { ...replacement(opening, bank), transferType: "betweenAccounts" },
+          "Invented reason",
+        ),
+      ).toThrow(
+        "Correct an opening balance with an opening balance, and a transfer with a transfer.",
+      );
+    });
+
+    test("refuses a replacement on another account", () => {
+      const { b, journal, opening, reserve, card, loan } = opened();
+      for (const [from, to] of [
+        [opening, reserve],
+        [card, opening],
+        [loan, opening],
+      ])
+        expect(() =>
+          correctTransfer(
+            b,
+            journal.id,
+            replacement(from, to),
+            "Invented reason",
+          ),
+        ).toThrow("An opening balance correction keeps its account.");
+      // Nor against another equity account.
+      const { equity, bank } = ids(b);
+      expect(() =>
+        correctTransfer(
+          b,
+          journal.id,
+          replacement(equity, bank),
+          "Invented reason",
+        ),
+      ).toThrow("An opening balance correction keeps its account.");
+    });
+
+    test("refuses a replacement dated after the first entry", () => {
+      const { b, opening, bank, card } = opened();
+      const started = expense(b, card); // dated 2026-03-12
+      const journal = started.journals.find(
+        (j) => j.transferType === "openingBalance",
+      )!;
+      expect(() =>
+        correctTransfer(
+          started,
+          journal.id,
+          replacement(opening, bank, { date: "2026-03-13" }),
+          "Invented reason",
+        ),
+      ).toThrow(
+        "An opening balance must be dated on or before the first entry, 2026-03-12.",
+      );
+      expect(() =>
+        correctTransfer(
+          started,
+          journal.id,
+          replacement(opening, bank, { date: "2026-03-12" }),
+          "Invented reason",
+        ),
+      ).not.toThrow();
+    });
   });
 });
 
@@ -415,13 +555,12 @@ describe("owner funding properties", () => {
           credit += l.credit;
         }
       expect(debit).toBe(credit);
-      // Assets less what is owed and the owner's stake, plus spending,
+      // The bank less what is owed on cards and loans and the owner's
+      // stake, plus spending,
       // nets to zero: every journal balances.
       const rows = balances(b, "2026-12-31", "USD");
       const net = rows.reduce(
-        (sum, r) =>
-          sum +
-          (r.kind === "bank" || r.kind === "card" ? r.balance : -r.balance),
+        (sum, r) => sum + (r.kind === "bank" ? r.balance : -r.balance),
         0,
       );
       expect(net + (totals(b, "2026").USD ?? 0)).toBe(0);

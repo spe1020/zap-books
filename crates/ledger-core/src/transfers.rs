@@ -35,7 +35,8 @@ pub struct TransferInput {
 }
 
 /// `OpeningBalanceInput`: an account's balance before the business's first
-/// entry, as [`balances`] reports it. It may be negative, never zero.
+/// entry, as [`balances`] reports it: what's in a bank account, or what's
+/// owed on a card or loan account. It may be negative, never zero.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OpeningBalanceInput {
@@ -303,7 +304,7 @@ pub fn record_transfer(
 /// `replacement` in its place, all or nothing. The reversal names the
 /// original (`reverses_id`), and so does the replacement (`correction_of`).
 /// A transfer already reversed can't be corrected again. An opening balance
-/// is corrected by another.
+/// is corrected by another, on the same account.
 pub fn correct_transfer(
     business: &BusinessData,
     original_id: &str,
@@ -324,6 +325,14 @@ pub fn correct_transfer(
     }
     if is_opening(&original) != (replacement.transfer_type == TransferType::OpeningBalance) {
         return Err(LedgerError::TransferCorrectionKind);
+    }
+    // The same account and the same opening balances account; the amount,
+    // its direction and the date may change.
+    let on_original = |id: &str| original.lines.iter().any(|l| l.account_id == id);
+    if is_opening(&original)
+        && !(on_original(&replacement.from_account_id) && on_original(&replacement.to_account_id))
+    {
+        return Err(LedgerError::OpeningBalanceAccountChanged);
     }
     let mut reversal = original.clone();
     reversal.correction_of = None;
@@ -375,8 +384,9 @@ pub fn record_opening_balance(
         return Err(LedgerError::OpeningBalanceZero);
     }
     let equity = opening_balances_account(&mut b, account.currency, env)?;
-    // A debit balance for a bank or card account, a credit one for a loan.
-    let debit = (account.kind == AccountKind::Liability) != (input.amount_minor > Minor::ZERO);
+    // A bank account's balance is a debit; what's owed on a card or loan is
+    // a credit.
+    let debit = (account.kind == AccountKind::Bank) == (input.amount_minor > Minor::ZERO);
     let amount = if input.amount_minor < Minor::ZERO {
         -input.amount_minor
     } else {
@@ -442,9 +452,9 @@ fn opening_balances_account(
 
 /// `balances`: every non-expense account in `currency` with its balance on
 /// `as_of`, from journals dated on or before it: debits minus credits for
-/// bank and card accounts, credits minus debits for loan and equity
-/// accounts. Reversals offset their originals. Currencies are never
-/// combined.
+/// bank accounts, and credits minus debits for card, loan and equity
+/// accounts, so a card's balance is what's owed on it. Reversals offset
+/// their originals. Currencies are never combined.
 pub fn balances(b: &BusinessData, as_of: &str, currency: Currency) -> Result<Vec<Balance>> {
     if !valid_date(as_of) {
         return Err(LedgerError::InvalidBalanceDate);
@@ -472,7 +482,7 @@ pub fn balances(b: &BusinessData, as_of: &str, currency: Currency) -> Result<Vec
             let Some(row) = rows.iter_mut().find(|r| r.account_id == line.account_id) else {
                 continue;
             };
-            let delta = if paying(row.kind) {
+            let delta = if row.kind == AccountKind::Bank {
                 line.debit.checked_sub(line.credit)?
             } else {
                 line.credit.checked_sub(line.debit)?

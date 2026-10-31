@@ -274,12 +274,18 @@ end of the list. `addAccount` takes a `kind` of `bank`, `card`,
   the account (bank, card or liability) and an equity account named
   "Opening balances", added the first time it's needed ("Opening balances
   (EUR)" for a currency other than the business's). `amountMinor` is the
-  balance as `balances` reports it, and may be negative. Each account has
+  balance as `balances` reports it (what's in a bank account, or what's
+  owed on a card or loan account), and may be negative. Each account has
   at most one, dated on or before the business's first other entry. It is
   corrected with `CorrectTransfer`, by a replacement of type
-  `openingBalance`.
+  `openingBalance` on the same account and opening balances account,
+  still dated on or before the first other entry ("An opening balance
+  correction keeps its account.").
 - `RecordTransfer` refuses the type `openingBalance`, and
   `CorrectTransfer` replaces an opening balance only with another.
+- `balances` gives a bank account's balance as debits minus credits, and a
+  card, liability or equity account's as credits minus debits: a card's
+  balance is what's owed on it.
 
 Document ids must name documents the business already has; these commands
 attach no new files.

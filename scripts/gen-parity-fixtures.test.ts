@@ -2471,10 +2471,15 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
     amountMinor: 120000,
     reference: " Statement ",
   });
-  open("recordOpeningBalance: a card that owes money", funded, {
+  open("recordOpeningBalance: a card, as the amount owed", funded, {
     accountId: accounts.card,
     date: "2026-01-01",
-    amountMinor: -30000,
+    amountMinor: 30000,
+  });
+  open("recordOpeningBalance: an overdrawn bank account", funded, {
+    accountId: accounts.bank,
+    date: "2026-01-01",
+    amountMinor: -4000,
   });
   const owed = open("recordOpeningBalance: a loan account", opened, {
     accountId: accounts.loan,
@@ -2538,11 +2543,15 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
     date: "2026-12-01",
     amountMinor: 5000,
   });
-  open("recordOpeningBalance: dated on the first entry", withLoanAccount, {
-    accountId: accounts.bank.replace(funded.profile.id, ns.profile.id),
-    date: first,
-    amountMinor: 5000,
-  });
+  const onFirst = open(
+    "recordOpeningBalance: dated on the first entry",
+    withLoanAccount,
+    {
+      accountId: accounts.bank.replace(funded.profile.id, ns.profile.id),
+      date: first,
+      amountMinor: 5000,
+    },
+  );
   const openingId = opened.journals.at(-1)!.id;
   const opening = named(opened, "Opening balances");
   const reopened = fix(
@@ -2556,7 +2565,7 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
     }),
   );
   fix(
-    "correctTransfer: an opening balance moved to an account that has one",
+    "correctTransfer: an opening balance moved to another account",
     owed,
     openingId,
     transfer("openingBalance", accounts.loan, opening, {
@@ -2569,6 +2578,36 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
     opened,
     openingId,
     transfer("ownerLoan", accounts.loan, accounts.bank),
+  );
+  fix(
+    "correctTransfer: an opening balance against another equity account",
+    opened,
+    openingId,
+    transfer("openingBalance", accounts.equity, accounts.bank, {
+      date: "2026-01-01",
+      purpose: "Opening balance",
+    }),
+  );
+  fix(
+    "correctTransfer: an opening balance turned overdrawn",
+    opened,
+    openingId,
+    transfer("openingBalance", accounts.bank, opening, {
+      date: "2026-01-01",
+      amountMinor: 700,
+      purpose: "Opening balance",
+    }),
+  );
+  const firstOpening = onFirst.journals.at(-1)!;
+  const nsOpening = named(onFirst, "Opening balances");
+  fix(
+    "correctTransfer: an opening balance moved after the first entry",
+    onFirst,
+    firstOpening.id,
+    transfer("openingBalance", nsOpening, firstOpening.lines[0].accountId, {
+      date: "2026-12-01",
+      purpose: "Opening balance",
+    }),
   );
 
   // Expenses paid personally.
@@ -2636,6 +2675,18 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
   sheet("balances: a personally paid expense", personally, "2026-12-31");
   sheet("balances: the seeded transfer", ns, "2026-12-31");
   sheet("balances: after a corrected opening balance", reopened, "2026-12-31");
+  const purchase = {
+    ...ready(funded, { accountId: accounts.card, amountMinor: 2500 }),
+    id: "draft-card-purchase",
+  };
+  let card = L.approve(L.saveDraft(funded, purchase), purchase.id);
+  card = T.recordTransfer(
+    card,
+    transfer("betweenAccounts", accounts.bank, accounts.card, {
+      amountMinor: 1000,
+    }),
+  );
+  sheet("balances: a card purchase and a payment", card, "2026-12-31");
 }
 
 test("generate parity fixtures", () => {
