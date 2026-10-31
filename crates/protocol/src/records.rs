@@ -467,12 +467,22 @@ pub fn targets(command: &Command, business: &BusinessData) -> Vec<RecordKey> {
             .iter()
             .map(|id| RecordKey::new(RecordType::Rule, id.clone()))
             .collect(),
+        // A journal never changes once posted, so this guards nothing a
+        // proposer could miss; `correct_transfer` refuses a transfer
+        // already reversed.
+        Command::CorrectTransfer { original_id, .. } => {
+            vec![RecordKey::new(RecordType::Journal, original_id.clone())]
+        }
         // Imports are deduplicated by fingerprint; membership commands are
         // checked against the current membership, not a snapshot; a
-        // suggestion only adds a record, and never changes its draft.
+        // suggestion only adds a record, and never changes its draft; a
+        // transfer or an opening balance only adds records, and an opening
+        // balance is refused if its account already has one.
         Command::CreateBusiness { .. }
         | Command::CommitImport { .. }
         | Command::Suggest { .. }
+        | Command::RecordTransfer { .. }
+        | Command::RecordOpeningBalance { .. }
         | Command::ChangeMembership { .. }
         | Command::Veto { .. } => Vec::new(),
     }

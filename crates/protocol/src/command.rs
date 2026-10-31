@@ -3,7 +3,9 @@
 use std::ops::Deref;
 
 use ledger_core::{Account, Business, Category, ExpenseDraft, ExtractionRecord, ImportRow};
-pub use ledger_core::{RuleInput, SettingsChange, SuggestionInput};
+pub use ledger_core::{
+    OpeningBalanceInput, RuleInput, SettingsChange, SuggestionInput, TransferInput,
+};
 use nostr::prelude::{EventId, PublicKey};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sha2::{Digest, Sha256};
@@ -191,6 +193,22 @@ pub enum Command {
     /// `author` must be the key that signed the proposal.
     #[serde(rename_all = "camelCase")]
     Suggest { suggestion: SuggestionInput },
+    /// Money between two of the business's non-expense accounts. It posts
+    /// at once and never counts as spending.
+    #[serde(rename_all = "camelCase")]
+    RecordTransfer { transfer: TransferInput },
+    /// Reverses a transfer (or an opening balance) and posts its
+    /// replacement, all or nothing.
+    #[serde(rename_all = "camelCase")]
+    CorrectTransfer {
+        original_id: String,
+        replacement: TransferInput,
+        reason: String,
+    },
+    #[serde(rename_all = "camelCase")]
+    RecordOpeningBalance {
+        opening_balance: OpeningBalanceInput,
+    },
 }
 
 /// The unencrypted `cmd` tag's value, so the service can route a proposal
@@ -208,10 +226,13 @@ pub enum CommandType {
     Veto,
     SubmitReceiptDraft,
     Suggest,
+    RecordTransfer,
+    CorrectTransfer,
+    RecordOpeningBalance,
 }
 
 impl CommandType {
-    pub const ALL: [CommandType; 11] = [
+    pub const ALL: [CommandType; 14] = [
         CommandType::CreateBusiness,
         CommandType::SaveDraft,
         CommandType::Approve,
@@ -223,6 +244,9 @@ impl CommandType {
         CommandType::Veto,
         CommandType::SubmitReceiptDraft,
         CommandType::Suggest,
+        CommandType::RecordTransfer,
+        CommandType::CorrectTransfer,
+        CommandType::RecordOpeningBalance,
     ];
 
     pub fn as_str(self) -> &'static str {
@@ -238,6 +262,9 @@ impl CommandType {
             CommandType::Veto => "Veto",
             CommandType::SubmitReceiptDraft => "SubmitReceiptDraft",
             CommandType::Suggest => "Suggest",
+            CommandType::RecordTransfer => "RecordTransfer",
+            CommandType::CorrectTransfer => "CorrectTransfer",
+            CommandType::RecordOpeningBalance => "RecordOpeningBalance",
         }
     }
 
@@ -260,6 +287,9 @@ impl Command {
             Command::Veto { .. } => CommandType::Veto,
             Command::SubmitReceiptDraft { .. } => CommandType::SubmitReceiptDraft,
             Command::Suggest { .. } => CommandType::Suggest,
+            Command::RecordTransfer { .. } => CommandType::RecordTransfer,
+            Command::CorrectTransfer { .. } => CommandType::CorrectTransfer,
+            Command::RecordOpeningBalance { .. } => CommandType::RecordOpeningBalance,
         }
     }
 }
