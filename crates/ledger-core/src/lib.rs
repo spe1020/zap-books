@@ -22,6 +22,7 @@ mod ledger;
 mod money;
 mod settings;
 mod suggestions;
+mod transfers;
 mod types;
 
 pub use date::{normalize_import_date, valid_date, DateFormat};
@@ -40,11 +41,15 @@ pub use ledger::{
 pub use money::{amount_input, parse_money, Currency, Minor, MAX_MINOR};
 pub use settings::{save_rule, update_settings, RuleInput, SettingsChange};
 pub use suggestions::{suggest, SuggestionInput};
+pub use transfers::{
+    balances, correct_transfer, opening_balances_name, record_opening_balance, record_transfer,
+    Balance, OpeningBalanceInput, TransferInput,
+};
 pub use types::{
     Account, AccountKind, Approval, AuditEvent, Business, BusinessData, Category,
     ClassificationRule, DocumentKind, EventType, ExpenseDraft, ExpenseStatus, ExtractedField,
     ExtractedLine, ExtractedLines, ExtractionFieldName, ExtractionFields, ExtractionOutcome,
     ExtractionRecord, FieldStatus, FinancialEvent, ImportProvider, ImportedExpenseSource,
     ImportedTransaction, JournalEntry, JournalKind, JournalLine, PayloadValue, SchemaVersion,
-    SourceDocument, Suggestion, UncheckedJournal, Vendor, Workspace,
+    SourceDocument, Suggestion, TransferType, UncheckedJournal, Vendor, Workspace,
 };
