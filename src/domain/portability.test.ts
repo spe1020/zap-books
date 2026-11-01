@@ -260,11 +260,14 @@ describe("expense-history migration", () => {
     // This month's expenses, all paid by card: an import is from one
     // payment account, and last month's was paid personally.
     const month = currentPeriod();
+    // Day 0 of the next month is this month's last day: 28 to 31.
+    const [year, number] = month.split("-").map(Number);
+    const last = new Date(Date.UTC(year, number, 0)).getUTCDate();
     const b = seedWorkspace().businesses[0],
       csv = exportRecords(b, "expenses", {
         ...filters,
         from: `${month}-01`,
-        to: `${month}-31`,
+        to: `${month}-${last}`,
       }),
       rows = parseCSV(csv.csv);
     const preview = previewImport(
