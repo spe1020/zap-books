@@ -47,3 +47,31 @@ test("Playwright adds no sandbox flag of its own (SC-4)", () => {
   );
   expect(config).not.toMatch(/args:.*--no-sandbox/);
 });
+
+const pages = readFileSync(
+  new URL("../.github/workflows/pages.yml", import.meta.url),
+  "utf8",
+);
+const pageLines = pages.split("\n");
+
+test("Pages deploys only pushes to business-finance-mvp, never a pull request", () => {
+  const on = pages.match(/^on:\n((?: {2}.*\n)+)/m)?.[1];
+  expect(on).toBe("  push:\n    branches: [business-finance-mvp]\n");
+  expect(pages).not.toMatch(/pull_request|workflow_run/);
+});
+
+test("only the Pages deploy job can publish, and its actions are pinned", () => {
+  const at = pageLines.indexOf("permissions:");
+  expect(pageLines[at + 1]).toBe("  contents: read");
+  expect(pageLines[at + 2] ?? "").not.toMatch(/^ {2}\S/);
+  const writes = pageLines.filter((l) => /: write\b/.test(l));
+  expect(writes).toEqual(["      pages: write", "      id-token: write"]);
+  const deploy = pages.slice(pages.indexOf("\n  deploy:\n"));
+  for (const w of writes) expect(deploy).toContain(w);
+  const uses = pageLines.filter((l) => /^\s*-?\s*uses:/.test(l));
+  expect(uses.length).toBeGreaterThan(0);
+  for (const line of uses)
+    expect(line, line).toMatch(
+      /uses: [\w.-]+\/[\w.-]+@[0-9a-f]{40} # v\d+\.\d+\.\d+$/,
+    );
+});
