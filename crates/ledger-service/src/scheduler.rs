@@ -1,9 +1,11 @@
-//! Activates owner-level changes when their 48 hours are up.
+//! Activates owner-level changes when their 48 hours are up, and deletes
+//! uploaded receipts no accepted record referred to within 24 hours.
 //!
-//! The work is [`Ledger::activate_due`], which reads the ledger's clock, so
-//! tests drive it with a hand-set clock and no waiting. The service also
-//! activates a business's due changes before handling its proposals and
-//! reads, so the loop only matters for businesses nobody is using.
+//! The work is [`Ledger::activate_due`] and [`Ledger::clean_blobs`], which
+//! read the ledger's clock, so tests drive them with a hand-set clock and no
+//! waiting. The service also activates a business's due changes before
+//! handling its proposals and reads, so the loop only matters for
+//! activations in businesses nobody is using.
 
 use std::future::Future;
 use std::sync::Arc;
@@ -18,11 +20,19 @@ use crate::ledger::{Ledger, LedgerError};
 /// this long after its `effectiveAt`.
 pub const INTERVAL: Duration = Duration::from_secs(30);
 
-/// Runs [`Ledger::activate_due`] every `every`, until the task is aborted.
+/// Runs [`Ledger::activate_due`], then [`Ledger::clean_blobs`], every
+/// `every`, until the task is aborted.
 pub fn spawn(ledger: Arc<Ledger>, every: Duration) -> JoinHandle<()> {
     supervise(every, move || {
         let ledger = ledger.clone();
-        async move { ledger.activate_due().await }
+        async move {
+            let activated = ledger.activate_due().await;
+            // A failed cleanup is logged; activations still count.
+            if let Err(e) = ledger.clean_blobs().await {
+                tracing::error!(error = %e, "deleting unreferenced blobs failed");
+            }
+            activated
+        }
     })
 }
 

@@ -11,25 +11,31 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-use ledger_core::BusinessData;
+use ledger_core::{BusinessData, SourceDocument};
 use nostr::prelude::{Event, EventId, Keys, PublicKey, SecretKey, Timestamp};
 use protocol::{
     apply_command, build_acceptance, build_delivery, build_rejection, check_base_seq, decrypt_from,
     diff, encrypt_to, genesis_business, genesis_changes, open_proposal, parse_proposal, targets,
     AcceptanceContent, AcceptanceHeader, Actor, BusinessId, Command, CommandType, CommittedPayload,
     EnvRecord, EpochKey, MembershipChange, MembershipState, Outcome, PendingChange, ProposalHeader,
-    ProtocolError, Reason, RecordChange, RecordKey, RecordingEnv, Role, PROTOCOL_VERSION,
+    ProtocolError, Reason, Record, RecordChange, RecordKey, RecordingEnv, Role, PROTOCOL_VERSION,
 };
 use serde::Serialize;
 use sqlx::{PgPool, Postgres, Row, Transaction};
 use thiserror::Error;
 
+use crate::blobs::{self, BlobError, BlobStore, PENDING_SECS};
 use crate::clock::{iso_millis, Clock};
 
 /// Rejects a `ReplaceServiceKey` naming a key this service doesn't hold: it
 /// could sign nothing for the business after the change.
 pub const KEY_NOT_HELD: &str =
     "This service doesn't hold that key yet. Ask its operator to load it, then propose the change again.";
+
+/// Rejects a document whose stored copy wasn't uploaded for this business,
+/// or whose recorded size isn't the uploaded blob's.
+pub const BLOB_NOT_UPLOADED: &str =
+    "A receipt's encrypted file wasn't uploaded to this business, or its size doesn't match. Upload it, then send the proposal again.";
 
 #[derive(Debug, Error)]
 pub enum LedgerError {
@@ -122,6 +128,8 @@ pub struct Ledger {
     others: Vec<Keys>,
     clock: Arc<dyn Clock>,
     ids: Arc<dyn Fn() -> String + Send + Sync>,
+    /// Encrypted receipts; `None` when `--blob-dir` isn't given.
+    blobs: Option<BlobStore>,
 }
 
 /// A business as of its head acceptance.
@@ -217,7 +225,14 @@ impl Ledger {
             others: Vec::new(),
             clock,
             ids,
+            blobs: None,
         }
+    }
+
+    /// Stores encrypted receipts in `store`.
+    pub fn with_blobs(mut self, store: BlobStore) -> Ledger {
+        self.blobs = Some(store);
+        self
     }
 
     /// Also holds `keys`: a business can then move to it with
@@ -363,6 +378,14 @@ impl Ledger {
                 ))
             }
         };
+        // Every stored copy a document refers to must have been uploaded
+        // for this business, at the size the document records.
+        if !uploaded(tx, &business_id, command.documents()).await? {
+            return Ok(Decision::Reject(
+                Reason::rejected(BLOB_NOT_UPLOADED),
+                head.membership.service,
+            ));
+        }
         let changes = diff(&head.books, &books).map_err(LedgerError::internal)?;
         let (membership, outcome) = match command {
             Command::ChangeMembership { change } => {
@@ -585,6 +608,22 @@ impl Ledger {
             .bind(type_name(&key))
             .bind(&key.id)
             .bind(seq)
+            .execute(&mut **tx)
+            .await?;
+        }
+        // A blob an accepted record refers to is kept for good.
+        for stored in accepted.changes.iter().filter_map(|c| match c {
+            RecordChange::Put(Record::Document(SourceDocument {
+                stored: Some(stored),
+                ..
+            })) => Some(stored),
+            _ => None,
+        }) {
+            sqlx::query(
+                "update blobs set state = 'referenced' where business_id = $1 and hash = $2",
+            )
+            .bind(&business_id)
+            .bind(&stored.hash)
             .execute(&mut **tx)
             .await?;
         }
@@ -1194,6 +1233,222 @@ impl Ledger {
         Ok((events, cursor))
     }
 
+    fn blob_store(&self) -> Result<&BlobStore, BlobError> {
+        self.blobs.as_ref().ok_or(BlobError::Unavailable)
+    }
+
+    /// Whether `key` may upload receipts to `business`: an owner,
+    /// bookkeeper, assistant or submitter. A viewer, the recovery key and
+    /// anyone outside may not.
+    pub async fn may_upload(
+        &self,
+        business: &BusinessId,
+        key: &PublicKey,
+    ) -> Result<bool, LedgerError> {
+        self.catch_up(business).await;
+        Ok(self
+            .membership(business)
+            .await?
+            .is_some_and(|m| uploads(&m, key)))
+    }
+
+    /// Stores `bytes` as the blob `hash` of `business`, uploaded by `key`,
+    /// pending until an accepted record refers to it. Returns false, and
+    /// stores nothing, if the business already has it. `bytes` must hash to
+    /// `hash`, so only a well-formed address ever names a file.
+    pub async fn put_blob(
+        &self,
+        business: &BusinessId,
+        key: &PublicKey,
+        hash: &str,
+        bytes: Vec<u8>,
+    ) -> Result<bool, BlobError> {
+        let store = self.blob_store()?.clone();
+        if blobs::hash(&bytes) != hash {
+            return Err(BlobError::Mismatch);
+        }
+        let size = bytes.len() as u64;
+        if size == 0 {
+            return Err(BlobError::Empty);
+        }
+        if size > blobs::MAX_BLOB_BYTES {
+            return Err(BlobError::TooLarge);
+        }
+        // Written before the lock, so a large upload never holds up the
+        // business's proposals, and checked again under it.
+        let (b, h) = (*business, hash.to_string());
+        let temporary = tokio::task::spawn_blocking(move || store.write_temporary(&b, &h, &bytes))
+            .await
+            .map_err(|e| BlobError::Io(std::io::Error::other(e)))??;
+        let result = self
+            .install_blob(business, key, hash, size, &temporary)
+            .await;
+        if !matches!(result, Ok(true)) {
+            let _ = std::fs::remove_file(&temporary);
+        }
+        result
+    }
+
+    async fn install_blob(
+        &self,
+        business: &BusinessId,
+        key: &PublicKey,
+        hash: &str,
+        size: u64,
+        temporary: &std::path::Path,
+    ) -> Result<bool, BlobError> {
+        let store = self.blob_store()?;
+        let id = business.to_string();
+        let mut tx = self.pool.begin().await.map_err(LedgerError::from)?;
+        lock(&mut tx, business).await.map_err(LedgerError::from)?;
+        // The membership as it stands, under the lock: a removal cuts an
+        // uploader off at once.
+        let Some(head) = load_head(&mut tx, business).await? else {
+            return Err(BlobError::NotFound);
+        };
+        if !uploads(&head.membership, key) {
+            return Err(BlobError::NotFound);
+        }
+        let exists: bool = sqlx::query_scalar(
+            "select exists (select 1 from blobs where business_id = $1 and hash = $2)",
+        )
+        .bind(&id)
+        .bind(hash)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(LedgerError::from)?;
+        if exists {
+            tx.commit().await.map_err(LedgerError::from)?;
+            tracing::info!(business = %id, size, "blob already stored");
+            return Ok(false);
+        }
+        let used: i64 = sqlx::query_scalar(
+            "select coalesce(sum(size), 0)::bigint from blobs where business_id = $1",
+        )
+        .bind(&id)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(LedgerError::from)?;
+        if to_u64(used).saturating_add(size) > store.quota() {
+            return Err(BlobError::Quota {
+                quota: store.quota(),
+            });
+        }
+        sqlx::query(
+            "insert into blobs (business_id, hash, size, state, created_at)
+             values ($1, $2, $3, 'pending', $4)",
+        )
+        .bind(&id)
+        .bind(hash)
+        .bind(to_i64(size))
+        .bind(to_i64(self.clock.now_secs()))
+        .execute(&mut *tx)
+        .await
+        .map_err(LedgerError::from)?;
+        // Into place while the row isn't committed yet: if the commit
+        // fails, the file is an orphan no row names, which is never served
+        // and is replaced by the next upload of the same blob.
+        store.install(business, hash, temporary)?;
+        tx.commit().await.map_err(LedgerError::from)?;
+        tracing::info!(business = %id, size, "blob stored");
+        Ok(true)
+    }
+
+    /// The blob `hash` of `business`, for `reader`: `None` unless `reader`
+    /// reads the books (an owner, bookkeeper, viewer or assistant) and an
+    /// accepted record refers to the blob.
+    pub async fn blob(
+        &self,
+        business: &BusinessId,
+        reader: &PublicKey,
+        hash: &str,
+    ) -> Result<Option<Vec<u8>>, BlobError> {
+        let store = self.blob_store()?.clone();
+        self.catch_up(business).await;
+        let Some(membership) = self.membership(business).await? else {
+            return Ok(None);
+        };
+        if membership.readable_epochs(reader).is_none() {
+            return Ok(None);
+        }
+        let referenced: bool = sqlx::query_scalar(
+            "select exists (select 1 from blobs
+                            where business_id = $1 and hash = $2 and state = 'referenced')",
+        )
+        .bind(business.to_string())
+        .bind(hash)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(LedgerError::from)?;
+        if !referenced {
+            return Ok(None);
+        }
+        let (b, h) = (*business, hash.to_string());
+        let bytes = tokio::task::spawn_blocking(move || store.read(&b, &h))
+            .await
+            .map_err(|e| BlobError::Io(std::io::Error::other(e)))??;
+        Ok(Some(bytes))
+    }
+
+    /// Deletes every blob still pending 24 hours after its upload: no
+    /// accepted record refers to it. Referenced blobs are never deleted.
+    /// Returns how many were deleted.
+    pub async fn clean_blobs(&self) -> Result<usize, LedgerError> {
+        let Some(store) = &self.blobs else {
+            return Ok(0);
+        };
+        let cutoff = to_i64(self.clock.now_secs().saturating_sub(PENDING_SECS));
+        let businesses: Vec<String> = sqlx::query_scalar(
+            "select distinct business_id from blobs where state = 'pending' and created_at <= $1",
+        )
+        .bind(cutoff)
+        .fetch_all(&self.pool)
+        .await?;
+        let mut done = 0;
+        for id in businesses {
+            let business: BusinessId = id.parse().map_err(LedgerError::internal)?;
+            // Under the business's lock, as proposals and uploads are: a
+            // proposal can't refer to a blob while it is being deleted.
+            let mut tx = self.pool.begin().await?;
+            lock(&mut tx, &business).await?;
+            let gone: Vec<String> = sqlx::query_scalar(
+                "delete from blobs
+                 where business_id = $1 and state = 'pending' and created_at <= $2
+                 returning hash",
+            )
+            .bind(&id)
+            .bind(cutoff)
+            .fetch_all(&mut *tx)
+            .await?;
+            tx.commit().await?;
+            // The files go once their rows have: a file without a row is
+            // never served. Each is checked under the lock again, since the
+            // same blob may have been uploaded anew meanwhile.
+            for hash in gone {
+                let mut tx = self.pool.begin().await?;
+                lock(&mut tx, &business).await?;
+                let back: bool = sqlx::query_scalar(
+                    "select exists (select 1 from blobs where business_id = $1 and hash = $2)",
+                )
+                .bind(&id)
+                .bind(&hash)
+                .fetch_one(&mut *tx)
+                .await?;
+                if !back {
+                    store
+                        .remove(&business, &hash)
+                        .map_err(LedgerError::internal)?;
+                    done += 1;
+                }
+                tx.commit().await?;
+            }
+        }
+        if done > 0 {
+            tracing::info!(blobs = done, "deleted unreferenced blobs");
+        }
+        Ok(done)
+    }
+
     /// Records a NIP-98 auth event as used; false if it already was.
     pub async fn remember_auth(&self, event_id: &str, now_secs: u64) -> Result<bool, LedgerError> {
         sqlx::query("delete from nip98_seen where seen_at < $1")
@@ -1361,6 +1616,35 @@ async fn outbox(
         .execute(&mut **tx)
         .await?;
     Ok(())
+}
+
+/// Whether `key` may upload receipts: any member but a viewer.
+fn uploads(membership: &MembershipState, key: &PublicKey) -> bool {
+    membership
+        .members
+        .get(key)
+        .is_some_and(|m| m.role != Role::Viewer)
+}
+
+/// Whether every stored copy among `documents` was uploaded for `business`
+/// at the size it records.
+async fn uploaded(
+    tx: &mut Transaction<'_, Postgres>,
+    business: &str,
+    documents: &[protocol::DocumentRef],
+) -> Result<bool, sqlx::Error> {
+    for stored in documents.iter().filter_map(|d| d.stored.as_ref()) {
+        let size: Option<i64> =
+            sqlx::query_scalar("select size from blobs where business_id = $1 and hash = $2")
+                .bind(business)
+                .bind(&stored.hash)
+                .fetch_optional(&mut **tx)
+                .await?;
+        if size != Some(to_i64(stored.size)) {
+            return Ok(false);
+        }
+    }
+    Ok(true)
 }
 
 async fn record_versions(

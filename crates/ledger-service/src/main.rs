@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 use std::sync::Arc;
 
+use ledger_service::blobs::{BlobStore, DEFAULT_QUOTA};
 use ledger_service::clock::{uuid, Clock, SystemClock};
 use ledger_service::http::{cors, router, AppState};
 use ledger_service::{key, scheduler, Ledger};
@@ -15,6 +16,7 @@ use sqlx::postgres::PgPoolOptions;
 
 const USAGE: &str = "Usage: ledger-service --public-url <https://…> [--key-file <path>]... [--database-url <url>] [--listen <addr>]
                       [--allowed-origin <https://app.example>]... [--trusted-proxy <ip>]...
+                      [--blob-dir <path>] [--blob-quota <bytes, or a number with MB or GB>]
        ledger-service generate-key <path>
        ledger-service public-key <path>";
 
@@ -54,6 +56,26 @@ struct Config {
     listen: SocketAddr,
     allowed_origins: Vec<String>,
     trusted_proxies: Vec<IpAddr>,
+    /// Where encrypted receipts are kept; without it, receipt storage is off.
+    blob_dir: Option<PathBuf>,
+    blob_quota: u64,
+}
+
+/// A size in bytes: a whole number, optionally followed by `MB` or `GB`
+/// (1024² and 1024³ bytes).
+fn parse_size(text: &str) -> Option<u64> {
+    let text = text.trim();
+    let (number, unit) = match text.strip_suffix("GB").or_else(|| text.strip_suffix("MB")) {
+        Some(n) if text.ends_with("GB") => (n, 1024 * 1024 * 1024),
+        Some(n) => (n, 1024 * 1024),
+        None => (text, 1),
+    };
+    number
+        .trim()
+        .parse::<u64>()
+        .ok()
+        .and_then(|n| n.checked_mul(unit))
+        .filter(|n| *n > 0)
 }
 
 fn config() -> Result<Config, String> {
@@ -64,6 +86,8 @@ fn config() -> Result<Config, String> {
     let mut listen: SocketAddr = ([127, 0, 0, 1], 8787).into();
     let mut allowed_origins = Vec::new();
     let mut trusted_proxies = Vec::new();
+    let mut blob_dir = None;
+    let mut blob_quota = DEFAULT_QUOTA;
     while let Some(arg) = args.next() {
         let mut value = || {
             args.next()
@@ -82,6 +106,12 @@ fn config() -> Result<Config, String> {
             "--trusted-proxy" => trusted_proxies.push(value()?.parse().map_err(|_| {
                 format!("--trusted-proxy needs an IP address like 127.0.0.1.\n{USAGE}")
             })?),
+            "--blob-dir" => blob_dir = Some(PathBuf::from(value()?)),
+            "--blob-quota" => {
+                blob_quota = parse_size(&value()?).ok_or_else(|| {
+                    format!("--blob-quota needs a size like 5GB or 500MB.\n{USAGE}")
+                })?
+            }
             "--help" | "-h" => return Err(USAGE.to_string()),
             other => return Err(format!("Unknown option {other}.\n{USAGE}")),
         }
@@ -91,6 +121,8 @@ fn config() -> Result<Config, String> {
     Ok(Config {
         allowed_origins,
         trusted_proxies,
+        blob_dir,
+        blob_quota,
         key_files,
         database_url: database_url.ok_or_else(|| format!("Set DATABASE_URL.\n{USAGE}"))?,
         public_url: public_url.ok_or_else(|| format!("--public-url is required.\n{USAGE}"))?,
@@ -163,10 +195,20 @@ async fn main() -> ExitCode {
         eprintln!("Can't migrate the database: {e}");
         return ExitCode::from(1);
     }
-    let ledger = keys.fold(
+    let mut ledger = keys.fold(
         Ledger::new(pool, primary, clock(), Arc::new(uuid)),
         Ledger::with_key,
     );
+    match &config.blob_dir {
+        Some(dir) => match BlobStore::open(dir, config.blob_quota) {
+            Ok(store) => ledger = ledger.with_blobs(store),
+            Err(e) => {
+                eprintln!("Can't use --blob-dir {}: {e}", dir.display());
+                return ExitCode::from(2);
+            }
+        },
+        None => tracing::warn!("no --blob-dir: receipt storage is off"),
+    }
     let ledger = Arc::new(ledger);
     // A business whose key isn't loaded could do nothing: refuse to start.
     match ledger.missing_service_keys().await {
@@ -276,5 +318,20 @@ fn clock() -> Arc<dyn Clock> {
             Arc::new(ledger_service::clock::OffsetClock(path.into()))
         }
         None => Arc::new(SystemClock),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_size;
+
+    #[test]
+    fn a_quota_is_bytes_or_megabytes_or_gigabytes() {
+        assert_eq!(parse_size("1024"), Some(1024));
+        assert_eq!(parse_size("500MB"), Some(500 * 1024 * 1024));
+        assert_eq!(parse_size("5GB"), Some(5 * 1024 * 1024 * 1024));
+        for bad in ["", "0", "5 TB", "-1", "1.5GB", "GB"] {
+            assert_eq!(parse_size(bad), None, "{bad}");
+        }
     }
 }
