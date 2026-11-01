@@ -1,6 +1,6 @@
-# Business Finance
+# Zap Books
 
-A standalone, frontend-first expense workspace for small businesses. Built with Rust, TypeScript, and Vite. The temporary product name is centralized in `src/config.ts`.
+A standalone, frontend-first expense workspace for small businesses. Built with Rust, TypeScript, and Vite. The product name is set in `src/config.ts`. The brand files (logo, icons, colors and usage rules) are in `public/brand/`, with its README, and the self-hosted Outfit heading font sits next to them with its license (SIL Open Font License).
 
 ## Run on your computer
 

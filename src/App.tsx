@@ -55,7 +55,7 @@ import {
 } from "./components/Members";
 import { transport } from "./adapters/transport";
 import { demoAI } from "./adapters/ai";
-import { PRODUCT_NAME } from "./config";
+import { BRAND, PRODUCT_NAME } from "./config";
 import {
   ArrowLink,
   Empty,
@@ -240,10 +240,9 @@ export default function App({
   if (!workspace || !b)
     return (
       <main className="loading">
-        <div className="brand-mark">
-          b<span>f</span>
-        </div>
-        <h1>{PRODUCT_NAME}</h1>
+        <h1 className="brand-heading">
+          <img className="brand-logo" src={BRAND.logo} alt={PRODUCT_NAME} />
+        </h1>
         {error ? (
           <>
             <p role="alert">{error}</p>
@@ -288,10 +287,11 @@ export default function App({
             href="#main"
             onClick={() => navigate("overview")}
           >
-            <span className="brand-mark">
-              b<span>f</span>
-            </span>
-            <span className="brand-name">{PRODUCT_NAME}</span>
+            <img
+              className="brand-logo"
+              src={BRAND.logoOnDark}
+              alt={PRODUCT_NAME}
+            />
           </a>
           <div className="workspace-picker">
             <span
@@ -407,6 +407,7 @@ export default function App({
               >
                 <Menu size={21} />
               </button>
+              <img className="brand-icon topbar-icon" src={BRAND.icon} alt="" />
               <Building2 size={15} />
               <span>{b.profile.name}</span>
               <span className="slash">/</span>
@@ -983,9 +984,9 @@ function Overview({
                       <i
                         style={{
                           background: [
-                            "#345e51",
-                            "#749283",
-                            "#aeb9a4",
+                            "#1b1f27",
+                            "#6b7080",
+                            "#a3a8b2",
                             "#d0c8a6",
                             "#d9dcd0",
                           ][i % 5],
@@ -1000,9 +1001,9 @@ function Overview({
                       style={{
                         width: `${(Math.max(0, c.amount) / max) * 100}%`,
                         background: [
-                          "#345e51",
-                          "#749283",
-                          "#aeb9a4",
+                          "#1b1f27",
+                          "#6b7080",
+                          "#a3a8b2",
                           "#d0c8a6",
                           "#d9dcd0",
                         ][i % 5],
