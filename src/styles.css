@@ -3238,3 +3238,22 @@ summary {
   margin: 0;
   width: auto;
 }
+
+/* A demo-only build (src/demo.ts): what it is, above the app. */
+.demo-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 16px;
+  padding: 8px 16px;
+  background: #1b1f27;
+  color: #ffffff;
+  font-size: 14px;
+  text-align: center;
+}
+
+.demo-banner a {
+  color: #ff9f0a;
+  font-weight: 600;
+}

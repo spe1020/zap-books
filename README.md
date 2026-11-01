@@ -145,3 +145,7 @@ Rust journal construction requires `JournalEntry::new(&business, unchecked)`. Lo
 ## Code boundaries and next milestone
 
 See [Architecture and backend handoff](docs/architecture.md) for the domain model, storage/AI/transport interfaces, event contract, and recommended next milestone: **one authoritative accounting service, encrypted document storage, and an existing private Nostr relay with enforced authentication and business authorization**.
+
+## License
+
+Zap Books is open source under the [MIT license](LICENSE), copyright Zap Cooking LLC. The Outfit font in `public/brand/` keeps its own license, the SIL Open Font License (`public/brand/OFL-Outfit.txt`), and each dependency keeps its own license.

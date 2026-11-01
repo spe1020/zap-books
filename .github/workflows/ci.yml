@@ -85,6 +85,10 @@ jobs:
       - name: npm run test:e2e
         run: npm run test:e2e
 
+      # zapbooks.io, built with an invented form service the tests stub.
+      - name: npm run test:e2e:site
+        run: npm run test:e2e:site
+
       # The app against a locally started ledger service and the Postgres
       # service above, with a test-only NIP-07 signer (tests/remote).
       - name: npm run test:e2e:remote

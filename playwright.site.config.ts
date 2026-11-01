@@ -1,0 +1,27 @@
+import { defineConfig } from "@playwright/test";
+import { existsSync } from "node:fs";
+const chromium =
+  process.env.CHROMIUM_PATH ||
+  (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined);
+// zapbooks.io as GitHub Pages serves it, with the demo at /demo/, built with
+// its real form settings (site/form-service.json). The tests stub Formspree.
+export default defineConfig({
+  testDir: "./tests/site",
+  fullyParallel: false,
+  workers: 1,
+  timeout: 30000,
+  use: {
+    baseURL: "http://127.0.0.1:4180",
+    headless: true,
+    launchOptions: { executablePath: chromium },
+    screenshot: "only-on-failure",
+  },
+  webServer: {
+    command:
+      "npm run build:demo && node scripts/build-pages.mjs && node scripts/serve-static.mjs dist-pages 4180",
+    url: "http://127.0.0.1:4180",
+    reuseExistingServer: false,
+    // The demo build compiles the protocol's WebAssembly first.
+    timeout: 300_000,
+  },
+});

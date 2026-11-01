@@ -40,6 +40,13 @@ describe("Content-Security-Policy (WEB-4)", () => {
     expect(p["connect-src"]).toEqual(["'self'", "https://reader.invalid:9000"]);
   });
 
+  test("a demo-only build connects only to its own origin", () => {
+    const p = directives(contentSecurityPolicy({ dev: false }));
+    expect(p["connect-src"]).toEqual(["'self'"]);
+    expect(p["script-src"]).toEqual(["'self'"]);
+    expect(p["form-action"]).toEqual(["'none'"]);
+  });
+
   test("with a service: exactly its origin, and the app's own WebAssembly", () => {
     const p = directives(
       contentSecurityPolicy({

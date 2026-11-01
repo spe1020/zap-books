@@ -1,0 +1,67 @@
+name: Pages
+
+# zapbooks.io: site/ and the demo-only build at /demo/, deployed from
+# business-finance-mvp. Never from a pull request. docs/landing-site.md has
+# the one-time setup.
+on:
+  push:
+    branches: [business-finance-mvp]
+
+# The build only reads the repository. Only the deploy job may publish.
+permissions:
+  contents: read
+
+# One deployment at a time, and a newer push never cancels one under way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+# Actions are pinned to full commit SHAs, with the release in a comment, as
+# in ci.yml.
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # The demo bundles the protocol's WebAssembly, built with wasm-pack.
+      - name: Install Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      - run: npm ci
+
+      - name: Install wasm-pack
+        run: cargo install wasm-pack --version 0.15.0 --locked
+
+      - name: npm run build:demo
+        run: npm run build:demo
+
+      # Fails while site/form-service.json still holds placeholders.
+      - name: Assemble the site
+        run: npm run site:build
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist-pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
