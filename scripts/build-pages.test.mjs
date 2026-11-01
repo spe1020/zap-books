@@ -11,8 +11,22 @@ const invented = {
   contactEmail: "beta@example.test",
 };
 
+test("the site's form posts to Formspree", () => {
+  expect(formService(site("form-service.json"))).toEqual({
+    name: "Formspree",
+    endpoint: "https://formspree.io/f/xdeewqvn",
+    origin: "https://formspree.io",
+    contactEmail: "hello@zapbooks.io",
+  });
+});
+
 test("the site isn't built while the form service is a placeholder", () => {
-  expect(() => formService(site("form-service.json"))).toThrow(
+  const placeholder = JSON.stringify({
+    name: "REPLACE_WITH_FORM_SERVICE_NAME",
+    endpoint: "https://REPLACE-WITH-FORM-ENDPOINT.invalid/",
+    contactEmail: "REPLACE-WITH-CONTACT-EMAIL@example.invalid",
+  });
+  expect(() => formService(placeholder)).toThrow(
     /site\/form-service\.json: set "name"/,
   );
   for (const key of Object.keys(invented))

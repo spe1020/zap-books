@@ -578,22 +578,41 @@
           </div>
           <!--
             Without JavaScript this is an ordinary post to the form service.
-            beta-form.js validates it, sends the same two fields with fetch,
-            and adds the Nostr public key option.
+            beta-form.js validates it, sends the same fields with fetch, and
+            adds the Nostr public key option.
           -->
           <form
             id="beta-form"
             class="beta-form"
             action="__FORM_ENDPOINT__"
-            method="post"
+            method="POST"
             data-contact-email="__FORM_CONTACT_EMAIL__"
           >
             <input type="hidden" name="contact_type" value="email" />
+            <input
+              type="hidden"
+              name="_subject"
+              value="Zap Books beta request"
+            />
+            <!--
+              A honeypot: people never see or reach this field, so a request
+              that fills it in came from a bot, and the form service drops it.
+            -->
+            <div class="honeypot" aria-hidden="true">
+              <label for="beta-gotcha">Leave this empty</label>
+              <input
+                id="beta-gotcha"
+                type="text"
+                name="_gotcha"
+                tabindex="-1"
+                autocomplete="off"
+              />
+            </div>
             <label for="beta-contact" id="beta-label">Email address</label>
             <div class="beta-row">
               <input
                 id="beta-contact"
-                name="contact"
+                name="email"
                 type="email"
                 autocomplete="email"
                 placeholder="you@business.com"

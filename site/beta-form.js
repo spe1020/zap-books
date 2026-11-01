@@ -1,6 +1,8 @@
-// The beta form. Without this script the form is an ordinary post to the
-// form service; with it, the form checks the address first, sends the same
-// two fields with fetch, and offers a Nostr public key instead of an email.
+// The beta form, on Formspree. Without this script the form is an ordinary
+// post; with it, the form checks the address first, sends the same fields
+// with fetch, and offers a Nostr public key instead of an email. The field
+// is named for what it holds, `email` or `npub`, and `contact_type` says
+// which.
 
 const MODES = {
   email: {
@@ -51,10 +53,50 @@ function start() {
   form.noValidate = true;
   toggle.hidden = false;
 
-  function showError(...parts) {
-    const p = document.createElement("p");
-    p.append(...parts);
-    error.replaceChildren(p);
+  /** Shows one paragraph per message; each is a string or a list of nodes. */
+  function showError(...messages) {
+    error.replaceChildren(
+      ...messages.map((parts) => {
+        const p = document.createElement("p");
+        p.append(...[parts].flat());
+        return p;
+      }),
+    );
+  }
+
+  function showUnsent() {
+    const link = document.createElement("a");
+    link.href = `mailto:${contactEmail}`;
+    link.textContent = contactEmail;
+    showError([
+      "Couldn't send your request. Try again, or email us at ",
+      link,
+      ".",
+    ]);
+  }
+
+  /**
+   * Sends the form as Formspree's AJAX API expects. Returns "sent", the
+   * messages of an `errors` answer, or null when it couldn't be sent.
+   */
+  async function send() {
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(form),
+      });
+      const body = await response.json().catch(() => null);
+      if (response.ok && body?.ok) return "sent";
+      const messages = Array.isArray(body?.errors)
+        ? body.errors
+            .map((e) => (typeof e?.message === "string" ? e.message : ""))
+            .filter(Boolean)
+        : [];
+      return messages.length ? messages : null;
+    } catch {
+      return null;
+    }
   }
 
   function clearError() {
@@ -70,6 +112,7 @@ function start() {
     input.autocomplete = m.autocomplete;
     input.placeholder = m.placeholder;
     input.value = "";
+    input.name = mode;
     kind.value = mode;
     toggle.textContent = m.toggle;
     clearError();
@@ -90,33 +133,15 @@ function start() {
       return;
     }
     const value = input.value.trim();
+    input.value = value;
     clearError();
     submit.disabled = true;
     submit.textContent = "Sending…";
-    let sent = false;
-    try {
-      const response = await fetch(form.action, {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body: new URLSearchParams({ contact: value, contact_type: mode }),
-      });
-      sent = response.ok;
-    } catch {
-      sent = false;
-    }
+    const result = await send();
     submit.disabled = false;
     submit.textContent = "Request an invite";
-    if (!sent) {
-      const link = document.createElement("a");
-      link.href = `mailto:${contactEmail}`;
-      link.textContent = contactEmail;
-      showError(
-        "We couldn't send your request. Try again, or email us at ",
-        link,
-        ".",
-      );
-      return;
-    }
+    if (result === null) return showUnsent();
+    if (result !== "sent") return showError(...result);
     document.getElementById("beta-done-text").textContent =
       `We'll contact you at ${value} when invites go out.`;
     form.hidden = true;

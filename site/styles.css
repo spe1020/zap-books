@@ -1108,3 +1108,14 @@ summary {
     padding-block: 18px;
   }
 }
+
+/* The beta form's honeypot: off screen, out of the tab order and hidden
+   from screen readers, so only a bot fills it in. */
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

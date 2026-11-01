@@ -29,54 +29,58 @@ npm run site:build
 npm run site:serve    # http://127.0.0.1:4180
 ```
 
-`npm run test:e2e:site` builds and tests it with an invented form service,
-stubbed in the tests.
+`npm run test:e2e:site` builds and tests it, with Formspree stubbed.
 
 ## One-time setup
 
-### 1. The form service
+### 1. The form service: Formspree
 
-The beta form posts to a hosted form service. Until its settings are filled
-in, `npm run site:build` stops with an error, so the Pages workflow fails
-and nothing is deployed.
-
-Edit `site/form-service.json`:
+The beta form posts to Formspree. Its settings are in
+`site/form-service.json`:
 
 ```json
 {
-  "name": "The service's name, as visitors should see it",
-  "endpoint": "https://the form's https address",
-  "contactEmail": "the address for the form's 'email us' fallback"
+  "name": "Formspree",
+  "endpoint": "https://formspree.io/f/xdeewqvn",
+  "contactEmail": "hello@zapbooks.io"
 }
 ```
 
 - `name` appears under the button: "Requests are collected through
-  _name_."
-- `endpoint` is where the form sends requests. The page's
-  Content-Security-Policy allows exactly its origin, for the form's post and
-  its script's request, and nothing else.
-- `contactEmail` is shown, as a mail link, if a request fails.
+  Formspree."
+- `endpoint` is the form's `action`, and where its script sends requests.
+  The page's Content-Security-Policy allows exactly its origin,
+  `https://formspree.io`, in `form-action` and `connect-src`, and nothing
+  else.
+- `contactEmail` is shown, as a mail link, if a request can't be sent.
 
-The form sends two fields, as an ordinary form post
-(`application/x-www-form-urlencoded`):
+`npm run site:build` refuses a placeholder or a missing value, so the
+Pages workflow never deploys a form that can't work.
 
-| Field          | Value                           |
-| -------------- | ------------------------------- |
-| `contact`      | The email address or the npub   |
-| `contact_type` | `email` or `npub`, saying which |
+The form sends these fields, and nothing else:
 
-The service needs to:
+| Field               | Value                                                                        |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `email` _or_ `npub` | The email address or the Nostr public key, whichever was used                |
+| `contact_type`      | `email` or `npub`, saying which                                              |
+| `_subject`          | `Zap Books beta request`, the subject of Formspree's email                   |
+| `_gotcha`           | Empty. A honeypot nobody can see or reach; a bot that fills it in is dropped |
 
-- accept that post at the endpoint, over https;
-- answer a request from the page's script (sent with
-  `Accept: application/json`) with a 2xx status when it's saved, and allow
-  `https://zapbooks.io` to read the answer (CORS);
-- show its own confirmation page when JavaScript is off and the browser
-  posts the form itself. The policy lets the form post only to the service's
-  origin, so a confirmation page elsewhere, even on zapbooks.io, is blocked.
+Without JavaScript the browser posts the form itself, and Formspree shows
+its own confirmation page. With JavaScript the page checks the address,
+then sends the same fields with `fetch` and `Accept: application/json`:
 
-Turn off any field the service would add by default, so it stores only
-those two.
+- `200` with `{ "ok": true }`: the page's own success message;
+- an answer with `errors`: each error's `message`, in the form's error
+  area;
+- no answer, or any other answer: "Couldn't send your request", with a link
+  to email `hello@zapbooks.io`.
+
+The browser tests (`npm run test:e2e:site`) build the site with these
+settings and stub every request to Formspree, so none is sent.
+
+In Formspree, check the form's settings: it should accept AJAX requests
+from `https://zapbooks.io` (its allowed domains, if you restrict them).
 
 ### 2. Turn on Pages
 
@@ -133,6 +137,5 @@ redirects `www.zapbooks.io` to `zapbooks.io`.
 
 ### 6. Deploy
 
-Merge to `business-finance-mvp`, or push to it, with the form settings
-filled in. The **Pages** workflow builds the demo, assembles the site and
+Merge to `business-finance-mvp`, or push to it. The **Pages** workflow builds the demo, assembles the site and
 deploys it. Its run shows the address.

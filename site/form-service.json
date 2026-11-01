@@ -1,5 +1,5 @@
 {
-  "name": "REPLACE_WITH_FORM_SERVICE_NAME",
-  "endpoint": "https://REPLACE-WITH-FORM-ENDPOINT.invalid/",
-  "contactEmail": "REPLACE-WITH-CONTACT-EMAIL@example.invalid"
+  "name": "Formspree",
+  "endpoint": "https://formspree.io/f/xdeewqvn",
+  "contactEmail": "hello@zapbooks.io"
 }

@@ -1,13 +1,33 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Request } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { existsSync, readFileSync } from "node:fs";
 
-// The site is built with tests/site/form-service.json. Its service is
-// invented, and every request to it is stubbed by route interception.
+// The site is built with its real settings, site/form-service.json:
+// Formspree. Every request to Formspree is stubbed by route interception,
+// so none leaves this computer.
 const service = JSON.parse(
-  readFileSync(new URL("./form-service.json", import.meta.url), "utf8"),
+  readFileSync(
+    new URL("../../site/form-service.json", import.meta.url),
+    "utf8",
+  ),
 ) as { name: string; endpoint: string; contactEmail: string };
+const FORMSPREE = "https://formspree.io";
 const serviceOrigin = new URL(service.endpoint).origin;
+const SUBJECT = "Zap Books beta request";
+// Formspree answers a request it accepts like this.
+const accepted = {
+  status: 200,
+  headers: { "Access-Control-Allow-Origin": "*" },
+  json: { ok: true, next: `${FORMSPREE}/thanks` },
+};
+
+/** The fields a request sent, form-encoded or multipart. */
+async function fields(request: Request) {
+  const body = new Response(request.postData() ?? "", {
+    headers: { "Content-Type": request.headers()["content-type"] },
+  });
+  return Object.fromEntries(await body.formData());
+}
 const REPO = "https://github.com/spe1020/zap-books";
 // An invented key: "npub1" and 58 characters of the bech32 alphabet.
 const NPUB = `npub1${"q".repeat(29)}${"x".repeat(29)}`;
@@ -115,9 +135,10 @@ test("every link and anchor resolves", async ({ page, request }) => {
   }
 });
 
-test("the Content-Security-Policy allows only the form service", async ({
+test("the Content-Security-Policy allows exactly Formspree", async ({
   page,
 }) => {
+  expect(serviceOrigin).toBe(FORMSPREE);
   await page.goto("/");
   const policy = await page
     .locator('meta[http-equiv="Content-Security-Policy"]')
@@ -131,18 +152,58 @@ test("the Content-Security-Policy allows only the form service", async ({
   expect(directives["default-src"]).toEqual(["'self'"]);
   expect(directives["script-src"]).toEqual(["'self'"]);
   expect(directives["style-src"]).toEqual(["'self'"]);
-  expect(directives["connect-src"]).toEqual([serviceOrigin]);
-  expect(directives["form-action"]).toEqual([serviceOrigin]);
+  expect(directives["connect-src"]).toEqual([FORMSPREE]);
+  expect(directives["form-action"]).toEqual([FORMSPREE]);
   await expect(
-    beta(page).getByText(`Requests are collected through ${service.name}.`),
+    beta(page).getByText("Requests are collected through Formspree."),
   ).toBeVisible();
+  const form = page.locator("#beta-form");
+  await expect(form).toHaveAttribute("action", service.endpoint);
+  await expect(form).toHaveAttribute("method", "POST");
+});
+
+test("the honeypot is in the form, but nobody can see or reach it", async ({
+  page,
+}) => {
+  await page.goto("/#beta");
+  const gotcha = page.locator('#beta-form input[name="_gotcha"]');
+  await expect(gotcha).toHaveCount(1);
+  await expect(gotcha).toHaveValue("");
+  await expect(gotcha).toHaveAttribute("tabindex", "-1");
+  // Clipped to a single pixel for sight, and out of the accessibility tree.
+  const shown = await gotcha.evaluate((el) => {
+    const hidden = el.closest('[aria-hidden="true"]');
+    if (!hidden) return null;
+    const box = hidden.getBoundingClientRect();
+    const style = getComputedStyle(hidden);
+    return {
+      area: box.width * box.height,
+      overflow: style.overflow,
+      clip: style.clipPath,
+    };
+  });
+  expect(shown).toEqual({
+    area: 1,
+    overflow: "hidden",
+    clip: "inset(50%)",
+  });
+  await expect(beta(page).getByRole("textbox")).toHaveCount(1);
+  // Tabbing from the address goes to the button, never to the honeypot.
+  await beta(page).getByLabel("Email address").focus();
+  await page.keyboard.press("Tab");
+  await expect(
+    beta(page).getByRole("button", { name: "Request an invite" }),
+  ).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Shift+Tab");
+  await expect(gotcha).not.toBeFocused();
 });
 
 test("the email address is checked before anything is sent", async ({
   page,
 }) => {
   const sent: string[] = [];
-  await page.route(`${serviceOrigin}/**`, (route) => {
+  await page.route(`${FORMSPREE}/**`, (route) => {
     sent.push(route.request().url());
     return route.fulfill({ status: 200, json: { ok: true } });
   });
@@ -166,7 +227,7 @@ test("a Nostr public key can be used instead, and is checked", async ({
   page,
 }) => {
   const sent: string[] = [];
-  await page.route(`${serviceOrigin}/**`, (route) => {
+  await page.route(`${FORMSPREE}/**`, (route) => {
     sent.push(route.request().url());
     return route.fulfill({ status: 200, json: { ok: true } });
   });
@@ -202,18 +263,16 @@ test("a Nostr public key can be used instead, and is checked", async ({
 });
 
 for (const mode of ["email", "npub"] as const) {
-  test(`a request by ${mode} sends only it and which it is`, async ({
+  test(`a request by ${mode}: the button waits, then our success state`, async ({
     page,
   }) => {
     const value = mode === "email" ? "owner@example.test" : NPUB;
-    const bodies: (string | null)[] = [];
-    await page.route(`${serviceOrigin}/**`, (route) => {
-      bodies.push(route.request().postData());
-      return route.fulfill({
-        status: 200,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        json: { ok: true },
-      });
+    const requests: Request[] = [];
+    let answer!: () => Promise<void>;
+    await page.route(`${FORMSPREE}/**`, (route) => {
+      requests.push(route.request());
+      // Held until the test has seen the button while it's sending.
+      answer = () => route.fulfill(accepted);
     });
     await page.goto("/#beta");
     if (mode === "npub")
@@ -226,6 +285,11 @@ for (const mode of ["email", "npub"] as const) {
       )
       .fill(`  ${value} `);
     await beta(page).getByRole("button", { name: "Request an invite" }).click();
+    const sending = beta(page).getByRole("button", { name: "Sending…" });
+    await expect(sending).toBeDisabled();
+    await expect.poll(() => requests.length).toBe(1);
+    await answer();
+
     const done = beta(page).getByRole("status");
     await expect(done).toContainText("Thanks, you're on the list.");
     await expect(done).toContainText(
@@ -235,39 +299,77 @@ for (const mode of ["email", "npub"] as const) {
       beta(page).getByText("Thanks, you're on the list."),
     ).toBeFocused();
     await expect(page.locator("#beta-form")).toBeHidden();
-    expect(bodies).toHaveLength(1);
-    expect(Object.fromEntries(new URLSearchParams(bodies[0]!))).toEqual({
-      contact: value,
+
+    const [request] = requests;
+    expect(request.url()).toBe(service.endpoint);
+    expect(request.method()).toBe("POST");
+    expect(request.headers()["accept"]).toBe("application/json");
+    expect(await fields(request)).toEqual({
+      [mode]: value,
       contact_type: mode,
+      _subject: SUBJECT,
+      _gotcha: "",
     });
   });
 }
 
-for (const failure of ["an error status", "no connection"] as const) {
+test("Formspree's errors are shown in the form's error area", async ({
+  page,
+}) => {
+  await page.route(`${FORMSPREE}/**`, (route) =>
+    route.fulfill({
+      status: 422,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      json: {
+        error: "Validation errors",
+        errors: [
+          { code: "TYPE_EMAIL", field: "email", message: "should be an email" },
+          { code: "OTHER", message: "form is not accepting submissions" },
+        ],
+      },
+    }),
+  );
+  await page.goto("/#beta");
+  const input = beta(page).getByLabel("Email address");
+  await input.fill("owner@example.test");
+  await beta(page).getByRole("button", { name: "Request an invite" }).click();
+  const area = page.locator("#beta-error");
+  await expect(area).toHaveAttribute("aria-live", "polite");
+  await expect(area.getByRole("paragraph")).toHaveText([
+    "should be an email",
+    "form is not accepting submissions",
+  ]);
+  await expect(input).toHaveValue("owner@example.test");
+  await expect(
+    beta(page).getByRole("button", { name: "Request an invite" }),
+  ).toBeEnabled();
+  await expect(beta(page).getByRole("status")).toBeHidden();
+});
+
+for (const failure of ["no connection", "an answer without errors"] as const) {
   test(`with ${failure}, the form says so and offers email`, async ({
     page,
   }) => {
-    await page.route(`${serviceOrigin}/**`, (route) =>
+    await page.route(`${FORMSPREE}/**`, (route) =>
       failure === "no connection"
         ? route.abort("connectionrefused")
         : route.fulfill({
-            status: 500,
+            status: 502,
             headers: { "Access-Control-Allow-Origin": "*" },
-            json: { error: "unavailable" },
+            contentType: "text/html",
+            body: "<h1>Bad gateway</h1>",
           }),
     );
     await page.goto("/#beta");
     const input = beta(page).getByLabel("Email address");
     await input.fill("owner@example.test");
     await beta(page).getByRole("button", { name: "Request an invite" }).click();
+    await expect(page.locator("#beta-error")).toHaveText(
+      "Couldn't send your request. Try again, or email us at hello@zapbooks.io.",
+    );
     await expect(
-      beta(page).getByText(
-        "We couldn't send your request. Try again, or email us at",
-      ),
-    ).toBeVisible();
-    await expect(
-      beta(page).getByRole("link", { name: service.contactEmail }),
-    ).toHaveAttribute("href", `mailto:${service.contactEmail}`);
+      beta(page).getByRole("link", { name: "hello@zapbooks.io" }),
+    ).toHaveAttribute("href", "mailto:hello@zapbooks.io");
     // Nothing is lost: the address is still there to try again.
     await expect(input).toHaveValue("owner@example.test");
     await expect(
@@ -280,10 +382,10 @@ for (const failure of ["an error status", "no connection"] as const) {
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("the form is an ordinary post to the form service", async ({ page }) => {
-    let posted: string | null = null;
-    await page.route(`${serviceOrigin}/**`, (route) => {
-      posted = route.request().postData();
+  test("the form is an ordinary post to the endpoint", async ({ page }) => {
+    let posted: Request | undefined;
+    await page.route(`${FORMSPREE}/**`, (route) => {
+      posted = route.request();
       return route.fulfill({
         status: 200,
         contentType: "text/html",
@@ -300,9 +402,12 @@ test.describe("without JavaScript", () => {
     await beta(page).getByRole("button", { name: "Request an invite" }).click();
     await expect(page.getByRole("heading", { name: "Received" })).toBeVisible();
     expect(page.url()).toBe(service.endpoint);
-    expect(Object.fromEntries(new URLSearchParams(posted!))).toEqual({
+    expect(posted!.method()).toBe("POST");
+    expect(await fields(posted!)).toEqual({
       contact_type: "email",
-      contact: "owner@example.test",
+      _subject: SUBJECT,
+      _gotcha: "",
+      email: "owner@example.test",
     });
   });
 
