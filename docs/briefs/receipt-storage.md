@@ -28,10 +28,10 @@ In remote mode, receipt files live only in the browser that attached them. Clear
 
 ### The document record (parity change)
 
-Add an optional `blob` field to `SourceDocument`:
+Add an optional `stored` field to `SourceDocument`. (It isn't called `blob` because the TypeScript `SourceDocument.blob` is already the local file.)
 
 ```text
-blob: {
+stored: {
   hash: string        // SHA-256 of the ciphertext, hex: the blob's address
   size: number        // ciphertext size in bytes
   alg: "AES-256-GCM"
@@ -41,8 +41,8 @@ blob: {
 ```
 
 - `ledger-core` validates its shape: lowercase 64-character hex hash, positive size within the limit, a known `alg`, and correctly sized key and nonce.
-- A document with a `blob` must also have `sha256`.
-- Documents created before this feature have no `blob`. Keep loading them unchanged.
+- A document with `stored` must also have `sha256`.
+- Documents created before this feature have no `stored`. Keep loading them unchanged.
 - Usual parity rule: TypeScript first, regenerate fixtures, then Rust. Add a `PARITY_NOTES.md` entry. The demo seed doesn't need blobs.
 
 ### The service's blob store
@@ -57,7 +57,7 @@ blob: {
   - The caller must be a member who can read the books: owner, bookkeeper, viewer or assistant. Submitters and the recovery key can't download.
   - The blob must belong to that business and be referenced by an accepted record.
   - Serve it with `Content-Type: application/octet-stream`, `X-Content-Type-Options: nosniff`, and `Content-Disposition: attachment`.
-- **Proposal checks:** a proposal whose document has a `blob` is refused unless that blob was uploaded for the same business and its size matches. On acceptance, the blob moves from pending to referenced, in the same transaction.
+- **Proposal checks:** a proposal whose document has `stored` is refused unless that blob was uploaded for the same business and its size matches. On acceptance, the blob moves from pending to referenced, in the same transaction.
 - **Cleanup:** pending blobs not referenced within 24 hours are deleted by the existing scheduler. Referenced blobs are never deleted, since corrections keep history.
 - **Storage:** files on disk in a directory given by a new `--blob-dir` flag, named by hash, written atomically (temporary file, then rename) with permissions `0600`. Postgres holds the index: hash, business, size, state, and created time.
 - **Quota:** a per-business limit (`--blob-quota`, default 5 GB). Uploads beyond it get a clear error.
@@ -66,19 +66,19 @@ blob: {
 
 ### Protocol
 
-- Documents in `SaveDraft`, `Correct` and `SubmitReceiptDraft` may carry a `blob`. The service's checks above apply in all three.
-- Rebuild and audit treat the `blob` field as ordinary record data. Neither needs the blob bytes.
+- Documents in `SaveDraft`, `Correct` and `SubmitReceiptDraft` may carry `stored`. The service's checks above apply in all three.
+- Rebuild and audit treat the `stored` field as ordinary record data. Neither needs the blob bytes.
 - Update `docs/protocol.md`, the WASM bindings and the permission notes.
 
 ### The browser
 
-- **On attaching a receipt in remote mode:** hash the file, encrypt it, upload it, then send the proposal with the document's `blob`.
+- **On attaching a receipt in remote mode:** hash the file, encrypt it, upload it, then send the proposal with the document's `stored`.
 - **Offline:** the encrypted blob waits in the IndexedDB queue ahead of its proposal and is uploaded first. If the upload is refused, the proposal isn't sent, and the queue shows why.
 - **Viewing a receipt:**
   - use the local copy if this browser has one;
   - otherwise download, decrypt and verify it, then show it the same way as today (PDFs in a frame, images as images, never SVGs as pages);
   - cache it locally after a successful download.
-- **Remove "This receipt was attached on another device"** for documents that have a `blob`. Keep it for older documents that don't.
+- **Remove "This receipt was attached on another device"** for documents that have `stored`. Keep it for older documents that don't.
 - **Show upload progress** for large files. A failed upload can be retried without re-encrypting with a new key, by keeping the queued ciphertext.
 - **Local demo mode is unchanged.**
 
@@ -96,14 +96,14 @@ blob: {
 - Uploading the same blob twice stores one copy.
 - The quota is enforced.
 - Offline: an attachment made offline uploads before its proposal when back online.
-- `ledger-core`: `blob` shape validation, in TypeScript and Rust, with parity fixtures.
+- `ledger-core`: `stored` shape validation, in TypeScript and Rust, with parity fixtures.
 - The service never logs keys, nonces or blob contents. Add a test that checks the logs during a full round trip.
 
 ## PR sequence
 
 Do these as separate PRs. **Stop after each one is open.**
 
-1. **Core and service:** the `SourceDocument.blob` parity change, the protocol and WASM updates, the blob store, the endpoints, the proposal checks, cleanup, quota, and their tests.
+1. **Core and service:** the `SourceDocument.stored` parity change, the protocol and WASM updates, the blob store, the endpoints, the proposal checks, cleanup, quota, and their tests.
 2. **Browser:** encryption, upload, the offline queue, download, verification and viewing, plus the e2e gates.
 
 ## Allowed dependencies
@@ -115,7 +115,7 @@ Do these as separate PRs. **Stop after each one is open.**
 
 - any design here would let the service or anyone else read receipts without the key in the books, or would put a file key outside the encrypted books;
 - the 10 MB limit, the 24-hour cleanup or the default quota causes a problem in testing;
-- a protocol or `ledger-core` behavior change beyond the `blob` field seems needed.
+- a protocol or `ledger-core` behavior change beyond the `stored` field seems needed.
 
 ## Out of scope
 
