@@ -8,9 +8,11 @@ use crate::bitcoin::line_currency;
 use crate::date::valid_date;
 use crate::error::{LedgerError, Result};
 use crate::js;
-use crate::money::{amount_input, Currency};
+use crate::money::{amount_input, Currency, Minor};
 use crate::transfers::{account_kind_label, balance_meaning, balances, transfer_type_label};
-use crate::types::{AccountKind, BusinessData, ExpenseStatus, JournalKind, TransferType};
+use crate::types::{
+    AccountKind, BusinessData, ExpenseStatus, FiatValue, JournalKind, TransferType,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -205,7 +207,11 @@ pub fn export_records(
                             _ => "",
                         }
                         .to_string(),
+                        sats(d.amount_minor, d.currency),
                     ]
+                    .into_iter()
+                    .chain(fiat_cells(d.fiat_value.as_ref(), d.millisats))
+                    .collect::<Vec<_>>()
                 })
                 .collect();
             (&EXPENSE_HEADERS, rows)
@@ -256,7 +262,13 @@ pub fn export_records(
                             j.purpose.clone().unwrap_or_default(),
                             j.reference.clone().unwrap_or_default(),
                             j.correction_of.clone().unwrap_or_default(),
+                            sats(l.debit, currency),
+                            sats(l.credit, currency),
                         ]
+                        .into_iter()
+                        // The journal's recorded value, the same on each line.
+                        .chain(fiat_cells(j.fiat_value.as_ref(), j.millisats))
+                        .collect::<Vec<_>>()
                     })
                 })
                 .collect();
@@ -291,7 +303,31 @@ pub fn export_records(
     })
 }
 
-const EXPENSE_HEADERS: [&str; 16] = [
+/// The columns every bitcoin export adds after its existing ones
+/// (`fiatHeaders`): the recorded fiat value, as entered, and the Lightning
+/// amount if there was one. Blank for an entry in dollars, euros or pounds.
+fn fiat_cells(v: Option<&FiatValue>, millisats: Option<Minor>) -> [String; 6] {
+    [
+        v.map(|v| amount_input(v.amount_minor, v.currency))
+            .unwrap_or_default(),
+        v.map(|v| v.currency.code().to_string()).unwrap_or_default(),
+        v.map(|v| v.rate.clone()).unwrap_or_default(),
+        v.map(|v| v.source.as_str().to_string()).unwrap_or_default(),
+        v.map(|v| v.at.clone()).unwrap_or_default(),
+        millisats.map(|m| m.get().to_string()).unwrap_or_default(),
+    ]
+}
+
+/// `sats`: whole sats for a BTC amount, and blank for any other currency.
+fn sats(n: Minor, currency: Currency) -> String {
+    if currency == Currency::Btc {
+        n.get().to_string()
+    } else {
+        String::new()
+    }
+}
+
+const EXPENSE_HEADERS: [&str; 23] = [
     "Business ID",
     "Business",
     "Expense ID",
@@ -308,9 +344,16 @@ const EXPENSE_HEADERS: [&str; 16] = [
     "Source reference",
     "Receipt count",
     "Paid personally",
+    "Amount in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats",
 ];
 
-const JOURNAL_HEADERS: [&str; 19] = [
+const JOURNAL_HEADERS: [&str; 27] = [
     "Business ID",
     "Business",
     "Journal ID",
@@ -330,6 +373,14 @@ const JOURNAL_HEADERS: [&str; 19] = [
     "Purpose",
     "Reference",
     "Corrects journal ID",
+    "Debit in sats",
+    "Credit in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats",
 ];
 
 fn journal_kind(kind: JournalKind) -> &'static str {
@@ -363,7 +414,7 @@ fn file_stem(name: &str) -> String {
     }
 }
 
-const BALANCE_HEADERS: [&str; 9] = [
+const BALANCE_HEADERS: [&str; 10] = [
     "Business ID",
     "Business",
     "As of",
@@ -373,11 +424,13 @@ const BALANCE_HEADERS: [&str; 9] = [
     "Balance",
     "Currency",
     "Balance is",
+    "Balance in sats",
 ];
 
-/// `exportBalances`: every bank, card, loan and equity account's balance in
-/// `currency` on `as_of`, one row each, from [`balances`]. A card's balance
-/// is what's owed on it, and a loan's what's owed to the owner.
+/// `exportBalances`: every bank, card, wallet, loan and equity account's
+/// balance in `currency` on `as_of`, one row each, from [`balances`]. A
+/// card's balance is what's owed on it, and a loan's what's owed to the
+/// owner. A wallet's is also given in whole sats.
 pub fn export_balances(b: &BusinessData, as_of: &str, currency: Currency) -> Result<CsvExport> {
     let headers: Vec<String> = BALANCE_HEADERS.iter().map(|h| h.to_string()).collect();
     let rows: Vec<Vec<String>> = balances(b, as_of, currency)?
@@ -393,6 +446,7 @@ pub fn export_balances(b: &BusinessData, as_of: &str, currency: Currency) -> Res
                 amount_input(r.balance, currency),
                 currency.code().to_string(),
                 balance_meaning(r.kind).to_string(),
+                sats(r.balance, currency),
             ]
         })
         .collect();

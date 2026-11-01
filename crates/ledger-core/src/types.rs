@@ -68,6 +68,17 @@ pub enum FiatSource {
     Exchange,
 }
 
+impl FiatSource {
+    /// The wire name, as exported.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            FiatSource::Manual => "manual",
+            FiatSource::PriceSeries => "price-series",
+            FiatSource::Exchange => "exchange",
+        }
+    }
+}
+
 /// `FiatValue`: what a bitcoin entry was worth in a reporting currency when
 /// it happened, entered or confirmed by a person. Checked by
 /// [`crate::fiat_value_shape`] and [`crate::fiat_value_matches`].
