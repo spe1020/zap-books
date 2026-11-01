@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 import { freshKey } from "./keys";
 import { installSigner } from "./signer";
 import { addMember } from "./harness";
-import { createHash } from "node:crypto";
 import { createBusiness, openBusiness, recordExpense, signIn } from "./flows";
 
 const png = Buffer.from(
@@ -43,16 +42,11 @@ test("sign in, create a business with a backup key, post an expense, and see it 
   await other
     .getByRole("button", { name: "View Kiln Supply Depot", exact: true })
     .click();
-  // The receipt stays in the browser that attached it; here, its hash.
+  // The receipt was stored encrypted with the books; here it is too.
   await expect(
-    other.getByRole("heading", {
-      name: "This receipt was attached on another device",
-    }),
+    other.getByRole("img", { name: "Receipt evidence: kiln-receipt.png" }),
   ).toBeVisible();
-  await expect(other.locator("code.hash")).toHaveText(
-    createHash("sha256").update(png).digest("hex"),
-  );
-  // In the owner's browser, it is still the file.
+  // In the owner's browser, it is the file attached.
   await page.getByRole("button", { name: "Transactions", exact: true }).click();
   await page
     .getByRole("button", { name: "View Kiln Supply Depot", exact: true })

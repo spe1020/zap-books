@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 import { existsSync } from "node:fs";
 import {
   APP_PORT,
+  BLOB_DIR,
   APP_URL,
   CLOCK_FILE,
   SERVICE,
@@ -28,7 +29,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: `node scripts/e2e-service.mjs ${SERVICE.secret} ${SERVICE_PORT} ${APP_URL} ${CLOCK_FILE}`,
+      command: `node scripts/e2e-service.mjs ${SERVICE.secret} ${SERVICE_PORT} ${APP_URL} ${CLOCK_FILE} ${BLOB_DIR}`,
       url: `${SERVICE_URL}/health`,
       timeout: 300_000,
       reuseExistingServer: false,
