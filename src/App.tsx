@@ -1671,7 +1671,7 @@ function BitcoinPanel({
       <div className="card-foot">
         <span>
           Exchanges move money between a wallet and an account. They're never
-          spending.
+          spending. Cost basis and gains aren't tracked yet.
         </span>
       </div>
     </section>

@@ -36,6 +36,8 @@
   --warm-gray: #f6f4f0;
   --warm-gray-strong: #f0ece4;
   --warm-gray-line: #e5e1d9;
+  /* A dashed edge as strong as the green one it replaced. */
+  --warm-dashed: #cdb68a;
   --line: #e6e9e2;
   --cream: #f7f8f5;
 }
@@ -1261,15 +1263,15 @@ td:last-child {
   align-items: center;
   justify-content: center;
   gap: 11px;
-  border: 1px dashed #bccaac;
+  border: 1px dashed var(--warm-dashed);
   border-radius: 7px;
   padding: 18px;
-  color: #5c6d52;
+  color: var(--action-strong);
   position: relative;
   cursor: pointer;
   margin-top: 20px;
   min-height: 70px;
-  background: #fafcf7;
+  background: var(--warm-soft);
   font-size: 12px;
 }
 .upload-zone span {
@@ -1279,7 +1281,7 @@ td:last-child {
   display: block;
   font-size: 9px;
   font-weight: 400;
-  color: #5c6d52;
+  color: var(--muted);
   margin-top: 4px;
 }
 .upload-zone input {
@@ -1295,7 +1297,7 @@ td:last-child {
   outline-offset: 3px;
 }
 .upload-zone:hover {
-  background: #f4f8ee;
+  background: var(--warm-highlight);
 }
 .doc-tabs {
   display: flex;
