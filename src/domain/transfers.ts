@@ -406,6 +406,12 @@ export function correctTransfer(
     throw new Error("An opening balance correction keeps its account.");
   // An exchange is corrected by another between the same wallet and the
   // same fiat account; the amounts, direction, date and rate may change.
+  // Nothing else becomes one.
+  if (
+    original.transferType !== "exchange" &&
+    replacement.transferType === "exchange"
+  )
+    throw new Error("Only an exchange can be corrected by an exchange.");
   if (original.transferType === "exchange") {
     if (replacement.transferType !== "exchange")
       throw new Error("Correct an exchange with another exchange.");

@@ -346,6 +346,23 @@ fn an_exchange_is_corrected_only_by_an_exchange_between_the_same_two_accounts() 
             "An exchange correction keeps its dollar, euro or pound account."
         );
     }
+    // Nor is an ordinary transfer corrected into one.
+    let mut transfer = between_wallets(&b, 100_000);
+    transfer.to_account_id = account(&b, "Lightning wallet");
+    let mut other = SequentialEnv::new(9500, "2026-10-15T12:00:00.000Z", "2026-10-15");
+    let moved = record_transfer(&b, &transfer, &mut other).unwrap();
+    assert_eq!(
+        correct_transfer(
+            &moved,
+            &moved.journals.last().unwrap().id,
+            &exchange(&b, 100_000, 6_000, true),
+            "Invented reason",
+            &mut other,
+        )
+        .unwrap_err()
+        .to_string(),
+        "Only an exchange can be corrected by an exchange."
+    );
     // The amounts, the direction and the date may change.
     let mut sale = exchange(&b, 100_000, 6_100, false);
     sale.date = "2027-01-11".into();

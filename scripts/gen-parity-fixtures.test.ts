@@ -3296,6 +3296,7 @@ function bitcoin(setup: BusinessData) {
   const between = moved.journals.find(
     (j: JournalEntry) => j.transferType === "betweenAccounts",
   )!.id;
+  fix("a transfer between wallets, by an exchange", moved, between, exchange());
   fix(
     "a transfer between wallets, in sats",
     moved,

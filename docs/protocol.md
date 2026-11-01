@@ -334,7 +334,8 @@ another currency or a bank or card account in BTC.
   in sats, the other for the fiat amount. It is the only journal in two
   currencies and never counts as spending. `CorrectTransfer` replaces an
   exchange only with another between the same wallet and the same fiat
-  account; the amounts, direction, date and rate may change.
+  account, and replaces nothing else with one; the amounts, direction, date
+  and rate may change.
 - **A wallet's opening balance** is more than zero: a wallet can't open
   holding less than no bitcoin, and an opening balance correction can't
   take it there either.

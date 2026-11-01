@@ -351,6 +351,21 @@ describe("exchanges", () => {
       ).toThrow(
         "An exchange correction keeps its dollar, euro or pound account.",
       );
+    // Nor is an ordinary transfer corrected into one.
+    const moved = recordTransfer(b, {
+      ...exchange(b, 100000, 6000),
+      transferType: "betweenAccounts",
+      fromAccountId: named(b, "Cold storage"),
+      fiatValue: valued(100000),
+    });
+    expect(() =>
+      correctTransfer(
+        moved,
+        moved.journals.at(-1)!.id,
+        exchange(b, 100000, 6000),
+        "Invented reason",
+      ),
+    ).toThrow("Only an exchange can be corrected by an exchange.");
     // The amounts, the direction and the date may change.
     const sold = correct({
       ...exchange(b, 100000, 6100, false),

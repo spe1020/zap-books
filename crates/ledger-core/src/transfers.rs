@@ -514,6 +514,14 @@ pub fn correct_transfer(
     }
     // An exchange is corrected by another between the same wallet and the
     // same fiat account; the amounts, direction, date and rate may change.
+    // Nothing else becomes one.
+    if original.transfer_type != Some(TransferType::Exchange)
+        && replacement.transfer_type == TransferType::Exchange
+    {
+        return Err(LedgerError::Bitcoin(
+            "Only an exchange can be corrected by an exchange.",
+        ));
+    }
     if original.transfer_type == Some(TransferType::Exchange) {
         if replacement.transfer_type != TransferType::Exchange {
             return Err(LedgerError::Bitcoin(

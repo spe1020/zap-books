@@ -372,14 +372,15 @@ an exchange *`, `bitcoin/correctTransfer: *`, `bitcoin/balances: *`,
   have no fiat value, so each needs one before it's approved. Fixture:
   `bitcoin/previewImport: bitcoin payments into a wallet`.
 - **B9. An exchange is corrected only by another exchange, between the same
-  wallet and the same fiat account,** as an opening balance is by another
-  on its account (O1). The amounts, the direction, the date and the rate
-  may change. The refusals, checked in this order after O1's: "Correct an
-  exchange with another exchange.", "An exchange correction keeps its
-  wallet." and "An exchange correction keeps its dollar, euro or pound
-  account." The rule runs one way only: an ordinary transfer may still be
-  corrected by an exchange. Fixtures: `bitcoin/correctTransfer: an
-exchange, by *`.
+  wallet and the same fiat account,** and nothing else is corrected into
+  one, as an opening balance is only by another on its account (O1). The
+  amounts, the direction, the date and the rate may change. The refusals,
+  checked in this order after O1's: "Only an exchange can be corrected by
+  an exchange.", "Correct an exchange with another exchange.", "An exchange
+  correction keeps its wallet." and "An exchange correction keeps its
+  dollar, euro or pound account." Fixtures: `bitcoin/correctTransfer: an
+exchange, by *` and `bitcoin/correctTransfer: a transfer between wallets,
+by an exchange`.
 - **B10. A wallet never opens below zero.** A wallet can't hold less than
   no bitcoin, so `recordOpeningBalance` refuses a negative amount on one,
   and `correctTransfer` refuses an opening balance replacement that credits
