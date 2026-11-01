@@ -1,8 +1,9 @@
 /**
  * The app's Content-Security-Policy, delivered as a `<meta>` tag by the
  * plugin in `vite.config.ts`. Scripts and styles come only from the app's
- * own origin; network requests go only there, to the receipt extractor and,
- * when one is configured, to exactly the ledger service's origin;
+ * own origin; network requests go only there, to the receipt extractor
+ * (none in a demo-only build) and, when one is configured, to exactly the
+ * ledger service's origin;
  * receipts are shown from `blob:` URLs, PDFs through `<object>` (which Chrome
  * frames). Nothing else may be framed, and nothing posted or used as a base
  * URL.
@@ -19,10 +20,10 @@ export function contentSecurityPolicy({
   serviceUrl,
 }: {
   dev: boolean;
-  extractorUrl: string;
+  extractorUrl?: string;
   serviceUrl?: string;
 }): string {
-  const extractor = new URL(extractorUrl).origin;
+  const extractor = extractorUrl ? ` ${new URL(extractorUrl).origin}` : "";
   const service = serviceUrl ? ` ${new URL(serviceUrl).origin}` : "";
   const inline = dev ? " 'unsafe-inline'" : "";
   const wasm = serviceUrl ? " 'wasm-unsafe-eval'" : "";
@@ -32,7 +33,7 @@ export function contentSecurityPolicy({
     `style-src 'self'${inline}`,
     "img-src 'self' blob: data:",
     "object-src blob:",
-    `connect-src 'self' ${extractor}${service}${dev ? " ws:" : ""}`,
+    `connect-src 'self'${extractor}${service}${dev ? " ws:" : ""}`,
     // Chrome shows a PDF in <object> by framing its blob: URL.
     "frame-src blob:",
     "base-uri 'none'",

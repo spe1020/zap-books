@@ -1,12 +1,14 @@
 // Assembles zapbooks.io into one folder for GitHub Pages: site/ as it is,
-// the brand files it uses from public/brand/, and the form service's
-// settings from site/form-service.json filled into the page. Nothing is
-// compiled. docs/landing-site.md has the steps.
+// the brand files it uses from public/brand/, the form service's settings
+// from site/form-service.json filled into the page, and the demo-only build
+// of the app (npm run build:demo) at /demo/. Nothing is compiled here.
+// docs/landing-site.md has the steps.
 //
-//   node scripts/build-pages.mjs [--config <file>] [--out <dir>]
+//   node scripts/build-pages.mjs [--config <file>] [--demo <dir>] [--out <dir>]
 
 import {
   cpSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   rmSync,
@@ -85,9 +87,12 @@ export function fillPage(html, service) {
 
 export function buildPages({
   config = join(root, "site/form-service.json"),
+  demo = join(root, "dist-demo"),
   out = join(root, "dist-pages"),
 } = {}) {
   const service = formService(readFileSync(config, "utf8"));
+  if (!existsSync(join(demo, "index.html")))
+    throw new Error(`${demo} has no demo. Run npm run build:demo first.`);
   rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
   cpSync(join(root, "site"), out, {
@@ -99,16 +104,22 @@ export function buildPages({
   mkdirSync(join(out, "brand"));
   for (const file of BRAND_FILES)
     cpSync(join(root, "public/brand", file), join(out, "brand", file));
+  cpSync(demo, join(out, "demo"), { recursive: true });
   return out;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { values } = parseArgs({
-    options: { config: { type: "string" }, out: { type: "string" } },
+    options: {
+      config: { type: "string" },
+      demo: { type: "string" },
+      out: { type: "string" },
+    },
   });
   try {
     const out = buildPages({
       config: values.config && resolve(values.config),
+      demo: values.demo && resolve(values.demo),
       out: values.out && resolve(values.out),
     });
     console.log(`Built the site in ${out}`);

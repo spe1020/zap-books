@@ -33,7 +33,12 @@ import {
 } from "../domain/ledger";
 import { attachment } from "../adapters/attachments";
 import { demoAI } from "../adapters/ai";
-import { extractor, readingPlace, readyNote } from "../adapters/extractor";
+import {
+  extractor,
+  readingPlace,
+  readyNote,
+  receiptReading,
+} from "../adapters/extractor";
 import type { LedgerCommand } from "../adapters/ledger-client";
 import {
   acceptAllFound,
@@ -328,7 +333,7 @@ export function Review({
   const paid = paymentAccounts(b);
   const document = working.documents.find((d) => d.id === activeDoc);
   useEffect(() => {
-    if (readOnly) return;
+    if (readOnly || !receiptReading) return;
     let live = true;
     void extractor.health().then((h) => live && setHealth(h));
     return () => {
@@ -545,7 +550,7 @@ export function Review({
           <div className="document-stage">
             <DocumentPreview document={document} />
           </div>
-          {!readOnly && document?.blob && (
+          {!readOnly && receiptReading && document?.blob && (
             <div className="read-receipt">
               <button
                 type="button"

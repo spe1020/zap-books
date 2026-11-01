@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-pages
+dist-demo
 test-results
 playwright-report
 package-lock.json

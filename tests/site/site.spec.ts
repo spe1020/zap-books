@@ -94,8 +94,6 @@ test("every link and anchor resolves", async ({ page, request }) => {
       continue;
     }
     const url = new URL(href, page.url());
-    // The demo is built into the site in the next commit.
-    if (url.pathname === "/demo/") continue;
     if (url.origin === "http://127.0.0.1:4180") {
       const res = await request.get(url.href);
       expect(res.status(), href).toBe(200);

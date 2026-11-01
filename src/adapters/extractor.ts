@@ -14,12 +14,16 @@ import {
 } from "../domain/types";
 import { validDate } from "../domain/ledger";
 import { DEFAULT_EXTRACTOR_URL } from "../config";
+import { demoOnly } from "../demo";
 
 /** The local extractor (crates/extractor). Override with VITE_EXTRACTOR_URL. */
 export const extractorUrl = (
   (import.meta.env.VITE_EXTRACTOR_URL as string | undefined) ||
   DEFAULT_EXTRACTOR_URL
 ).replace(/\/$/, "");
+
+/** Whether this build reads receipts at all: not a demo-only build. */
+export const receiptReading = !demoOnly;
 
 /** Whether `url` is on this computer: a loopback host. */
 export function isLoopback(url: string): boolean {
@@ -131,6 +135,7 @@ export function isExtractionResult(x: unknown): x is ExtractionResult {
 
 export const extractor: ExtractionAdapter = {
   async health(): Promise<ExtractorHealth> {
+    if (!receiptReading) return { ready: false, reason: UNAVAILABLE };
     try {
       const response = await fetch(`${extractorUrl}/health`, {
         signal: AbortSignal.timeout(3000),

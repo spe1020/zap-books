@@ -20,10 +20,14 @@ export function csp(policy: string): Plugin {
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "VITE_");
+  // A demo-only build (src/demo.ts) reads no receipts and has no service.
+  const demoOnly = env.VITE_DEMO_ONLY === "true";
   const policy = contentSecurityPolicy({
     dev: command === "serve",
-    extractorUrl: env.VITE_EXTRACTOR_URL || DEFAULT_EXTRACTOR_URL,
-    serviceUrl: env.VITE_SERVICE_URL || undefined,
+    extractorUrl: demoOnly
+      ? undefined
+      : env.VITE_EXTRACTOR_URL || DEFAULT_EXTRACTOR_URL,
+    serviceUrl: demoOnly ? undefined : env.VITE_SERVICE_URL || undefined,
   });
   return {
     plugins: [react(), csp(policy)],

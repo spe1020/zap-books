@@ -8,6 +8,7 @@
     "dev": "vite --host 127.0.0.1",
     "dev:cloud": "vite --host 0.0.0.0",
     "build": "npm run wasm:build && tsc -b && vite build",
+    "build:demo": "npm run wasm:build && tsc -b && VITE_DEMO_ONLY=true vite build --base /demo/ --outDir dist-demo",
     "preview": "vite preview --host 127.0.0.1",
     "preview:cloud": "vite preview --host 0.0.0.0",
     "test": "vitest run",
