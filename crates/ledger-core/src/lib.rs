@@ -11,6 +11,7 @@
     clippy::indexing_slicing
 )]
 
+mod bitcoin;
 mod date;
 mod documents;
 mod env;
@@ -26,6 +27,10 @@ mod suggestions;
 mod transfers;
 mod types;
 
+pub use bitcoin::{
+    account_currency_error, fiat_value_error, fiat_value_matches, fiat_value_shape,
+    millisats_error, sats_from_millisats,
+};
 pub use date::{normalize_import_date, valid_date, DateFormat};
 pub use documents::{check_document, MAX_RECEIPT_BYTES, MAX_STORED_BYTES, STORED_ALGORITHMS};
 pub use env::{Env, SequentialEnv};
@@ -40,9 +45,10 @@ pub use import::{
 };
 pub use ledger::{
     approve, assert_balanced, blank_draft, category_totals, correct, current_period, duplicates,
-    event, missing_details, save_draft, totals, validation, CategoryTotal, ACTOR,
+    event, missing_details, recorded_fiat_spending, save_draft, totals, validation, CategoryTotal,
+    ACTOR,
 };
-pub use money::{amount_input, parse_money, Currency, Minor, MAX_MINOR};
+pub use money::{amount_input, parse_money, parse_sats, Currency, Minor, MAX_MINOR};
 pub use settings::{save_rule, update_settings, RuleInput, SettingsChange};
 pub use suggestions::{suggest, SuggestionInput};
 pub use transfers::{
@@ -53,7 +59,8 @@ pub use types::{
     Account, AccountKind, Approval, AuditEvent, Business, BusinessData, Category,
     ClassificationRule, DocumentKind, EventType, ExpenseDraft, ExpenseStatus, ExtractedField,
     ExtractedLine, ExtractedLines, ExtractionFieldName, ExtractionFields, ExtractionOutcome,
-    ExtractionRecord, FieldStatus, FinancialEvent, ImportProvider, ImportedExpenseSource,
-    ImportedTransaction, JournalEntry, JournalKind, JournalLine, PayloadValue, SchemaVersion,
-    SourceDocument, StoredFile, Suggestion, TransferType, UncheckedJournal, Vendor, Workspace,
+    ExtractionRecord, FiatSource, FiatValue, FieldStatus, FinancialEvent, ImportProvider,
+    ImportedExpenseSource, ImportedTransaction, JournalEntry, JournalKind, JournalLine,
+    PayloadValue, SchemaVersion, SourceDocument, StoredFile, Suggestion, TransferType,
+    UncheckedJournal, Vendor, Workspace,
 };

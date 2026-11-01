@@ -152,7 +152,7 @@ fn printed_amounts(evidence: &str) -> Vec<PrintedAmount> {
         amounts.extend(
             pieces
                 .iter()
-                .filter_map(|p| parse_money(p).ok())
+                .filter_map(|p| parse_money(p, Currency::Usd).ok())
                 .map(|amount| PrintedAmount {
                     amount,
                     negative,
@@ -342,7 +342,8 @@ fn readings(evidence: &str, currency: Option<Currency>) -> Vec<Reading> {
                             (Some(m), Some(d)) if m != d => match currency {
                                 Some(Currency::Usd) => Some(Reading::One(m)),
                                 Some(Currency::Eur | Currency::Gbp) => Some(Reading::One(d)),
-                                None => Some(Reading::Ambiguous),
+                                // Receipts are read in fiat currencies only.
+                                Some(Currency::Btc) | None => Some(Reading::Ambiguous),
                             },
                             (Some(only), _) | (None, Some(only)) => Some(Reading::One(only)),
                             (None, None) => None,

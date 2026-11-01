@@ -117,7 +117,8 @@ async fn extract(
     let started = Instant::now();
     let mut file: Option<Vec<u8>> = None;
     let mut categories: Vec<Category> = Vec::new();
-    let mut currencies: Vec<Currency> = Currency::ALL.to_vec();
+    // Receipts are read in fiat currencies only, never BTC.
+    let mut currencies: Vec<Currency> = Currency::FIAT.to_vec();
     while let Some(field) = multipart
         .next_field()
         .await
@@ -145,6 +146,7 @@ async fn extract(
                 currencies = codes
                     .iter()
                     .filter_map(|c| Currency::from_code(c))
+                    .filter(|c| c.is_fiat())
                     .collect();
             }
             _ => {}

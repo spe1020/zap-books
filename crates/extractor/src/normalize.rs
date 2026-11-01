@@ -155,7 +155,7 @@ fn finish(s: &str, negative: bool) -> Result<Minor, AmountProblem> {
     if s.starts_with('-') || s.starts_with('+') {
         return Err(AmountProblem::NotAnAmount);
     }
-    let value = parse_money(s).map_err(|_| AmountProblem::NotAnAmount)?;
+    let value = parse_money(s, Currency::Usd).map_err(|_| AmountProblem::NotAnAmount)?;
     if negative && value.get() != 0 {
         return Err(AmountProblem::Negative);
     }
@@ -338,10 +338,10 @@ fn shown(amount: Minor, currency: Option<Currency>) -> String {
         Some(Currency::Usd) => "$",
         Some(Currency::Eur) => "€",
         Some(Currency::Gbp) => "£",
-        None => "",
+        Some(Currency::Btc) | None => "",
     };
     let sign = if amount.get() < 0 { "−" } else { "" };
-    let digits = amount_input(amount);
+    let digits = amount_input(amount, Currency::Usd);
     format!("{sign}{symbol}{}", digits.trim_start_matches('-'))
 }
 
@@ -1042,7 +1042,7 @@ mod tests {
             &raw,
             &Context {
                 categories: &cats,
-                currencies: &Currency::ALL,
+                currencies: &Currency::FIAT,
                 today: "2026-10-25",
             },
         )

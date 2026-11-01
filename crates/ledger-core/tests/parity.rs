@@ -142,9 +142,18 @@ fn out<T: Serialize>(result: Result<T>) -> std::result::Result<Value, String> {
 
 fn run(call: &str, a: &Args, env: &mut SequentialEnv) -> std::result::Result<Value, String> {
     let business = || a.business();
+    let currency = || {
+        a.get::<Option<Currency>>("currency")
+            .unwrap_or(Currency::Usd)
+    };
     match call {
-        "parseMoney" => out(parse_money(&a.str("input"))),
-        "amountInput" => ok(amount_input(a.get("n"))),
+        // Fixtures recorded before per-currency precision name no currency:
+        // they are in dollars.
+        "parseMoney" => out(parse_money(&a.str("input"), currency())),
+        "amountInput" => ok(amount_input(a.get("n"), currency())),
+        "parseSats" => out(parse_sats(&a.str("input"))),
+        "satsFromMillisats" => ok(sats_from_millisats(a.get("millisats"))),
+        "recordedFiatSpending" => out(recorded_fiat_spending(&business(), &a.str("period"))),
         "validDate" => ok(valid_date(&a.str("date"))),
         "normalizeImportDate" => ok(normalize_import_date(&a.str("value"), a.get("format"))),
         "validation" => ok(validation(&business(), &a.get("draft"))),

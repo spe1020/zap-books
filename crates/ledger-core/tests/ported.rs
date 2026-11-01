@@ -49,12 +49,12 @@ fn strings(row: &[&str]) -> Vec<String> {
 // "parses decimal inputs exactly and rejects invalid precision"
 #[test]
 fn parses_decimal_inputs_exactly_and_rejects_invalid_precision() {
-    assert_eq!(parse_money("0.29").unwrap(), minor(29));
-    assert_eq!(parse_money("100.01").unwrap(), minor(10001));
-    assert_eq!(parse_money("-4.05").unwrap(), minor(-405));
-    assert_eq!(amount_input(minor(10001)), "100.01");
+    assert_eq!(parse_money("0.29", Currency::Usd).unwrap(), minor(29));
+    assert_eq!(parse_money("100.01", Currency::Usd).unwrap(), minor(10001));
+    assert_eq!(parse_money("-4.05", Currency::Usd).unwrap(), minor(-405));
+    assert_eq!(amount_input(minor(10001), Currency::Usd), "100.01");
     for x in ["1.001", "NaN", "1e4", "9007199254740992", ""] {
-        assert!(parse_money(x).is_err(), "{x}");
+        assert!(parse_money(x, Currency::Usd).is_err(), "{x}");
     }
 }
 
@@ -454,7 +454,7 @@ fn exports_current_expenses_once_excludes_drafts_transfers_and_keeps_corrected_h
     let amount = column(&rows, "Amount");
     let sum: i64 = rows[1..]
         .iter()
-        .map(|r| parse_money(&r[amount]).unwrap().get())
+        .map(|r| parse_money(&r[amount], Currency::Usd).unwrap().get())
         .sum();
     let all_periods = totals(&b, "").unwrap()[&Currency::Usd].get();
     assert_eq!(sum, all_periods);
@@ -472,8 +472,11 @@ fn exports_current_expenses_once_excludes_drafts_transfers_and_keeps_corrected_h
     assert!(journal.rows.iter().any(|r| r[4] == "transfer"));
     for currency in ["USD", "EUR", "GBP"] {
         let rows: Vec<_> = journal.rows.iter().filter(|r| r[12] == currency).collect();
-        let total =
-            |i: usize| -> i64 { rows.iter().map(|r| parse_money(&r[i]).unwrap().get()).sum() };
+        let total = |i: usize| -> i64 {
+            rows.iter()
+                .map(|r| parse_money(&r[i], Currency::Usd).unwrap().get())
+                .sum()
+        };
         assert_eq!(total(10), total(11));
     }
 }

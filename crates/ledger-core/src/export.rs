@@ -4,12 +4,13 @@ use std::cmp::Ordering;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::bitcoin::line_currency;
 use crate::date::valid_date;
 use crate::error::{LedgerError, Result};
 use crate::js;
 use crate::money::{amount_input, Currency};
 use crate::transfers::{account_kind_label, balance_meaning, balances, transfer_type_label};
-use crate::types::{AccountKind, BusinessData, ExpenseStatus, JournalKind};
+use crate::types::{AccountKind, BusinessData, ExpenseStatus, JournalKind, TransferType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -187,7 +188,7 @@ pub fn export_records(
                         d.date.clone(),
                         d.vendor.clone(),
                         d.description.clone(),
-                        amount_input(d.amount_minor),
+                        amount_input(d.amount_minor, d.currency),
                         d.currency.code().to_string(),
                         category(Some(&d.category_id)),
                         account(&d.account_id),
@@ -213,7 +214,15 @@ pub fn export_records(
             let mut journals: Vec<_> = b
                 .journals
                 .iter()
-                .filter(|j| j.business_id == b.profile.id && in_range(&j.date, j.currency))
+                // An exchange is in both of its currencies.
+                .filter(|j| {
+                    j.business_id == b.profile.id
+                        && (in_range(&j.date, j.currency)
+                            || (j.transfer_type == Some(TransferType::Exchange)
+                                && j.fiat_value
+                                    .as_ref()
+                                    .is_some_and(|v| in_range(&j.date, v.currency))))
+                })
                 .collect();
             journals.sort_by(|a, z| {
                 locale_compare(&a.date, &z.date)
@@ -223,6 +232,7 @@ pub fn export_records(
                 .into_iter()
                 .flat_map(|j| {
                     j.lines.iter().map(|l| {
+                        let currency = line_currency(j, account_of(&l.account_id).map(|a| a.kind));
                         vec![
                             b.profile.id.clone(),
                             b.profile.name.clone(),
@@ -234,9 +244,9 @@ pub fn export_records(
                             l.account_id.clone(),
                             account(&l.account_id),
                             category(l.category_id.as_deref()),
-                            amount_input(l.debit),
-                            amount_input(l.credit),
-                            j.currency.code().to_string(),
+                            amount_input(l.debit, currency),
+                            amount_input(l.credit, currency),
+                            currency.code().to_string(),
                             j.memo.clone(),
                             j.created_at.clone(),
                             j.transfer_type
@@ -380,7 +390,7 @@ pub fn export_balances(b: &BusinessData, as_of: &str, currency: Currency) -> Res
                 r.account_id,
                 r.name,
                 account_kind_label(r.kind).to_string(),
-                amount_input(r.balance),
+                amount_input(r.balance, currency),
                 currency.code().to_string(),
                 balance_meaning(r.kind).to_string(),
             ]

@@ -6,12 +6,27 @@
 
 use thiserror::Error;
 
+use crate::money::Currency;
+
+/// `amountFormat`
+fn amount_format(currency: Currency) -> &'static str {
+    match currency {
+        Currency::Btc => "Use an amount with up to eight decimal places, such as 0.00012345.",
+        Currency::Usd | Currency::Eur | Currency::Gbp => {
+            "Use an amount with up to two decimal places, such as 42.50."
+        }
+    }
+}
+
 /// The single error type for every fallible ledger operation.
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum LedgerError {
-    // ledger.ts parseMoney / sum
-    #[error("Use an amount with up to two decimal places, such as 42.50.")]
-    InvalidAmount,
+    // ledger.ts parseMoney / parseSats / sum
+    /// The format message for the currency's precision.
+    #[error("{}", amount_format(*.0))]
+    InvalidAmount(Currency),
+    #[error("Enter whole sats, such as 2100.")]
+    InvalidSats,
     #[error("Amount is too large.")]
     AmountTooLarge,
     #[error("Financial total exceeds supported range.")]
@@ -28,6 +43,13 @@ pub enum LedgerError {
     InvalidJournalCategory,
     #[error("Journal entry must balance.")]
     Unbalanced,
+    #[error("Invalid journal fiat value.")]
+    InvalidJournalFiatValue,
+
+    // bitcoin.ts, transfers.ts and settings.ts: the fiat value, millisat,
+    // exchange and wallet rules, with the TypeScript's own messages.
+    #[error("{0}")]
+    Bitcoin(&'static str),
 
     // ledger.ts saveDraft
     #[error("Import source belongs to another business.")]
