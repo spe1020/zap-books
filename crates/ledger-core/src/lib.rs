@@ -12,6 +12,7 @@
 )]
 
 mod date;
+mod documents;
 mod env;
 mod error;
 mod export;
@@ -26,6 +27,7 @@ mod transfers;
 mod types;
 
 pub use date::{normalize_import_date, valid_date, DateFormat};
+pub use documents::{check_document, MAX_RECEIPT_BYTES, MAX_STORED_BYTES, STORED_ALGORITHMS};
 pub use env::{Env, SequentialEnv};
 pub use error::{LedgerError, Result};
 pub use export::{
@@ -53,5 +55,5 @@ pub use types::{
     ExtractedLine, ExtractedLines, ExtractionFieldName, ExtractionFields, ExtractionOutcome,
     ExtractionRecord, FieldStatus, FinancialEvent, ImportProvider, ImportedExpenseSource,
     ImportedTransaction, JournalEntry, JournalKind, JournalLine, PayloadValue, SchemaVersion,
-    SourceDocument, Suggestion, TransferType, UncheckedJournal, Vendor, Workspace,
+    SourceDocument, StoredFile, Suggestion, TransferType, UncheckedJournal, Vendor, Workspace,
 };

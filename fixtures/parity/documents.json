@@ -227,5 +227,683 @@
    ],
    "extractions": []
   }
+ },
+ {
+  "name": "checkDocument: no stored copy",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e"
+   }
+  },
+  "output": null
+ },
+ {
+  "name": "checkDocument: a valid stored copy",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "output": null
+ },
+ {
+  "name": "checkDocument: the largest stored copy",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 10485776,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "output": null
+ },
+ {
+  "name": "checkDocument: no file hash",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt needs the SHA-256 of its file."
+ },
+ {
+  "name": "checkDocument: a malformed file hash",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E5E",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt needs the SHA-256 of its file."
+ },
+ {
+  "name": "checkDocument: an uppercase address",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt's address must be 64 lowercase hex characters."
+ },
+ {
+  "name": "checkDocument: a short address",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt's address must be 64 lowercase hex characters."
+ },
+ {
+  "name": "checkDocument: an empty stored copy",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 0,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt must be between 1 byte and 10 MB plus its encryption overhead."
+ },
+ {
+  "name": "checkDocument: an oversized stored copy",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 10485777,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt must be between 1 byte and 10 MB plus its encryption overhead."
+ },
+ {
+  "name": "checkDocument: an unknown algorithm",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-128-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "Unsupported receipt encryption."
+ },
+ {
+  "name": "checkDocument: a short key",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq==",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt needs a 256-bit key and a 96-bit nonce, in base64."
+ },
+ {
+  "name": "checkDocument: a non-canonical key",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx=",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt needs a 256-bit key and a 96-bit nonce, in base64."
+ },
+ {
+  "name": "checkDocument: an unpadded key",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+     "nonce": "Zm9yZXhhbXBsZTEy"
+    }
+   }
+  },
+  "error": "A stored receipt needs a 256-bit key and a 96-bit nonce, in base64."
+ },
+ {
+  "name": "checkDocument: a long nonce",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZTEyMw=="
+    }
+   }
+  },
+  "error": "A stored receipt needs a 256-bit key and a 96-bit nonce, in base64."
+ },
+ {
+  "name": "checkDocument: a URL-safe nonce",
+  "call": "checkDocument",
+  "env": {
+   "nextId": 1170,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "document": {
+    "id": "doc-stored",
+    "businessId": "northstar",
+    "name": "receipt.pdf",
+    "mime": "application/pdf",
+    "size": 2048,
+    "kind": "receipt",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "demo": false,
+    "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+    "stored": {
+     "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+     "size": 2064,
+     "alg": "AES-256-GCM",
+     "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+     "nonce": "Zm9yZXhhbXBsZT_-"
+    }
+   }
+  },
+  "error": "A stored receipt needs a 256-bit key and a 96-bit nonce, in base64."
+ },
+ {
+  "name": "saveDraft: a draft referring to a stored document",
+  "call": "saveDraft",
+  "env": {
+   "nextId": 1171,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar-setup-stored-document"
+   },
+   "draft": {
+    "id": "id-1170",
+    "businessId": "northstar",
+    "vendor": "Harbor Print",
+    "date": "2026-10-15",
+    "description": "Client brochures",
+    "amountMinor": 4200,
+    "currency": "USD",
+    "categoryId": "northstar-category-1",
+    "accountId": "northstar-checking",
+    "purpose": "Client deliverable",
+    "documentIds": [
+     "doc-stored"
+    ],
+    "status": "draft",
+    "duplicateReason": "",
+    "createdAt": "2026-10-15T12:00:00.000Z"
+   }
+  },
+  "output": {
+   "profile": {
+    "id": "northstar",
+    "businessId": "northstar",
+    "name": "Northstar Studio",
+    "industry": "Design & creative services",
+    "initials": "NS",
+    "color": "#c8da78",
+    "currency": "USD"
+   },
+   "accounts": [
+    {
+     "id": "northstar-checking",
+     "businessId": "northstar",
+     "name": "Operating account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-card",
+     "businessId": "northstar",
+     "name": "Business card",
+     "kind": "card",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-reserve",
+     "businessId": "northstar",
+     "name": "Reserve account",
+     "kind": "bank",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-eur",
+     "businessId": "northstar",
+     "name": "Euro account",
+     "kind": "bank",
+     "currency": "EUR"
+    },
+    {
+     "id": "northstar-expense-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-expense-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "kind": "expense",
+     "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
+    }
+   ],
+   "categories": [
+    {
+     "id": "northstar-category-0",
+     "businessId": "northstar",
+     "name": "Software & subscriptions",
+     "accountId": "northstar-expense-0"
+    },
+    {
+     "id": "northstar-category-1",
+     "businessId": "northstar",
+     "name": "Office & supplies",
+     "accountId": "northstar-expense-1"
+    },
+    {
+     "id": "northstar-category-2",
+     "businessId": "northstar",
+     "name": "Travel & meals",
+     "accountId": "northstar-expense-2"
+    },
+    {
+     "id": "northstar-category-3",
+     "businessId": "northstar",
+     "name": "Professional services",
+     "accountId": "northstar-expense-3"
+    },
+    {
+     "id": "northstar-category-4",
+     "businessId": "northstar",
+     "name": "Marketing & design",
+     "accountId": "northstar-expense-4"
+    }
+   ],
+   "vendors": [
+    {
+     "id": "id-1171",
+     "businessId": "northstar",
+     "name": "Harbor Print"
+    }
+   ],
+   "documents": [
+    {
+     "id": "doc-stored",
+     "businessId": "northstar",
+     "name": "receipt.pdf",
+     "mime": "application/pdf",
+     "size": 2048,
+     "kind": "receipt",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "demo": false,
+     "sha256": "5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+     "stored": {
+      "hash": "4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d",
+      "size": 2064,
+      "alg": "AES-256-GCM",
+      "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+      "nonce": "Zm9yZXhhbXBsZTEy"
+     }
+    }
+   ],
+   "payments": [],
+   "drafts": [
+    {
+     "id": "id-1170",
+     "businessId": "northstar",
+     "vendor": "Harbor Print",
+     "date": "2026-10-15",
+     "description": "Client brochures",
+     "amountMinor": 4200,
+     "currency": "USD",
+     "categoryId": "northstar-category-1",
+     "accountId": "northstar-checking",
+     "purpose": "Client deliverable",
+     "documentIds": [
+      "doc-stored"
+     ],
+     "status": "draft",
+     "duplicateReason": "",
+     "createdAt": "2026-10-15T12:00:00.000Z"
+    }
+   ],
+   "journals": [],
+   "approvals": [],
+   "rules": [
+    {
+     "id": "id-0001",
+     "businessId": "northstar",
+     "vendorIncludes": "Figma",
+     "categoryId": "northstar-category-0",
+     "purpose": "Design collaboration for client projects",
+     "enabled": true
+    }
+   ],
+   "audits": [
+    {
+     "id": "id-1173",
+     "businessId": "northstar",
+     "action": "expense.created",
+     "entityId": "id-1170",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Expense draft created"
+    }
+   ],
+   "events": [
+    {
+     "id": "id-1172",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "doc-stored"
+     ],
+     "entityId": "id-1170",
+     "payload": {
+      "detail": "Expense draft created"
+     }
+    }
+   ],
+   "extractions": []
+  }
  }
 ]

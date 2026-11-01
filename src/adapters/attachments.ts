@@ -1,10 +1,11 @@
 import type { SourceDocument } from "../domain/types";
 import { id, now } from "../domain/ledger";
+import { MAX_RECEIPT_BYTES } from "../domain/documents";
 export async function attachment(
   file: File,
   businessId: string,
 ): Promise<SourceDocument> {
-  if (file.size > 10 * 1024 * 1024 || file.size === 0)
+  if (file.size > MAX_RECEIPT_BYTES || file.size === 0)
     throw new Error("Choose a nonempty image or PDF up to 10 MB.");
   const header = new Uint8Array(await file.slice(0, 16).arrayBuffer());
   const starts = (...bytes: number[]) => bytes.every((v, i) => header[i] === v);

@@ -132,6 +132,8 @@ export const protocol = {
     JSON.parse(wasm.limits()) as {
       importBatchStart: number;
       maxEventBytes: number;
+      maxReceiptBytes: number;
+      maxStoredBytes: number;
     },
   nextBatch: (r: { rows: number; size: number; limit: number }) =>
     call<number>(wasm.nextBatch, r),

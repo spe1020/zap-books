@@ -51,6 +51,7 @@ fn document(id: &str) -> DocumentRef {
         name: "receipt.pdf".into(),
         mime: "application/pdf".into(),
         size: 4096,
+        stored: None,
     }
 }
 
@@ -722,4 +723,136 @@ fn a_genesis_acceptance_records_no_ids() {
         audit(None, &spurious).unwrap_err(),
         Refusal::Protocol(ProtocolError::AuditMismatch)
     );
+}
+
+/// An invented stored copy: its address, size, algorithm, key and nonce.
+fn stored(hash: &str) -> ledger_core::StoredFile {
+    ledger_core::StoredFile {
+        hash: hash.repeat(32),
+        size: 4112,
+        alg: "AES-256-GCM".into(),
+        key: format!("{}w=", "q".repeat(42)),
+        nonce: "Zm9yZXhhbXBsZTEy".into(),
+    }
+}
+
+#[test]
+fn a_stored_copy_is_ordinary_record_data_in_every_command_that_attaches() {
+    let b = genesis_business(business_id(), &genesis_command()).unwrap();
+    let with = |id: &str, hash: &str| DocumentRef {
+        stored: Some(stored(hash)),
+        ..document(id)
+    };
+    let (saved, saving) = accept(
+        &b,
+        Command::SaveDraft {
+            draft: draft(&b, "draft-1", &["doc-1"]),
+            documents: vec![with("doc-1", "a1")],
+            extraction: None,
+        },
+    );
+    let mut other = draft(&saved, "draft-2", &["doc-2"]);
+    other.amount_minor = ledger_core::Minor::new(3_141).unwrap();
+    let (submitted, submitting) = accept(
+        &saved,
+        Command::SubmitReceiptDraft {
+            draft: other,
+            documents: vec![with("doc-2", "a2")],
+        },
+    );
+    let (posted, posting) = accept(
+        &submitted,
+        Command::Approve {
+            expense_id: "draft-1".into(),
+        },
+    );
+    let (corrected, correcting) = accept(
+        &posted,
+        Command::Correct {
+            original_id: "draft-1".into(),
+            replacement: draft(&posted, "draft-3", &["doc-3"]),
+            reason: "The receipt was replaced.".into(),
+            documents: vec![with("doc-3", "a3")],
+            extraction: None,
+        },
+    );
+    for (id, hash) in [("doc-1", "a1"), ("doc-2", "a2"), ("doc-3", "a3")] {
+        let doc = corrected.documents.iter().find(|d| d.id == id).unwrap();
+        assert_eq!(doc.stored, Some(stored(hash)), "{id}");
+    }
+    // A document without one is stored without one, as before.
+    let (plain, _) = accept(
+        &b,
+        Command::SaveDraft {
+            draft: draft(&b, "draft-1", &["doc-1"]),
+            documents: vec![document("doc-1")],
+            extraction: None,
+        },
+    );
+    assert_eq!(plain.documents[0].stored, None);
+    let json = serde_json::to_value(&plain.documents[0]).unwrap();
+    assert!(json.get("stored").is_none());
+
+    // Rebuild and audit need nothing but the records.
+    let genesis = content(
+        genesis_command(),
+        protocol::EnvRecord {
+            ids: vec![],
+            now: NOW.into(),
+        },
+        genesis_changes(&b),
+    );
+    let contents = [genesis, saving, submitting, posting, correcting];
+    assert_eq!(rebuild(&contents).unwrap(), corrected);
+    let mut audited = audit(None, &contents[0]).unwrap();
+    for content in &contents[1..] {
+        audited = audit(Some(&audited), content).unwrap();
+    }
+    assert_eq!(audited, corrected);
+}
+
+#[test]
+fn a_malformed_stored_copy_is_refused_with_the_ledgers_message() {
+    let b = genesis_business(business_id(), &genesis_command()).unwrap();
+    let save = |stored: ledger_core::StoredFile| Command::SaveDraft {
+        draft: draft(&b, "draft-1", &["doc-1"]),
+        documents: vec![DocumentRef {
+            stored: Some(stored),
+            ..document("doc-1")
+        }],
+        extraction: None,
+    };
+    let cases = [
+        (
+            ledger_core::StoredFile {
+                hash: "A1".repeat(32),
+                ..stored("a1")
+            },
+            "A stored receipt's address must be 64 lowercase hex characters.",
+        ),
+        (
+            ledger_core::StoredFile {
+                size: ledger_core::MAX_STORED_BYTES + 1,
+                ..stored("a1")
+            },
+            "A stored receipt must be between 1 byte and 10 MB plus its encryption overhead.",
+        ),
+        (
+            ledger_core::StoredFile {
+                alg: "ChaCha20-Poly1305".into(),
+                ..stored("a1")
+            },
+            "Unsupported receipt encryption.",
+        ),
+        (
+            ledger_core::StoredFile {
+                nonce: "short".into(),
+                ..stored("a1")
+            },
+            "A stored receipt needs a 256-bit key and a 96-bit nonce, in base64.",
+        ),
+    ];
+    for (bad, message) in cases {
+        assert_eq!(run(&b, &save(bad)).unwrap_err().to_string(), message);
+    }
 }

@@ -521,6 +521,38 @@ fn generate() -> Fixture {
     let followed: MembershipState = serde_json::from_value(state.clone().unwrap()).unwrap();
     assert_eq!(followed, books.state);
 
+    // A document with a stored copy is ordinary record data: the books keep
+    // its address and key as the acceptance carries them.
+    let mut with_stored = opened.last().unwrap().clone();
+    let document = ledger_core::SourceDocument {
+        id: "jl-receipt-1".into(),
+        business_id: biz.to_string(),
+        name: "receipt.pdf".into(),
+        mime: "application/pdf".into(),
+        size: 4096,
+        kind: ledger_core::DocumentKind::Receipt,
+        created_at: NOW.into(),
+        demo: false,
+        sha256: Some("4c".repeat(32)),
+        stored: Some(ledger_core::StoredFile {
+            hash: "a7".repeat(32),
+            size: 4112,
+            alg: "AES-256-GCM".into(),
+            key: format!("{}w=", "q".repeat(42)),
+            nonce: "Zm9yZXhhbXBsZTEy".into(),
+        }),
+    };
+    with_stored["content"]["changes"] = json!([protocol::RecordChange::Put(
+        protocol::Record::Document(document.clone())
+    )]);
+    let stored_books = c.ok(
+        "applyRecordChanges: a document with a stored copy",
+        "applyRecordChanges",
+        json!({ "snapshot": snapshot, "acceptance": with_stored }),
+    );
+    let stored_books: BusinessData = serde_json::from_value(stored_books).unwrap();
+    assert!(stored_books.documents.contains(&document));
+
     let secret = |n: usize| books.epochs[n].secret_key().to_secret_hex();
     c.err(
         "openAcceptance: an older epoch's key",

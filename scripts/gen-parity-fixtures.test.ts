@@ -22,6 +22,7 @@ import * as X from "../src/domain/export";
 import * as S from "../src/domain/settings";
 import * as G from "../src/domain/suggestions";
 import * as T from "../src/domain/transfers";
+import * as D from "../src/domain/documents";
 import { seedWorkspace } from "../src/domain/seed";
 
 const NOW = "2026-10-15T12:00:00.000Z";
@@ -2746,6 +2747,76 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
   balanceSheet("exportBalances: invalid date", history, "2026-02-30");
 }
 
+/**
+ * A document's `stored` copy (receipt storage): `checkDocument` on each
+ * rule, and a saved draft that keeps a stored document as it is. Recorded
+ * last, so no earlier ids shift. Every key, nonce and hash is invented.
+ */
+function storedDocuments(setup: BusinessData) {
+  const stored = {
+    hash: "4d".repeat(32),
+    size: 2064,
+    alg: "AES-256-GCM",
+    key: "q".repeat(42) + "w=",
+    nonce: "Zm9yZXhhbXBsZTEy",
+  };
+  const document = {
+    id: "doc-stored",
+    businessId: setup.profile.id,
+    name: "receipt.pdf",
+    mime: "application/pdf",
+    size: 2048,
+    kind: "receipt",
+    createdAt: NOW,
+    demo: false,
+    sha256: "5e".repeat(32),
+    stored,
+  };
+  const check = (name: string, d: unknown) =>
+    record(
+      "documents",
+      `checkDocument: ${name}`,
+      "checkDocument",
+      { document: d },
+      (i) => D.checkDocument(i.document),
+    );
+  const { stored: _, ...plain } = document;
+  const { sha256: __, ...unhashed } = document;
+  const patch = (p: Record<string, unknown>) => ({
+    ...document,
+    stored: { ...stored, ...p },
+  });
+  check("no stored copy", plain);
+  check("a valid stored copy", document);
+  check("the largest stored copy", patch({ size: D.MAX_STORED_BYTES }));
+  check("no file hash", unhashed);
+  check("a malformed file hash", { ...document, sha256: "5E".repeat(32) });
+  check("an uppercase address", patch({ hash: "4D".repeat(32) }));
+  check("a short address", patch({ hash: "4d".repeat(31) }));
+  check("an empty stored copy", patch({ size: 0 }));
+  check("an oversized stored copy", patch({ size: D.MAX_STORED_BYTES + 1 }));
+  check("an unknown algorithm", patch({ alg: "AES-128-GCM" }));
+  check("a short key", patch({ key: "q".repeat(42) + "==" }));
+  check("a non-canonical key", patch({ key: "q".repeat(42) + "x=" }));
+  check("an unpadded key", patch({ key: "q".repeat(43) }));
+  check("a long nonce", patch({ nonce: "Zm9yZXhhbXBsZTEyMw==" }));
+  check("a URL-safe nonce", patch({ nonce: "Zm9yZXhhbXBsZT_-" }));
+  const withStored = state("northstar-setup-stored-document", {
+    ...setup,
+    documents: [document],
+  });
+  record(
+    "documents",
+    "saveDraft: a draft referring to a stored document",
+    "saveDraft",
+    {
+      business: withStored,
+      draft: ready(withStored, { documentIds: ["doc-stored"] }),
+    },
+    (i) => L.saveDraft(i.business, i.draft),
+  );
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -2784,6 +2855,7 @@ test("generate parity fixtures", () => {
     suggestions(setup, fw);
     readingOutcomes(setup);
     ownerFunding(setup, ns);
+    storedDocuments(setup);
     write();
   } finally {
     vi.useRealTimers();

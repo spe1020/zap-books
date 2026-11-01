@@ -2,7 +2,9 @@
 
 use std::ops::Deref;
 
-use ledger_core::{Account, Business, Category, ExpenseDraft, ExtractionRecord, ImportRow};
+use ledger_core::{
+    Account, Business, Category, ExpenseDraft, ExtractionRecord, ImportRow, StoredFile,
+};
 pub use ledger_core::{
     OpeningBalanceInput, RuleInput, SettingsChange, SuggestionInput, TransferInput,
 };
@@ -292,6 +294,17 @@ impl Command {
             Command::RecordOpeningBalance { .. } => CommandType::RecordOpeningBalance,
         }
     }
+
+    /// The documents this command attaches: those of `SaveDraft`, `Correct`
+    /// and `SubmitReceiptDraft`, and none for any other command.
+    pub fn documents(&self) -> &[DocumentRef] {
+        match self {
+            Command::SaveDraft { documents, .. }
+            | Command::Correct { documents, .. }
+            | Command::SubmitReceiptDraft { documents, .. } => documents,
+            _ => &[],
+        }
+    }
 }
 
 /// Every business keeps a recovery party, chosen at creation.
@@ -364,8 +377,9 @@ pub enum MembershipChange {
     },
 }
 
-/// A receipt file referred to by id and content hash. The file itself stays
-/// in the browser (stage 3 moves it to encrypted storage).
+/// A receipt file referred to by id and content hash. With `stored`, its
+/// encrypted copy was uploaded to the service's blob store; without it, the
+/// file stays in the browser that attached it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRef {
@@ -375,6 +389,9 @@ pub struct DocumentRef {
     pub name: String,
     pub mime: String,
     pub size: u64,
+    /// The uploaded ciphertext's address and size, and the file's key.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stored: Option<StoredFile>,
 }
 
 impl DocumentRef {

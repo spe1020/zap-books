@@ -137,6 +137,7 @@ async fn history(w: &World) {
         name: "receipt.pdf".into(),
         mime: "application/pdf".into(),
         size: 4096,
+        stored: None,
     };
     let mut d = draft(w.business, "draft-1");
     d.document_ids = vec!["doc-1".into()];

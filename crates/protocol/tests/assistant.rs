@@ -406,6 +406,7 @@ fn an_assistant_submits_receipts() {
         name: "receipt.pdf".into(),
         mime: "application/pdf".into(),
         size: 2048,
+        stored: None,
     };
     b.propose(&assistant(), &submit(draft, vec![document]))
         .unwrap();

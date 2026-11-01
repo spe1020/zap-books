@@ -84,6 +84,23 @@ fn d2_unrepresentable_values_are_rejected_at_deserialization() {
     }
 }
 
+#[test]
+fn d2_a_stored_size_that_isnt_a_whole_number_does_not_deserialize() {
+    let stored = json!({
+        "hash": "4d".repeat(32),
+        "size": 2064,
+        "alg": "AES-256-GCM",
+        "key": format!("{}w=", "q".repeat(42)),
+        "nonce": "Zm9yZXhhbXBsZTEy",
+    });
+    assert!(serde_json::from_value::<StoredFile>(stored.clone()).is_ok());
+    for size in [json!(-1), json!(1.5), json!("2064")] {
+        let mut bad = stored.clone();
+        bad["size"] = size;
+        assert!(serde_json::from_value::<StoredFile>(bad).is_err());
+    }
+}
+
 // D3: a stored journal that does not balance cannot be loaded.
 #[test]
 fn d3_unbalanced_stored_journals_do_not_deserialize() {
