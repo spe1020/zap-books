@@ -46348,7 +46348,15 @@
     "Transfer type",
     "Purpose",
     "Reference",
-    "Corrects journal ID"
+    "Corrects journal ID",
+    "Debit in sats",
+    "Credit in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats"
    ],
    "rows": [
     [
@@ -46370,6 +46378,14 @@
      "Opening balance",
      "Opening balance",
      "",
+     "",
+     "100000",
+     "0",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-01",
      ""
     ],
     [
@@ -46391,6 +46407,14 @@
      "Opening balance",
      "Opening balance",
      "",
+     "",
+     "0",
+     "100000",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-01",
      ""
     ],
     [
@@ -46412,6 +46436,14 @@
      "Transfer between accounts",
      "Invented purpose",
      "",
+     "",
+     "100000",
+     "0",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-10",
      ""
     ],
     [
@@ -46433,6 +46465,14 @@
      "Transfer between accounts",
      "Invented purpose",
      "",
+     "",
+     "0",
+     "100000",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-10",
      ""
     ],
     [
@@ -46454,6 +46494,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "250000",
+     "0",
+     "150.00",
+     "USD",
+     "60000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -46475,6 +46523,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "",
+     "",
+     "150.00",
+     "USD",
+     "60000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -46496,7 +46552,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "21000",
+     "0",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -46517,7 +46581,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "0",
+     "21000",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -46538,7 +46610,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "0",
+     "21000",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -46559,7 +46639,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "21000",
+     "0",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -46580,6 +46668,14 @@
      "",
      "",
      "",
+     "",
+     "30000",
+     "0",
+     "18.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
      ""
     ],
     [
@@ -46601,6 +46697,14 @@
      "",
      "",
      "",
+     "",
+     "0",
+     "30000",
+     "18.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
      ""
     ],
     [
@@ -46622,6 +46726,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "",
+     "",
+     "31.00",
+     "USD",
+     "62000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -46643,11 +46755,19 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "0",
+     "50000",
+     "31.00",
+     "USD",
+     "62000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ]
    ],
    "filename": "northstar-studio-journal-start-to-latest-all-currencies.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2009\",\"Opening balances (BTC)\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00250000\",\"0.00000000\",\"BTC\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"150.00\",\"USD\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00030000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00030000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"31.00\",\"0.00\",\"USD\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00050000\",\"BTC\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\",\"Debit in sats\",\"Credit in sats\",\"Fiat value\",\"Fiat currency\",\"Fiat rate\",\"Fiat source\",\"Fiat value at\",\"Millisats\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\",\"100000\",\"0\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-01\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2009\",\"Opening balances (BTC)\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\",\"0\",\"100000\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-01\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\",\"100000\",\"0\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-10\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\",\"0\",\"100000\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-10\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00250000\",\"0.00000000\",\"BTC\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"250000\",\"0\",\"150.00\",\"USD\",\"60000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"150.00\",\"USD\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"\",\"\",\"150.00\",\"USD\",\"60000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"21000\",\"0\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"0\",\"21000\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"0\",\"21000\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"21000\",\"0\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00030000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"30000\",\"0\",\"18.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00030000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"0\",\"30000\",\"18.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"31.00\",\"0.00\",\"USD\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"\",\"\",\"31.00\",\"USD\",\"62000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00050000\",\"BTC\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"0\",\"50000\",\"31.00\",\"USD\",\"62000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n"
   }
  },
  {
@@ -47447,7 +47567,15 @@
     "Transfer type",
     "Purpose",
     "Reference",
-    "Corrects journal ID"
+    "Corrects journal ID",
+    "Debit in sats",
+    "Credit in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats"
    ],
    "rows": [
     [
@@ -47469,6 +47597,14 @@
      "Opening balance",
      "Opening balance",
      "",
+     "",
+     "100000",
+     "0",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-01",
      ""
     ],
     [
@@ -47490,6 +47626,14 @@
      "Opening balance",
      "Opening balance",
      "",
+     "",
+     "0",
+     "100000",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-01",
      ""
     ],
     [
@@ -47511,6 +47655,14 @@
      "Transfer between accounts",
      "Invented purpose",
      "",
+     "",
+     "100000",
+     "0",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-10",
      ""
     ],
     [
@@ -47532,6 +47684,14 @@
      "Transfer between accounts",
      "Invented purpose",
      "",
+     "",
+     "0",
+     "100000",
+     "60.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-10",
      ""
     ],
     [
@@ -47553,6 +47713,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "250000",
+     "0",
+     "150.00",
+     "USD",
+     "60000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -47574,6 +47742,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "",
+     "",
+     "150.00",
+     "USD",
+     "60000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -47595,7 +47771,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "21000",
+     "0",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -47616,7 +47800,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "0",
+     "21000",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -47637,7 +47829,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "0",
+     "21000",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -47658,7 +47858,15 @@
      "",
      "",
      "",
-     ""
+     "",
+     "21000",
+     "0",
+     "12.60",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
+     "21000123"
     ],
     [
      "northstar",
@@ -47679,6 +47887,14 @@
      "",
      "",
      "",
+     "",
+     "30000",
+     "0",
+     "18.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
      ""
     ],
     [
@@ -47700,6 +47916,14 @@
      "",
      "",
      "",
+     "",
+     "0",
+     "30000",
+     "18.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
      ""
     ],
     [
@@ -47721,6 +47945,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "",
+     "",
+     "31.00",
+     "USD",
+     "62000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -47742,11 +47974,19 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "0",
+     "50000",
+     "31.00",
+     "USD",
+     "62000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ]
    ],
    "filename": "northstar-studio-journal-start-to-latest-BTC.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2009\",\"Opening balances (BTC)\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00250000\",\"0.00000000\",\"BTC\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"150.00\",\"USD\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00030000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00030000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"31.00\",\"0.00\",\"USD\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00050000\",\"BTC\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\",\"Debit in sats\",\"Credit in sats\",\"Fiat value\",\"Fiat currency\",\"Fiat rate\",\"Fiat source\",\"Fiat value at\",\"Millisats\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\",\"100000\",\"0\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-01\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2012\",\"2026-09-01\",\"transfer\",\"\",\"\",\"id-2009\",\"Opening balances (BTC)\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Opening balances (BTC) → Cold storage\",\"2026-10-15T12:00:00.000Z\",\"Opening balance\",\"Opening balance\",\"\",\"\",\"0\",\"100000\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-01\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00100000\",\"0.00000000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\",\"100000\",\"0\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-10\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2027\",\"2026-09-10\",\"transfer\",\"\",\"\",\"id-2003\",\"Cold storage\",\"\",\"0.00000000\",\"0.00100000\",\"BTC\",\"Cold storage → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Transfer between accounts\",\"Invented purpose\",\"\",\"\",\"0\",\"100000\",\"60.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-10\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00250000\",\"0.00000000\",\"BTC\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"250000\",\"0\",\"150.00\",\"USD\",\"60000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"150.00\",\"USD\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"\",\"\",\"150.00\",\"USD\",\"60000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"21000\",\"0\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2129\",\"2026-09-15\",\"expense\",\"draft-sats\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"0\",\"21000\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00000000\",\"0.00021000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"0\",\"21000\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2140\",\"2026-09-15\",\"reversal\",\"draft-sats\",\"id-2129\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00021000\",\"0.00000000\",\"BTC\",\"Correction: Invented reason\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"21000\",\"0\",\"12.60\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"21000123\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"northstar-expense-1\",\"Office & supplies\",\"Office & supplies\",\"0.00030000\",\"0.00000000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"30000\",\"0\",\"18.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2145\",\"2026-09-15\",\"expense\",\"draft-sats-2\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00030000\",\"BTC\",\"Invented Relay Co · Relay subscription\",\"2026-10-15T12:00:00.000Z\",\"\",\"\",\"\",\"\",\"0\",\"30000\",\"18.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"31.00\",\"0.00\",\"USD\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"\",\"\",\"31.00\",\"USD\",\"62000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00050000\",\"BTC\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"0\",\"50000\",\"31.00\",\"USD\",\"62000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n"
   }
  },
  {
@@ -48546,7 +48786,15 @@
     "Transfer type",
     "Purpose",
     "Reference",
-    "Corrects journal ID"
+    "Corrects journal ID",
+    "Debit in sats",
+    "Credit in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats"
    ],
    "rows": [
     [
@@ -48568,6 +48816,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "250000",
+     "0",
+     "150.00",
+     "USD",
+     "60000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -48589,6 +48845,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "",
+     "",
+     "150.00",
+     "USD",
+     "60000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -48610,6 +48874,14 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "",
+     "",
+     "31.00",
+     "USD",
+     "62000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ],
     [
@@ -48631,11 +48903,19 @@
      "Exchange",
      "Invented purpose",
      "",
+     "",
+     "0",
+     "50000",
+     "31.00",
+     "USD",
+     "62000.000000000000",
+     "exchange",
+     "2026-09-12T10:00Z",
      ""
     ]
    ],
    "filename": "northstar-studio-journal-start-to-latest-USD.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00250000\",\"0.00000000\",\"BTC\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"150.00\",\"USD\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"31.00\",\"0.00\",\"USD\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00050000\",\"BTC\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\",\"Debit in sats\",\"Credit in sats\",\"Fiat value\",\"Fiat currency\",\"Fiat rate\",\"Fiat source\",\"Fiat value at\",\"Millisats\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00250000\",\"0.00000000\",\"BTC\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"250000\",\"0\",\"150.00\",\"USD\",\"60000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2075\",\"2026-09-12\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"0.00\",\"150.00\",\"USD\",\"Operating account → Lightning wallet\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"\",\"\",\"150.00\",\"USD\",\"60000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"northstar-checking\",\"Operating account\",\"\",\"31.00\",\"0.00\",\"USD\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"\",\"\",\"31.00\",\"USD\",\"62000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n\"northstar\",\"Northstar Studio\",\"id-2078\",\"2026-09-20\",\"transfer\",\"\",\"\",\"id-2000\",\"Lightning wallet\",\"\",\"0.00000000\",\"0.00050000\",\"BTC\",\"Lightning wallet → Operating account\",\"2026-10-15T12:00:00.000Z\",\"Exchange\",\"Invented purpose\",\"\",\"\",\"0\",\"50000\",\"31.00\",\"USD\",\"62000.000000000000\",\"exchange\",\"2026-09-12T10:00Z\",\"\"\r\n"
   }
  },
  {
@@ -49435,11 +49715,19 @@
     "Transfer type",
     "Purpose",
     "Reference",
-    "Corrects journal ID"
+    "Corrects journal ID",
+    "Debit in sats",
+    "Credit in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats"
    ],
    "rows": [],
    "filename": "northstar-studio-journal-start-to-latest-EUR.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Journal ID\",\"Date\",\"Type\",\"Expense ID\",\"Reverses journal ID\",\"Account ID\",\"Account\",\"Category\",\"Debit\",\"Credit\",\"Currency\",\"Memo\",\"Recorded at\",\"Transfer type\",\"Purpose\",\"Reference\",\"Corrects journal ID\",\"Debit in sats\",\"Credit in sats\",\"Fiat value\",\"Fiat currency\",\"Fiat rate\",\"Fiat source\",\"Fiat value at\",\"Millisats\"\r\n"
   }
  },
  {
@@ -50236,7 +50524,14 @@
     "Source system",
     "Source reference",
     "Receipt count",
-    "Paid personally"
+    "Paid personally",
+    "Amount in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats"
    ],
    "rows": [
     [
@@ -50255,11 +50550,18 @@
      "",
      "",
      "0",
+     "",
+     "30000",
+     "18.00",
+     "USD",
+     "60000.00",
+     "manual",
+     "2026-09-15",
      ""
     ]
    ],
    "filename": "northstar-studio-expenses-start-to-latest-BTC.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\",\"Paid personally\"\r\n\"northstar\",\"Northstar Studio\",\"draft-sats-2\",\"2026-09-15\",\"Invented Relay Co\",\"Relay subscription\",\"0.00030000\",\"BTC\",\"Office & supplies\",\"Lightning wallet\",\"Client deliverable\",\"draft-sats\",\"\",\"\",\"0\",\"\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"Expense ID\",\"Date\",\"Vendor\",\"Description\",\"Amount\",\"Currency\",\"Category\",\"Payment account\",\"Business purpose\",\"Corrects expense ID\",\"Source system\",\"Source reference\",\"Receipt count\",\"Paid personally\",\"Amount in sats\",\"Fiat value\",\"Fiat currency\",\"Fiat rate\",\"Fiat source\",\"Fiat value at\",\"Millisats\"\r\n\"northstar\",\"Northstar Studio\",\"draft-sats-2\",\"2026-09-15\",\"Invented Relay Co\",\"Relay subscription\",\"0.00030000\",\"BTC\",\"Office & supplies\",\"Lightning wallet\",\"Client deliverable\",\"draft-sats\",\"\",\"\",\"0\",\"\",\"30000\",\"18.00\",\"USD\",\"60000.00\",\"manual\",\"2026-09-15\",\"\"\r\n"
   }
  },
  {
@@ -51045,7 +51347,8 @@
     "Account type",
     "Balance",
     "Currency",
-    "Balance is"
+    "Balance is",
+    "Balance in sats"
    ],
    "rows": [
     [
@@ -51057,7 +51360,8 @@
      "Bitcoin wallet",
      "0.00270000",
      "BTC",
-     "Held"
+     "Held",
+     "270000"
     ],
     [
      "northstar",
@@ -51068,7 +51372,8 @@
      "Bitcoin wallet",
      "0.00000000",
      "BTC",
-     "Held"
+     "Held",
+     "0"
     ],
     [
      "northstar",
@@ -51079,11 +51384,12 @@
      "Owner equity",
      "0.00100000",
      "BTC",
-     "Owner's stake"
+     "Owner's stake",
+     "100000"
     ]
    ],
    "filename": "northstar-studio-balances-2026-12-31-BTC.csv",
-   "csv": "﻿\"Business ID\",\"Business\",\"As of\",\"Account ID\",\"Account\",\"Account type\",\"Balance\",\"Currency\",\"Balance is\"\r\n\"northstar\",\"Northstar Studio\",\"2026-12-31\",\"id-2000\",\"Lightning wallet\",\"Bitcoin wallet\",\"0.00270000\",\"BTC\",\"Held\"\r\n\"northstar\",\"Northstar Studio\",\"2026-12-31\",\"id-2003\",\"Cold storage\",\"Bitcoin wallet\",\"0.00000000\",\"BTC\",\"Held\"\r\n\"northstar\",\"Northstar Studio\",\"2026-12-31\",\"id-2009\",\"Opening balances (BTC)\",\"Owner equity\",\"0.00100000\",\"BTC\",\"Owner's stake\"\r\n"
+   "csv": "﻿\"Business ID\",\"Business\",\"As of\",\"Account ID\",\"Account\",\"Account type\",\"Balance\",\"Currency\",\"Balance is\",\"Balance in sats\"\r\n\"northstar\",\"Northstar Studio\",\"2026-12-31\",\"id-2000\",\"Lightning wallet\",\"Bitcoin wallet\",\"0.00270000\",\"BTC\",\"Held\",\"270000\"\r\n\"northstar\",\"Northstar Studio\",\"2026-12-31\",\"id-2003\",\"Cold storage\",\"Bitcoin wallet\",\"0.00000000\",\"BTC\",\"Held\",\"0\"\r\n\"northstar\",\"Northstar Studio\",\"2026-12-31\",\"id-2009\",\"Opening balances (BTC)\",\"Owner equity\",\"0.00100000\",\"BTC\",\"Owner's stake\",\"100000\"\r\n"
   }
  },
  {

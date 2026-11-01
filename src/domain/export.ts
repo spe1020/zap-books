@@ -1,4 +1,4 @@
-import type { BusinessData, Currency } from "./types";
+import type { BusinessData, Currency, FiatValue } from "./types";
 import { amountInput, validDate } from "./ledger";
 import { lineCurrency } from "./bitcoin";
 import {
@@ -40,6 +40,30 @@ export function encodeCSV(rows: string[][]) {
     "\uFEFF" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n"
   );
 }
+/**
+ * The columns every bitcoin export adds after its existing ones: the
+ * recorded fiat value, as entered, and the Lightning amount if there was
+ * one. Blank for an entry in dollars, euros or pounds.
+ */
+const fiatHeaders = [
+  "Fiat value",
+  "Fiat currency",
+  "Fiat rate",
+  "Fiat source",
+  "Fiat value at",
+  "Millisats",
+];
+const fiatCells = (v: FiatValue | undefined, millisats: number | undefined) => [
+  v ? amountInput(v.amountMinor, v.currency) : "",
+  v?.currency ?? "",
+  v?.rate ?? "",
+  v?.source ?? "",
+  v?.at ?? "",
+  millisats === undefined ? "" : String(millisats),
+];
+/** Whole sats for a BTC amount, and blank for any other currency. */
+const sats = (n: number, currency: Currency) =>
+  currency === "BTC" ? String(n) : "";
 export function exportRecords(
   b: BusinessData,
   format: ExportFormat,
@@ -81,6 +105,8 @@ export function exportRecords(
       "Source reference",
       "Receipt count",
       "Paid personally",
+      "Amount in sats",
+      ...fiatHeaders,
     ];
     rows = b.drafts
       .filter(
@@ -115,6 +141,8 @@ export function exportRecords(
           { liability: "Loan", equity: "Contribution" }[
             accountOf(d.accountId)?.kind as string
           ] ?? "",
+          sats(d.amountMinor, d.currency),
+          ...fiatCells(d.fiatValue, d.millisats),
         ];
       });
   } else {
@@ -138,6 +166,9 @@ export function exportRecords(
       "Purpose",
       "Reference",
       "Corrects journal ID",
+      "Debit in sats",
+      "Credit in sats",
+      ...fiatHeaders,
     ];
     rows = b.journals
       // An exchange is in both of its currencies.
@@ -177,6 +208,10 @@ export function exportRecords(
             j.purpose ?? "",
             j.reference ?? "",
             j.correctionOf ?? "",
+            sats(l.debit, currency),
+            sats(l.credit, currency),
+            // The journal's recorded value, the same on each of its lines.
+            ...fiatCells(j.fiatValue, j.millisats),
           ];
         }),
       );
@@ -196,9 +231,10 @@ const fileStem = (b: BusinessData) =>
     .replace(/^-|-$/g, "") || "business";
 
 /**
- * Every bank, card, loan and equity account's balance in `currency` on
- * `asOf`, one row each, from `balances`. A card's balance is what's owed on
- * it, and a loan's what's owed to the owner.
+ * Every bank, card, wallet, loan and equity account's balance in
+ * `currency` on `asOf`, one row each, from `balances`. A card's balance is
+ * what's owed on it, and a loan's what's owed to the owner. A wallet's is
+ * also given in whole sats.
  */
 export function exportBalances(
   b: BusinessData,
@@ -215,6 +251,7 @@ export function exportBalances(
     "Balance",
     "Currency",
     "Balance is",
+    "Balance in sats",
   ];
   const rows = balances(b, asOf, currency).map((r) => [
     b.profile.id,
@@ -226,6 +263,7 @@ export function exportBalances(
     amountInput(r.balance, currency),
     currency,
     balanceMeanings[r.kind as keyof typeof balanceMeanings],
+    sats(r.balance, currency),
   ]);
   return {
     headers,
