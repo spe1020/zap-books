@@ -30,6 +30,25 @@ export interface Acknowledgment {
   event: NostrEvent;
 }
 
+function parse(text: string): Record<string, unknown> | undefined {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
+/** The service's error answer, with its own message when it gave one. */
+function failure(status: number, body?: Record<string, unknown>) {
+  return new ServiceError(
+    status,
+    typeof body?.error === "string"
+      ? body.error
+      : `The service answered ${status}.`,
+    body,
+  );
+}
+
 const base64 = (text: string) =>
   btoa(String.fromCharCode(...new TextEncoder().encode(text)));
 
@@ -54,20 +73,8 @@ export class ServiceApi {
 
   private async json<T>(response: Response): Promise<T> {
     const text = await response.text();
-    let body: Record<string, unknown> | undefined;
-    try {
-      body = JSON.parse(text);
-    } catch {
-      body = undefined;
-    }
-    if (!response.ok)
-      throw new ServiceError(
-        response.status,
-        typeof body?.error === "string"
-          ? body.error
-          : `The service answered ${response.status}.`,
-        body,
-      );
+    const body = parse(text);
+    if (!response.ok) throw failure(response.status, body);
     if (body === undefined)
       throw new ServiceError(
         response.status,
@@ -136,20 +143,88 @@ export class ServiceApi {
     }
   }
 
-  /** A read with the session token, signing in first or again as needed. */
-  async read<T>(path: string): Promise<T> {
+  /** The session token, signing in first if it is missing or ending. */
+  private async session(): Promise<string> {
+    const fresh = this.token && this.token.expiresAt - 60 > Date.now() / 1000;
+    if (!fresh) await this.signIn();
+    return this.token!.value;
+  }
+
+  /**
+   * `send` with the session token; on a 401 (the session ended early), signs
+   * in again and sends once more.
+   */
+  private async withSession<R extends { status: number }>(
+    send: (token: string) => Promise<R>,
+  ): Promise<R> {
     for (let attempt = 0; ; attempt++) {
-      const fresh = this.token && this.token.expiresAt - 60 > Date.now() / 1000;
-      if (!fresh) await this.signIn();
-      const response = await this.fetch(path, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${this.token!.value}` },
-      });
-      if (response.status === 401 && attempt === 0) {
+      const answer = await send(await this.session());
+      if (answer.status === 401 && attempt === 0) {
         this.token = undefined;
         continue;
       }
-      return this.json<T>(response);
+      return answer;
+    }
+  }
+
+  /** A read with the session token, signing in first or again as needed. */
+  async read<T>(path: string): Promise<T> {
+    const response = await this.withSession((token) =>
+      this.fetch(path, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    );
+    return this.json<T>(response);
+  }
+
+  /**
+   * Uploads an encrypted receipt (`PUT /v1/blobs/{hash}`). Uploading one the
+   * service already has succeeds. `progress` hears the bytes sent so far.
+   * XMLHttpRequest, since fetch reports no upload progress.
+   */
+  async upload(
+    business: string,
+    hash: string,
+    ciphertext: Uint8Array<ArrayBuffer>,
+    progress?: (sent: number, total: number) => void,
+  ): Promise<void> {
+    const url = `${this.url}/v1/blobs/${hash}?business=${business}`;
+    const answer = await this.withSession(
+      (token) =>
+        new Promise<{ status: number; text: string }>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("PUT", url);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.setRequestHeader("Content-Type", "application/octet-stream");
+          xhr.upload.onprogress = (e) => progress?.(e.loaded, e.total);
+          xhr.onload = () =>
+            resolve({ status: xhr.status, text: xhr.responseText });
+          xhr.onerror =
+            xhr.onabort =
+            xhr.ontimeout =
+              () => reject(new Offline());
+          xhr.send(ciphertext);
+        }),
+    );
+    if (answer.status < 200 || answer.status >= 300)
+      throw failure(answer.status, parse(answer.text));
+  }
+
+  /** Downloads an encrypted receipt (`GET /v1/blobs/{hash}`). */
+  async download(business: string, hash: string): Promise<ArrayBuffer> {
+    const response = await this.withSession((token) =>
+      this.fetch(`/v1/blobs/${hash}?business=${business}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    );
+    if (!response.ok)
+      throw failure(response.status, parse(await response.text()));
+    try {
+      return await response.arrayBuffer();
+    } catch {
+      throw new Offline();
     }
   }
 

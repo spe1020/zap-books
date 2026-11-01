@@ -5,8 +5,12 @@
  * encrypted and signed by the signer extension, and stored in the queue.
  * The queue sends proposals one at a time, in order. The books shown change
  * only through verified sync: the service decides.
+ *
+ * A receipt attached here is encrypted at once, under a key of its own,
+ * and its ciphertext waits in the queue ahead of its proposal: it is
+ * uploaded first, and the proposal is sent only once the service has it.
  */
-import type { BusinessData, Workspace } from "../domain/types";
+import type { BusinessData, SourceDocument, Workspace } from "../domain/types";
 import type { MembershipChange, PendingChange } from "../domain/members";
 import { CommandClient, type LedgerCommand } from "../adapters/ledger-client";
 import { applyLocal } from "../adapters/local-ledger";
@@ -18,6 +22,7 @@ import {
   withoutFiles,
 } from "./commands";
 import { protocol, type NostrEvent } from "./protocol";
+import { decryptReceipt, encryptReceipt, ReceiptError } from "./receipts";
 import type { Signer } from "./signer";
 import { store, type QueueItem, type StoredBooks } from "./store";
 import { Sync, SyncStopped } from "./sync";
@@ -38,6 +43,8 @@ export interface RemoteView {
   queue: QueueItem[];
   /** The import being sent in batches, if any. */
   importing?: { batch: number; of: number };
+  /** The receipt being uploaded, if any: bytes sent of the total. */
+  uploading?: { sent: number; total: number };
 }
 
 /**
@@ -74,6 +81,10 @@ export class RemoteLedgerClient extends CommandClient {
   private waiting = new Set<string>();
   private refused = new Map<string, string>();
   private batches = new Map<string, number>();
+  private uploading?: { sent: number; total: number };
+  /** Blobs uploaded in this session (business:hash), not sent again. */
+  private uploaded = new Set<string>();
+  private downloads = new Map<string, Promise<Blob>>();
 
   constructor(
     readonly api: ServiceApi,
@@ -107,6 +118,7 @@ export class RemoteLedgerClient extends CommandClient {
               imports.filter((q) => q.importId === first.importId).length,
           }
         : undefined,
+      uploading: this.uploading,
     };
   }
   private setState(state: SyncState) {
@@ -247,17 +259,16 @@ export class RemoteLedgerClient extends CommandClient {
     let order = (this.queue.at(-1)?.order ?? 0) + 1;
     let state = this.withReceipts(books.snapshot);
     for (const [i, raw] of commands.entries()) {
-      const command =
-        raw.type === "SaveDraft" || raw.type === "Correct"
-          ? { ...raw, documents: await withHashes(raw.documents) }
-          : raw;
-      if (command.type === "SaveDraft" || command.type === "Correct")
-        await store.saveReceipts(
+      let uploads: string[] | undefined;
+      let command = raw;
+      if (raw.type === "SaveDraft" || raw.type === "Correct") {
+        const sealed = await this.seal(
           businessId,
-          command.documents.flatMap((d) =>
-            d.blob ? [{ id: d.id, blob: d.blob }] : [],
-          ),
+          await withHashes(raw.documents),
         );
+        command = { ...raw, documents: sealed.documents };
+        uploads = sealed.uploads.length ? sealed.uploads : undefined;
+      }
       for (const part of this.batched(command)) {
         // Each proposal names the books it was made against: the head, plus
         // the proposals ahead of it, which should be accepted first.
@@ -265,13 +276,12 @@ export class RemoteLedgerClient extends CommandClient {
           part.type === "CommitImport"
             ? books.head.seq
             : books.head.seq + ahead + i;
-        items.push(
-          await this.build(businessId, books, state, part, baseSeq, {
-            order: order++,
-            action,
-            importId: command.type === "CommitImport" ? action : undefined,
-          }),
-        );
+        const item = await this.build(businessId, books, state, part, baseSeq, {
+          order: order++,
+          action,
+          importId: command.type === "CommitImport" ? action : undefined,
+        });
+        items.push(uploads ? { ...item, uploads } : item);
       }
       state = domainCheck(state, command);
     }
@@ -296,6 +306,105 @@ export class RemoteLedgerClient extends CommandClient {
       this.waiting.delete(action);
       this.refused.delete(action);
     }
+  }
+
+  /**
+   * Keeps each newly attached file here, and encrypts the ones without a
+   * stored copy yet, keeping their ciphertext for the queue. Returns the
+   * documents with their `stored` copies and the hashes to upload.
+   */
+  private async seal(business: string, documents: SourceDocument[]) {
+    await store.saveReceipts(
+      business,
+      documents.flatMap((d) => (d.blob ? [{ id: d.id, blob: d.blob }] : [])),
+    );
+    const sealed: SourceDocument[] = [];
+    const files: { hash: string; ciphertext: Uint8Array<ArrayBuffer> }[] = [];
+    for (const d of documents) {
+      if (d.stored || !d.blob || !d.sha256) {
+        sealed.push(d);
+        continue;
+      }
+      const { document, ciphertext } = await encryptReceipt({
+        ...d,
+        sha256: d.sha256,
+      });
+      sealed.push(document);
+      files.push({ hash: document.stored!.hash, ciphertext });
+      this.receipts.set(`${business}:${d.id}`, d.blob);
+    }
+    await store.saveUploads(business, files);
+    return { documents: sealed, uploads: files.map((f) => f.hash) };
+  }
+
+  /**
+   * Uploads the encrypted receipts `item` waits for, with progress. A
+   * refusal stops the item, with why, before its proposal is sent. Returns
+   * false if it did.
+   */
+  private async sendUploads(item: QueueItem): Promise<boolean> {
+    for (const hash of item.uploads ?? []) {
+      const key = `${item.business}:${hash}`;
+      if (this.uploaded.has(key)) continue;
+      const ciphertext = await store.upload(item.business, hash);
+      // Gone only once its proposal was accepted; the service decides.
+      if (!ciphertext) continue;
+      this.uploading = { sent: 0, total: ciphertext.byteLength };
+      this.changed();
+      try {
+        await this.api.upload(
+          item.business,
+          hash,
+          ciphertext,
+          (sent, total) => {
+            this.uploading = { sent, total };
+            this.changed();
+          },
+        );
+      } catch (e) {
+        if (e instanceof ServiceError) {
+          await this.refuse(
+            item,
+            `The receipt couldn't be uploaded: ${e.message}`,
+          );
+          return false;
+        }
+        throw e;
+      } finally {
+        this.uploading = undefined;
+        this.changed();
+      }
+      this.uploaded.add(key);
+    }
+    return true;
+  }
+
+  /**
+   * A receipt's file: this browser's copy if it has one, or else the stored
+   * copy, downloaded, decrypted and checked against the document, then kept
+   * here. Throws a `ReceiptError` if the stored copy doesn't match.
+   */
+  receiptFile(business: string, document: SourceDocument): Promise<Blob> {
+    const key = `${business}:${document.id}`;
+    const running = this.downloads.get(key);
+    if (running) return running;
+    const work = (async () => {
+      const held =
+        this.receipts.get(key) ?? (await store.receipt(business, document.id));
+      if (held) return held;
+      if (!document.stored)
+        throw new ReceiptError("This receipt was attached on another device.");
+      const ciphertext = await this.api.download(
+        business,
+        document.stored.hash,
+      );
+      const blob = await decryptReceipt(document, ciphertext);
+      await store.saveReceipts(business, [{ id: document.id, blob }]);
+      this.receipts.set(key, blob);
+      return blob;
+    })().finally(() => this.downloads.delete(key));
+    this.downloads.set(key, work);
+    return work;
   }
 
   /** An import goes as size-limited batches; anything else as itself. */
@@ -391,6 +500,7 @@ export class RemoteLedgerClient extends CommandClient {
         continue;
       }
       this.setState({ status: "syncing" });
+      if (!(await this.sendUploads(item))) continue;
       let ack: Acknowledgment;
       try {
         ack = await this.api.propose(item.event);
@@ -403,6 +513,8 @@ export class RemoteLedgerClient extends CommandClient {
       }
       if (ack.status === "accepted") {
         await store.removeItem(item.id!);
+        if (item.uploads)
+          await store.removeUploads(item.business, item.uploads);
         this.queue.shift();
         if (item.importId)
           this.batches.set(
@@ -489,8 +601,10 @@ export class RemoteLedgerClient extends CommandClient {
   private async refuse(item: QueueItem, message: string) {
     if (this.waiting.has(item.action)) {
       this.refused.set(item.action, message);
-      for (const q of this.queue.filter((q) => q.action === item.action))
+      for (const q of this.queue.filter((q) => q.action === item.action)) {
         await store.removeItem(q.id!);
+        if (q.uploads) await store.removeUploads(q.business, q.uploads);
+      }
       this.queue = this.queue.filter((q) => q.action !== item.action);
     } else {
       item.rejected = message;
@@ -501,7 +615,9 @@ export class RemoteLedgerClient extends CommandClient {
 
   /** Drops a refused item; the queue goes on. */
   async discard(id: number) {
+    const item = this.queue.find((q) => q.id === id);
     await store.removeItem(id);
+    if (item?.uploads) await store.removeUploads(item.business, item.uploads);
     this.queue = this.queue.filter((q) => q.id !== id);
     this.changed();
     await this.flushAndSettle();
@@ -530,6 +646,8 @@ export class RemoteLedgerClient extends CommandClient {
       { order: item.order, action: item.action, importId: item.importId },
     );
     again.id = item.id;
+    // The same ciphertext, under the same key, as the command still says.
+    if (item.uploads) again.uploads = item.uploads;
     await store.updateItem(again);
     this.queue = await store.queue(this.signer.pubkey);
     this.changed();

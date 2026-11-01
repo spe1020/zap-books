@@ -19,10 +19,14 @@ export function SyncStatus({
   onRedo: (id: number) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { state, queue, importing } = view;
+  const { state, queue, importing, uploading } = view;
   const waiting = queue.length;
-  const label =
-    state.status === "synced"
+  const uploaded = uploading
+    ? `Uploading receipt · ${Math.floor((100 * uploading.sent) / Math.max(uploading.total, 1))}%`
+    : "";
+  const label = uploaded
+    ? uploaded
+    : state.status === "synced"
       ? waiting
         ? `${waiting} waiting to sync`
         : "Synced"
@@ -57,6 +61,12 @@ export function SyncStatus({
             {state.status === "error" && (
               <p role="alert" className="alert error">
                 {state.message}
+              </p>
+            )}
+            {uploading && (
+              <p role="status">
+                <progress value={uploading.sent} max={uploading.total} />{" "}
+                {uploaded}
               </p>
             )}
             {importing && (

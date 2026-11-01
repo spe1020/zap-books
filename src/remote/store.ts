@@ -6,7 +6,10 @@
  *   and the membership after it, and what the members screens show. Written
  *   only after a whole sync verified.
  * - `queue`: signed proposals waiting to be sent, in order.
- * - `receipts`: receipt files, which stay in the browser that attached them.
+ * - `receipts`: receipt files this browser attached or downloaded.
+ * - `uploads`: encrypted receipts waiting to be uploaded ahead of their
+ *   proposals, kept until the proposal is accepted, so a retry sends the
+ *   same ciphertext under the same key.
  * - `known`: the businesses each key has opened or created here.
  *
  * Secret keys are never stored: member keys stay in the signer extension
@@ -51,17 +54,22 @@ export interface QueueItem {
   importId?: string;
   /** Set when the service rejected it: the queue stops here. */
   rejected?: string;
+  /** The `stored` hashes of encrypted receipts to upload before it. */
+  uploads?: string[];
 }
 
 function open(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const r = indexedDB.open(DB, 1);
-    r.onupgradeneeded = () => {
+    const r = indexedDB.open(DB, 2);
+    r.onupgradeneeded = (e) => {
       const db = r.result;
-      db.createObjectStore("books");
-      db.createObjectStore("queue", { keyPath: "id", autoIncrement: true });
-      db.createObjectStore("receipts");
-      db.createObjectStore("known");
+      if (e.oldVersion < 1) {
+        db.createObjectStore("books");
+        db.createObjectStore("queue", { keyPath: "id", autoIncrement: true });
+        db.createObjectStore("receipts");
+        db.createObjectStore("known");
+      }
+      if (e.oldVersion < 2) db.createObjectStore("uploads");
     };
     r.onsuccess = () => {
       r.result.onversionchange = () => r.result.close();
@@ -149,5 +157,22 @@ export const store = {
     run(["receipts"], "readwrite", (tx) => {
       for (const f of files)
         tx.objectStore("receipts").put(f.blob, `${business}:${f.id}`);
+    }),
+  upload: (business: string, hash: string) =>
+    run<Uint8Array<ArrayBuffer> | undefined>(["uploads"], "readonly", (tx) =>
+      tx.objectStore("uploads").get(`${business}:${hash}`),
+    ),
+  saveUploads: (
+    business: string,
+    files: { hash: string; ciphertext: Uint8Array<ArrayBuffer> }[],
+  ) =>
+    run(["uploads"], "readwrite", (tx) => {
+      for (const f of files)
+        tx.objectStore("uploads").put(f.ciphertext, `${business}:${f.hash}`);
+    }),
+  removeUploads: (business: string, hashes: string[]) =>
+    run(["uploads"], "readwrite", (tx) => {
+      for (const h of hashes)
+        tx.objectStore("uploads").delete(`${business}:${h}`);
     }),
 };
