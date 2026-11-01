@@ -20,7 +20,7 @@ import type {
   ExtractorHealth,
   SourceDocument,
 } from "../domain/types";
-import { fiatCurrencies } from "../domain/types";
+import { currencies } from "../domain/types";
 import {
   amountInput,
   duplicates,
@@ -44,6 +44,16 @@ import {
 import { Modal, Status } from "./common";
 import { paymentAccounts } from "../domain/transfers";
 import { Suggestions } from "./Suggestions";
+import {
+  BitcoinAmount,
+  FiatValueField,
+  bitcoinInput,
+  fiatValueFrom,
+  parseBitcoin,
+  useBitcoinUnit,
+  useMoney,
+  useUnitChange,
+} from "./bitcoin";
 /** Runs one action's commands through the app's `LedgerClient`. */
 export type Mutation = (
   commands: LedgerCommand[],
@@ -225,11 +235,70 @@ export function Review({
   byAssistant?: boolean;
 }) {
   const [draft, setDraft] = useState<ExpenseDraft>(structuredClone(initial));
+  const { unit } = useBitcoinUnit();
+  const format = useMoney();
   const [amount, setAmount] = useState(
     initial.amountMinor
-      ? amountInput(initial.amountMinor, initial.currency)
+      ? initial.currency === "BTC"
+        ? bitcoinInput(initial.amountMinor, unit)
+        : amountInput(initial.amountMinor, initial.currency)
       : "",
   );
+  // A bitcoin expense's value when it was paid, typed by a person, in the
+  // currency it was first valued in or else the business's.
+  const fiatCurrency = initial.fiatValue?.currency ?? b.profile.currency;
+  const [fiatText, setFiatText] = useState(
+    initial.fiatValue
+      ? amountInput(initial.fiatValue.amountMinor, initial.fiatValue.currency)
+      : "",
+  );
+  const bitcoin = draft.currency === "BTC";
+  /** The typed amount in minor units; throws a message if it isn't one. */
+  const parseAmount = (text: string, currency = draft.currency) =>
+    currency === "BTC" ? parseBitcoin(text, unit) : parseMoney(text, currency);
+  useUnitChange((convert) => {
+    if (bitcoin) setAmount(convert);
+  });
+  /**
+   * `d` with the fiat value the form gives it: for bitcoin, the typed value
+   * at the rate it implies, kept from the original if it's unchanged; for
+   * anything else, none. Throws a message if the value isn't an amount.
+   */
+  function valued(d: ExpenseDraft): ExpenseDraft {
+    const { fiatValue: prior, millisats, ...rest } = d;
+    if (d.currency !== "BTC") return rest;
+    const typed = fiatText.trim()
+      ? fiatValueFrom(
+          d.amountMinor,
+          fiatText,
+          fiatCurrency,
+          prior?.source === "price-series" ? "price-series" : "manual",
+          d.date,
+        )
+      : undefined;
+    const unchanged =
+      prior &&
+      typed &&
+      prior.amountMinor === typed.amountMinor &&
+      prior.at === typed.at &&
+      d.amountMinor === initial.amountMinor;
+    return {
+      ...rest,
+      ...(millisats !== undefined &&
+        d.amountMinor === initial.amountMinor && { millisats }),
+      ...((unchanged ? prior : typed) && {
+        fiatValue: unchanged ? prior : typed,
+      }),
+    };
+  }
+  let live: ExpenseDraft;
+  try {
+    live = valued(draft);
+  } catch {
+    // A value that isn't an amount yet: checked as missing.
+    const { fiatValue: _, ...bare } = draft;
+    live = bare;
+  }
   const [docs, setDocs] = useState<SourceDocument[]>([]);
   const [activeDoc, setActiveDoc] = useState(initial.documentIds[0]);
   const [error, setError] = useState("");
@@ -253,7 +322,7 @@ export function Review({
   const readOnly = (initial.status !== "draft" || !canEdit) && !correcting;
   const working = { ...b, documents: [...b.documents, ...docs] };
   const suggestion = demoAI.propose(working, draft);
-  const details = missingDetails(working, draft);
+  const details = missingDetails(working, live);
   const duplicate = duplicates(working, draft);
   const payment = b.payments.find((p) => p.id === draft.paymentId);
   const paid = paymentAccounts(b);
@@ -293,7 +362,9 @@ export function Review({
     setDraft((d) => {
       let amountMinor = d.amountMinor;
       try {
-        amountMinor = next.amount ? parseMoney(next.amount, d.currency) : 0;
+        amountMinor = next.amount
+          ? parseAmount(next.amount, next.currency as ExpenseDraft["currency"])
+          : 0;
       } catch {
         amountMinor = 0;
       }
@@ -356,14 +427,16 @@ export function Review({
   }
   async function submit(post: boolean) {
     setError("");
-    let amountMinor: number;
+    let next: ExpenseDraft;
     try {
-      amountMinor = amount ? parseMoney(amount, draft.currency) : 0;
+      next = valued({
+        ...draft,
+        amountMinor: amount ? parseAmount(amount) : 0,
+      });
     } catch (e) {
       setError((e as Error).message);
       return;
     }
-    const next = { ...draft, amountMinor };
     const errors = validation(working, next);
     if (post && errors.length) {
       setError(errors.join(" "));
@@ -689,16 +762,42 @@ export function Review({
                 Currency
                 <select
                   value={draft.currency}
-                  onChange={(e) =>
-                    update(
-                      "currency",
-                      e.target.value as ExpenseDraft["currency"],
+                  onChange={(e) => {
+                    const currency = e.target.value as ExpenseDraft["currency"];
+                    update("currency", currency);
+                    // Bitcoin is paid from a wallet, and a wallet pays only
+                    // bitcoin: a business account that doesn't fit becomes
+                    // the first one that does. Paid personally is kept.
+                    const account = b.accounts.find(
+                      (a) => a.id === draft.accountId,
+                    );
+                    const fits = (kind: string) =>
+                      (kind === "wallet") === (currency === "BTC");
+                    if (
+                      account &&
+                      paid.own.some((a) => a.id === account.id) &&
+                      !fits(account.kind)
                     )
-                  }
+                      update(
+                        "accountId",
+                        paid.own.find((a) => fits(a.kind))?.id ?? "",
+                      );
+                    // What was typed means something else in sats.
+                    try {
+                      update(
+                        "amountMinor",
+                        amount ? parseAmount(amount, currency) : 0,
+                      );
+                    } catch {
+                      update("amountMinor", 0);
+                    }
+                  }}
                   disabled={!!payment || readOnly}
                 >
-                  {fiatCurrencies.map((c) => (
-                    <option key={c}>{c}</option>
+                  {currencies.map((c) => (
+                    <option key={c} value={c}>
+                      {c === "BTC" ? "BTC (bitcoin)" : c}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -712,27 +811,55 @@ export function Review({
                 maxLength={300}
               />
             </label>
-            <label>
-              Amount
-              <input
-                inputMode="decimal"
-                value={amount}
-                disabled={!!payment || readOnly}
-                aria-describedby={payment ? "payment-amount-help" : undefined}
-                onChange={(e) => {
-                  setAmount(e.target.value);
-                  try {
-                    update(
-                      "amountMinor",
-                      parseMoney(e.target.value, draft.currency),
-                    );
-                  } catch {
-                    update("amountMinor", 0);
-                  }
-                }}
-                placeholder="0.00"
-              />
-            </label>
+            {bitcoin ? (
+              <>
+                <BitcoinAmount
+                  value={amount}
+                  disabled={!!payment || readOnly}
+                  onChange={(text) => {
+                    setAmount(text);
+                    try {
+                      update("amountMinor", parseAmount(text));
+                    } catch {
+                      update("amountMinor", 0);
+                    }
+                  }}
+                />
+                <FiatValueField
+                  sats={draft.amountMinor || undefined}
+                  currency={fiatCurrency}
+                  value={fiatText}
+                  onChange={setFiatText}
+                  disabled={readOnly}
+                />
+                {draft.millisats !== undefined && (
+                  <small className="small muted field-help">
+                    Paid over Lightning as{" "}
+                    {draft.millisats.toLocaleString("en-US")} millisats, kept as
+                    evidence.
+                  </small>
+                )}
+              </>
+            ) : (
+              <label>
+                Amount
+                <input
+                  inputMode="decimal"
+                  value={amount}
+                  disabled={!!payment || readOnly}
+                  aria-describedby={payment ? "payment-amount-help" : undefined}
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    try {
+                      update("amountMinor", parseAmount(e.target.value));
+                    } catch {
+                      update("amountMinor", 0);
+                    }
+                  }}
+                  placeholder="0.00"
+                />
+              </label>
+            )}
             {payment && (
               <p
                 id="payment-amount-help"
@@ -770,11 +897,19 @@ export function Review({
                 onChange={(e) => update("accountId", e.target.value)}
               >
                 <option value="">Choose an account</option>
-                {paid.own.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} · {a.currency}
-                  </option>
-                ))}
+                {paid.own
+                  // Bitcoin is paid from a wallet, and a wallet pays only
+                  // bitcoin.
+                  .filter(
+                    (a) =>
+                      (a.kind === "wallet") === bitcoin ||
+                      a.id === draft.accountId,
+                  )
+                  .map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name} · {a.currency}
+                    </option>
+                  ))}
                 {paid.personal.map((a) => (
                   <option key={a.id} value={a.id}>
                     Paid personally: {a.name} · {a.currency}
@@ -919,7 +1054,7 @@ export function Review({
                           {b.accounts.find((a) => a.id === l.accountId)?.name}
                           <span>
                             {l.debit ? "Debit" : "Credit"}{" "}
-                            {money(l.debit || l.credit, j.currency)}
+                            {format(l.debit || l.credit, j.currency)}
                           </span>
                         </p>
                       ))}

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Download, FileSpreadsheet } from "lucide-react";
 import type { BusinessData, Currency } from "../domain/types";
-import { fiatCurrencies } from "../domain/types";
+import { currencies } from "../domain/types";
 import { exportBalances, exportRecords } from "../domain/export";
 import { today } from "../domain/ledger";
 import type { ExportFilter, ExportFormat } from "../domain/export";
@@ -94,6 +94,10 @@ export function ExportDialog({
             : format === "balances"
               ? "One row per bank, card, loan and owner equity account in one currency, as of the date you choose. Cards and loans show what's owed."
               : "One row per journal line, including original entries, reversals, replacements, and transfers with their type and purpose. Debit and credit amounts remain separate by currency."}
+          {b.accounts.some((a) => a.kind === "wallet") &&
+            (format === "balances"
+              ? " A wallet's balance is also given in sats."
+              : " Bitcoin amounts are also given in whole sats, with the fiat value recorded at the time.")}
         </p>
         {format === "balances" ? (
           <div className="field-row">
@@ -117,7 +121,7 @@ export function ExportDialog({
                   setDownloaded(false);
                 }}
               >
-                {fiatCurrencies.map((c) => (
+                {currencies.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
@@ -160,7 +164,7 @@ export function ExportDialog({
                 }}
               >
                 <option value="">All currencies · separate amounts</option>
-                {fiatCurrencies.map((c) => (
+                {currencies.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>

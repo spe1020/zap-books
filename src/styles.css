@@ -3178,3 +3178,61 @@ summary {
   display: block;
   margin: -4px 0 6px;
 }
+/* Bitcoin: an amount with its sats or BTC toggle, the buy or sell choice,
+   and the Overview's bitcoin card. */
+.bitcoin-amount {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.bitcoin-amount > label {
+  flex: 1;
+  min-width: 0;
+}
+.unit-toggle {
+  flex-wrap: nowrap;
+  padding-bottom: 4px;
+}
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.choice-row legend {
+  font-size: 11px;
+  font-weight: 550;
+  margin-bottom: 6px;
+}
+.bitcoin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  padding: 0 23px 18px;
+}
+.bitcoin-grid h3 {
+  font-size: 13px;
+  margin: 0 0 2px;
+}
+@media (max-width: 950px) {
+  .bitcoin-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.fields > .bitcoin-amount,
+.fields > .fiat-value {
+  margin-bottom: 17px;
+}
+.fiat-value .field-help {
+  margin: 6px 0 0;
+}
+.choice-row .checkbox-label {
+  align-items: center;
+  white-space: nowrap;
+}
+.choice-row .checkbox-label input {
+  margin: 0;
+  width: auto;
+}

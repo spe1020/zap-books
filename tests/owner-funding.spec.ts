@@ -115,7 +115,14 @@ test("an owner loan, an expense paid personally and a repayment show in balances
   );
   const rows = parseCSV(await readFile((await download.path())!, "utf8"));
   const loan = rows.find((r) => r[4] === "Owner's loan")!;
-  expect(loan.slice(5)).toEqual(["Loan", "4885.20", "USD", "Owed to owner"]);
+  // The last column, "Balance in sats", is blank for dollars.
+  expect(loan.slice(5)).toEqual([
+    "Loan",
+    "4885.20",
+    "USD",
+    "Owed to owner",
+    "",
+  ]);
   expect(rows.slice(1).every((r) => r[0] === "northstar")).toBe(true);
 });
 

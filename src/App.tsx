@@ -5,6 +5,7 @@ import {
   ArrowLeftRight,
   ArrowRight,
   ArrowUpRight,
+  Bitcoin,
   Building2,
   CalendarDays,
   ChartNoAxesCombined,
@@ -40,10 +41,11 @@ import {
   currentPeriod,
   duplicates,
   missingDetails,
-  money,
+  recordedFiatSpending,
   today,
   totals,
 } from "./domain/ledger";
+import { lineCurrency } from "./domain/bitcoin";
 import { localLedger } from "./adapters/local-ledger";
 import type { LedgerClient } from "./adapters/ledger-client";
 import type { RemoteLedgerClient, RemoteView } from "./remote";
@@ -70,7 +72,13 @@ import type { Mutation } from "./components/Review";
 import { ImportDialog } from "./components/Import";
 import { ExportDialog } from "./components/Export";
 import { Settings } from "./components/Settings";
-import { RecordTransfer } from "./components/Transfer";
+import { RecordExchange, RecordTransfer } from "./components/Transfer";
+import {
+  BitcoinUnitProvider,
+  UnitToggle,
+  rateText,
+  useMoney,
+} from "./components/bitcoin";
 import {
   accountKindLabels,
   balanceMeanings,
@@ -139,6 +147,7 @@ export default function App({
     [resetText, setResetText] = useState("");
   const [transfer, setTransfer] = useState<JournalEntry | null>(null);
   const [recording, setRecording] = useState(false);
+  const [exchanging, setExchanging] = useState(false);
   const [correcting, setCorrecting] = useState<JournalEntry | null>(null);
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
@@ -272,577 +281,601 @@ export default function App({
     (role === "assistant" && membership?.assistantDrafts?.[d.id] === me);
   const tools = peopleTools?.(b.profile.id);
   return (
-    <SaveErrorContext.Provider value={error}>
-      <div className="app-shell">
-        {mobileNav && (
-          <button
-            className="nav-backdrop"
-            aria-label="Close navigation"
-            onClick={() => setMobileNav(false)}
-          />
-        )}
-        <aside className={`sidebar ${mobileNav ? "open" : ""}`}>
-          <a
-            className="brand"
-            href="#main"
-            onClick={() => navigate("overview")}
-          >
-            <img
-              className="brand-logo"
-              src={BRAND.logoOnDark}
-              alt={PRODUCT_NAME}
-            />
-          </a>
-          <div className="workspace-picker">
-            <span
-              className="business-avatar"
-              style={{ background: b.profile.color }}
-            >
-              {b.profile.initials}
-            </span>
-            <div>
-              <span className="switcher-label">WORKSPACE</span>
-              <select
-                aria-label="Switch business"
-                value={b.profile.id}
-                onChange={(e) => switchBusiness(e.target.value)}
-              >
-                {workspace.businesses.map((x) => (
-                  <option key={x.profile.id} value={x.profile.id}>
-                    {x.profile.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <ChevronDown size={15} />
-          </div>
-          <p className="nav-label">WORKSPACE</p>
-          <nav aria-label="Main navigation">
-            {navItems.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => navigate(id)}
-                className={view === id ? "active" : ""}
-                aria-current={view === id ? "page" : undefined}
-              >
-                <Icon size={19} strokeWidth={1.6} />
-                <span>{label}</span>
-                {id === "inbox" && (
-                  <span className="nav-count">{drafts.length}</span>
-                )}
-              </button>
-            ))}
-          </nav>
-          <div className="sidebar-bottom">
-            <div className="sidebar-note">
-              <span className="note-icon">
-                <ShieldCheck size={20} />
-              </span>
-              <h3>A place for every detail.</h3>
-              <p>Your expenses, evidence, and decisions. All together.</p>
-            </div>
-            {onRecoveryMode && (
-              <button className="help-button" onClick={onRecoveryMode}>
-                <KeyRound size={18} />
-                Backup key mode
-                <ArrowUpRight size={15} />
-              </button>
-            )}
-            {remote && onNewBusiness && (
-              <button className="help-button" onClick={onNewBusiness}>
-                <Plus size={18} />
-                New business
-                <ArrowUpRight size={15} />
-              </button>
-            )}
+    <BitcoinUnitProvider>
+      <SaveErrorContext.Provider value={error}>
+        <div className="app-shell">
+          {mobileNav && (
             <button
-              className="help-button"
-              onClick={() => {
-                setAnswer("");
-                setAssistant(true);
-              }}
+              className="nav-backdrop"
+              aria-label="Close navigation"
+              onClick={() => setMobileNav(false)}
+            />
+          )}
+          <aside className={`sidebar ${mobileNav ? "open" : ""}`}>
+            <a
+              className="brand"
+              href="#main"
+              onClick={() => navigate("overview")}
             >
-              <CircleHelp size={18} />
-              Workspace guide
-              <ArrowUpRight size={15} />
-            </button>
-            {remote ? (
-              <div className="sidebar-user">
-                <span className="user-avatar">
-                  <KeyRound size={15} />
-                </span>
-                <div>
-                  <strong title={remoteNpub}>
-                    {remoteNpub?.slice(0, 12)}…{remoteNpub?.slice(-6)}
-                  </strong>
-                  <small>Signed in with {remote.signer.name}</small>
-                </div>
-                <button
-                  className="icon-button"
-                  aria-label="Sign out"
-                  onClick={onSignOut}
-                >
-                  <LogOut size={15} />
-                </button>
-              </div>
-            ) : (
-              <div className="sidebar-user">
-                <span className="user-avatar">JD</span>
-                <div>
-                  <strong>Jamie Davis</strong>
-                  <small>Demo workspace owner</small>
-                </div>
-                <span className="online-dot" />
-              </div>
-            )}
-          </div>
-        </aside>
-        <div className="main-shell">
-          <header className="topbar">
-            <div className="breadcrumb">
-              <button
-                className="icon-button mobile-menu"
-                onClick={() => setMobileNav(true)}
-                aria-label="Open navigation"
+              <img
+                className="brand-logo"
+                src={BRAND.logoOnDark}
+                alt={PRODUCT_NAME}
+              />
+            </a>
+            <div className="workspace-picker">
+              <span
+                className="business-avatar"
+                style={{ background: b.profile.color }}
               >
-                <Menu size={21} />
-              </button>
-              <img className="brand-icon topbar-icon" src={BRAND.icon} alt="" />
-              <Building2 size={15} />
-              <span>{b.profile.name}</span>
-              <span className="slash">/</span>
-              <strong>{navItems.find((n) => n.id === view)?.label}</strong>
+                {b.profile.initials}
+              </span>
+              <div>
+                <span className="switcher-label">WORKSPACE</span>
+                <select
+                  aria-label="Switch business"
+                  value={b.profile.id}
+                  onChange={(e) => switchBusiness(e.target.value)}
+                >
+                  {workspace.businesses.map((x) => (
+                    <option key={x.profile.id} value={x.profile.id}>
+                      {x.profile.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <ChevronDown size={15} />
             </div>
-            <div className="topbar-actions">
-              {remote && remoteView ? (
-                <SyncStatus
-                  view={remoteView}
-                  onDiscard={(id) => void remote.discard(id)}
-                  onRedo={(id) => void remote.redo(id)}
-                />
-              ) : (
-                <span className="demo-indicator">
-                  <span />
-                  Demo data
+            <p className="nav-label">WORKSPACE</p>
+            <nav aria-label="Main navigation">
+              {navItems.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => navigate(id)}
+                  className={view === id ? "active" : ""}
+                  aria-current={view === id ? "page" : undefined}
+                >
+                  <Icon size={19} strokeWidth={1.6} />
+                  <span>{label}</span>
+                  {id === "inbox" && (
+                    <span className="nav-count">{drafts.length}</span>
+                  )}
+                </button>
+              ))}
+            </nav>
+            <div className="sidebar-bottom">
+              <div className="sidebar-note">
+                <span className="note-icon">
+                  <ShieldCheck size={20} />
                 </span>
+                <h3>A place for every detail.</h3>
+                <p>Your expenses, evidence, and decisions. All together.</p>
+              </div>
+              {onRecoveryMode && (
+                <button className="help-button" onClick={onRecoveryMode}>
+                  <KeyRound size={18} />
+                  Backup key mode
+                  <ArrowUpRight size={15} />
+                </button>
+              )}
+              {remote && onNewBusiness && (
+                <button className="help-button" onClick={onNewBusiness}>
+                  <Plus size={18} />
+                  New business
+                  <ArrowUpRight size={15} />
+                </button>
               )}
               <button
-                className="assistant-button"
+                className="help-button"
                 onClick={() => {
                   setAnswer("");
                   setAssistant(true);
                 }}
               >
-                <Sparkles size={16} />
-                Ask assistant
+                <CircleHelp size={18} />
+                Workspace guide
+                <ArrowUpRight size={15} />
               </button>
-            </div>
-          </header>
-          <main id="main" className="main-content">
-            <div className="page-heading">
-              <div>
-                <p className="eyebrow">
-                  {view === "overview"
-                    ? "THE BIG PICTURE"
-                    : view === "inbox"
-                      ? "FROM EVIDENCE TO ENTRY"
-                      : view === "transactions"
-                        ? "YOUR BUSINESS RECORD"
-                        : view === "members"
-                          ? "THE PEOPLE BEHIND THE BOOKS"
-                          : "MAKE IT YOURS"}
-                </p>
-                <h1>
-                  {view === "overview"
-                    ? "Your business, at a glance."
-                    : view === "inbox"
-                      ? "A clearer path to done."
-                      : view === "transactions"
-                        ? "Every entry. The full story."
-                        : view === "members"
-                          ? "Members"
-                          : "Workspace settings"}
-                </h1>
-                <p>
-                  {view === "overview"
-                    ? "Know where things stand. Keep your next step simple."
-                    : view === "inbox"
-                      ? "Review the details, connect the evidence, and close the loop."
-                      : view === "transactions"
-                        ? "Posted expenses, transfers, and a history you can follow."
-                        : view === "members"
-                          ? `Who can read and change ${b.profile.name}'s books, and what's waiting to change.`
-                          : `The details that keep ${b.profile.name} running smoothly.`}
-                </p>
-              </div>
-              {view !== "settings" && view !== "members" && (
-                <div className="heading-actions">
+              {remote ? (
+                <div className="sidebar-user">
+                  <span className="user-avatar">
+                    <KeyRound size={15} />
+                  </span>
+                  <div>
+                    <strong title={remoteNpub}>
+                      {remoteNpub?.slice(0, 12)}…{remoteNpub?.slice(-6)}
+                    </strong>
+                    <small>Signed in with {remote.signer.name}</small>
+                  </div>
                   <button
-                    className="button secondary"
-                    onClick={() => setExporting(true)}
+                    className="icon-button"
+                    aria-label="Sign out"
+                    onClick={onSignOut}
                   >
-                    <Download size={17} />
-                    Export
+                    <LogOut size={15} />
                   </button>
-                  {writes && (
-                    <>
-                      {view === "transactions" && (
-                        <button
-                          className="button secondary"
-                          onClick={() => setRecording(true)}
-                        >
-                          <ArrowLeftRight size={17} />
-                          Record transfer
-                        </button>
-                      )}
-                      <button
-                        className="button secondary"
-                        onClick={() => setImporting(true)}
-                      >
-                        <ArrowDownToLine size={17} />
-                        Import CSV
-                      </button>
-                      <button
-                        className="button primary"
-                        onClick={() => setReview(blankDraft(b))}
-                      >
-                        <Plus size={18} />
-                        New expense
-                      </button>
-                    </>
-                  )}
+                </div>
+              ) : (
+                <div className="sidebar-user">
+                  <span className="user-avatar">JD</span>
+                  <div>
+                    <strong>Jamie Davis</strong>
+                    <small>Demo workspace owner</small>
+                  </div>
+                  <span className="online-dot" />
                 </div>
               )}
             </div>
-            {!!workspace.quarantine?.length && (
-              <div role="alert" className="alert error global-error">
-                <span>
-                  {workspace.quarantine.length === 1
-                    ? "1 saved record was damaged and has been set aside."
-                    : `${workspace.quarantine.length} saved records were damaged and have been set aside.`}{" "}
-                  They stay in storage on this device, but no screen, total or
-                  export uses them. Resetting the demo clears them.
-                </span>
-              </div>
-            )}
-            {people && membership && tools && (
-              <RecoveryBanner
-                people={people}
-                membership={membership}
-                tools={tools}
-                mutate={mutate}
-                busy={busy}
-                onDismiss={() => void remote?.dismissRecovery(b.profile.id)}
-              />
-            )}
-            {remote?.stoppedFor(b.profile.id) && (
-              <div role="alert" className="alert error global-error">
-                <span>{remote.stoppedFor(b.profile.id)}</span>
-              </div>
-            )}
-            {error && error !== remote?.stoppedFor(b.profile.id) && (
-              <div role="alert" className="alert error global-error">
-                <span>{error}</span>
+          </aside>
+          <div className="main-shell">
+            <header className="topbar">
+              <div className="breadcrumb">
                 <button
-                  className="icon-button"
-                  onClick={() => setError("")}
-                  aria-label="Dismiss error"
+                  className="icon-button mobile-menu"
+                  onClick={() => setMobileNav(true)}
+                  aria-label="Open navigation"
                 >
-                  <X size={16} />
+                  <Menu size={21} />
+                </button>
+                <img
+                  className="brand-icon topbar-icon"
+                  src={BRAND.icon}
+                  alt=""
+                />
+                <Building2 size={15} />
+                <span>{b.profile.name}</span>
+                <span className="slash">/</span>
+                <strong>{navItems.find((n) => n.id === view)?.label}</strong>
+              </div>
+              <div className="topbar-actions">
+                {remote && remoteView ? (
+                  <SyncStatus
+                    view={remoteView}
+                    onDiscard={(id) => void remote.discard(id)}
+                    onRedo={(id) => void remote.redo(id)}
+                  />
+                ) : (
+                  <span className="demo-indicator">
+                    <span />
+                    Demo data
+                  </span>
+                )}
+                <button
+                  className="assistant-button"
+                  onClick={() => {
+                    setAnswer("");
+                    setAssistant(true);
+                  }}
+                >
+                  <Sparkles size={16} />
+                  Ask assistant
                 </button>
               </div>
-            )}
-            <ErrorBoundary
-              label="This screen"
-              resetKey={`${view}:${b.profile.id}`}
-            >
-              {view === "overview" && (
-                <Overview
-                  b={b}
-                  period={period}
-                  setPeriod={setPeriod}
-                  currency={currency}
-                  setCurrency={setCurrency}
-                  open={setReview}
-                  navigate={navigate}
-                />
+            </header>
+            <main id="main" className="main-content">
+              <div className="page-heading">
+                <div>
+                  <p className="eyebrow">
+                    {view === "overview"
+                      ? "THE BIG PICTURE"
+                      : view === "inbox"
+                        ? "FROM EVIDENCE TO ENTRY"
+                        : view === "transactions"
+                          ? "YOUR BUSINESS RECORD"
+                          : view === "members"
+                            ? "THE PEOPLE BEHIND THE BOOKS"
+                            : "MAKE IT YOURS"}
+                  </p>
+                  <h1>
+                    {view === "overview"
+                      ? "Your business, at a glance."
+                      : view === "inbox"
+                        ? "A clearer path to done."
+                        : view === "transactions"
+                          ? "Every entry. The full story."
+                          : view === "members"
+                            ? "Members"
+                            : "Workspace settings"}
+                  </h1>
+                  <p>
+                    {view === "overview"
+                      ? "Know where things stand. Keep your next step simple."
+                      : view === "inbox"
+                        ? "Review the details, connect the evidence, and close the loop."
+                        : view === "transactions"
+                          ? "Posted expenses, transfers, and a history you can follow."
+                          : view === "members"
+                            ? `Who can read and change ${b.profile.name}'s books, and what's waiting to change.`
+                            : `The details that keep ${b.profile.name} running smoothly.`}
+                  </p>
+                </div>
+                {view !== "settings" && view !== "members" && (
+                  <div className="heading-actions">
+                    <button
+                      className="button secondary"
+                      onClick={() => setExporting(true)}
+                    >
+                      <Download size={17} />
+                      Export
+                    </button>
+                    {writes && (
+                      <>
+                        {view === "transactions" && (
+                          <button
+                            className="button secondary"
+                            onClick={() => setRecording(true)}
+                          >
+                            <ArrowLeftRight size={17} />
+                            Record transfer
+                          </button>
+                        )}
+                        {view === "transactions" &&
+                          b.accounts.some((a) => a.kind === "wallet") && (
+                            <button
+                              className="button secondary"
+                              onClick={() => setExchanging(true)}
+                            >
+                              <Bitcoin size={17} />
+                              Buy or sell bitcoin
+                            </button>
+                          )}
+                        <button
+                          className="button secondary"
+                          onClick={() => setImporting(true)}
+                        >
+                          <ArrowDownToLine size={17} />
+                          Import CSV
+                        </button>
+                        <button
+                          className="button primary"
+                          onClick={() => setReview(blankDraft(b))}
+                        >
+                          <Plus size={18} />
+                          New expense
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+              {!!workspace.quarantine?.length && (
+                <div role="alert" className="alert error global-error">
+                  <span>
+                    {workspace.quarantine.length === 1
+                      ? "1 saved record was damaged and has been set aside."
+                      : `${workspace.quarantine.length} saved records were damaged and have been set aside.`}{" "}
+                    They stay in storage on this device, but no screen, total or
+                    export uses them. Resetting the demo clears them.
+                  </span>
+                </div>
               )}
-              {view === "inbox" && (
-                <InboxView
-                  key={b.profile.id}
-                  b={b}
-                  open={setReview}
-                  create={writes ? () => setReview(blankDraft(b)) : undefined}
-                  byAssistant={people?.byAssistant}
-                />
-              )}
-              {view === "transactions" && (
-                <Transactions
-                  key={b.profile.id}
-                  b={b}
-                  open={setReview}
-                  openTransfer={setTransfer}
-                />
-              )}
-              {view === "settings" && (
-                <Settings
-                  key={b.profile.id}
-                  b={b}
-                  mutate={mutate}
-                  busy={busy}
-                  onReset={
-                    remote
-                      ? undefined
-                      : () => {
-                          setResetText("");
-                          setReset(true);
-                        }
-                  }
-                />
-              )}
-              {view === "members" && membership && people && tools && (
-                <Members
-                  key={b.profile.id}
-                  membership={membership}
+              {people && membership && tools && (
+                <RecoveryBanner
                   people={people}
+                  membership={membership}
                   tools={tools}
                   mutate={mutate}
                   busy={busy}
+                  onDismiss={() => void remote?.dismissRecovery(b.profile.id)}
                 />
               )}
-            </ErrorBoundary>
-            <footer className="page-footer">
-              <span>
-                <span className="local-dot" />
-                {remote
-                  ? "Books from the ledger service, verified in this browser"
-                  : "Saved on this device"}
-              </span>
-              <span>
-                {PRODUCT_NAME} <span className="footer-separator">/</span> A
-                little more clarity.
-              </span>
-            </footer>
-          </main>
-        </div>
-        {review && (
-          <ErrorBoundary
-            label="This expense"
-            resetKey={review.id}
-            onClose={() => setReview(null)}
-          >
-            <Review
-              key={review.id}
-              b={b}
-              initial={review}
-              mutate={mutate}
-              onClose={() => setReview(null)}
-              onOpen={setReview}
-              busy={busy}
-              canEdit={canEdit(review)}
-              canApprove={writes}
-              byAssistant={!!people?.byAssistant[review.id]}
-            />
-          </ErrorBoundary>
-        )}
-        {importing && (
-          <ImportDialog
-            b={b}
-            mutate={mutate}
-            onClose={() => setImporting(false)}
-            busy={busy}
-          />
-        )}
-        {exporting && (
-          <ExportDialog b={b} onClose={() => setExporting(false)} />
-        )}
-        {recording && (
-          <RecordTransfer
-            b={b}
-            mutate={mutate}
-            busy={busy}
-            onClose={() => setRecording(false)}
-          />
-        )}
-        {correcting && (
-          <RecordTransfer
-            key={correcting.id}
-            b={b}
-            mutate={mutate}
-            busy={busy}
-            correcting={correcting}
-            onClose={() => setCorrecting(null)}
-          />
-        )}
-        {toast && (
-          <div className="toast" role="status">
-            <Check size={17} />
-            {toast}
-            <button
-              className="icon-button"
-              aria-label="Dismiss notification"
-              onClick={() => setToast("")}
-            >
-              <X size={15} />
-            </button>
-          </div>
-        )}
-        {assistant && (
-          <Modal
-            title="Your workspace assistant"
-            onClose={() => setAssistant(false)}
-          >
-            <div className="assistant-body">
-              <div className="assistant-orb">
-                <Sparkles size={28} />
-              </div>
-              <span className="badge neutral">
-                Deterministic demo · no live AI
-              </span>
-              <h3>A little help finding clarity.</h3>
-              <p>
-                Answers use {b.profile.name}’s saved records for{" "}
-                <strong>{period}</strong>. Documents are not read or analyzed.
-              </p>
-              <div className="assistant-prompts">
-                {[
-                  "What needs review?",
-                  "What did we spend?",
-                  "Which category is largest?",
-                ].map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => setAnswer(demoAI.answer(b, q, period))}
-                  >
-                    {q}
-                    <ArrowUpRight size={16} />
-                  </button>
-                ))}
-              </div>
-              {answer && (
-                <div className="assistant-answer" role="status">
-                  <Sparkles size={16} />
-                  <p>{answer}</p>
+              {remote?.stoppedFor(b.profile.id) && (
+                <div role="alert" className="alert error global-error">
+                  <span>{remote.stoppedFor(b.profile.id)}</span>
                 </div>
               )}
-              <div className="guide-note">
-                <h4>Your expense workflow</h4>
-                <p>
-                  Create a draft or import a payment. Attach a receipt, review
-                  the fields, then approve a valid expense. Find its entry in
-                  Transactions and use “Correct expense” to preserve a linked
-                  history.
-                </p>
-                <small>
-                  Local demo storage is not production authentication. No
-                  payments, financial data, or documents are sent externally.
-                </small>
-              </div>
-            </div>
-          </Modal>
-        )}
-        {reset && (
-          <Modal
-            title="Reset demonstration data?"
-            onClose={() => setReset(false)}
-          >
-            <div className="modal-form">
-              <p>
-                This deletes all local edits, imported transactions, and
-                attachments for <strong>both businesses</strong> and restores
-                the fictional examples. This cannot be undone.
-              </p>
-              <label>
-                Type RESET to continue
-                <input
-                  value={resetText}
-                  onChange={(e) => setResetText(e.target.value)}
-                />
-              </label>
-              <button
-                className="button danger"
-                disabled={resetText !== "RESET" || busy}
-                onClick={async () => {
-                  if (lock.current) return;
-                  lock.current = true;
-                  setBusy(true);
-                  try {
-                    const fresh = await localLedger.reset();
-                    setWorkspace(fresh);
-                    setReset(false);
-                    setView("overview");
-                    setToast("Both demo businesses have been reset.");
-                  } catch (e) {
-                    setError((e as Error).message);
-                  } finally {
-                    lock.current = false;
-                    setBusy(false);
-                  }
-                }}
+              {error && error !== remote?.stoppedFor(b.profile.id) && (
+                <div role="alert" className="alert error global-error">
+                  <span>{error}</span>
+                  <button
+                    className="icon-button"
+                    onClick={() => setError("")}
+                    aria-label="Dismiss error"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+              <ErrorBoundary
+                label="This screen"
+                resetKey={`${view}:${b.profile.id}`}
               >
-                Reset both businesses
+                {view === "overview" && (
+                  <Overview
+                    b={b}
+                    period={period}
+                    setPeriod={setPeriod}
+                    currency={currency}
+                    setCurrency={setCurrency}
+                    open={setReview}
+                    navigate={navigate}
+                  />
+                )}
+                {view === "inbox" && (
+                  <InboxView
+                    key={b.profile.id}
+                    b={b}
+                    open={setReview}
+                    create={writes ? () => setReview(blankDraft(b)) : undefined}
+                    byAssistant={people?.byAssistant}
+                  />
+                )}
+                {view === "transactions" && (
+                  <Transactions
+                    key={b.profile.id}
+                    b={b}
+                    open={setReview}
+                    openTransfer={setTransfer}
+                  />
+                )}
+                {view === "settings" && (
+                  <Settings
+                    key={b.profile.id}
+                    b={b}
+                    mutate={mutate}
+                    busy={busy}
+                    onReset={
+                      remote
+                        ? undefined
+                        : () => {
+                            setResetText("");
+                            setReset(true);
+                          }
+                    }
+                  />
+                )}
+                {view === "members" && membership && people && tools && (
+                  <Members
+                    key={b.profile.id}
+                    membership={membership}
+                    people={people}
+                    tools={tools}
+                    mutate={mutate}
+                    busy={busy}
+                  />
+                )}
+              </ErrorBoundary>
+              <footer className="page-footer">
+                <span>
+                  <span className="local-dot" />
+                  {remote
+                    ? "Books from the ledger service, verified in this browser"
+                    : "Saved on this device"}
+                </span>
+                <span>
+                  {PRODUCT_NAME} <span className="footer-separator">/</span> A
+                  little more clarity.
+                </span>
+              </footer>
+            </main>
+          </div>
+          {review && (
+            <ErrorBoundary
+              label="This expense"
+              resetKey={review.id}
+              onClose={() => setReview(null)}
+            >
+              <Review
+                key={review.id}
+                b={b}
+                initial={review}
+                mutate={mutate}
+                onClose={() => setReview(null)}
+                onOpen={setReview}
+                busy={busy}
+                canEdit={canEdit(review)}
+                canApprove={writes}
+                byAssistant={!!people?.byAssistant[review.id]}
+              />
+            </ErrorBoundary>
+          )}
+          {importing && (
+            <ImportDialog
+              b={b}
+              mutate={mutate}
+              onClose={() => setImporting(false)}
+              busy={busy}
+            />
+          )}
+          {exporting && (
+            <ExportDialog b={b} onClose={() => setExporting(false)} />
+          )}
+          {recording && (
+            <RecordTransfer
+              b={b}
+              mutate={mutate}
+              busy={busy}
+              onClose={() => setRecording(false)}
+            />
+          )}
+          {exchanging && (
+            <RecordExchange
+              b={b}
+              mutate={mutate}
+              busy={busy}
+              onClose={() => setExchanging(false)}
+            />
+          )}
+          {correcting &&
+            (correcting.transferType === "exchange" ? (
+              <RecordExchange
+                key={correcting.id}
+                b={b}
+                mutate={mutate}
+                busy={busy}
+                correcting={correcting}
+                onClose={() => setCorrecting(null)}
+              />
+            ) : (
+              <RecordTransfer
+                key={correcting.id}
+                b={b}
+                mutate={mutate}
+                busy={busy}
+                correcting={correcting}
+                onClose={() => setCorrecting(null)}
+              />
+            ))}
+          {toast && (
+            <div className="toast" role="status">
+              <Check size={17} />
+              {toast}
+              <button
+                className="icon-button"
+                aria-label="Dismiss notification"
+                onClick={() => setToast("")}
+              >
+                <X size={15} />
               </button>
             </div>
-          </Modal>
-        )}
-        {transfer && (
-          <Modal title="Account transfer" onClose={() => setTransfer(null)}>
-            <div className="modal-form">
-              <span className="badge blue">
-                {transfer.transferType
-                  ? transferTypeLabels[transfer.transferType]
-                  : "Transfer"}{" "}
-                · excluded from spending
-              </span>
-              <h3>{transfer.memo}</h3>
-              <p>
-                {transfer.date}
-                {transfer.purpose && ` · ${transfer.purpose}`}
-                {transfer.reference && ` · Reference ${transfer.reference}`}
-              </p>
-              {b.journals.some((j) => j.reversesId === transfer.id) && (
-                <p className="small muted">
-                  Corrected: a reversal and a replacement were posted.
-                </p>
-              )}
-              {transfer.lines.map((l, i) => (
-                <div className="setting-row" key={i}>
-                  <strong>
-                    {b.accounts.find((a) => a.id === l.accountId)?.name}
-                  </strong>
-                  <span>
-                    {l.debit ? "To" : "From"} ·{" "}
-                    {money(l.debit || l.credit, transfer.currency)}
-                  </span>
+          )}
+          {assistant && (
+            <Modal
+              title="Your workspace assistant"
+              onClose={() => setAssistant(false)}
+            >
+              <div className="assistant-body">
+                <div className="assistant-orb">
+                  <Sparkles size={28} />
                 </div>
-              ))}
-              <p className="small muted">
-                This balanced entry moves value between accounts. It is not an
-                expense or a payment instruction.
-              </p>
-              {writes &&
-                transfer.transferType !== "openingBalance" &&
-                !b.journals.some((j) => j.reversesId === transfer.id) && (
-                  <button
-                    className="button secondary"
-                    onClick={() => {
-                      setCorrecting(transfer);
-                      setTransfer(null);
-                    }}
-                  >
-                    Correct transfer
-                  </button>
-                )}
-              {transfer.transferType === "openingBalance" && (
-                <p className="small muted">
-                  Correct an opening balance in Settings.
+                <span className="badge neutral">
+                  Deterministic demo · no live AI
+                </span>
+                <h3>A little help finding clarity.</h3>
+                <p>
+                  Answers use {b.profile.name}’s saved records for{" "}
+                  <strong>{period}</strong>. Documents are not read or analyzed.
                 </p>
-              )}
-            </div>
-          </Modal>
-        )}
-      </div>
-    </SaveErrorContext.Provider>
+                <div className="assistant-prompts">
+                  {[
+                    "What needs review?",
+                    "What did we spend?",
+                    "Which category is largest?",
+                  ].map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => setAnswer(demoAI.answer(b, q, period))}
+                    >
+                      {q}
+                      <ArrowUpRight size={16} />
+                    </button>
+                  ))}
+                </div>
+                {answer && (
+                  <div className="assistant-answer" role="status">
+                    <Sparkles size={16} />
+                    <p>{answer}</p>
+                  </div>
+                )}
+                <div className="guide-note">
+                  <h4>Your expense workflow</h4>
+                  <p>
+                    Create a draft or import a payment. Attach a receipt, review
+                    the fields, then approve a valid expense. Find its entry in
+                    Transactions and use “Correct expense” to preserve a linked
+                    history.
+                  </p>
+                  <small>
+                    Local demo storage is not production authentication. No
+                    payments, financial data, or documents are sent externally.
+                  </small>
+                </div>
+              </div>
+            </Modal>
+          )}
+          {reset && (
+            <Modal
+              title="Reset demonstration data?"
+              onClose={() => setReset(false)}
+            >
+              <div className="modal-form">
+                <p>
+                  This deletes all local edits, imported transactions, and
+                  attachments for <strong>both businesses</strong> and restores
+                  the fictional examples. This cannot be undone.
+                </p>
+                <label>
+                  Type RESET to continue
+                  <input
+                    value={resetText}
+                    onChange={(e) => setResetText(e.target.value)}
+                  />
+                </label>
+                <button
+                  className="button danger"
+                  disabled={resetText !== "RESET" || busy}
+                  onClick={async () => {
+                    if (lock.current) return;
+                    lock.current = true;
+                    setBusy(true);
+                    try {
+                      const fresh = await localLedger.reset();
+                      setWorkspace(fresh);
+                      setReset(false);
+                      setView("overview");
+                      setToast("Both demo businesses have been reset.");
+                    } catch (e) {
+                      setError((e as Error).message);
+                    } finally {
+                      lock.current = false;
+                      setBusy(false);
+                    }
+                  }}
+                >
+                  Reset both businesses
+                </button>
+              </div>
+            </Modal>
+          )}
+          {transfer && (
+            <Modal title="Account transfer" onClose={() => setTransfer(null)}>
+              <div className="modal-form">
+                <span className="badge blue">
+                  {transfer.transferType
+                    ? transferTypeLabels[transfer.transferType]
+                    : "Transfer"}{" "}
+                  · excluded from spending
+                </span>
+                <h3>{transfer.memo}</h3>
+                <p>
+                  {transfer.date}
+                  {transfer.purpose && ` · ${transfer.purpose}`}
+                  {transfer.reference && ` · Reference ${transfer.reference}`}
+                </p>
+                {b.journals.some((j) => j.reversesId === transfer.id) && (
+                  <p className="small muted">
+                    Corrected: a reversal and a replacement were posted.
+                  </p>
+                )}
+                <TransferLines b={b} transfer={transfer} />
+                <p className="small muted">
+                  This balanced entry moves value between accounts. It is not an
+                  expense or a payment instruction.
+                </p>
+                {writes &&
+                  transfer.transferType !== "openingBalance" &&
+                  !b.journals.some((j) => j.reversesId === transfer.id) && (
+                    <button
+                      className="button secondary"
+                      onClick={() => {
+                        setCorrecting(transfer);
+                        setTransfer(null);
+                      }}
+                    >
+                      Correct transfer
+                    </button>
+                  )}
+                {transfer.transferType === "openingBalance" && (
+                  <p className="small muted">
+                    Correct an opening balance in Settings.
+                  </p>
+                )}
+              </div>
+            </Modal>
+          )}
+        </div>
+      </SaveErrorContext.Provider>
+    </BitcoinUnitProvider>
   );
 }
 function Overview({
@@ -862,6 +895,7 @@ function Overview({
   open: (d: ExpenseDraft) => void;
   navigate: (v: View) => void;
 }) {
+  const money = useMoney();
   const total = totals(b, period),
     categories = categoryTotals(b, period, currency);
   const drafts = b.drafts.filter((d) => d.status === "draft");
@@ -1067,6 +1101,9 @@ function Overview({
         </section>
       </div>
       <BalancesPanel b={b} currency={currency} />
+      {b.accounts.some((a) => a.kind === "wallet") && (
+        <BitcoinPanel b={b} period={period} currency={currency} />
+      )}
       <section className="card recent-card">
         <div className="card-heading">
           <div>
@@ -1110,6 +1147,7 @@ function BalancesPanel({
   b: BusinessData;
   currency: Currency;
 }) {
+  const money = useMoney();
   const asOf = today();
   const rows = balances(b, asOf, currency);
   return (
@@ -1166,6 +1204,7 @@ function ExpenseTable({
   /** Drafts an AI assistant created, by id. */
   byAssistant?: Record<string, string>;
 }) {
+  const money = useMoney();
   return (
     <div className="table-scroll">
       <table className="expenses-table">
@@ -1371,6 +1410,7 @@ function Transactions({
   open: (d: ExpenseDraft) => void;
   openTransfer: (j: JournalEntry) => void;
 }) {
+  const money = useMoney();
   const [search, setSearch] = useState(""),
     [filter, setFilter] = useState("All records");
   const rows = b.drafts
@@ -1453,7 +1493,11 @@ function Transactions({
               ? "Corrected"
               : "Transfer"}
           </span>
-          <strong>{money(t.lines[0].debit, t.currency)}</strong>
+          <strong>
+            {t.transferType === "exchange" && t.fiatValue
+              ? `${money(exchangeSats(b, t), "BTC")} · ${money(t.fiatValue.amountMinor, t.fiatValue.currency)}`
+              : money(t.lines[0].debit, t.currency)}
+          </strong>
           <ArrowUpRight size={16} />
         </button>
       ))}
@@ -1467,6 +1511,167 @@ function Transactions({
         <span>
           <ShieldCheck size={14} />
           Balanced, traceable records
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/** An exchange's sats: the amount on its wallet's line. */
+const exchangeSats = (b: BusinessData, j: JournalEntry) => {
+  const line = j.lines.find(
+    (l) => b.accounts.find((a) => a.id === l.accountId)?.kind === "wallet",
+  );
+  return line ? line.debit || line.credit : 0;
+};
+
+const fiatSourceLabels = {
+  manual: "entered by hand",
+  "price-series": "from a price series",
+  exchange: "from the exchange",
+} as const;
+
+/**
+ * A transfer's lines, each in its own currency (an exchange's fiat side is
+ * in its fiat account's), and a bitcoin transfer's recorded value.
+ */
+function TransferLines({
+  b,
+  transfer,
+}: {
+  b: BusinessData;
+  transfer: JournalEntry;
+}) {
+  const money = useMoney();
+  const value = transfer.fiatValue;
+  return (
+    <>
+      {transfer.lines.map((l, i) => {
+        const account = b.accounts.find((a) => a.id === l.accountId);
+        return (
+          <div className="setting-row" key={i}>
+            <strong>{account?.name}</strong>
+            <span>
+              {l.debit ? "To" : "From"} ·{" "}
+              {money(
+                l.debit || l.credit,
+                lineCurrency(transfer, account?.kind),
+              )}
+            </span>
+          </div>
+        );
+      })}
+      {value && (
+        <p className="small muted">
+          {transfer.transferType === "exchange"
+            ? "Exchanged at"
+            : `Worth ${money(value.amountMinor, value.currency)} at the time, at`}{" "}
+          {rateText(value.rate, value.currency)},{" "}
+          {fiatSourceLabels[value.source]}, as of{" "}
+          {value.at.replace("T", " ").replace("Z", " UTC")}.
+          {transfer.millisats !== undefined &&
+            ` Paid as ${transfer.millisats.toLocaleString("en-US")} millisats.`}
+        </p>
+      )}
+    </>
+  );
+}
+
+/**
+ * Bitcoin on the Overview, apart from every other currency: wallet
+ * balances and spending in sats, and, labeled as such, the value of that
+ * spending when it happened, from the values recorded with each entry.
+ * Never today's price, and never added to the dollar totals.
+ */
+function BitcoinPanel({
+  b,
+  period,
+  currency,
+}: {
+  b: BusinessData;
+  period: string;
+  currency: Currency;
+}) {
+  const money = useMoney();
+  const asOf = today();
+  const wallets = balances(b, asOf, "BTC").filter((r) => r.kind === "wallet");
+  const spent = totals(b, period).BTC ?? 0;
+  const categories = categoryTotals(b, period, "BTC");
+  const valued = Object.entries(recordedFiatSpending(b, period)) as [
+    Currency,
+    number,
+  ][];
+  // The reporting currency first, then any other a value was recorded in.
+  valued.sort(([a], [z]) => Number(z === currency) - Number(a === currency));
+  return (
+    <section className="card recent-card" aria-labelledby="bitcoin-heading">
+      <div className="card-heading">
+        <div>
+          <h2 id="bitcoin-heading">Bitcoin</h2>
+          <p>
+            In sats, never added to other currencies <span>· BTC</span>
+          </p>
+        </div>
+        <UnitToggle />
+      </div>
+      <div className="bitcoin-grid">
+        <div>
+          <h3>Wallet balances</h3>
+          <p className="small muted">As of today, {shortDate(asOf)}</p>
+          {wallets.map((r) => (
+            <div className="setting-row" key={r.accountId}>
+              <div>
+                <strong>{r.name}</strong>
+                <small>{accountKindLabels[r.kind]}</small>
+              </div>
+              <span>
+                <small className="small muted">
+                  {balanceMeanings[r.kind as keyof typeof balanceMeanings]}
+                </small>{" "}
+                <strong>{money(r.balance, "BTC")}</strong>
+              </span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <h3>Spending in bitcoin</h3>
+          <p className="small muted">Posted expenses this period</p>
+          <div className="setting-row">
+            <strong>Total</strong>
+            <strong aria-label="Bitcoin spending this period">
+              {money(spent, "BTC")}
+            </strong>
+          </div>
+          {categories.map((c) => (
+            <div className="setting-row" key={c.categoryId}>
+              <span>{c.name}</span>
+              <span>{money(c.amount, "BTC")}</span>
+            </div>
+          ))}
+        </div>
+        <div aria-labelledby="fiat-value-heading">
+          <h3 id="fiat-value-heading">Dollar value at time of transaction</h3>
+          <p className="small muted">
+            What this period's bitcoin spending was worth when it happened, from
+            the value recorded with each entry. Not today's price, and not part
+            of total spending.
+          </p>
+          {valued.length ? (
+            valued.map(([c, n]) => (
+              <div className="setting-row" key={c}>
+                <span>{c}</span>
+                <strong>{money(n, c)}</strong>
+              </div>
+            ))
+          ) : (
+            <p className="small muted">No bitcoin spending this period.</p>
+          )}
+        </div>
+      </div>
+      <div className="card-foot">
+        <span>
+          Exchanges move money between a wallet and an account. They're never
+          spending.
         </span>
       </div>
     </section>

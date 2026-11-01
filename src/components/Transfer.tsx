@@ -3,17 +3,31 @@ import type {
   Account,
   BusinessData,
   Currency,
+  FiatCurrency,
   JournalEntry,
 } from "../domain/types";
-import { fiatCurrencies } from "../domain/types";
+import { currencies, fiatCurrencies } from "../domain/types";
 import { amountInput, money, parseMoney, today } from "../domain/ledger";
 import {
   transferAccounts,
   transferTypeLabels,
   transferTypes,
+  type TransferInput,
 } from "../domain/transfers";
 import type { Mutation } from "./Review";
 import { Modal } from "./common";
+import {
+  BitcoinAmount,
+  FiatValueField,
+  bitcoinInput,
+  fiatValueFrom,
+  fiatValueLabel,
+  parseBitcoin,
+  rateText,
+  useBitcoinUnit,
+  useMoney,
+  useUnitChange,
+} from "./bitcoin";
 
 type Choice = (typeof transferTypes)[number];
 
@@ -107,14 +121,31 @@ export function RecordTransfer({
       : start("ownerLoan", b.profile.currency),
   );
   const [date, setDate] = useState(correcting?.date ?? today());
+  const { unit } = useBitcoinUnit();
+  const format = useMoney();
+  const originalAmount =
+    correcting && (correcting.lines[0].debit || correcting.lines[0].credit);
   const [amount, setAmount] = useState(
     correcting
-      ? amountInput(
-          correcting.lines[0].debit || correcting.lines[0].credit,
-          correcting.currency,
-        )
+      ? correcting.currency === "BTC"
+        ? bitcoinInput(originalAmount!, unit)
+        : amountInput(originalAmount!, correcting.currency)
       : "",
   );
+  // A bitcoin transfer's value at the time, typed by a person.
+  const fiatCurrency: FiatCurrency =
+    correcting?.fiatValue?.currency ?? b.profile.currency;
+  const [fiat, setFiat] = useState(
+    correcting?.fiatValue
+      ? amountInput(correcting.fiatValue.amountMinor, fiatCurrency)
+      : "",
+  );
+  const bitcoin = currency === "BTC";
+  const parseAmount = (text: string) =>
+    bitcoin ? parseBitcoin(text, unit) : parseMoney(text, currency);
+  useUnitChange((convert) => {
+    if (bitcoin) setAmount(convert);
+  });
   const [purpose, setPurpose] = useState(correcting?.purpose ?? "");
   const [reference, setReference] = useState(correcting?.reference ?? "");
   const [reason, setReason] = useState("");
@@ -124,7 +155,7 @@ export function RecordTransfer({
   const toAccount = to.find((a) => a.id === toId);
   let amountMinor: number | undefined;
   try {
-    amountMinor = amount.trim() ? parseMoney(amount, currency) : undefined;
+    amountMinor = amount.trim() ? parseAmount(amount) : undefined;
   } catch {
     amountMinor = undefined;
   }
@@ -146,13 +177,17 @@ export function RecordTransfer({
   async function save() {
     setError("");
     let minor: number;
+    let fiatValue;
     try {
-      minor = parseMoney(amount, currency);
+      minor = parseAmount(amount);
+      fiatValue = bitcoin
+        ? fiatValueFrom(minor, fiat, fiatCurrency, "manual", date)
+        : undefined;
     } catch (e) {
       setError((e as Error).message);
       return;
     }
-    const transfer = {
+    const transfer: TransferInput = {
       date,
       amountMinor: minor,
       currency,
@@ -161,6 +196,7 @@ export function RecordTransfer({
       transferType: type,
       purpose,
       ...(reference.trim() && { reference }),
+      ...(fiatValue && { fiatValue }),
     };
     const ok = await mutate(
       [
@@ -185,7 +221,9 @@ export function RecordTransfer({
           type === "ownerLoan" || type === "loanRepayment"
             ? "a loan account"
             : type === "betweenAccounts"
-              ? "a second bank or card account"
+              ? bitcoin
+                ? "a second wallet"
+                : "a second bank or card account"
               : "an owner equity account"
         } in ${currency} in Settings first.`
       : "";
@@ -226,8 +264,10 @@ export function RecordTransfer({
             value={currency}
             onChange={(e) => choose(type, e.target.value as Currency)}
           >
-            {fiatCurrencies.map((c) => (
-              <option key={c}>{c}</option>
+            {currencies.map((c) => (
+              <option key={c} value={c}>
+                {c === "BTC" ? "BTC (bitcoin)" : c}
+              </option>
             ))}
           </select>
         </label>
@@ -285,16 +325,30 @@ export function RecordTransfer({
               onChange={(e) => setDate(e.target.value)}
             />
           </label>
-          <label>
-            Amount ({currency})
-            <input
-              required
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </label>
+          {!bitcoin && (
+            <label>
+              Amount ({currency})
+              <input
+                required
+                inputMode="decimal"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </label>
+          )}
         </div>
+        {bitcoin && (
+          <>
+            <BitcoinAmount value={amount} onChange={setAmount} />
+            <FiatValueField
+              sats={amountMinor}
+              currency={fiatCurrency}
+              label={fiatValueLabel(fiatCurrency, "transfer")}
+              value={fiat}
+              onChange={setFiat}
+            />
+          </>
+        )}
         <label>
           Purpose
           <input
@@ -330,7 +384,7 @@ export function RecordTransfer({
               type,
               fromAccount,
               toAccount,
-              money(amountMinor!, currency),
+              format(amountMinor!, currency),
             )}
           </p>
         )}
@@ -341,6 +395,308 @@ export function RecordTransfer({
         </p>
         <button className="button primary" disabled={busy || !ready}>
           {correcting ? "Post correction" : "Record transfer"}
+        </button>
+      </form>
+    </Modal>
+  );
+}
+
+/**
+ * Buys or sells bitcoin, or with `correcting`, corrects an exchange: sats
+ * into or out of a wallet, against a dollar, euro or pound bank or card
+ * account, both amounts as they happened. A correction keeps both
+ * accounts; the amounts, direction, date and time may change.
+ */
+export function RecordExchange({
+  b,
+  mutate,
+  onClose,
+  busy,
+  correcting,
+}: {
+  b: BusinessData;
+  mutate: Mutation;
+  onClose: () => void;
+  busy: boolean;
+  correcting?: JournalEntry;
+}) {
+  const { unit } = useBitcoinUnit();
+  const mine = (a: Account) => a.businessId === b.profile.id;
+  const wallets = b.accounts.filter((a) => mine(a) && a.kind === "wallet");
+  const fiatAccounts = b.accounts.filter(
+    (a) =>
+      mine(a) &&
+      (a.kind === "bank" || a.kind === "card") &&
+      (fiatCurrencies as Currency[]).includes(a.currency),
+  );
+  const walletLine = correcting?.lines.find((l) =>
+    wallets.some((w) => w.id === l.accountId),
+  );
+  const fiatLine = correcting?.lines.find((l) => l !== walletLine);
+  const [buy, setBuy] = useState(walletLine ? walletLine.debit > 0 : true);
+  const [walletId, setWalletId] = useState(
+    walletLine?.accountId ?? wallets[0]?.id ?? "",
+  );
+  const [fiatId, setFiatId] = useState(
+    fiatLine?.accountId ??
+      fiatAccounts.find((a) => a.currency === b.profile.currency)?.id ??
+      fiatAccounts[0]?.id ??
+      "",
+  );
+  const [date, setDate] = useState(correcting?.date ?? today());
+  const [time, setTime] = useState(
+    /T(\d{2}:\d{2})/.exec(correcting?.fiatValue?.at ?? "")?.[1] ?? "",
+  );
+  const [amount, setAmount] = useState(
+    walletLine ? bitcoinInput(walletLine.debit || walletLine.credit, unit) : "",
+  );
+  const [fiat, setFiat] = useState(
+    correcting?.fiatValue
+      ? amountInput(
+          correcting.fiatValue.amountMinor,
+          correcting.fiatValue.currency,
+        )
+      : "",
+  );
+  const [purpose, setPurpose] = useState(correcting?.purpose ?? "");
+  const [reference, setReference] = useState(correcting?.reference ?? "");
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+  useUnitChange((convert) => setAmount(convert));
+  const wallet = wallets.find((a) => a.id === walletId);
+  const fiatAccount = fiatAccounts.find((a) => a.id === fiatId);
+  const fiatCurrency = (fiatAccount?.currency ??
+    b.profile.currency) as FiatCurrency;
+  let sats: number | undefined;
+  try {
+    sats = amount.trim() ? parseBitcoin(amount, unit) : undefined;
+  } catch {
+    sats = undefined;
+  }
+  /** The exchange as typed; throws a message if an amount isn't one. */
+  function exchange(): TransferInput {
+    const amountMinor = parseBitcoin(amount, unit);
+    const fiatValue = fiatValueFrom(
+      amountMinor,
+      fiat,
+      fiatCurrency,
+      "exchange",
+      time ? `${date}T${time}Z` : date,
+    );
+    return {
+      date,
+      amountMinor,
+      currency: "BTC",
+      fromAccountId: buy ? fiatId : walletId,
+      toAccountId: buy ? walletId : fiatId,
+      transferType: "exchange",
+      purpose,
+      ...(reference.trim() && { reference }),
+      ...(fiatValue && { fiatValue }),
+    };
+  }
+  let preview: TransferInput | undefined;
+  try {
+    preview = wallet && fiatAccount && fiat.trim() ? exchange() : undefined;
+  } catch {
+    preview = undefined;
+  }
+  async function save() {
+    setError("");
+    let transfer: TransferInput;
+    try {
+      transfer = exchange();
+    } catch (e) {
+      setError((e as Error).message);
+      return;
+    }
+    const ok = await mutate(
+      [
+        correcting
+          ? {
+              type: "CorrectTransfer",
+              originalId: correcting.id,
+              replacement: transfer,
+              reason,
+            }
+          : { type: "RecordTransfer", transfer },
+      ],
+      correcting
+        ? "Exchange corrected."
+        : buy
+          ? "Bitcoin purchase recorded."
+          : "Bitcoin sale recorded.",
+    );
+    if (ok) onClose();
+  }
+  const missing = !wallets.length
+    ? "Add a bitcoin wallet in Settings first."
+    : !fiatAccounts.length
+      ? "Add a dollar, euro or pound bank or card account in Settings first."
+      : "";
+  const paid = buy ? "paid" : "received";
+  return (
+    <Modal
+      title={correcting ? "Correct exchange" : "Buy or sell bitcoin"}
+      onClose={onClose}
+    >
+      <form
+        className="modal-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void save();
+        }}
+      >
+        {error && (
+          <p role="alert" className="error-text">
+            {error}
+          </p>
+        )}
+        <fieldset className="choice-row">
+          <legend>Exchange</legend>
+          {(
+            [
+              [true, "Buy bitcoin"],
+              [false, "Sell bitcoin"],
+            ] as const
+          ).map(([value, label]) => (
+            <label key={label} className="checkbox-label">
+              <input
+                type="radio"
+                name="direction"
+                checked={buy === value}
+                onChange={() => setBuy(value)}
+              />
+              {label}
+            </label>
+          ))}
+        </fieldset>
+        {missing ? (
+          <p className="alert error" role="alert">
+            {missing}
+          </p>
+        ) : (
+          <div className="field-row">
+            <label>
+              Wallet
+              <select
+                value={walletId}
+                disabled={!!correcting}
+                onChange={(e) => setWalletId(e.target.value)}
+              >
+                {wallets.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {buy ? "Paid from" : "Paid into"}
+              <select
+                value={fiatId}
+                disabled={!!correcting}
+                onChange={(e) => setFiatId(e.target.value)}
+              >
+                {fiatAccounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} · {a.currency}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
+        {correcting && (
+          <p className="small muted">
+            A correction keeps the wallet and the account. To change either,
+            correct this exchange to the right amounts and record another.
+          </p>
+        )}
+        <div className="field-row">
+          <label>
+            Date
+            <input
+              type="date"
+              required
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </label>
+          <label>
+            Time, UTC (optional)
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+            />
+          </label>
+        </div>
+        <BitcoinAmount
+          label={buy ? "Bitcoin bought" : "Bitcoin sold"}
+          value={amount}
+          onChange={setAmount}
+        />
+        <FiatValueField
+          sats={sats}
+          currency={fiatCurrency}
+          label={`Amount ${paid}`}
+          value={fiat}
+          onChange={setFiat}
+          help={`What the exchange ${buy ? "charged" : "paid"}, in ${fiatCurrency}, fees included.`}
+        />
+        <label>
+          Purpose
+          <input
+            required
+            value={purpose}
+            onChange={(e) => setPurpose(e.target.value)}
+            maxLength={200}
+          />
+        </label>
+        <label>
+          Reference (optional)
+          <input
+            value={reference}
+            onChange={(e) => setReference(e.target.value)}
+            maxLength={80}
+          />
+        </label>
+        {correcting && (
+          <label>
+            Reason for the correction
+            <input
+              required
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              maxLength={200}
+            />
+          </label>
+        )}
+        {preview?.fiatValue && wallet && fiatAccount && (
+          <p className="validation-note" role="status">
+            {correcting && "Once the original is reversed: "}
+            {buy
+              ? `${fiatAccount.name} pays ${money(preview.fiatValue.amountMinor, fiatCurrency)} for ${money(preview.amountMinor, "BTC", unit)} into ${wallet.name}`
+              : `${wallet.name} sells ${money(preview.amountMinor, "BTC", unit)} for ${money(preview.fiatValue.amountMinor, fiatCurrency)} into ${fiatAccount.name}`}
+            , at {rateText(preview.fiatValue.rate, fiatCurrency)}. This isn't
+            spending.
+          </p>
+        )}
+        <p className="small muted">
+          {correcting
+            ? "The original stays in the books: it's reversed exactly, and this exchange is recorded in its place, linked to it."
+            : "An exchange posts at once. Both amounts are kept as they happened; nothing is looked up."}
+        </p>
+        <button
+          className="button primary"
+          disabled={busy || !!missing || !preview}
+        >
+          {correcting
+            ? "Post correction"
+            : buy
+              ? "Record purchase"
+              : "Record sale"}
         </button>
       </form>
     </Modal>

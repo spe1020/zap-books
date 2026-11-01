@@ -16,8 +16,8 @@ import type {
   ClassificationRule,
   Currency,
 } from "../domain/types";
-import { fiatCurrencies } from "../domain/types";
-import { amountInput, id, money, parseMoney, today } from "../domain/ledger";
+import { currencies, fiatCurrencies } from "../domain/types";
+import { amountInput, id, parseMoney, today } from "../domain/ledger";
 import {
   accountKindLabels,
   firstEntryDate,
@@ -27,6 +27,17 @@ import {
 import { PRODUCT_NAME } from "../config";
 import type { Mutation } from "./Review";
 import { Modal } from "./common";
+import {
+  BitcoinAmount,
+  FiatValueField,
+  bitcoinInput,
+  fiatValueFrom,
+  fiatValueLabel,
+  parseBitcoin,
+  useBitcoinUnit,
+  useMoney,
+  useUnitChange,
+} from "./bitcoin";
 
 type AccountChoice = Exclude<AccountKind, "expense">;
 
@@ -44,8 +55,9 @@ const ACCOUNTANT_NOTE =
   "Ask your accountant whether owner money is a loan or a contribution.";
 
 /** What an opening balance means for each kind it's offered for. */
-const openingLabel: Record<"bank" | "card" | "liability", string> = {
+const openingLabel: Record<"bank" | "card" | "liability" | "wallet", string> = {
   bank: "Balance in the account",
+  wallet: "Bitcoin in the wallet",
   card: "Amount owed on the card",
   liability: "Amount owed to the owner",
 };
@@ -75,8 +87,16 @@ export function Settings({
     account: Account;
     date: string;
     amount: string;
+    /** A wallet's value on the opening date, typed by a person. */
+    fiat: string;
     reason: string;
   }>();
+  const { unit } = useBitcoinUnit();
+  const format = useMoney();
+  useUnitChange((convert) => {
+    if (opening?.account.kind === "wallet")
+      setOpening({ ...opening, amount: convert(opening.amount) });
+  });
   const [error, setError] = useState("");
   async function saveEditor() {
     if (!editor?.name.trim()) {
@@ -107,13 +127,29 @@ export function Settings({
   const openable = b.accounts.filter(
     (a) =>
       a.businessId === b.profile.id &&
-      (a.kind === "bank" || a.kind === "card" || a.kind === "liability"),
+      (a.kind === "bank" ||
+        a.kind === "card" ||
+        a.kind === "liability" ||
+        a.kind === "wallet"),
   );
   async function saveOpening() {
     if (!opening) return;
+    const wallet = opening.account.kind === "wallet";
     let amountMinor: number;
+    let fiatValue;
     try {
-      amountMinor = parseMoney(opening.amount, opening.account.currency);
+      amountMinor = wallet
+        ? parseBitcoin(opening.amount, unit)
+        : parseMoney(opening.amount, opening.account.currency);
+      fiatValue = wallet
+        ? fiatValueFrom(
+            amountMinor,
+            opening.fiat,
+            b.profile.currency,
+            "manual",
+            opening.date,
+          )
+        : undefined;
     } catch (e) {
       setError((e as Error).message);
       return;
@@ -122,6 +158,7 @@ export function Settings({
       accountId: opening.account.id,
       date: opening.date,
       amountMinor,
+      ...(fiatValue && { fiatValue }),
     };
     let command;
     try {
@@ -214,8 +251,9 @@ export function Settings({
             </button>
           </div>
           <p>
-            Bank and card accounts, loans from the owner, and owner equity.
-            Accounts are local demo records, with no bank connection.
+            Bank and card accounts, bitcoin wallets, loans from the owner, and
+            owner equity. Accounts are local demo records, with no bank or
+            wallet connection.
           </p>
           <p className="small muted">{ACCOUNTANT_NOTE}</p>
           {b.accounts
@@ -261,7 +299,8 @@ export function Settings({
         </p>
         {openable.length === 0 ? (
           <p className="small muted">
-            Add a bank, card or loan account to record its opening balance.
+            Add a bank, card, wallet or loan account to record its opening
+            balance.
           </p>
         ) : (
           openable.map((a) => {
@@ -272,7 +311,7 @@ export function Settings({
                   <strong>{a.name}</strong>
                   <small>
                     {current
-                      ? `${openingLabel[a.kind as keyof typeof openingLabel]}: ${money(current.amountMinor, a.currency)} · ${current.journal.date}`
+                      ? `${openingLabel[a.kind as keyof typeof openingLabel]}: ${format(current.amountMinor, a.currency)} · ${current.journal.date}`
                       : `${accountKindLabels[a.kind]} · no opening balance`}
                   </small>
                 </div>
@@ -285,7 +324,15 @@ export function Settings({
                       account: a,
                       date: current?.journal.date ?? first ?? today(),
                       amount: current
-                        ? amountInput(current.amountMinor, a.currency)
+                        ? a.kind === "wallet"
+                          ? bitcoinInput(current.amountMinor, unit)
+                          : amountInput(current.amountMinor, a.currency)
+                        : "",
+                      fiat: current?.journal.fiatValue
+                        ? amountInput(
+                            current.journal.fiatValue.amountMinor,
+                            current.journal.fiatValue.currency,
+                          )
                         : "",
                       reason: "",
                     });
@@ -522,24 +569,53 @@ export function Settings({
                 }
               />
             </label>
-            <label>
-              {openingLabel[opening.account.kind as keyof typeof openingLabel]}{" "}
-              ({opening.account.currency})
-              <input
-                required
-                inputMode="decimal"
-                value={opening.amount}
-                onChange={(e) =>
-                  setOpening({ ...opening, amount: e.target.value })
-                }
-              />
-            </label>
+            {opening.account.kind === "wallet" ? (
+              <>
+                <BitcoinAmount
+                  label={openingLabel.wallet}
+                  value={opening.amount}
+                  onChange={(amount) => setOpening({ ...opening, amount })}
+                />
+                <FiatValueField
+                  sats={(() => {
+                    try {
+                      return parseBitcoin(opening.amount, unit);
+                    } catch {
+                      return undefined;
+                    }
+                  })()}
+                  currency={b.profile.currency}
+                  label={fiatValueLabel(b.profile.currency, "opening")}
+                  value={opening.fiat}
+                  onChange={(fiat) => setOpening({ ...opening, fiat })}
+                />
+              </>
+            ) : (
+              <label>
+                {
+                  openingLabel[
+                    opening.account.kind as keyof typeof openingLabel
+                  ]
+                }{" "}
+                ({opening.account.currency})
+                <input
+                  required
+                  inputMode="decimal"
+                  value={opening.amount}
+                  onChange={(e) =>
+                    setOpening({ ...opening, amount: e.target.value })
+                  }
+                />
+              </label>
+            )}
             <p className="small muted">
-              {opening.account.kind === "bank"
-                ? "For an overdrawn account, enter a negative amount."
-                : opening.account.kind === "card"
-                  ? "What the business owed on the card, as a positive amount."
-                  : "What the business owed the owner, as a positive amount."}
+              {opening.account.kind === "wallet"
+                ? "What the wallet held, as a positive amount. A wallet can't hold less than none."
+                : opening.account.kind === "bank"
+                  ? "For an overdrawn account, enter a negative amount."
+                  : opening.account.kind === "card"
+                    ? "What the business owed on the card, as a positive amount."
+                    : "What the business owed the owner, as a positive amount."}
             </p>
             {openingBalance(b, opening.account.id) && (
               <label>
@@ -591,15 +667,23 @@ export function Settings({
                   Type
                   <select
                     value={editor.kind}
-                    onChange={(e) =>
-                      setEditor({
-                        ...editor,
-                        kind: e.target.value as AccountChoice,
-                      })
-                    }
+                    onChange={(e) => {
+                      const kind = e.target.value as AccountChoice;
+                      // A wallet holds only bitcoin, and only a wallet,
+                      // loan or equity account can.
+                      const currency =
+                        kind === "wallet"
+                          ? "BTC"
+                          : editor.currency === "BTC" &&
+                              (kind === "bank" || kind === "card")
+                            ? b.profile.currency
+                            : editor.currency;
+                      setEditor({ ...editor, kind, currency });
+                    }}
                   >
                     <option value="bank">Bank account</option>
                     <option value="card">Credit card</option>
+                    <option value="wallet">Bitcoin wallet</option>
                     <option value="liability">Loan (owed to the owner)</option>
                     <option value="equity">Owner equity</option>
                   </select>
@@ -614,6 +698,7 @@ export function Settings({
                   Currency
                   <select
                     value={editor.currency}
+                    disabled={editor.kind === "wallet"}
                     onChange={(e) =>
                       setEditor({
                         ...editor,
@@ -621,8 +706,15 @@ export function Settings({
                       })
                     }
                   >
-                    {fiatCurrencies.map((c) => (
-                      <option key={c}>{c}</option>
+                    {(editor.kind === "wallet"
+                      ? (["BTC"] as const)
+                      : editor.kind === "bank" || editor.kind === "card"
+                        ? fiatCurrencies
+                        : currencies
+                    ).map((c) => (
+                      <option key={c} value={c}>
+                        {c === "BTC" ? "BTC (in sats)" : c}
+                      </option>
                     ))}
                   </select>
                 </label>
