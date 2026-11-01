@@ -26,15 +26,15 @@
     "parity:fixtures": "TZ=America/New_York vitest run --config scripts/vitest.parity.config.mjs"
   },
   "dependencies": {
-    "lucide-react": "^1.61.0",
-    "nostr-tools": "2.25.2",
+    "lucide-react": "^1.64.0",
+    "nostr-tools": "2.25.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.56.0",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.1.2",
