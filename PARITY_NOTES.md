@@ -225,11 +225,11 @@ the first entry`, `… dated on the first entry`.
   `transfer.reversed` event lists all three ids. A reversal doesn't copy its
   original's `correctionOf`. "Already corrected" means some journal reverses
   it. Fixtures: `transfers/correctTransfer: *`.
-- **O6. Type and purpose are optional on stored journals.** The seed's
-  transfers, and any stored before this change, have neither; they load
-  unchanged and can be corrected like any transfer. Every new transfer has
-  both. Fixture: `transfers/correctTransfer: a seeded transfer without a
-type`.
+- **O6. Type and purpose are optional on stored journals.** Transfers
+  stored before this change have neither; they load unchanged and can be
+  corrected like any transfer. Every new transfer has both, and so does the
+  seed's (owner funding PR 2). Fixture: `transfers/correctTransfer: a transfer stored before
+transfer types`.
 - **O7. The memo** of a new transfer is "from → to" with the account names,
   as the seed's transfers already were. Events are `transfer.recorded`
   ("Owner loan recorded", "Opening balance recorded", …) and
@@ -243,6 +243,22 @@ type`.
   remain expense outflows only.
 - **O10. Balances list every non-expense account in the currency**, in
   account order, including those with a zero balance.
+- **O11. Exports (owner funding PR 2).** The expense export adds a last
+  column, "Paid personally": "Loan" for an expense paid from a liability,
+  "Contribution" from equity, empty otherwise; the existing "Payment
+  account" column already names the account. The journal export adds
+  "Transfer type" (the label, such as "Owner loan"), "Purpose",
+  "Reference" and "Corrects journal ID" after its existing columns, so a
+  correction's link is in the file too. `exportBalances(business, asOf,
+currency)` is one row per `balances` row, with the account type and what
+  the balance is ("Held", "Owed", "Owed to owner", "Owner's stake").
+  Columns are only appended, so a reader that indexes the old ones still
+  works. Fixtures: `export/*`, including the existing ones, whose headers
+  and rows gained the columns.
+- **O12. The demo seed** gains an "Owner's loan" account and, last month,
+  a loan from the owner, an expense paid personally from it, and a
+  repayment, so this month's spending is unchanged. Its existing transfer
+  now carries the type `betweenAccounts` and a purpose.
 
 ## W: TypeScript behavior that looked wrong
 
@@ -426,6 +442,11 @@ Fixture: `import/previewImport: combined amount exceeds the safe range`.
   judges a draft's readings when it posts it, as the browser does.
   Fixtures: `approve/readings: *`, `correct/readings: *`.
 - `money()` display formatting (uses `Intl`; a UI concern).
+- The screen helpers at the end of `src/domain/transfers.ts`
+  (`paymentAccounts`, `transferAccounts`, `openingBalance`,
+  `openingBalanceReplacement`, `firstEntryDate`, and the label maps' use on
+  screens). They choose what a screen offers; the commands they feed are
+  ported and decide what's allowed.
 - `seed.ts`. Rust tests load the seed recorded by the fixture generator
   (`fixtures/parity/states/seed.json`).
 - `src/adapters/`, and the adapter-facing interfaces in `types.ts`
