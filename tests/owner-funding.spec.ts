@@ -198,3 +198,49 @@ test("Settings adds owner equity with its note, and sets and corrects an opening
   const scan = await new AxeBuilder({ page }).analyze();
   expect(scan.violations).toEqual([]);
 });
+
+test("a transfer is corrected from its detail: reversed, replaced and linked", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Transactions", exact: true }).click();
+  await page.getByRole("button", { name: "Transfers", exact: true }).click();
+  const loan = page
+    .locator(".transfer-row")
+    .filter({ hasText: "Working capital from the owner" });
+  await loan.click();
+  await page.getByRole("button", { name: "Correct transfer" }).click();
+  const dialog = page.getByRole("dialog", { name: "Correct transfer" });
+  // The form starts from the original.
+  await expect(dialog.getByLabel("Transfer type")).toHaveValue("ownerLoan");
+  await expect(dialog.getByLabel("Amount (USD)")).toHaveValue("6000.00");
+  await expect(dialog.getByLabel("Purpose")).toHaveValue(
+    "Working capital from the owner",
+  );
+  await dialog.getByLabel("Amount (USD)").fill("5520.00");
+  await dialog
+    .getByLabel("Reason for the correction")
+    .fill("Invented: the loan was smaller");
+  await dialog.getByRole("button", { name: "Post correction" }).click();
+  await toast(page, "Transfer corrected.");
+  await expect(dialog).not.toBeVisible();
+
+  // The original stays, marked corrected; the replacement is a new row.
+  await expect(loan).toHaveCount(2);
+  await expect(loan.filter({ hasText: "Corrected" })).toContainText(
+    "$6,000.00",
+  );
+  await expect(loan.filter({ hasText: "Transfer" })).toContainText("$5,520.00");
+  // A corrected transfer can't be corrected again.
+  await loan.filter({ hasText: "Corrected" }).click();
+  await expect(
+    page.getByText("Corrected: a reversal and a replacement were posted."),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Correct transfer" }),
+  ).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  // The seed's $4,714.70 owed, less the difference.
+  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await expect(balanceRow(page, "Owner's loan")).toContainText("$4,234.70");
+});

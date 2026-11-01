@@ -139,6 +139,7 @@ export default function App({
     [resetText, setResetText] = useState("");
   const [transfer, setTransfer] = useState<JournalEntry | null>(null);
   const [recording, setRecording] = useState(false);
+  const [correcting, setCorrecting] = useState<JournalEntry | null>(null);
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
   useEffect(() => {
@@ -662,6 +663,16 @@ export default function App({
             onClose={() => setRecording(false)}
           />
         )}
+        {correcting && (
+          <RecordTransfer
+            key={correcting.id}
+            b={b}
+            mutate={mutate}
+            busy={busy}
+            correcting={correcting}
+            onClose={() => setCorrecting(null)}
+          />
+        )}
         {toast && (
           <div className="toast" role="status">
             <Check size={17} />
@@ -808,6 +819,24 @@ export default function App({
                 This balanced entry moves value between accounts. It is not an
                 expense or a payment instruction.
               </p>
+              {writes &&
+                transfer.transferType !== "openingBalance" &&
+                !b.journals.some((j) => j.reversesId === transfer.id) && (
+                  <button
+                    className="button secondary"
+                    onClick={() => {
+                      setCorrecting(transfer);
+                      setTransfer(null);
+                    }}
+                  >
+                    Correct transfer
+                  </button>
+                )}
+              {transfer.transferType === "openingBalance" && (
+                <p className="small muted">
+                  Correct an opening balance in Settings.
+                </p>
+              )}
             </div>
           </Modal>
         )}
