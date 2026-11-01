@@ -8,6 +8,7 @@
     clippy::indexing_slicing
 )]
 
+pub mod blobs;
 pub mod clock;
 pub mod http;
 pub mod key;

@@ -6,11 +6,12 @@
 #![allow(dead_code)]
 
 use std::collections::BTreeMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::Arc;
 
 use ledger_core::{blank_draft, BusinessData, ExpenseDraft, Minor, SequentialEnv};
+use ledger_service::blobs::{BlobStore, DEFAULT_QUOTA};
 use ledger_service::clock::{uuid, Clock, FixedClock};
 use ledger_service::http::{router, AppState};
 use ledger_service::ratelimit::RateLimit;
@@ -66,10 +67,18 @@ pub struct World {
     pub admin: PgPool,
     pub name: String,
     pub business: BusinessId,
+    /// The blob store's directory, removed by [`World::finish`].
+    pub blob_dir: PathBuf,
 }
 
 impl World {
     pub async fn new() -> World {
+        World::with_blobs(DEFAULT_QUOTA, false).await
+    }
+
+    /// A world whose blob store has `quota` bytes per business, and whose
+    /// database connections log their statements if `statement_logging`.
+    pub async fn with_blobs(quota: u64, statement_logging: bool) -> World {
         let url = std::env::var("DATABASE_URL").expect(
             "The ledger-service tests need Postgres: set DATABASE_URL, for example \
              postgres://postgres@127.0.0.1:5432/postgres",
@@ -85,16 +94,24 @@ impl World {
             .execute(&admin)
             .await
             .unwrap();
+        let options = admin_options.database(&name);
+        let options = if statement_logging {
+            options
+        } else {
+            options.disable_statement_logging()
+        };
         let pool = PgPoolOptions::new()
             .max_connections(10)
-            .connect_with(admin_options.database(&name).disable_statement_logging())
+            .connect_with(options)
             .await
             .unwrap();
         Ledger::migrate(&pool).await.unwrap();
         let clock = Arc::new(FixedClock::new(real_now_millis()));
+        let blob_dir = std::env::temp_dir().join(&name);
         let ledger = Arc::new(
             Ledger::new(pool.clone(), service_keys(), clock.clone(), Arc::new(uuid))
-                .with_key(next_service_keys()),
+                .with_key(next_service_keys())
+                .with_blobs(BlobStore::open(&blob_dir, quota).unwrap()),
         );
         World {
             ledger,
@@ -103,11 +120,13 @@ impl World {
             admin,
             name,
             business: BusinessId::generate(),
+            blob_dir,
         }
     }
 
-    /// Drops the test database.
+    /// Drops the test database and the blob store.
     pub async fn finish(self) {
+        let _ = std::fs::remove_dir_all(&self.blob_dir);
         self.pool.close().await;
         let _ = sqlx::query(sqlx::AssertSqlSafe(format!(
             "drop database if exists {} with (force)",
@@ -462,4 +481,78 @@ pub async fn http_with(
         body.to_string()
     };
     (status, head.to_string(), body)
+}
+
+/// As [`http_with`], for a body of any bytes with its own content type;
+/// returns the response's head and its body's bytes. `body` is sent with
+/// its length unless `headers` declares one.
+pub async fn http_bytes(
+    base: &str,
+    method: &str,
+    path: &str,
+    headers: &[(&str, &str)],
+    body: &[u8],
+) -> (u16, String, Vec<u8>) {
+    use tokio::io::AsyncWriteExt;
+    let host = base.trim_start_matches("http://");
+    let mut stream = tokio::net::TcpStream::connect(host).await.unwrap();
+    let extra: String = headers
+        .iter()
+        .map(|(name, value)| format!("{name}: {value}\r\n"))
+        .collect();
+    let has_length = headers
+        .iter()
+        .any(|(name, _)| name.eq_ignore_ascii_case("content-length"));
+    let length = if has_length {
+        String::new()
+    } else {
+        format!("Content-Length: {}\r\n", body.len())
+    };
+    let head = format!(
+        "{method} {path} HTTP/1.1\r\nHost: {host}\r\n{extra}{length}Connection: close\r\n\r\n"
+    );
+    let _ = stream.write_all(head.as_bytes()).await;
+    let _ = stream.write_all(body).await;
+    read_response(&mut stream).await
+}
+
+/// Reads one response to the end of the connection: its status, head, and
+/// body (de-chunked).
+pub async fn read_response(stream: &mut tokio::net::TcpStream) -> (u16, String, Vec<u8>) {
+    use tokio::io::AsyncReadExt;
+    let mut bytes = Vec::new();
+    let mut chunk = [0u8; 65536];
+    while let Ok(n) = stream.read(&mut chunk).await {
+        if n == 0 {
+            break;
+        }
+        bytes.extend_from_slice(&chunk[..n]);
+    }
+    let split = bytes
+        .windows(4)
+        .position(|w| w == b"\r\n\r\n")
+        .expect("a response head");
+    let head = String::from_utf8(bytes[..split].to_vec()).unwrap();
+    let mut body = bytes[split + 4..].to_vec();
+    let status = head[9..12].parse().unwrap();
+    if head
+        .to_ascii_lowercase()
+        .contains("transfer-encoding: chunked")
+    {
+        let mut out = Vec::new();
+        let mut rest = &body[..];
+        loop {
+            let line = rest.windows(2).position(|w| w == b"\r\n").unwrap();
+            let size =
+                usize::from_str_radix(std::str::from_utf8(&rest[..line]).unwrap().trim(), 16)
+                    .unwrap();
+            if size == 0 {
+                break;
+            }
+            out.extend_from_slice(&rest[line + 2..line + 2 + size]);
+            rest = &rest[line + 2 + size + 2..];
+        }
+        body = out;
+    }
+    (status, head, body)
 }

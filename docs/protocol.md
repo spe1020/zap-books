@@ -398,8 +398,10 @@ encrypted again.
 
 ### Documents
 
-Receipt files stay in the browser in stage 2 (stage 3 moves them to
-encrypted storage). A proposal refers to a file by id and content hash:
+A proposal refers to a receipt file by id and content hash. In `SaveDraft`,
+`Correct` and `SubmitReceiptDraft`, a reference may also carry `stored`:
+where the file's encrypted copy is kept in the service's blob store, and
+the key that opens it ([receipt storage brief](briefs/receipt-storage.md)):
 
 ```json
 {
@@ -407,13 +409,47 @@ encrypted storage). A proposal refers to a file by id and content hash:
   "sha256": "<64 lowercase hex>",
   "name": "receipt.pdf",
   "mime": "application/pdf",
-  "size": 48213
+  "size": 48213,
+  "stored": {
+    "hash": "<64 lowercase hex: SHA-256 of the ciphertext>",
+    "size": 48229,
+    "alg": "AES-256-GCM",
+    "key": "<base64 of a fresh 32-byte key>",
+    "nonce": "<base64 of a fresh 12-byte nonce>"
+  }
 }
 ```
 
-The service stores and checks the reference, never the file, and the
-ledger's existing document rules apply to it. The id follows the record id
-rule above.
+- **The browser encrypts the file** with WebCrypto's AES-256-GCM, under a
+  key and nonce of its own for that file, uploads the ciphertext
+  (`PUT /v1/blobs/{hash}`, see `docs/service.md`), and only then sends the
+  proposal.
+- **The key lives only in the books.** The document record keeps `stored`
+  as it is, so the key is encrypted under the epoch keys like every other
+  record, and only members who read the books can open the file. It
+  travels with the record through rebuild, audit and backups, which treat
+  it as ordinary record data and never need the file.
+- **`ledger-core` checks its shape** (`check_document`, `checkDocument` in
+  TypeScript): a lowercase 64-character hex `hash`, a `size` from 1 byte to
+  10 MB plus the 16-byte tag (`MAX_STORED_BYTES`, 10,485,776), a known
+  `alg`, canonical base64 of exactly 32 bytes for `key` and 12 for `nonce`,
+  and a `sha256` on the document. The refusal is `ledger-core`'s message.
+- **The service also checks the blob:** a document whose `stored` names a
+  blob not uploaded for this business, or whose `size` isn't the uploaded
+  blob's, is rejected ("A receipt's encrypted file wasn't uploaded to this
+  business, or its size doesn't match. Upload it, then send the proposal
+  again."). When the proposal is accepted, the blob is kept for good.
+- **After decrypting,** the browser checks that the plaintext's SHA-256 is
+  the document's `sha256` and that its file type matches `mime`, and shows
+  nothing if either fails.
+
+A reference without `stored` is as before: the file stays in the browser
+that attached it, and the service stores and checks the reference, never
+the file. Documents recorded before receipt storage have no `stored`, and
+load unchanged. The id follows the record id rule above.
+
+`limits()` in the WASM bindings gives `maxReceiptBytes` (10 MB) and
+`maxStoredBytes` beside the event limits.
 
 ## Genesis
 
@@ -759,6 +795,14 @@ can't veto that recovery.
 
 A removed member is an outsider and is refused everything at once, before
 any key rotation completes.
+
+**Receipt files** follow the same lines. A blob can be uploaded by anyone
+who may attach a receipt (an owner, bookkeeper, assistant or submitter),
+and downloaded only by a member who reads the books (an owner, bookkeeper,
+viewer or assistant), once an accepted record refers to it. A submitter
+sends receipts in but can't fetch them back; the recovery key can do
+neither. The blob holds only ciphertext, so the read control is, as
+everywhere, the key, which is in the books.
 
 **An assistant never approves.** Approval stays with a person, and that is
 enforced here and by the signature on every proposal, not by an interface.

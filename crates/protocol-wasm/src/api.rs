@@ -451,6 +451,10 @@ struct Limits {
     import_batch_start: usize,
     /// The largest event, in bytes.
     max_event_bytes: usize,
+    /// The largest receipt that can be attached, in bytes.
+    max_receipt_bytes: u64,
+    /// The largest encrypted receipt the blob store takes, in bytes.
+    max_stored_bytes: u64,
 }
 
 /// The size limits a client works to.
@@ -458,6 +462,8 @@ pub fn limits() -> Answer {
     answer(&Limits {
         import_batch_start: protocol::IMPORT_BATCH_START,
         max_event_bytes: protocol::MAX_EVENT_BYTES,
+        max_receipt_bytes: ledger_core::MAX_RECEIPT_BYTES,
+        max_stored_bytes: ledger_core::MAX_STORED_BYTES,
     })
 }
 

@@ -12,14 +12,18 @@
 //!   owners and pending changes.
 //! - `POST /v1/session`: a read session (see [`crate::session`]).
 //! - `GET /v1/service`: the key new businesses must name.
+//! - `PUT /v1/blobs/{hash}?business=`: upload an encrypted receipt.
+//! - `GET /v1/blobs/{hash}?business=`: download one an accepted record
+//!   refers to.
 //! - `GET /health`.
 //!
 //! Reads need NIP-98 auth, or `Authorization: Bearer <token>` with a token
 //! from `POST /v1/session`, which itself needs NIP-98. Either way, each
-//! read checks the reader's membership. Before anything is parsed or verified, every
-//! request passes three cheap checks: its declared body size, a limit on
-//! all requests together, and a limit per client address. After the
-//! signature, it is also rate limited per public key.
+//! read checks the reader's membership. Blobs take a session token only.
+//! Before anything is parsed or verified, every request passes three cheap
+//! checks: its declared body size, a limit on all requests together, and a
+//! limit per client address. After the signature, it is also rate limited
+//! per public key.
 
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
@@ -29,7 +33,7 @@ use axum::extract::{ConnectInfo, DefaultBodyLimit, OriginalUri, Path, Query, Req
 use axum::http::{header, HeaderMap, HeaderValue, Method, StatusCode};
 use axum::middleware::{self, Next};
 use axum::response::{IntoResponse, Response};
-use axum::routing::{get, post};
+use axum::routing::{get, post, put};
 use axum::Router;
 use nostr::nips::nip98::HttpMethod;
 use nostr::prelude::{Event, PublicKey, Timestamp};
@@ -38,6 +42,7 @@ use protocol::{parse_proposal, BusinessId, MAX_EVENT_BYTES};
 use serde::Deserialize;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
+use crate::blobs::{self, BlobError, MAX_BLOB_BYTES};
 use crate::ledger::{Ledger, LedgerError};
 use crate::nip98;
 use crate::ratelimit::RateLimit;
@@ -130,9 +135,9 @@ pub fn is_plain_origin(origin: &str) -> bool {
     host_ok && port_ok
 }
 
-/// CORS for exactly `origins` (each must pass [`is_plain_origin`]): `GET`
-/// and `POST`, with the `Authorization` and `Content-Type` headers, and no
-/// credentials, since auth is a header, not a cookie.
+/// CORS for exactly `origins` (each must pass [`is_plain_origin`]): `GET`,
+/// `POST` and `PUT`, with the `Authorization` and `Content-Type` headers,
+/// and no credentials, since auth is a header, not a cookie.
 pub fn cors(origins: &[String]) -> Result<CorsLayer, String> {
     let values = origins
         .iter()
@@ -147,7 +152,7 @@ pub fn cors(origins: &[String]) -> Result<CorsLayer, String> {
         .collect::<Result<Vec<_>, _>>()?;
     Ok(CorsLayer::new()
         .allow_origin(AllowOrigin::list(values))
-        .allow_methods([Method::GET, Method::POST])
+        .allow_methods([Method::GET, Method::POST, Method::PUT])
         .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]))
 }
 
@@ -186,7 +191,15 @@ async fn limits(
         .get(header::CONTENT_LENGTH)
         .and_then(|v| v.to_str().ok())
         .and_then(|v| v.parse::<u64>().ok());
-    if declared.is_some_and(|n| n > MAX_BODY_BYTES as u64) {
+    // A blob upload may be one receipt; anything else, one event.
+    let blob = request.method() == Method::PUT && request.uri().path().starts_with("/v1/blobs/");
+    if blob && declared.is_some_and(|n| n > MAX_BLOB_BYTES) {
+        return error(
+            StatusCode::PAYLOAD_TOO_LARGE,
+            &BlobError::TooLarge.to_string(),
+        );
+    }
+    if !blob && declared.is_some_and(|n| n > MAX_BODY_BYTES as u64) {
         return error(
             StatusCode::PAYLOAD_TOO_LARGE,
             "The request is larger than one event.",
@@ -224,7 +237,9 @@ pub fn router(state: Arc<AppState>) -> Result<Router, String> {
         .route("/v1/epoch-keys", get(epoch_keys))
         .route("/v1/rejections", get(rejections))
         .route("/v1/session", post(create_session))
-        .layer(DefaultBodyLimit::max(MAX_BODY_BYTES));
+        .layer(DefaultBodyLimit::max(MAX_BODY_BYTES))
+        // The body is read with its own limit (see `upload`).
+        .route("/v1/blobs/{hash}", put(upload).get(download));
     let api = match cors {
         Some(cors) => api.layer(cors),
         None => api,
@@ -587,5 +602,151 @@ async fn rejections(
             events.join(",")
         )),
         Err(e) => failure(e),
+    }
+}
+
+#[derive(Deserialize)]
+struct BlobQuery {
+    business: Option<String>,
+}
+
+fn blob_failure(e: BlobError) -> Response {
+    let (status, code) = match &e {
+        BlobError::Unavailable => (StatusCode::SERVICE_UNAVAILABLE, "unavailable"),
+        BlobError::NotFound => (StatusCode::NOT_FOUND, "notFound"),
+        BlobError::Mismatch => (StatusCode::BAD_REQUEST, "hashMismatch"),
+        BlobError::TooLarge => (StatusCode::PAYLOAD_TOO_LARGE, "tooLarge"),
+        BlobError::Empty => (StatusCode::BAD_REQUEST, "empty"),
+        BlobError::Quota { .. } => (StatusCode::INSUFFICIENT_STORAGE, "quota"),
+        BlobError::DiskFull => (StatusCode::INSUFFICIENT_STORAGE, "diskFull"),
+        BlobError::Ledger(_) | BlobError::Io(_) => {
+            tracing::error!(error = %e, "blob request failed");
+            return error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "The service failed; nothing was stored.",
+            );
+        }
+    };
+    (
+        status,
+        [(header::CONTENT_TYPE, "application/json")],
+        serde_json::json!({ "error": e.to_string(), "code": code }).to_string(),
+    )
+        .into_response()
+}
+
+/// The session's key, the business and the hash of a blob request, or the
+/// answer refusing it. Only a session token will do: a browser uploads and
+/// downloads in one session, without a signer prompt.
+async fn blob_request(
+    state: &AppState,
+    headers: &HeaderMap,
+    hash: &str,
+    query: &BlobQuery,
+) -> Result<(PublicKey, BusinessId), Box<Response>> {
+    let token = headers
+        .get(header::AUTHORIZATION)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.strip_prefix("Bearer "))
+        .ok_or_else(|| {
+            Box::new(error(
+                StatusCode::UNAUTHORIZED,
+                "Send a session token from POST /v1/session.",
+            ))
+        })?;
+    let key = session_key(state, token).await?;
+    if !blobs::valid_hash(hash) {
+        return Err(Box::new(error(
+            StatusCode::BAD_REQUEST,
+            "A blob's address is its SHA-256: 64 lowercase hex characters.",
+        )));
+    }
+    let business = query
+        .business
+        .as_deref()
+        .and_then(|b| b.parse::<BusinessId>().ok())
+        .ok_or_else(|| Box::new(error(StatusCode::BAD_REQUEST, "Invalid business id.")))?;
+    Ok((key, business))
+}
+
+/// `PUT /v1/blobs/{hash}?business=`: an encrypted receipt as
+/// `application/octet-stream`, from an owner, bookkeeper, assistant or
+/// submitter. The body is refused once it passes the limit, never read
+/// whole first, and its SHA-256 must be `hash`. Uploading a blob the
+/// business already has succeeds and stores nothing new.
+async fn upload(
+    State(state): State<Arc<AppState>>,
+    Path(hash): Path<String>,
+    Query(q): Query<BlobQuery>,
+    headers: HeaderMap,
+    body: Body,
+) -> Response {
+    let (key, business) = match blob_request(&state, &headers, &hash, &q).await {
+        Ok(r) => r,
+        Err(r) => return *r,
+    };
+    let octets = headers
+        .get(header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .is_some_and(|v| v == "application/octet-stream");
+    if !octets {
+        return error(
+            StatusCode::UNSUPPORTED_MEDIA_TYPE,
+            "Send the encrypted receipt as application/octet-stream.",
+        );
+    }
+    // Who may upload is checked before the body is read, so no one else can
+    // make the service hold 10 MB.
+    match state.ledger.may_upload(&business, &key).await {
+        Ok(true) => {}
+        Ok(false) => return blob_failure(BlobError::NotFound),
+        Err(e) => return failure(e),
+    }
+    let limit = usize::try_from(MAX_BLOB_BYTES).unwrap_or(usize::MAX);
+    let bytes = match axum::body::to_bytes(body, limit).await {
+        Ok(b) => b,
+        // Over the limit, or the connection broke: either way, too much or
+        // too little arrived to store.
+        Err(_) => return blob_failure(BlobError::TooLarge),
+    };
+    let size = bytes.len();
+    match state
+        .ledger
+        .put_blob(&business, &key, &hash, bytes.to_vec())
+        .await
+    {
+        Ok(created) => {
+            json(serde_json::json!({ "hash": hash, "size": size, "created": created }).to_string())
+        }
+        Err(e) => blob_failure(e),
+    }
+}
+
+/// `GET /v1/blobs/{hash}?business=`: the blob, for a member who reads the
+/// books, once an accepted record refers to it. Anyone else, and a blob
+/// that isn't there, get the same 404.
+async fn download(
+    State(state): State<Arc<AppState>>,
+    Path(hash): Path<String>,
+    Query(q): Query<BlobQuery>,
+    headers: HeaderMap,
+) -> Response {
+    let (key, business) = match blob_request(&state, &headers, &hash, &q).await {
+        Ok(r) => r,
+        Err(r) => return *r,
+    };
+    match state.ledger.blob(&business, &key, &hash).await {
+        Ok(Some(bytes)) => (
+            StatusCode::OK,
+            [
+                (header::CONTENT_TYPE, "application/octet-stream"),
+                (header::X_CONTENT_TYPE_OPTIONS, "nosniff"),
+                (header::CONTENT_DISPOSITION, "attachment"),
+            ],
+            bytes,
+        )
+            .into_response(),
+        Ok(None) => error(StatusCode::NOT_FOUND, "No such receipt."),
+        Err(e) => blob_failure(e),
     }
 }

@@ -75,6 +75,11 @@ message. The affected checks are always true in Rust:
   be greater than zero in whole minor units." fires only for `<= 0`: a
   `TransferInput` with an unknown currency or transfer type, or a
   non-integer amount, doesn't deserialize.
+- `src/domain/documents.ts` (`checkDocument`): "A stored receipt must be
+  between 1 byte and 10 MB plus its encryption overhead." fires only for a
+  size of 0 or over the limit: a negative, fractional or non-numeric
+  `stored.size` doesn't deserialize, since it is a `u64`. Test:
+  `d2_a_stored_size_that_isnt_a_whole_number_does_not_deserialize`.
 - `src/domain/ledger.ts:36` and `:52` (`parseMoney`, `sum`) and
   `src/domain/import.ts:311` (combined import amount) are ported as explicit
   range checks against `MAX_MINOR`, with the same messages.
@@ -148,9 +153,24 @@ Test: `d6_negative_zero_is_zero`. Fixtures: `money/parseMoney "-0"` and
 
 ### D7. Receipt bytes and unknown fields are not carried
 
-`SourceDocument` has no `blob` (`src/domain/types.ts:30`): file bytes belong
-to a storage adapter. Unknown JSON keys on any record are dropped on read.
-Neither affects domain behavior.
+`SourceDocument` has no `blob` (`src/domain/types.ts`): that is the file
+itself, in the browser that attached it, and file bytes belong to a storage
+adapter. Unknown JSON keys on any record are dropped on read. Neither
+affects domain behavior.
+
+The document's `stored` copy (receipt storage,
+[brief](docs/briefs/receipt-storage.md)) is record data, and both languages
+carry it: the blob's address and size, its algorithm, and the file's key
+and nonce. It is named `stored`, not `blob` as the brief has it, because
+`blob` is already the local file. `checkDocument` (`src/domain/documents.ts`)
+and `check_document` (`crates/ledger-core/src/documents.rs`) check its shape
+with the same messages, and the protocol runs the check on every document
+it attaches. `alg` is a string in Rust, not an enum, so that an unknown
+algorithm reaches the check's message as in the TypeScript. Documents
+without `stored` load and save unchanged.
+
+Fixtures: `documents/checkDocument: *`, `documents/saveDraft: a draft
+referring to a stored document`.
 
 ### D8. Unicode case-mapping tables
 

@@ -2828,6 +2828,256 @@
       "answer": "{\"profile\":{\"id\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Juniper Lane Bindery\",\"industry\":\"Bookbinding\",\"currency\":\"USD\",\"initials\":\"JL\",\"color\":\"#7a9e7e\"},\"accounts\":[{\"id\":\"jl-bank\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Everyday account\",\"kind\":\"bank\",\"currency\":\"USD\"},{\"id\":\"jl-supplies\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Supplies\",\"kind\":\"expense\",\"currency\":\"USD\"}],\"categories\":[{\"id\":\"jl-category-supplies\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Studio supplies\",\"accountId\":\"jl-supplies\"}],\"vendors\":[{\"id\":\"svc-0001\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Copperleaf Paper Mill\"}],\"documents\":[],\"payments\":[],\"drafts\":[{\"id\":\"jl-draft-1\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"vendor\":\"Copperleaf Paper Mill\",\"date\":\"2030-03-11\",\"description\":\"Endpaper stock\",\"amountMinor\":2917,\"currency\":\"USD\",\"categoryId\":\"jl-category-supplies\",\"accountId\":\"jl-bank\",\"purpose\":\"Endpaper stock for spring orders\",\"documentIds\":[],\"status\":\"posted\",\"journalId\":\"svc-0004\",\"duplicateReason\":\"\",\"createdAt\":\"2030-03-17T09:00:00.000Z\"}],\"journals\":[{\"id\":\"svc-0004\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"date\":\"2030-03-11\",\"currency\":\"USD\",\"lines\":[{\"accountId\":\"jl-supplies\",\"categoryId\":\"jl-category-supplies\",\"debit\":2917,\"credit\":0},{\"accountId\":\"jl-bank\",\"debit\":0,\"credit\":2917}],\"kind\":\"expense\",\"expenseId\":\"jl-draft-1\",\"memo\":\"Copperleaf Paper Mill · Endpaper stock\",\"createdAt\":\"2030-03-17T09:00:00.000Z\"}],\"approvals\":[{\"id\":\"svc-0005\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"expenseId\":\"jl-draft-1\",\"actor\":\"local-demo-user\",\"at\":\"2030-03-17T09:00:00.000Z\",\"duplicateReason\":\"\"}],\"rules\":[],\"audits\":[{\"id\":\"svc-0003\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"action\":\"expense.created\",\"entityId\":\"jl-draft-1\",\"at\":\"2030-03-17T09:00:00.000Z\",\"actor\":\"local-demo-user\",\"detail\":\"Expense draft created\"},{\"id\":\"svc-0007\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"action\":\"expense.approved\",\"entityId\":\"jl-draft-1\",\"at\":\"2030-03-17T09:00:00.000Z\",\"actor\":\"local-demo-user\",\"detail\":\"Reviewed and approved. No payment initiated.\"},{\"id\":\"svc-0009\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"action\":\"expense.posted\",\"entityId\":\"jl-draft-1\",\"at\":\"2030-03-17T09:00:00.000Z\",\"actor\":\"local-demo-user\",\"detail\":\"Balanced journal entry recorded\"}],\"events\":[{\"id\":\"svc-0002\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"schemaVersion\":1,\"type\":\"expense.created\",\"actor\":\"local-demo-user\",\"occurredAt\":\"2030-03-17T09:00:00.000Z\",\"sourceIds\":[],\"entityId\":\"jl-draft-1\",\"payload\":{\"detail\":\"Expense draft created\"}},{\"id\":\"svc-0006\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"schemaVersion\":1,\"type\":\"expense.approved\",\"actor\":\"local-demo-user\",\"occurredAt\":\"2030-03-17T09:00:00.000Z\",\"sourceIds\":[],\"entityId\":\"jl-draft-1\",\"payload\":{\"detail\":\"Reviewed and approved. No payment initiated.\"}},{\"id\":\"svc-0008\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"schemaVersion\":1,\"type\":\"expense.posted\",\"actor\":\"local-demo-user\",\"occurredAt\":\"2030-03-17T09:00:00.000Z\",\"sourceIds\":[\"svc-0004\"],\"entityId\":\"jl-draft-1\",\"payload\":{\"detail\":\"Balanced journal entry recorded\"}}],\"extractions\":[]}"
     },
     {
+      "name": "applyRecordChanges: a document with a stored copy",
+      "function": "applyRecordChanges",
+      "request": {
+        "acceptance": {
+          "content": {
+            "changes": [
+              {
+                "record": {
+                  "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+                  "createdAt": "2030-03-17T09:00:00.000Z",
+                  "demo": false,
+                  "id": "jl-receipt-1",
+                  "kind": "receipt",
+                  "mime": "application/pdf",
+                  "name": "receipt.pdf",
+                  "sha256": "4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c",
+                  "size": 4096,
+                  "stored": {
+                    "alg": "AES-256-GCM",
+                    "hash": "a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7",
+                    "key": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=",
+                    "nonce": "Zm9yZXhhbXBsZTEy",
+                    "size": 4112
+                  }
+                },
+                "type": "document"
+              }
+            ],
+            "env": {
+              "ids": [],
+              "now": "2030-03-17T09:00:00.000Z"
+            },
+            "outcome": {
+              "type": "applied"
+            },
+            "payload": "{\"v\":1,\"business\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"baseSeq\":3,\"salt\":\"7474747474747474747474747474747474747474747474747474747474747474\",\"command\":{\"type\":\"ChangeMembership\",\"change\":{\"op\":\"remove\",\"member\":\"1162ffa0f68dda9783c9e3c419ed824a086c1594dc8d3333306016611739dfc1\"}}}",
+            "proposal": {
+              "content": "AiPXe1vVQX3/0Row3DLO3CwaKAluHwSb47GWsPjEdSbEf9SGBIRTcqeH2hBTU+ybbpu5MPKrHyvfLDqJAnAV+h4FhnWebbgpn0OSyRtwfScuqUzPzG6JK9eaGr6yh3VOti7noFAh/ID28Nn55i4FijrOu3xoiHYx0Z3T9K4ZbM7OoQeZOzuvhMS3UA/X2JPBy6BWuazw64EkWrA7Xne6UfKFihEGYv7gSllKq8XcEQtWu0PF13hD9mSbBhmB87LmNScjhLcf5EPyGi0PDk70ZnMVy0zXkK1g+bR83l/EraehAgVLeqyc4L7/B8iHUW8Lt93HUc0CL5IaiE+BgsTARA/o2vIGDjGEuyuYuFvS3AQu9PiUecAf0UCdC6piOH9l8+TrFGhnolAowGPCTCVMOmreECgrPQjE2vYnAyRhYfadTXauoQKuSqwQafn1g8WpgkGycPV7nGwXinp0kxU/Izltm5t2tSRgzkGwSJqMJFpUaPmE/2a2EYt7WWwd886TSE7O",
+              "created_at": 1900000004,
+              "id": "4c4e0f1a0119f913a19c371c71b0696c9363b76e55ee6b295fd9290b44eeba31",
+              "kind": 4130,
+              "pubkey": "9c1f585aa80762f9f4458f6806978b7befb46c7b68af82d399630793ff1a2b50",
+              "sig": "6cf9d7eed863a12cf944bcd11de5fcde339451f502852bbd46ca525c27cf56c7fb6fc3bfe23a04ee8e07c14165a80ee32dd358fc4b6fe4e9e0aaa3785fdf7fe2",
+              "tags": [
+                [
+                  "b",
+                  "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+                ],
+                [
+                  "cmd",
+                  "ChangeMembership"
+                ],
+                [
+                  "base_seq",
+                  "3"
+                ],
+                [
+                  "payload",
+                  "798aae3cf2ebdd48c59ab316dfcd3e10564cb38e0707b58e4ba3d9d09ecd274a"
+                ]
+              ]
+            },
+            "v": 1
+          },
+          "header": {
+            "business": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+            "createdAt": 1900000004,
+            "epoch": 2,
+            "nextService": null,
+            "prev": "f725a2337b56ca8a13548a58bb5a020c25a30ce96d22a1a89f5d9368b7d6f6cb",
+            "proposal": "4c4e0f1a0119f913a19c371c71b0696c9363b76e55ee6b295fd9290b44eeba31",
+            "seq": 4
+          }
+        },
+        "snapshot": {
+          "accounts": [
+            {
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "currency": "USD",
+              "id": "jl-bank",
+              "kind": "bank",
+              "name": "Everyday account"
+            },
+            {
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "currency": "USD",
+              "id": "jl-supplies",
+              "kind": "expense",
+              "name": "Supplies"
+            }
+          ],
+          "approvals": [
+            {
+              "actor": "local-demo-user",
+              "at": "2030-03-17T09:00:00.000Z",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "duplicateReason": "",
+              "expenseId": "jl-draft-1",
+              "id": "svc-0005"
+            }
+          ],
+          "audits": [
+            {
+              "action": "expense.created",
+              "actor": "local-demo-user",
+              "at": "2030-03-17T09:00:00.000Z",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "detail": "Expense draft created",
+              "entityId": "jl-draft-1",
+              "id": "svc-0003"
+            },
+            {
+              "action": "expense.approved",
+              "actor": "local-demo-user",
+              "at": "2030-03-17T09:00:00.000Z",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "detail": "Reviewed and approved. No payment initiated.",
+              "entityId": "jl-draft-1",
+              "id": "svc-0007"
+            },
+            {
+              "action": "expense.posted",
+              "actor": "local-demo-user",
+              "at": "2030-03-17T09:00:00.000Z",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "detail": "Balanced journal entry recorded",
+              "entityId": "jl-draft-1",
+              "id": "svc-0009"
+            }
+          ],
+          "categories": [
+            {
+              "accountId": "jl-supplies",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "id": "jl-category-supplies",
+              "name": "Studio supplies"
+            }
+          ],
+          "documents": [],
+          "drafts": [
+            {
+              "accountId": "jl-bank",
+              "amountMinor": 2917,
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "categoryId": "jl-category-supplies",
+              "createdAt": "2030-03-17T09:00:00.000Z",
+              "currency": "USD",
+              "date": "2030-03-11",
+              "description": "Endpaper stock",
+              "documentIds": [],
+              "duplicateReason": "",
+              "id": "jl-draft-1",
+              "journalId": "svc-0004",
+              "purpose": "Endpaper stock for spring orders",
+              "status": "posted",
+              "vendor": "Copperleaf Paper Mill"
+            }
+          ],
+          "events": [
+            {
+              "actor": "local-demo-user",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "entityId": "jl-draft-1",
+              "id": "svc-0002",
+              "occurredAt": "2030-03-17T09:00:00.000Z",
+              "payload": {
+                "detail": "Expense draft created"
+              },
+              "schemaVersion": 1,
+              "sourceIds": [],
+              "type": "expense.created"
+            },
+            {
+              "actor": "local-demo-user",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "entityId": "jl-draft-1",
+              "id": "svc-0006",
+              "occurredAt": "2030-03-17T09:00:00.000Z",
+              "payload": {
+                "detail": "Reviewed and approved. No payment initiated."
+              },
+              "schemaVersion": 1,
+              "sourceIds": [],
+              "type": "expense.approved"
+            },
+            {
+              "actor": "local-demo-user",
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "entityId": "jl-draft-1",
+              "id": "svc-0008",
+              "occurredAt": "2030-03-17T09:00:00.000Z",
+              "payload": {
+                "detail": "Balanced journal entry recorded"
+              },
+              "schemaVersion": 1,
+              "sourceIds": [
+                "svc-0004"
+              ],
+              "type": "expense.posted"
+            }
+          ],
+          "extractions": [],
+          "journals": [
+            {
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "createdAt": "2030-03-17T09:00:00.000Z",
+              "currency": "USD",
+              "date": "2030-03-11",
+              "expenseId": "jl-draft-1",
+              "id": "svc-0004",
+              "kind": "expense",
+              "lines": [
+                {
+                  "accountId": "jl-supplies",
+                  "categoryId": "jl-category-supplies",
+                  "credit": 0,
+                  "debit": 2917
+                },
+                {
+                  "accountId": "jl-bank",
+                  "credit": 2917,
+                  "debit": 0
+                }
+              ],
+              "memo": "Copperleaf Paper Mill · Endpaper stock"
+            }
+          ],
+          "payments": [],
+          "profile": {
+            "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+            "color": "#7a9e7e",
+            "currency": "USD",
+            "id": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+            "industry": "Bookbinding",
+            "initials": "JL",
+            "name": "Juniper Lane Bindery"
+          },
+          "rules": [],
+          "vendors": [
+            {
+              "businessId": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              "id": "svc-0001",
+              "name": "Copperleaf Paper Mill"
+            }
+          ]
+        }
+      },
+      "answer": "{\"profile\":{\"id\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Juniper Lane Bindery\",\"industry\":\"Bookbinding\",\"currency\":\"USD\",\"initials\":\"JL\",\"color\":\"#7a9e7e\"},\"accounts\":[{\"id\":\"jl-bank\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Everyday account\",\"kind\":\"bank\",\"currency\":\"USD\"},{\"id\":\"jl-supplies\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Supplies\",\"kind\":\"expense\",\"currency\":\"USD\"}],\"categories\":[{\"id\":\"jl-category-supplies\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Studio supplies\",\"accountId\":\"jl-supplies\"}],\"vendors\":[{\"id\":\"svc-0001\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"Copperleaf Paper Mill\"}],\"documents\":[{\"id\":\"jl-receipt-1\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"name\":\"receipt.pdf\",\"mime\":\"application/pdf\",\"size\":4096,\"kind\":\"receipt\",\"createdAt\":\"2030-03-17T09:00:00.000Z\",\"demo\":false,\"sha256\":\"4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c\",\"stored\":{\"hash\":\"a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7\",\"size\":4112,\"alg\":\"AES-256-GCM\",\"key\":\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw=\",\"nonce\":\"Zm9yZXhhbXBsZTEy\"}}],\"payments\":[],\"drafts\":[{\"id\":\"jl-draft-1\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"vendor\":\"Copperleaf Paper Mill\",\"date\":\"2030-03-11\",\"description\":\"Endpaper stock\",\"amountMinor\":2917,\"currency\":\"USD\",\"categoryId\":\"jl-category-supplies\",\"accountId\":\"jl-bank\",\"purpose\":\"Endpaper stock for spring orders\",\"documentIds\":[],\"status\":\"posted\",\"journalId\":\"svc-0004\",\"duplicateReason\":\"\",\"createdAt\":\"2030-03-17T09:00:00.000Z\"}],\"journals\":[{\"id\":\"svc-0004\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"date\":\"2030-03-11\",\"currency\":\"USD\",\"lines\":[{\"accountId\":\"jl-supplies\",\"categoryId\":\"jl-category-supplies\",\"debit\":2917,\"credit\":0},{\"accountId\":\"jl-bank\",\"debit\":0,\"credit\":2917}],\"kind\":\"expense\",\"expenseId\":\"jl-draft-1\",\"memo\":\"Copperleaf Paper Mill · Endpaper stock\",\"createdAt\":\"2030-03-17T09:00:00.000Z\"}],\"approvals\":[{\"id\":\"svc-0005\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"expenseId\":\"jl-draft-1\",\"actor\":\"local-demo-user\",\"at\":\"2030-03-17T09:00:00.000Z\",\"duplicateReason\":\"\"}],\"rules\":[],\"audits\":[{\"id\":\"svc-0003\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"action\":\"expense.created\",\"entityId\":\"jl-draft-1\",\"at\":\"2030-03-17T09:00:00.000Z\",\"actor\":\"local-demo-user\",\"detail\":\"Expense draft created\"},{\"id\":\"svc-0007\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"action\":\"expense.approved\",\"entityId\":\"jl-draft-1\",\"at\":\"2030-03-17T09:00:00.000Z\",\"actor\":\"local-demo-user\",\"detail\":\"Reviewed and approved. No payment initiated.\"},{\"id\":\"svc-0009\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"action\":\"expense.posted\",\"entityId\":\"jl-draft-1\",\"at\":\"2030-03-17T09:00:00.000Z\",\"actor\":\"local-demo-user\",\"detail\":\"Balanced journal entry recorded\"}],\"events\":[{\"id\":\"svc-0002\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"schemaVersion\":1,\"type\":\"expense.created\",\"actor\":\"local-demo-user\",\"occurredAt\":\"2030-03-17T09:00:00.000Z\",\"sourceIds\":[],\"entityId\":\"jl-draft-1\",\"payload\":{\"detail\":\"Expense draft created\"}},{\"id\":\"svc-0006\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"schemaVersion\":1,\"type\":\"expense.approved\",\"actor\":\"local-demo-user\",\"occurredAt\":\"2030-03-17T09:00:00.000Z\",\"sourceIds\":[],\"entityId\":\"jl-draft-1\",\"payload\":{\"detail\":\"Reviewed and approved. No payment initiated.\"}},{\"id\":\"svc-0008\",\"businessId\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"schemaVersion\":1,\"type\":\"expense.posted\",\"actor\":\"local-demo-user\",\"occurredAt\":\"2030-03-17T09:00:00.000Z\",\"sourceIds\":[\"svc-0004\"],\"entityId\":\"jl-draft-1\",\"payload\":{\"detail\":\"Balanced journal entry recorded\"}}],\"extractions\":[]}"
+    },
+    {
       "name": "openAcceptance: an older epoch's key",
       "function": "openAcceptance",
       "request": {
@@ -4687,7 +4937,7 @@
       "name": "limits",
       "function": "limits",
       "request": {},
-      "answer": "{\"importBatchStart\":25,\"maxEventBytes\":65536}"
+      "answer": "{\"importBatchStart\":25,\"maxEventBytes\":65536,\"maxReceiptBytes\":10485760,\"maxStoredBytes\":10485776}"
     },
     {
       "name": "nextBatch: 25 rows, 70000 bytes",

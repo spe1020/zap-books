@@ -106,6 +106,29 @@ pub struct SourceDocument {
     /// SHA-256 of the file bytes, lowercase hex, when known.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sha256: Option<String>,
+    /// The encrypted copy the ledger service stores, and its key. Checked by
+    /// [`crate::check_document`].
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stored: Option<StoredFile>,
+}
+
+/// Where a receipt's encrypted copy is kept, and the key that opens it. The
+/// key lives only here, inside the books, which are encrypted under the
+/// epoch keys.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoredFile {
+    /// SHA-256 of the ciphertext, lowercase hex: the blob's address.
+    pub hash: String,
+    /// Ciphertext size in bytes.
+    pub size: u64,
+    /// A name, not an enum, so that an unknown one reaches the check (and
+    /// its message) as in the TypeScript.
+    pub alg: String,
+    /// The file's own 256-bit key, base64.
+    pub key: String,
+    /// The 96-bit nonce, base64.
+    pub nonce: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

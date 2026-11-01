@@ -4,9 +4,9 @@
 //! readings checked here first.
 
 use ledger_core::{
-    approve, commit_import, correct, correct_transfer, record_opening_balance, record_transfer,
-    save_draft, save_rule, suggest, update_settings, AccountKind, BusinessData, DocumentKind, Env,
-    ExpenseDraft, ExtractionRecord, LedgerError, SourceDocument,
+    approve, check_document, commit_import, correct, correct_transfer, record_opening_balance,
+    record_transfer, save_draft, save_rule, suggest, update_settings, AccountKind, BusinessData,
+    DocumentKind, Env, ExpenseDraft, ExtractionRecord, LedgerError, SourceDocument,
 };
 use thiserror::Error;
 
@@ -136,7 +136,8 @@ pub fn genesis_changes(b: &BusinessData) -> Vec<RecordChange> {
 }
 
 /// Adds document records for newly attached references. Each needs a fresh
-/// id and a valid hash; the service records its own time.
+/// id and a valid hash, and a valid stored copy if it has one
+/// (`ledger_core::check_document`); the service records its own time.
 fn attach(
     b: &mut BusinessData,
     documents: &[DocumentRef],
@@ -157,7 +158,11 @@ fn attach(
             created_at: env.now(),
             demo: false,
             sha256: Some(d.sha256.clone()),
+            stored: d.stored.clone(),
         });
+        if let Some(document) = b.documents.last() {
+            check_document(document)?;
+        }
     }
     Ok(())
 }

@@ -29,16 +29,36 @@ export interface Category extends Scoped {
 export interface Vendor extends Scoped {
   name: string;
 }
+export type StoredAlgorithm = "AES-256-GCM";
+/**
+ * Where a receipt's encrypted copy is kept by the ledger service, and the
+ * key that opens it. The key lives only here, inside the books, which are
+ * encrypted under the epoch keys (docs/briefs/receipt-storage.md).
+ */
+export interface StoredFile {
+  /** SHA-256 of the ciphertext, lowercase hex: the blob's address. */
+  hash: string;
+  /** Ciphertext size in bytes. */
+  size: number;
+  alg: StoredAlgorithm;
+  /** The file's own 256-bit key, base64. */
+  key: string;
+  /** The 96-bit nonce, base64. */
+  nonce: string;
+}
 export interface SourceDocument extends Scoped {
   name: string;
   mime: string;
   size: number;
+  /** The file itself, in this browser only. Never part of the books. */
   blob: Blob;
   kind: "receipt";
   createdAt: string;
   demo: boolean;
   /** SHA-256 of the file bytes, lowercase hex, when known. */
   sha256?: string;
+  /** The encrypted copy the ledger service stores, in remote mode. */
+  stored?: StoredFile;
 }
 export interface ImportedTransaction extends Scoped {
   date: string;

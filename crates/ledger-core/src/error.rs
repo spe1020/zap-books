@@ -198,6 +198,18 @@ pub enum LedgerError {
     OpeningBalanceAccountNotFound,
     #[error("Opening balances are for bank, card and loan accounts.")]
     OpeningBalanceAccountKind,
+
+    // documents.ts checkDocument
+    #[error("A stored receipt needs the SHA-256 of its file.")]
+    StoredWithoutHash,
+    #[error("A stored receipt's address must be 64 lowercase hex characters.")]
+    StoredAddress,
+    #[error("A stored receipt must be between 1 byte and 10 MB plus its encryption overhead.")]
+    StoredSize,
+    #[error("Unsupported receipt encryption.")]
+    StoredAlgorithm,
+    #[error("A stored receipt needs a 256-bit key and a 96-bit nonce, in base64.")]
+    StoredKey,
     #[error("Enter an opening balance other than zero.")]
     OpeningBalanceZero,
     #[error("This account already has an opening balance. Correct it instead.")]
