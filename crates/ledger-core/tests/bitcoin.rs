@@ -259,6 +259,150 @@ fn within_one_minor_unit_means_at_most_one_cent_either_way() {
 }
 
 #[test]
+fn the_check_is_exact_for_rates_with_many_decimal_places() {
+    // These two rates are the same f64, but a cent apart at the limit.
+    assert_eq!(
+        "60000.010000000001".parse::<f64>().unwrap(),
+        "60000.01".parse::<f64>().unwrap()
+    );
+    for (sats, rate, cents, ok) in [
+        // Exactly 6,000,001 cents, and 10^-10 of a cent more.
+        (100_000_000, "60000.010000000000", 6_000_000, true),
+        (100_000_000, "60000.010000000001", 6_000_000, false),
+        (100_000_000, "60000.010000000001", 6_000_002, true),
+        // 259,259,256,925,925.9238 cents: all the bitcoin there will be.
+        (
+            2_100_000_000_000_000,
+            "123456.789012345678",
+            259_259_256_925_925,
+            true,
+        ),
+        (
+            2_100_000_000_000_000,
+            "123456.789012345678",
+            259_259_256_925_926,
+            true,
+        ),
+        (
+            2_100_000_000_000_000,
+            "123456.789012345678",
+            259_259_256_925_924,
+            false,
+        ),
+        (
+            2_100_000_000_000_000,
+            "123456.789012345678",
+            259_259_256_925_927,
+            false,
+        ),
+        // 999,999.999999999999999999 cents: the largest rate, on one sat.
+        (1, "999999999999.999999999999", 1_000_000, true),
+        (1, "999999999999.999999999999", 999_999, true),
+        (1, "999999999999.999999999999", 1_000_001, false),
+        (1, "999999999999.999999999999", 999_998, false),
+        // The smallest rate.
+        (123_456_789, "0.000000000001", 0, true),
+        (123_456_789, "0.000000000001", 1, true),
+        (123_456_789, "0.000000000001", 2, false),
+    ] {
+        let mut v = valued(sats);
+        v.rate = rate.into();
+        v.amount_minor = minor(cents);
+        assert_eq!(
+            fiat_value_matches(minor(sats), &v),
+            ok,
+            "{sats} at {rate} as {cents}"
+        );
+    }
+}
+
+#[test]
+fn an_exchange_is_corrected_only_by_an_exchange_between_the_same_two_accounts() {
+    let (b, mut env) = setup();
+    let b = record_transfer(&b, &exchange(&b, 250_000, 15_000, true), &mut env).unwrap();
+    let original = b.journals.last().unwrap().id.clone();
+    let mut correct = |replacement: &TransferInput| {
+        correct_transfer(&b, &original, replacement, "Invented reason", &mut env)
+    };
+    let refused = |r: Result<BusinessData>| r.unwrap_err().to_string();
+
+    let mut transfer = between_wallets(&b, 250_000);
+    transfer.to_account_id = account(&b, "Lightning wallet");
+    assert_eq!(
+        refused(correct(&transfer)),
+        "Correct an exchange with another exchange."
+    );
+    let mut other_wallet = exchange(&b, 250_000, 15_000, true);
+    other_wallet.to_account_id = account(&b, "Cold storage");
+    assert_eq!(
+        refused(correct(&other_wallet)),
+        "An exchange correction keeps its wallet."
+    );
+    for other in ["northstar-reserve", "northstar-card"] {
+        let mut other_fiat = exchange(&b, 250_000, 15_000, true);
+        other_fiat.from_account_id = other.into();
+        assert_eq!(
+            refused(correct(&other_fiat)),
+            "An exchange correction keeps its dollar, euro or pound account."
+        );
+    }
+    // The amounts, the direction and the date may change.
+    let mut sale = exchange(&b, 100_000, 6_100, false);
+    sale.date = "2027-01-11".into();
+    let sold = correct(&sale).unwrap();
+    assert_eq!(
+        balance(&sold, Currency::Btc, &account(&b, "Lightning wallet")),
+        -100_000
+    );
+    assert_eq!(balance(&sold, Currency::Usd, BANK), 6_100);
+}
+
+#[test]
+fn a_wallet_cant_open_below_zero_nor_be_corrected_to() {
+    let (b, mut env) = setup();
+    let cold = account(&b, "Cold storage");
+    let below =
+        "A wallet can't open below zero. Enter its opening balance as sats greater than zero.";
+    let mut opening = OpeningBalanceInput {
+        account_id: cold.clone(),
+        date: "2027-01-01".into(),
+        amount_minor: minor(-100_000),
+        reference: None,
+        fiat_value: Some(valued(100_000)),
+    };
+    assert_eq!(
+        record_opening_balance(&b, &opening, &mut env)
+            .unwrap_err()
+            .to_string(),
+        below
+    );
+    opening.amount_minor = minor(100_000);
+    let opened = record_opening_balance(&b, &opening, &mut env).unwrap();
+    let journal = opened.journals.last().unwrap();
+    let equity = journal
+        .lines
+        .iter()
+        .find(|l| l.account_id != cold)
+        .unwrap()
+        .account_id
+        .clone();
+    let negative = TransferInput {
+        date: "2027-01-01".into(),
+        from_account_id: cold,
+        to_account_id: equity,
+        transfer_type: TransferType::OpeningBalance,
+        purpose: "Opening balance".into(),
+        ..between_wallets(&b, 100_000)
+    };
+    assert_eq!(
+        correct_transfer(&opened, &journal.id, &negative, "Invented reason", &mut env)
+            .unwrap_err()
+            .to_string(),
+        below
+    );
+}
+
+#[test]
 fn an_exchange_balances_on_both_sides_and_never_counts_as_spending() {
     let (b, mut env) = setup();
     let wallet = account(&b, "Lightning wallet");

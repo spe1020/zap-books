@@ -3064,6 +3064,18 @@ function bitcoin(setup: BusinessData) {
   ];
   for (const [name, extra] of values)
     rec(`a fiat value ${name}`, opened, move({ fiatValue: value(extra) }));
+  // Rates a double can't tell apart, either side of one minor unit.
+  for (const [name, sats, amountMinor, rate] of [
+    ["one minor unit off", 100000000, 6000000, "60000.010000000000"],
+    ["just over one minor unit off", 100000000, 6000000, "60000.010000000001"],
+    ["at the largest rate", 1, 1000000, "999999999999.999999999999"],
+    ["just over at the largest rate", 1, 1000001, "999999999999.999999999999"],
+  ] as const)
+    rec(
+      `a fiat value ${name}, at twelve decimal places`,
+      opened,
+      move({ amountMinor: sats, fiatValue: value({ amountMinor, rate }) }),
+    );
   // A numeric rate, a fractional amount or millisats, and an unknown source
   // don't deserialize in Rust (PARITY_NOTES D2), so no fixture records
   // them; src/domain/bitcoin.test.ts and divergences.rs pin each side.
@@ -3232,6 +3244,55 @@ function bitcoin(setup: BusinessData) {
     exchangeId(sold),
     exchange({ fiatValue: exchanged({ amountMinor: 1 }) }),
   );
+  fix(
+    "an exchange, by a sale between the same accounts",
+    sold,
+    exchangeId(sold),
+    exchange({
+      amountMinor: 100000,
+      fromAccountId: lightning,
+      toAccountId: bank,
+      fiatValue: exchanged({ amountMinor: 6000 }),
+    }),
+  );
+  fix(
+    "an exchange, by a transfer between wallets",
+    sold,
+    exchangeId(sold),
+    move({ fromAccountId: cold }),
+  );
+  fix(
+    "an exchange, by one into another wallet",
+    sold,
+    exchangeId(sold),
+    exchange({ toAccountId: cold }),
+  );
+  fix(
+    "an exchange, by one from another bank account",
+    sold,
+    exchangeId(sold),
+    exchange({ fromAccountId: "northstar-reserve" }),
+  );
+  fix(
+    "an exchange, by one from a card",
+    sold,
+    exchangeId(sold),
+    exchange({ fromAccountId: card }),
+  );
+  const walletOpening = opened.journals.find(
+    (j: JournalEntry) => j.transferType === "openingBalance",
+  )!;
+  fix("a wallet's opening balance, to below zero", opened, walletOpening.id, {
+    date: "2026-09-01",
+    amountMinor: 100000,
+    currency: "BTC",
+    fromAccountId: cold,
+    toAccountId: walletOpening.lines.find((l) => l.accountId !== cold)!
+      .accountId,
+    transferType: "openingBalance",
+    purpose: "Opening balance",
+    fiatValue: value({ at: "2026-09-01" }),
+  });
   const between = moved.journals.find(
     (j: JournalEntry) => j.transferType === "betweenAccounts",
   )!.id;

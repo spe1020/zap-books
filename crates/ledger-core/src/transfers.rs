@@ -439,6 +439,13 @@ fn check_opening_balance(
     let Some(account) = account.filter(|a| openable(a.kind)) else {
         return Err(LedgerError::OpeningBalanceAccountKind);
     };
+    // A wallet's opening balance is a debit; one credited to it would open
+    // below zero, and a wallet can't hold less than no bitcoin.
+    if account.kind == AccountKind::Wallet && account.id == from.id {
+        return Err(LedgerError::Bitcoin(
+            "A wallet can't open below zero. Enter its opening balance as sats greater than zero.",
+        ));
+    }
     if has_opening_balance(b, &account.id) {
         return Err(LedgerError::OpeningBalanceExists);
     }
@@ -474,7 +481,8 @@ pub fn record_transfer(
 /// `replacement` in its place, all or nothing. The reversal names the
 /// original (`reverses_id`), and so does the replacement (`correction_of`).
 /// A transfer already reversed can't be corrected again. An opening balance
-/// is corrected by another, on the same account.
+/// is corrected by another, on the same account, and an exchange by another
+/// between the same two accounts.
 pub fn correct_transfer(
     business: &BusinessData,
     original_id: &str,
@@ -503,6 +511,37 @@ pub fn correct_transfer(
         && !(on_original(&replacement.from_account_id) && on_original(&replacement.to_account_id))
     {
         return Err(LedgerError::OpeningBalanceAccountChanged);
+    }
+    // An exchange is corrected by another between the same wallet and the
+    // same fiat account; the amounts, direction, date and rate may change.
+    if original.transfer_type == Some(TransferType::Exchange) {
+        if replacement.transfer_type != TransferType::Exchange {
+            return Err(LedgerError::Bitcoin(
+                "Correct an exchange with another exchange.",
+            ));
+        }
+        let sides = [&replacement.from_account_id, &replacement.to_account_id];
+        let is_wallet = |id: &str| {
+            b.accounts
+                .iter()
+                .any(|a| a.id == id && a.kind == AccountKind::Wallet)
+        };
+        let kept = |wallet: bool| {
+            original
+                .lines
+                .iter()
+                .all(|l| is_wallet(&l.account_id) != wallet || sides.contains(&&l.account_id))
+        };
+        if !kept(true) {
+            return Err(LedgerError::Bitcoin(
+                "An exchange correction keeps its wallet.",
+            ));
+        }
+        if !kept(false) {
+            return Err(LedgerError::Bitcoin(
+                "An exchange correction keeps its dollar, euro or pound account.",
+            ));
+        }
     }
     let mut reversal = original.clone();
     reversal.correction_of = None;

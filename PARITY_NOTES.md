@@ -322,8 +322,8 @@ gates in both languages.
   be ("Hold bitcoin in a wallet account."); a loan, equity or expense
   account may be in any currency, so the owner can lend bitcoin and BTC
   opening balances get their "Opening balances (BTC)" account. A wallet's
-  balance is debits minus credits, its opening balance is signed like a
-  bank's, it can pay an expense, and it can be either side of the transfer
+  balance is debits minus credits, its opening balance is a debit like a
+  bank's but never below zero (B10), it can pay an expense, and it can be either side of the transfer
   types a bank can. Three messages predate wallets and stay as they were,
   so no existing fixture changes: "Choose a bank or card account.",
   "Opening balances are for bank, card and loan accounts." and the transfer
@@ -350,8 +350,8 @@ value *`, `bitcoin/validation: *`, `bitcoin/assertBalanced: *`.
   in its own currency, through the recorded rate. Its fiat value's source
   must be `exchange`, and its amount more than zero. The caller sends the
   rate; `impliedRate` (a screen helper, to 12 places) always passes the
-  check. Like any transfer, it is corrected with `correctTransfer` by any
-  transfer other than an opening balance (O1's rule). `balances` counts it
+  check. It is corrected with `correctTransfer`, only by another exchange
+  between the same two accounts (B9). `balances` counts it
   in both currencies; the journal export lists it under either currency's
   filter, each line in its own currency. Fixtures: `bitcoin/recordTransfer:
 an exchange *`, `bitcoin/correctTransfer: *`, `bitcoin/balances: *`,
@@ -371,6 +371,27 @@ an exchange *`, `bitcoin/correctTransfer: *`, `bitcoin/balances: *`,
   wallet reads BTC amounts to 8 places, with the same comma rule. Its drafts
   have no fiat value, so each needs one before it's approved. Fixture:
   `bitcoin/previewImport: bitcoin payments into a wallet`.
+- **B9. An exchange is corrected only by another exchange, between the same
+  wallet and the same fiat account,** as an opening balance is by another
+  on its account (O1). The amounts, the direction, the date and the rate
+  may change. The refusals, checked in this order after O1's: "Correct an
+  exchange with another exchange.", "An exchange correction keeps its
+  wallet." and "An exchange correction keeps its dollar, euro or pound
+  account." The rule runs one way only: an ordinary transfer may still be
+  corrected by an exchange. Fixtures: `bitcoin/correctTransfer: an
+exchange, by *`.
+- **B10. A wallet never opens below zero.** A wallet can't hold less than
+  no bitcoin, so `recordOpeningBalance` refuses a negative amount on one,
+  and `correctTransfer` refuses an opening balance replacement that credits
+  a wallet: "A wallet can't open below zero. Enter its opening balance as
+  sats greater than zero." The check is in the shared opening-balance
+  check, so both commands give the same message. Ordinary expenses,
+  transfers and exchanges may still take a wallet below zero in this
+  phase. **A later balance check** should refuse any journal that would
+  leave a wallet holding less than zero sats on its date; this phase
+  refuses only the opening balance, as decided. Fixtures:
+  `bitcoin/recordOpeningBalance: a negative wallet balance`,
+  `bitcoin/correctTransfer: a wallet's opening balance, to below zero`.
 
 ## W: TypeScript behavior that looked wrong
 

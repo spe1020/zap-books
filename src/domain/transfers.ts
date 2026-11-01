@@ -338,6 +338,12 @@ function checkOpeningBalance(
   // The message predates wallets, which may also take one.
   if (!account || !openable(account.kind))
     throw new Error("Opening balances are for bank, card and loan accounts.");
+  // A wallet's opening balance is a debit; one credited to it would open
+  // below zero, and a wallet can't hold less than no bitcoin.
+  if (account.kind === "wallet" && account === from)
+    throw new Error(
+      "A wallet can't open below zero. Enter its opening balance as sats greater than zero.",
+    );
   if (openingBalanceOf(b, account.id))
     throw new Error(
       "This account already has an opening balance. Correct it instead.",
@@ -369,7 +375,7 @@ export function recordTransfer(
  * all or nothing. The reversal names the original (`reversesId`), and so
  * does the replacement (`correctionOf`). A transfer already reversed can't
  * be corrected again. An opening balance is corrected by another, on the
- * same account.
+ * same account, and an exchange by another between the same two accounts.
  */
 export function correctTransfer(
   business: BusinessData,
@@ -398,6 +404,25 @@ export function correctTransfer(
     )
   )
     throw new Error("An opening balance correction keeps its account.");
+  // An exchange is corrected by another between the same wallet and the
+  // same fiat account; the amounts, direction, date and rate may change.
+  if (original.transferType === "exchange") {
+    if (replacement.transferType !== "exchange")
+      throw new Error("Correct an exchange with another exchange.");
+    const sides = [replacement.fromAccountId, replacement.toAccountId];
+    const kept = (isWallet: boolean) =>
+      original.lines.every(
+        (l) =>
+          (b.accounts.find((a) => a.id === l.accountId)?.kind === "wallet") !==
+            isWallet || sides.includes(l.accountId),
+      );
+    if (!kept(true))
+      throw new Error("An exchange correction keeps its wallet.");
+    if (!kept(false))
+      throw new Error(
+        "An exchange correction keeps its dollar, euro or pound account.",
+      );
+  }
   const { correctionOf: _, ...prior } = original;
   const reversal: JournalEntry = {
     ...prior,

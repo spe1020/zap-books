@@ -135,7 +135,7 @@
  ],
  "vendors": [
   {
-   "id": "id-2101",
+   "id": "id-2111",
    "businessId": "northstar",
    "name": "Invented Relay Co"
   }
@@ -166,7 +166,7 @@
     "at": "2026-09-15"
    },
    "millisats": 21000123,
-   "journalId": "id-2119"
+   "journalId": "id-2129"
   }
  ],
  "journals": [
@@ -201,7 +201,7 @@
    }
   },
   {
-   "id": "id-2030",
+   "id": "id-2027",
    "businessId": "northstar",
    "date": "2026-09-10",
    "currency": "BTC",
@@ -231,7 +231,7 @@
    }
   },
   {
-   "id": "id-2072",
+   "id": "id-2075",
    "businessId": "northstar",
    "date": "2026-09-12",
    "currency": "BTC",
@@ -261,7 +261,7 @@
    }
   },
   {
-   "id": "id-2075",
+   "id": "id-2078",
    "businessId": "northstar",
    "date": "2026-09-20",
    "currency": "BTC",
@@ -291,7 +291,7 @@
    }
   },
   {
-   "id": "id-2119",
+   "id": "id-2129",
    "businessId": "northstar",
    "date": "2026-09-15",
    "currency": "BTC",
@@ -324,7 +324,7 @@
  ],
  "approvals": [
   {
-   "id": "id-2120",
+   "id": "id-2130",
    "businessId": "northstar",
    "expenseId": "draft-sats",
    "actor": "local-demo-user",
@@ -380,22 +380,13 @@
    "detail": "Opening balance recorded"
   },
   {
-   "id": "id-2032",
+   "id": "id-2029",
    "businessId": "northstar",
    "action": "transfer.recorded",
-   "entityId": "id-2030",
+   "entityId": "id-2027",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Transfer between accounts recorded"
-  },
-  {
-   "id": "id-2074",
-   "businessId": "northstar",
-   "action": "transfer.recorded",
-   "entityId": "id-2072",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Exchange recorded"
   },
   {
    "id": "id-2077",
@@ -407,7 +398,16 @@
    "detail": "Exchange recorded"
   },
   {
-   "id": "id-2103",
+   "id": "id-2080",
+   "businessId": "northstar",
+   "action": "transfer.recorded",
+   "entityId": "id-2078",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Exchange recorded"
+  },
+  {
+   "id": "id-2113",
    "businessId": "northstar",
    "action": "expense.created",
    "entityId": "draft-sats",
@@ -416,7 +416,7 @@
    "detail": "Expense draft created"
   },
   {
-   "id": "id-2122",
+   "id": "id-2132",
    "businessId": "northstar",
    "action": "expense.approved",
    "entityId": "draft-sats",
@@ -425,7 +425,7 @@
    "detail": "Reviewed and approved. No payment initiated."
   },
   {
-   "id": "id-2124",
+   "id": "id-2134",
    "businessId": "northstar",
    "action": "expense.posted",
    "entityId": "draft-sats",
@@ -488,29 +488,16 @@
    }
   },
   {
-   "id": "id-2031",
+   "id": "id-2028",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "transfer.recorded",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [],
-   "entityId": "id-2030",
+   "entityId": "id-2027",
    "payload": {
     "detail": "Transfer between accounts recorded"
-   }
-  },
-  {
-   "id": "id-2073",
-   "businessId": "northstar",
-   "schemaVersion": 1,
-   "type": "transfer.recorded",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [],
-   "entityId": "id-2072",
-   "payload": {
-    "detail": "Exchange recorded"
    }
   },
   {
@@ -527,7 +514,20 @@
    }
   },
   {
-   "id": "id-2102",
+   "id": "id-2079",
+   "businessId": "northstar",
+   "schemaVersion": 1,
+   "type": "transfer.recorded",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-2078",
+   "payload": {
+    "detail": "Exchange recorded"
+   }
+  },
+  {
+   "id": "id-2112",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "expense.created",
@@ -540,7 +540,7 @@
    }
   },
   {
-   "id": "id-2121",
+   "id": "id-2131",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "expense.approved",
@@ -553,14 +553,14 @@
    }
   },
   {
-   "id": "id-2123",
+   "id": "id-2133",
    "businessId": "northstar",
    "schemaVersion": 1,
    "type": "expense.posted",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-2119"
+    "id-2129"
    ],
    "entityId": "draft-sats",
    "payload": {

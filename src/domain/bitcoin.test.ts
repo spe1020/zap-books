@@ -218,6 +218,36 @@ describe("a BTC journal records its fiat value", () => {
       fiatValue: valued(100000),
     });
     expect(balanceOf(opened, "BTC", cold)).toBe(100000);
+    // A wallet can't open below zero, nor be corrected to.
+    const below = "A wallet can't open below zero.";
+    expect(() =>
+      recordOpeningBalance(b, {
+        accountId: cold,
+        date: "2027-01-01",
+        amountMinor: -100000,
+        fiatValue: valued(100000),
+      }),
+    ).toThrow(below);
+    const equity = opened.accounts.find(
+      (a) => a.name === "Opening balances (BTC)",
+    )!;
+    expect(() =>
+      correctTransfer(
+        opened,
+        opened.journals.at(-1)!.id,
+        {
+          date: "2027-01-01",
+          amountMinor: 100000,
+          currency: "BTC",
+          fromAccountId: cold,
+          toAccountId: equity.id,
+          transferType: "openingBalance",
+          purpose: "Opening balance",
+          fiatValue: valued(100000),
+        },
+        "Invented reason",
+      ),
+    ).toThrow(below);
     expect(() => expense(b, "USD", 4200, valued(4200))).toThrow(
       "Only a bitcoin entry records a fiat value.",
     );
@@ -233,6 +263,35 @@ describe("a BTC journal records its fiat value", () => {
     ] as const)
       expect(
         fiatValueMatches(100000, valued(100000, { amountMinor: cents })),
+      ).toBe(ok);
+  });
+
+  test("the check is exact for rates with many decimal places", () => {
+    // These two rates are the same double, but a cent apart at the limit.
+    expect(Number("60000.010000000001")).toBe(Number("60000.01"));
+    for (const [sats, rate, cents, ok] of [
+      // Exactly 6,000,001 cents, and 10^-10 of a cent more.
+      [100_000_000, "60000.010000000000", 6_000_000, true],
+      [100_000_000, "60000.010000000001", 6_000_000, false],
+      [100_000_000, "60000.010000000001", 6_000_002, true],
+      // 259,259,256,925,925.9238 cents: all the bitcoin there will be.
+      [2_100_000_000_000_000, "123456.789012345678", 259259256925925, true],
+      [2_100_000_000_000_000, "123456.789012345678", 259259256925926, true],
+      [2_100_000_000_000_000, "123456.789012345678", 259259256925924, false],
+      [2_100_000_000_000_000, "123456.789012345678", 259259256925927, false],
+      // 999,999.999999999999999999 cents: the largest rate, on one sat.
+      [1, "999999999999.999999999999", 1_000_000, true],
+      [1, "999999999999.999999999999", 999_999, true],
+      [1, "999999999999.999999999999", 1_000_001, false],
+      [1, "999999999999.999999999999", 999_998, false],
+      // The smallest rate.
+      [123_456_789, "0.000000000001", 0, true],
+      [123_456_789, "0.000000000001", 1, true],
+      [123_456_789, "0.000000000001", 2, false],
+    ] as const)
+      expect(
+        fiatValueMatches(sats, valued(sats, { rate, amountMinor: cents })),
+        `${sats} at ${rate} as ${cents}`,
       ).toBe(ok);
   });
 });
@@ -264,6 +323,41 @@ describe("exchanges", () => {
     );
     expect(balanceOf(fixed, "USD", bank)).toBe(-8900);
     expect(balanceOf(fixed, "BTC", wallet)).toBe(150000);
+  });
+
+  test("are corrected only by an exchange between the same two accounts", () => {
+    const start = setup();
+    const b = recordTransfer(start, exchange(start, 250000, 15000));
+    const original = b.journals.at(-1)!.id;
+    const correct = (replacement: TransferInput) =>
+      correctTransfer(b, original, replacement, "Invented reason");
+    expect(() =>
+      correct({
+        ...exchange(b, 250000, 15000),
+        transferType: "betweenAccounts",
+        fromAccountId: named(b, "Cold storage"),
+        fiatValue: valued(250000),
+      }),
+    ).toThrow("Correct an exchange with another exchange.");
+    expect(() =>
+      correct({
+        ...exchange(b, 250000, 15000),
+        toAccountId: named(b, "Cold storage"),
+      }),
+    ).toThrow("An exchange correction keeps its wallet.");
+    for (const other of ["northstar-reserve", "northstar-card"])
+      expect(() =>
+        correct({ ...exchange(b, 250000, 15000), fromAccountId: other }),
+      ).toThrow(
+        "An exchange correction keeps its dollar, euro or pound account.",
+      );
+    // The amounts, the direction and the date may change.
+    const sold = correct({
+      ...exchange(b, 100000, 6100, false),
+      date: "2027-01-11",
+    });
+    expect(balanceOf(sold, "BTC", named(b, "Lightning wallet"))).toBe(-100000);
+    expect(balanceOf(sold, "USD", "northstar-checking")).toBe(6100);
   });
 
   test("the implied rate always gives back its amount", () => {

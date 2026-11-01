@@ -332,8 +332,12 @@ another currency or a bank or card account in BTC.
   which must be more than zero. The journal debits the to-account and
   credits the from-account, each in its own currency: the wallet's line
   in sats, the other for the fiat amount. It is the only journal in two
-  currencies, never counts as spending, and is corrected with
-  `CorrectTransfer` like any transfer.
+  currencies and never counts as spending. `CorrectTransfer` replaces an
+  exchange only with another between the same wallet and the same fiat
+  account; the amounts, direction, date and rate may change.
+- **A wallet's opening balance** is more than zero: a wallet can't open
+  holding less than no bitcoin, and an opening balance correction can't
+  take it there either.
 - **Lightning amounts** may carry `millisats` (a draft's, a transfer's):
   the amount as paid, kept on the journal. `amountMinor` must be it rounded
   to the nearest sat, half a sat rounding up.
