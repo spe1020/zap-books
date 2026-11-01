@@ -28,7 +28,9 @@ mod types;
 pub use date::{normalize_import_date, valid_date, DateFormat};
 pub use env::{Env, SequentialEnv};
 pub use error::{LedgerError, Result};
-pub use export::{encode_csv, export_records, CsvExport, ExportFilter, ExportFormat};
+pub use export::{
+    encode_csv, export_balances, export_records, CsvExport, ExportFilter, ExportFormat,
+};
 pub use extraction::outcomes_for;
 pub use import::{
     commit_import, guess_mapping, parse_csv, preview_import, CsvMapping, ImportKind, ImportOptions,
@@ -43,7 +45,7 @@ pub use settings::{save_rule, update_settings, RuleInput, SettingsChange};
 pub use suggestions::{suggest, SuggestionInput};
 pub use transfers::{
     balances, correct_transfer, opening_balances_name, record_opening_balance, record_transfer,
-    Balance, OpeningBalanceInput, TransferInput,
+    transfer_type_label, Balance, OpeningBalanceInput, TransferInput,
 };
 pub use types::{
     Account, AccountKind, Approval, AuditEvent, Business, BusinessData, Category,

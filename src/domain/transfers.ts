@@ -52,6 +52,40 @@ export interface Balance {
 
 const paying = (k: AccountKind) => k === "bank" || k === "card";
 
+/** What each transfer type is called on screens and in exports. */
+export const transferTypeLabels: Record<TransferType, string> = {
+  ownerLoan: "Owner loan",
+  ownerContribution: "Owner contribution",
+  loanRepayment: "Loan repayment",
+  ownerDraw: "Owner draw",
+  betweenAccounts: "Transfer between accounts",
+  openingBalance: "Opening balance",
+};
+
+/** What each account kind is called on screens and in exports. */
+export const accountKindLabels: Record<AccountKind, string> = {
+  bank: "Bank account",
+  card: "Credit card",
+  liability: "Loan",
+  equity: "Owner equity",
+  expense: "Expense",
+};
+
+/**
+ * What a balance from `balances` means for each kind: money held in a bank
+ * account, owed on a card, owed to the owner on a loan, or the owner's
+ * stake.
+ */
+export const balanceMeanings: Record<
+  Exclude<AccountKind, "expense">,
+  string
+> = {
+  bank: "Held",
+  card: "Owed",
+  liability: "Owed to owner",
+  equity: "Owner's stake",
+};
+
 /** Which accounts each transfer type moves money between, and its message. */
 const shapes: Record<
   Exclude<TransferType, "openingBalance">,
@@ -63,35 +97,35 @@ const shapes: Record<
   }
 > = {
   ownerLoan: {
-    label: "Owner loan",
+    label: transferTypeLabels.ownerLoan,
     from: (k) => k === "liability",
     to: paying,
     message:
       "An owner loan moves money from a loan account into a bank or card account.",
   },
   ownerContribution: {
-    label: "Owner contribution",
+    label: transferTypeLabels.ownerContribution,
     from: (k) => k === "equity",
     to: paying,
     message:
       "An owner contribution moves money from an owner equity account into a bank or card account.",
   },
   loanRepayment: {
-    label: "Loan repayment",
+    label: transferTypeLabels.loanRepayment,
     from: paying,
     to: (k) => k === "liability",
     message:
       "A loan repayment moves money from a bank or card account into a loan account.",
   },
   ownerDraw: {
-    label: "Owner draw",
+    label: transferTypeLabels.ownerDraw,
     from: paying,
     to: (k) => k === "equity",
     message:
       "An owner draw moves money from a bank or card account into an owner equity account.",
   },
   betweenAccounts: {
-    label: "Transfer between accounts",
+    label: transferTypeLabels.betweenAccounts,
     from: paying,
     to: paying,
     message:
@@ -398,3 +432,110 @@ export function balances(
       }
   return rows;
 }
+
+// Helpers for the screens. They choose what to offer; the commands above
+// still decide what's allowed. Not ported to Rust (PARITY_NOTES, Not
+// ported).
+
+/** Whether `a` is an opening balances account (see `openingBalancesName`). */
+export const isOpeningBalancesAccount = (b: BusinessData, a: Account) =>
+  a.kind === "equity" &&
+  a.name.toLowerCase() === openingBalancesName(b, a.currency).toLowerCase();
+
+/**
+ * The accounts an expense can be paid from: the business's own bank and
+ * card accounts, then the loan and equity accounts that mean the owner
+ * paid personally. Opening balances accounts are left out.
+ */
+export function paymentAccounts(b: BusinessData) {
+  const own = b.accounts.filter(
+    (a) => a.businessId === b.profile.id && paying(a.kind),
+  );
+  const personal = b.accounts.filter(
+    (a) =>
+      a.businessId === b.profile.id &&
+      (a.kind === "liability" ||
+        (a.kind === "equity" && !isOpeningBalancesAccount(b, a))),
+  );
+  return { own, personal };
+}
+
+/** The transfer types a user chooses, in the order the form offers them. */
+export const transferTypes = [
+  "ownerLoan",
+  "ownerContribution",
+  "loanRepayment",
+  "ownerDraw",
+  "betweenAccounts",
+] as const;
+
+/**
+ * The accounts in `currency` a transfer of `type` can move money from and
+ * to. Opening balances accounts are never offered.
+ */
+export function transferAccounts(
+  b: BusinessData,
+  type: (typeof transferTypes)[number],
+  currency: Currency,
+) {
+  const shape = shapes[type];
+  const usable = b.accounts.filter(
+    (a) =>
+      a.businessId === b.profile.id &&
+      a.currency === currency &&
+      !isOpeningBalancesAccount(b, a),
+  );
+  return {
+    from: usable.filter((a) => shape.from(a.kind)),
+    to: usable.filter((a) => shape.to(a.kind)),
+  };
+}
+
+/**
+ * The opening balance in effect on `accountId`: its journal and its amount
+ * as `recordOpeningBalance` takes it (what's in a bank account, or what's
+ * owed on a card or loan account).
+ */
+export function openingBalance(b: BusinessData, accountId: string) {
+  const journal = openingBalanceOf(b, accountId);
+  const account = b.accounts.find((a) => a.id === accountId);
+  if (!journal || !account) return undefined;
+  const line = journal.lines.find((l) => l.accountId === accountId)!;
+  const debit = line.debit - line.credit;
+  return { journal, amountMinor: account.kind === "bank" ? debit : -debit };
+}
+
+/**
+ * The `correctTransfer` replacement that changes the opening balance on
+ * `input.accountId` to `input`: the same two accounts, in the direction
+ * the new amount's sign gives.
+ */
+export function openingBalanceReplacement(
+  b: BusinessData,
+  input: OpeningBalanceInput,
+): TransferInput {
+  const current = openingBalance(b, input.accountId);
+  const account = b.accounts.find((a) => a.id === input.accountId);
+  if (!current || !account) throw new Error("There is no opening balance.");
+  const equity = current.journal.lines.find(
+    (l) => l.accountId !== input.accountId,
+  )!.accountId;
+  const debit = (account.kind === "bank") === input.amountMinor > 0;
+  return {
+    date: input.date,
+    amountMinor: Math.abs(input.amountMinor),
+    currency: account.currency,
+    fromAccountId: debit ? equity : account.id,
+    toAccountId: debit ? account.id : equity,
+    transferType: "openingBalance",
+    purpose: "Opening balance",
+    ...(input.reference !== undefined && { reference: input.reference }),
+  };
+}
+
+/** The date of the business's first entry other than opening balances. */
+export const firstEntryDate = (b: BusinessData) =>
+  b.journals
+    .filter((j) => j.businessId === b.profile.id && !isOpening(j))
+    .map((j) => j.date)
+    .sort()[0] as string | undefined;

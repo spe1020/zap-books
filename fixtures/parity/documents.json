@@ -3,7 +3,7 @@
   "name": "saveDraft: a draft referring to a document with a hash",
   "call": "saveDraft",
   "env": {
-   "nextId": 645,
+   "nextId": 642,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -12,7 +12,7 @@
     "$state": "northstar-setup-hashed-document"
    },
    "draft": {
-    "id": "id-0644",
+    "id": "id-0641",
     "businessId": "northstar",
     "vendor": "Harbor Print",
     "date": "2026-10-15",
@@ -103,6 +103,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -139,7 +146,7 @@
    ],
    "vendors": [
     {
-     "id": "id-0645",
+     "id": "id-0642",
      "businessId": "northstar",
      "name": "Harbor Print"
     }
@@ -160,7 +167,7 @@
    "payments": [],
    "drafts": [
     {
-     "id": "id-0644",
+     "id": "id-0641",
      "businessId": "northstar",
      "vendor": "Harbor Print",
      "date": "2026-10-15",
@@ -192,10 +199,10 @@
    ],
    "audits": [
     {
-     "id": "id-0647",
+     "id": "id-0644",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0644",
+     "entityId": "id-0641",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
@@ -203,7 +210,7 @@
    ],
    "events": [
     {
-     "id": "id-0646",
+     "id": "id-0643",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
@@ -212,7 +219,7 @@
      "sourceIds": [
       "doc-hashed"
      ],
-     "entityId": "id-0644",
+     "entityId": "id-0641",
      "payload": {
       "detail": "Expense draft created"
      }

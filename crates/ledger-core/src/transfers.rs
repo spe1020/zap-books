@@ -57,6 +57,43 @@ pub struct Balance {
     pub balance: Minor,
 }
 
+/// `transferTypeLabels`: what each transfer type is called on screens and
+/// in exports.
+pub fn transfer_type_label(t: TransferType) -> &'static str {
+    match t {
+        TransferType::OwnerLoan => "Owner loan",
+        TransferType::OwnerContribution => "Owner contribution",
+        TransferType::LoanRepayment => "Loan repayment",
+        TransferType::OwnerDraw => "Owner draw",
+        TransferType::BetweenAccounts => "Transfer between accounts",
+        TransferType::OpeningBalance => "Opening balance",
+    }
+}
+
+/// `accountKindLabels`
+pub(crate) fn account_kind_label(k: AccountKind) -> &'static str {
+    match k {
+        AccountKind::Bank => "Bank account",
+        AccountKind::Card => "Credit card",
+        AccountKind::Liability => "Loan",
+        AccountKind::Equity => "Owner equity",
+        AccountKind::Expense => "Expense",
+    }
+}
+
+/// `balanceMeanings`: money held in a bank account, owed on a card, owed to
+/// the owner on a loan, or the owner's stake. `balances` never returns an
+/// expense account.
+pub(crate) fn balance_meaning(k: AccountKind) -> &'static str {
+    match k {
+        AccountKind::Bank => "Held",
+        AccountKind::Card => "Owed",
+        AccountKind::Liability => "Owed to owner",
+        AccountKind::Equity => "Owner's stake",
+        AccountKind::Expense => "",
+    }
+}
+
 fn paying(k: AccountKind) -> bool {
     matches!(k, AccountKind::Bank | AccountKind::Card)
 }
@@ -77,31 +114,31 @@ fn shape(t: TransferType) -> Option<Shape> {
     let equity = |k| k == AccountKind::Equity;
     Some(match t {
         TransferType::OwnerLoan => (
-            "Owner loan",
+            transfer_type_label(t),
             liability,
             paying,
             "An owner loan moves money from a loan account into a bank or card account.",
         ),
         TransferType::OwnerContribution => (
-            "Owner contribution",
+            transfer_type_label(t),
             equity,
             paying,
             "An owner contribution moves money from an owner equity account into a bank or card account.",
         ),
         TransferType::LoanRepayment => (
-            "Loan repayment",
+            transfer_type_label(t),
             paying,
             liability,
             "A loan repayment moves money from a bank or card account into a loan account.",
         ),
         TransferType::OwnerDraw => (
-            "Owner draw",
+            transfer_type_label(t),
             paying,
             equity,
             "An owner draw moves money from a bank or card account into an owner equity account.",
         ),
         TransferType::BetweenAccounts => (
-            "Transfer between accounts",
+            transfer_type_label(t),
             paying,
             paying,
             "A transfer between accounts moves money from one bank or card account to another.",

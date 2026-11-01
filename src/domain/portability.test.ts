@@ -42,8 +42,9 @@ describe("portable financial exports", () => {
     const amount = rows[0].indexOf("Amount");
     expect(
       rows.slice(1).reduce((sum, r) => sum + parseMoney(r[amount]), 0),
-    ).toBe(totals(b, currentPeriod()).USD);
-    expect(csv.rows).toHaveLength(6);
+    ).toBe(totals(b, "").USD);
+    // This month's six, and last month's expense the owner paid personally.
+    expect(csv.rows).toHaveLength(7);
     expect(csv.rows.filter((r) => r[4] === "Atlas Creative")).toHaveLength(1);
     const journal = exportRecords(b, "journal", filters);
     expect(journal.rows.some((r) => r[4] === "reversal" && r[6])).toBe(true);
@@ -256,8 +257,15 @@ describe("expense-history migration", () => {
     ).toThrow("another business");
   });
   test("our expense CSV maps back into reviewable drafts with preserved exact amounts", () => {
+    // This month's expenses, all paid by card: an import is from one
+    // payment account, and last month's was paid personally.
+    const month = currentPeriod();
     const b = seedWorkspace().businesses[0],
-      csv = exportRecords(b, "expenses", filters),
+      csv = exportRecords(b, "expenses", {
+        ...filters,
+        from: `${month}-01`,
+        to: `${month}-31`,
+      }),
       rows = parseCSV(csv.csv);
     const preview = previewImport(
       b,

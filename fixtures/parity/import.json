@@ -3,7 +3,7 @@
   "name": "previewImport: equal amounts with distinct references",
   "call": "previewImport",
   "env": {
-   "nextId": 354,
+   "nextId": 386,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -82,7 +82,7 @@
   "name": "commitImport: two payments",
   "call": "commitImport",
   "env": {
-   "nextId": 354,
+   "nextId": 386,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -197,6 +197,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -278,7 +285,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0356",
+     "id": "id-0107",
+     "businessId": "northstar",
+     "name": "Lantern Type Foundry"
+    },
+    {
+     "id": "id-0388",
      "businessId": "northstar",
      "name": "Tools, Inc."
     }
@@ -399,7 +411,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0355",
+     "id": "id-0387",
      "businessId": "northstar",
      "date": "2026-10-20",
      "description": "Tools, Inc.",
@@ -408,10 +420,10 @@
      "accountId": "northstar-checking",
      "reference": "R1",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-     "draftId": "id-0354"
+     "draftId": "id-0386"
     },
     {
-     "id": "id-0362",
+     "id": "id-0394",
      "businessId": "northstar",
      "date": "2026-10-21",
      "description": "Tools, Inc.",
@@ -420,7 +432,7 @@
      "accountId": "northstar-checking",
      "reference": "R2",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-     "draftId": "id-0361"
+     "draftId": "id-0393"
     }
    ],
    "drafts": [
@@ -630,7 +642,24 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0354",
+     "id": "id-0106",
+     "businessId": "northstar",
+     "vendor": "Lantern Type Foundry",
+     "date": "2026-09-15",
+     "description": "Paid personally · font licence",
+     "amountMinor": 21470,
+     "currency": "USD",
+     "categoryId": "northstar-category-0",
+     "accountId": "northstar-owner-loan",
+     "purpose": "Typeface for a client identity project",
+     "documentIds": [],
+     "status": "posted",
+     "duplicateReason": "",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "journalId": "id-0110"
+    },
+    {
+     "id": "id-0386",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-20",
@@ -644,10 +673,10 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0355"
+     "paymentId": "id-0387"
     },
     {
-     "id": "id-0361",
+     "id": "id-0393",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-21",
@@ -661,7 +690,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0362"
+     "paymentId": "id-0394"
     }
    ],
    "journals": [
@@ -858,6 +887,8 @@
      "kind": "transfer",
      "memo": "Operating account → Reserve account",
      "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "betweenAccounts",
+     "purpose": "Set aside a reserve",
      "lines": [
       {
        "accountId": "northstar-reserve",
@@ -870,6 +901,75 @@
        "credit": 200000
       }
      ]
+    },
+    {
+     "id": "id-0103",
+     "businessId": "northstar",
+     "date": "2026-09-04",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-checking",
+       "debit": 600000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 600000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Owner's loan → Operating account",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "ownerLoan",
+     "purpose": "Working capital from the owner"
+    },
+    {
+     "id": "id-0110",
+     "businessId": "northstar",
+     "date": "2026-09-15",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-expense-0",
+       "categoryId": "northstar-category-0",
+       "debit": 21470,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 21470
+      }
+     ],
+     "kind": "expense",
+     "expenseId": "id-0106",
+     "memo": "Lantern Type Foundry · Paid personally · font licence",
+     "createdAt": "2026-10-15T12:00:00.000Z"
+    },
+    {
+     "id": "id-0116",
+     "businessId": "northstar",
+     "date": "2026-09-27",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 150000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-checking",
+       "debit": 0,
+       "credit": 150000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Operating account → Owner's loan",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "loanRepayment",
+     "purpose": "First repayment to the owner"
     }
    ],
    "approvals": [
@@ -925,6 +1025,14 @@
      "id": "id-0097",
      "businessId": "northstar",
      "expenseId": "id-0092",
+     "actor": "local-demo-user",
+     "at": "2026-10-15T12:00:00.000Z",
+     "duplicateReason": ""
+    },
+    {
+     "id": "id-0111",
+     "businessId": "northstar",
+     "expenseId": "id-0106",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -1185,37 +1293,82 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0358",
+     "id": "id-0105",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0103",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Owner loan recorded"
+    },
+    {
+     "id": "id-0109",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0354",
+     "entityId": "id-0106",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0360",
+     "id": "id-0113",
+     "businessId": "northstar",
+     "action": "expense.approved",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Reviewed and approved. No payment initiated."
+    },
+    {
+     "id": "id-0115",
+     "businessId": "northstar",
+     "action": "expense.posted",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Balanced journal entry recorded"
+    },
+    {
+     "id": "id-0118",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0116",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Loan repayment recorded"
+    },
+    {
+     "id": "id-0390",
+     "businessId": "northstar",
+     "action": "expense.created",
+     "entityId": "id-0386",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Expense draft created"
+    },
+    {
+     "id": "id-0392",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0354",
+     "entityId": "id-0386",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
     },
     {
-     "id": "id-0364",
+     "id": "id-0396",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0366",
+     "id": "id-0398",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -1628,61 +1781,128 @@
      }
     },
     {
-     "id": "id-0357",
+     "id": "id-0104",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0103",
+     "payload": {
+      "detail": "Owner loan recorded"
+     }
+    },
+    {
+     "id": "id-0108",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Expense draft created"
+     }
+    },
+    {
+     "id": "id-0112",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0114",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.posted",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0110"
+     ],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Balanced journal entry recorded"
+     }
+    },
+    {
+     "id": "id-0117",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0116",
+     "payload": {
+      "detail": "Loan repayment recorded"
+     }
+    },
+    {
+     "id": "id-0389",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0355"
+      "id-0387"
      ],
-     "entityId": "id-0354",
+     "entityId": "id-0386",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0359",
+     "id": "id-0391",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0355"
+      "id-0387"
      ],
-     "entityId": "id-0354",
+     "entityId": "id-0386",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
     },
     {
-     "id": "id-0363",
+     "id": "id-0395",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0362"
+      "id-0394"
      ],
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0365",
+     "id": "id-0397",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0362"
+      "id-0394"
      ],
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -1695,7 +1915,7 @@
   "name": "commitImport: re-import creates nothing",
   "call": "commitImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1772,6 +1992,13 @@
       "businessId": "northstar",
       "name": "Marketing & design",
       "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
       "currency": "USD"
      }
     ],
@@ -1854,7 +2081,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0356",
+      "id": "id-0107",
+      "businessId": "northstar",
+      "name": "Lantern Type Foundry"
+     },
+     {
+      "id": "id-0388",
       "businessId": "northstar",
       "name": "Tools, Inc."
      }
@@ -1975,7 +2207,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0355",
+      "id": "id-0387",
       "businessId": "northstar",
       "date": "2026-10-20",
       "description": "Tools, Inc.",
@@ -1984,10 +2216,10 @@
       "accountId": "northstar-checking",
       "reference": "R1",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-      "draftId": "id-0354"
+      "draftId": "id-0386"
      },
      {
-      "id": "id-0362",
+      "id": "id-0394",
       "businessId": "northstar",
       "date": "2026-10-21",
       "description": "Tools, Inc.",
@@ -1996,7 +2228,7 @@
       "accountId": "northstar-checking",
       "reference": "R2",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-      "draftId": "id-0361"
+      "draftId": "id-0393"
      }
     ],
     "drafts": [
@@ -2206,7 +2438,24 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0354",
+      "id": "id-0106",
+      "businessId": "northstar",
+      "vendor": "Lantern Type Foundry",
+      "date": "2026-09-15",
+      "description": "Paid personally · font licence",
+      "amountMinor": 21470,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-owner-loan",
+      "purpose": "Typeface for a client identity project",
+      "documentIds": [],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0110"
+     },
+     {
+      "id": "id-0386",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-20",
@@ -2220,10 +2469,10 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0355"
+      "paymentId": "id-0387"
      },
      {
-      "id": "id-0361",
+      "id": "id-0393",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-21",
@@ -2237,7 +2486,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0362"
+      "paymentId": "id-0394"
      }
     ],
     "journals": [
@@ -2434,6 +2683,8 @@
       "kind": "transfer",
       "memo": "Operating account → Reserve account",
       "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "betweenAccounts",
+      "purpose": "Set aside a reserve",
       "lines": [
        {
         "accountId": "northstar-reserve",
@@ -2446,6 +2697,75 @@
         "credit": 200000
        }
       ]
+     },
+     {
+      "id": "id-0103",
+      "businessId": "northstar",
+      "date": "2026-09-04",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-checking",
+        "debit": 600000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 600000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Owner's loan → Operating account",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "ownerLoan",
+      "purpose": "Working capital from the owner"
+     },
+     {
+      "id": "id-0110",
+      "businessId": "northstar",
+      "date": "2026-09-15",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 21470,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 21470
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0106",
+      "memo": "Lantern Type Foundry · Paid personally · font licence",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0116",
+      "businessId": "northstar",
+      "date": "2026-09-27",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 150000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-checking",
+        "debit": 0,
+        "credit": 150000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Operating account → Owner's loan",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "loanRepayment",
+      "purpose": "First repayment to the owner"
      }
     ],
     "approvals": [
@@ -2501,6 +2821,14 @@
       "id": "id-0097",
       "businessId": "northstar",
       "expenseId": "id-0092",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0111",
+      "businessId": "northstar",
+      "expenseId": "id-0106",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -2761,37 +3089,82 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0358",
+      "id": "id-0105",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0103",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Owner loan recorded"
+     },
+     {
+      "id": "id-0109",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0354",
+      "entityId": "id-0106",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0360",
+      "id": "id-0113",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0115",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0118",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0116",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Loan repayment recorded"
+     },
+     {
+      "id": "id-0390",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0386",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0354",
+      "entityId": "id-0386",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      },
      {
-      "id": "id-0364",
+      "id": "id-0396",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0366",
+      "id": "id-0398",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -3204,61 +3577,128 @@
       }
      },
      {
-      "id": "id-0357",
+      "id": "id-0104",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0103",
+      "payload": {
+       "detail": "Owner loan recorded"
+      }
+     },
+     {
+      "id": "id-0108",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0112",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0114",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0110"
+      ],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0117",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0116",
+      "payload": {
+       "detail": "Loan repayment recorded"
+      }
+     },
+     {
+      "id": "id-0389",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0355"
+       "id-0387"
       ],
-      "entityId": "id-0354",
+      "entityId": "id-0386",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0359",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0355"
+       "id-0387"
       ],
-      "entityId": "id-0354",
+      "entityId": "id-0386",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
      },
      {
-      "id": "id-0363",
+      "id": "id-0395",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0362"
+       "id-0394"
       ],
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0365",
+      "id": "id-0397",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0362"
+       "id-0394"
       ],
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -3373,6 +3813,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -3454,7 +3901,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0356",
+     "id": "id-0107",
+     "businessId": "northstar",
+     "name": "Lantern Type Foundry"
+    },
+    {
+     "id": "id-0388",
      "businessId": "northstar",
      "name": "Tools, Inc."
     }
@@ -3575,7 +4027,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0355",
+     "id": "id-0387",
      "businessId": "northstar",
      "date": "2026-10-20",
      "description": "Tools, Inc.",
@@ -3584,10 +4036,10 @@
      "accountId": "northstar-checking",
      "reference": "R1",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-     "draftId": "id-0354"
+     "draftId": "id-0386"
     },
     {
-     "id": "id-0362",
+     "id": "id-0394",
      "businessId": "northstar",
      "date": "2026-10-21",
      "description": "Tools, Inc.",
@@ -3596,7 +4048,7 @@
      "accountId": "northstar-checking",
      "reference": "R2",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-     "draftId": "id-0361"
+     "draftId": "id-0393"
     }
    ],
    "drafts": [
@@ -3806,7 +4258,24 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0354",
+     "id": "id-0106",
+     "businessId": "northstar",
+     "vendor": "Lantern Type Foundry",
+     "date": "2026-09-15",
+     "description": "Paid personally · font licence",
+     "amountMinor": 21470,
+     "currency": "USD",
+     "categoryId": "northstar-category-0",
+     "accountId": "northstar-owner-loan",
+     "purpose": "Typeface for a client identity project",
+     "documentIds": [],
+     "status": "posted",
+     "duplicateReason": "",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "journalId": "id-0110"
+    },
+    {
+     "id": "id-0386",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-20",
@@ -3820,10 +4289,10 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0355"
+     "paymentId": "id-0387"
     },
     {
-     "id": "id-0361",
+     "id": "id-0393",
      "businessId": "northstar",
      "vendor": "Tools, Inc.",
      "date": "2026-10-21",
@@ -3837,7 +4306,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0362"
+     "paymentId": "id-0394"
     }
    ],
    "journals": [
@@ -4034,6 +4503,8 @@
      "kind": "transfer",
      "memo": "Operating account → Reserve account",
      "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "betweenAccounts",
+     "purpose": "Set aside a reserve",
      "lines": [
       {
        "accountId": "northstar-reserve",
@@ -4046,6 +4517,75 @@
        "credit": 200000
       }
      ]
+    },
+    {
+     "id": "id-0103",
+     "businessId": "northstar",
+     "date": "2026-09-04",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-checking",
+       "debit": 600000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 600000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Owner's loan → Operating account",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "ownerLoan",
+     "purpose": "Working capital from the owner"
+    },
+    {
+     "id": "id-0110",
+     "businessId": "northstar",
+     "date": "2026-09-15",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-expense-0",
+       "categoryId": "northstar-category-0",
+       "debit": 21470,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 21470
+      }
+     ],
+     "kind": "expense",
+     "expenseId": "id-0106",
+     "memo": "Lantern Type Foundry · Paid personally · font licence",
+     "createdAt": "2026-10-15T12:00:00.000Z"
+    },
+    {
+     "id": "id-0116",
+     "businessId": "northstar",
+     "date": "2026-09-27",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 150000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-checking",
+       "debit": 0,
+       "credit": 150000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Operating account → Owner's loan",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "loanRepayment",
+     "purpose": "First repayment to the owner"
     }
    ],
    "approvals": [
@@ -4101,6 +4641,14 @@
      "id": "id-0097",
      "businessId": "northstar",
      "expenseId": "id-0092",
+     "actor": "local-demo-user",
+     "at": "2026-10-15T12:00:00.000Z",
+     "duplicateReason": ""
+    },
+    {
+     "id": "id-0111",
+     "businessId": "northstar",
+     "expenseId": "id-0106",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -4361,37 +4909,82 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0358",
+     "id": "id-0105",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0103",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Owner loan recorded"
+    },
+    {
+     "id": "id-0109",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0354",
+     "entityId": "id-0106",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0360",
+     "id": "id-0113",
+     "businessId": "northstar",
+     "action": "expense.approved",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Reviewed and approved. No payment initiated."
+    },
+    {
+     "id": "id-0115",
+     "businessId": "northstar",
+     "action": "expense.posted",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Balanced journal entry recorded"
+    },
+    {
+     "id": "id-0118",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0116",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Loan repayment recorded"
+    },
+    {
+     "id": "id-0390",
+     "businessId": "northstar",
+     "action": "expense.created",
+     "entityId": "id-0386",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Expense draft created"
+    },
+    {
+     "id": "id-0392",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0354",
+     "entityId": "id-0386",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
     },
     {
-     "id": "id-0364",
+     "id": "id-0396",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0366",
+     "id": "id-0398",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -4804,61 +5397,128 @@
      }
     },
     {
-     "id": "id-0357",
+     "id": "id-0104",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0103",
+     "payload": {
+      "detail": "Owner loan recorded"
+     }
+    },
+    {
+     "id": "id-0108",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Expense draft created"
+     }
+    },
+    {
+     "id": "id-0112",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0114",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.posted",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0110"
+     ],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Balanced journal entry recorded"
+     }
+    },
+    {
+     "id": "id-0117",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0116",
+     "payload": {
+      "detail": "Loan repayment recorded"
+     }
+    },
+    {
+     "id": "id-0389",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0355"
+      "id-0387"
      ],
-     "entityId": "id-0354",
+     "entityId": "id-0386",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0359",
+     "id": "id-0391",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0355"
+      "id-0387"
      ],
-     "entityId": "id-0354",
+     "entityId": "id-0386",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
     },
     {
-     "id": "id-0363",
+     "id": "id-0395",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0362"
+      "id-0394"
      ],
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0365",
+     "id": "id-0397",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0362"
+      "id-0394"
      ],
-     "entityId": "id-0361",
+     "entityId": "id-0393",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -4871,7 +5531,7 @@
   "name": "previewImport: re-import is all duplicates",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4948,6 +5608,13 @@
       "businessId": "northstar",
       "name": "Marketing & design",
       "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
       "currency": "USD"
      }
     ],
@@ -5030,7 +5697,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0356",
+      "id": "id-0107",
+      "businessId": "northstar",
+      "name": "Lantern Type Foundry"
+     },
+     {
+      "id": "id-0388",
       "businessId": "northstar",
       "name": "Tools, Inc."
      }
@@ -5151,7 +5823,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0355",
+      "id": "id-0387",
       "businessId": "northstar",
       "date": "2026-10-20",
       "description": "Tools, Inc.",
@@ -5160,10 +5832,10 @@
       "accountId": "northstar-checking",
       "reference": "R1",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R1\"]",
-      "draftId": "id-0354"
+      "draftId": "id-0386"
      },
      {
-      "id": "id-0362",
+      "id": "id-0394",
       "businessId": "northstar",
       "date": "2026-10-21",
       "description": "Tools, Inc.",
@@ -5172,7 +5844,7 @@
       "accountId": "northstar-checking",
       "reference": "R2",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"R2\"]",
-      "draftId": "id-0361"
+      "draftId": "id-0393"
      }
     ],
     "drafts": [
@@ -5382,7 +6054,24 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0354",
+      "id": "id-0106",
+      "businessId": "northstar",
+      "vendor": "Lantern Type Foundry",
+      "date": "2026-09-15",
+      "description": "Paid personally · font licence",
+      "amountMinor": 21470,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-owner-loan",
+      "purpose": "Typeface for a client identity project",
+      "documentIds": [],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0110"
+     },
+     {
+      "id": "id-0386",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-20",
@@ -5396,10 +6085,10 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0355"
+      "paymentId": "id-0387"
      },
      {
-      "id": "id-0361",
+      "id": "id-0393",
       "businessId": "northstar",
       "vendor": "Tools, Inc.",
       "date": "2026-10-21",
@@ -5413,7 +6102,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0362"
+      "paymentId": "id-0394"
      }
     ],
     "journals": [
@@ -5610,6 +6299,8 @@
       "kind": "transfer",
       "memo": "Operating account → Reserve account",
       "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "betweenAccounts",
+      "purpose": "Set aside a reserve",
       "lines": [
        {
         "accountId": "northstar-reserve",
@@ -5622,6 +6313,75 @@
         "credit": 200000
        }
       ]
+     },
+     {
+      "id": "id-0103",
+      "businessId": "northstar",
+      "date": "2026-09-04",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-checking",
+        "debit": 600000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 600000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Owner's loan → Operating account",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "ownerLoan",
+      "purpose": "Working capital from the owner"
+     },
+     {
+      "id": "id-0110",
+      "businessId": "northstar",
+      "date": "2026-09-15",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 21470,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 21470
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0106",
+      "memo": "Lantern Type Foundry · Paid personally · font licence",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0116",
+      "businessId": "northstar",
+      "date": "2026-09-27",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 150000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-checking",
+        "debit": 0,
+        "credit": 150000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Operating account → Owner's loan",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "loanRepayment",
+      "purpose": "First repayment to the owner"
      }
     ],
     "approvals": [
@@ -5677,6 +6437,14 @@
       "id": "id-0097",
       "businessId": "northstar",
       "expenseId": "id-0092",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0111",
+      "businessId": "northstar",
+      "expenseId": "id-0106",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -5937,37 +6705,82 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0358",
+      "id": "id-0105",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0103",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Owner loan recorded"
+     },
+     {
+      "id": "id-0109",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0354",
+      "entityId": "id-0106",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0360",
+      "id": "id-0113",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0115",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0118",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0116",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Loan repayment recorded"
+     },
+     {
+      "id": "id-0390",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0386",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0392",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0354",
+      "entityId": "id-0386",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      },
      {
-      "id": "id-0364",
+      "id": "id-0396",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0366",
+      "id": "id-0398",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -6380,61 +7193,128 @@
       }
      },
      {
-      "id": "id-0357",
+      "id": "id-0104",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0103",
+      "payload": {
+       "detail": "Owner loan recorded"
+      }
+     },
+     {
+      "id": "id-0108",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0112",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0114",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0110"
+      ],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0117",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0116",
+      "payload": {
+       "detail": "Loan repayment recorded"
+      }
+     },
+     {
+      "id": "id-0389",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0355"
+       "id-0387"
       ],
-      "entityId": "id-0354",
+      "entityId": "id-0386",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0359",
+      "id": "id-0391",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0355"
+       "id-0387"
       ],
-      "entityId": "id-0354",
+      "entityId": "id-0386",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
      },
      {
-      "id": "id-0363",
+      "id": "id-0395",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0362"
+       "id-0394"
       ],
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0365",
+      "id": "id-0397",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0362"
+       "id-0394"
       ],
-      "entityId": "id-0361",
+      "entityId": "id-0393",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -6513,7 +7393,7 @@
   "name": "previewImport: impossible date",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6571,7 +7451,7 @@
   "name": "previewImport: income row",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6629,7 +7509,7 @@
   "name": "previewImport: currency mismatch",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6687,7 +7567,7 @@
   "name": "previewImport: lower-case currency",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6744,7 +7624,7 @@
   "name": "previewImport: zero amount",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6802,7 +7682,7 @@
   "name": "previewImport: negative zero",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6860,7 +7740,7 @@
   "name": "previewImport: thousands groups",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6917,7 +7797,7 @@
   "name": "previewImport: many thousands groups",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6974,7 +7854,7 @@
   "name": "previewImport: malformed thousands groups",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7032,7 +7912,7 @@
   "name": "previewImport: four-digit leading group",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7090,7 +7970,7 @@
   "name": "previewImport: three decimals",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7148,7 +8028,7 @@
   "name": "previewImport: missing description",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7206,7 +8086,7 @@
   "name": "previewImport: column count mismatch",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7265,7 +8145,7 @@
   "name": "previewImport: short row",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7320,7 +8200,7 @@
   "name": "previewImport: no reference uses details",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7377,7 +8257,7 @@
   "name": "previewImport: positive convention outflow",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7434,7 +8314,7 @@
   "name": "previewImport: positive convention refund",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7492,7 +8372,7 @@
   "name": "previewImport: unmapped amount",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7550,7 +8430,7 @@
   "name": "previewImport: currency not mapped uses account currency",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7607,7 +8487,7 @@
   "name": "previewImport: expense account selected",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7665,7 +8545,7 @@
   "name": "previewImport: other business account selected",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7723,7 +8603,7 @@
   "name": "previewImport: unknown account selected",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7781,7 +8661,7 @@
   "name": "previewImport: date format mdy 10/20/2026",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7840,7 +8720,7 @@
   "name": "previewImport: date format dmy 20/10/2026",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7899,7 +8779,7 @@
   "name": "previewImport: date format iso 2026-10-20",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -7958,7 +8838,7 @@
   "name": "previewImport: date format mdy 20/10/2026 rejected",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8018,7 +8898,7 @@
   "name": "previewImport: date format dmy 10/20/2026 rejected",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8078,7 +8958,7 @@
   "name": "previewImport: date format iso 10/20/2026 rejected",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8138,7 +9018,7 @@
   "name": "previewImport: date format mdy 2/29/2028",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8197,7 +9077,7 @@
   "name": "previewImport: transaction types",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8328,7 +9208,7 @@
   "name": "previewImport: multiple source accounts",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8437,7 +9317,7 @@
   "name": "previewImport: one source account in different case",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8520,7 +9400,7 @@
   "name": "previewImport: combined amount exceeds the safe range",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8623,7 +9503,7 @@
   "name": "previewImport: conflicting references in one file",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8703,7 +9583,7 @@
   "name": "commitImport: conflict blocks the whole import",
   "call": "commitImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8752,7 +9632,7 @@
   "name": "previewImport: repeated reference in one file",
   "call": "previewImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8831,7 +9711,7 @@
   "name": "commitImport: single payment",
   "call": "commitImport",
   "env": {
-   "nextId": 367,
+   "nextId": 399,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -8931,6 +9811,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -9012,7 +9899,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0369",
+     "id": "id-0107",
+     "businessId": "northstar",
+     "name": "Lantern Type Foundry"
+    },
+    {
+     "id": "id-0401",
      "businessId": "northstar",
      "name": "Vendor"
     }
@@ -9133,7 +10025,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0368",
+     "id": "id-0400",
      "businessId": "northstar",
      "date": "2026-10-01",
      "description": "Vendor",
@@ -9142,7 +10034,7 @@
      "accountId": "northstar-checking",
      "reference": "ABC",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-     "draftId": "id-0367"
+     "draftId": "id-0399"
     }
    ],
    "drafts": [
@@ -9352,7 +10244,24 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0367",
+     "id": "id-0106",
+     "businessId": "northstar",
+     "vendor": "Lantern Type Foundry",
+     "date": "2026-09-15",
+     "description": "Paid personally · font licence",
+     "amountMinor": 21470,
+     "currency": "USD",
+     "categoryId": "northstar-category-0",
+     "accountId": "northstar-owner-loan",
+     "purpose": "Typeface for a client identity project",
+     "documentIds": [],
+     "status": "posted",
+     "duplicateReason": "",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "journalId": "id-0110"
+    },
+    {
+     "id": "id-0399",
      "businessId": "northstar",
      "vendor": "Vendor",
      "date": "2026-10-01",
@@ -9366,7 +10275,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0368"
+     "paymentId": "id-0400"
     }
    ],
    "journals": [
@@ -9563,6 +10472,8 @@
      "kind": "transfer",
      "memo": "Operating account → Reserve account",
      "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "betweenAccounts",
+     "purpose": "Set aside a reserve",
      "lines": [
       {
        "accountId": "northstar-reserve",
@@ -9575,6 +10486,75 @@
        "credit": 200000
       }
      ]
+    },
+    {
+     "id": "id-0103",
+     "businessId": "northstar",
+     "date": "2026-09-04",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-checking",
+       "debit": 600000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 600000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Owner's loan → Operating account",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "ownerLoan",
+     "purpose": "Working capital from the owner"
+    },
+    {
+     "id": "id-0110",
+     "businessId": "northstar",
+     "date": "2026-09-15",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-expense-0",
+       "categoryId": "northstar-category-0",
+       "debit": 21470,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 21470
+      }
+     ],
+     "kind": "expense",
+     "expenseId": "id-0106",
+     "memo": "Lantern Type Foundry · Paid personally · font licence",
+     "createdAt": "2026-10-15T12:00:00.000Z"
+    },
+    {
+     "id": "id-0116",
+     "businessId": "northstar",
+     "date": "2026-09-27",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 150000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-checking",
+       "debit": 0,
+       "credit": 150000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Operating account → Owner's loan",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "loanRepayment",
+     "purpose": "First repayment to the owner"
     }
    ],
    "approvals": [
@@ -9630,6 +10610,14 @@
      "id": "id-0097",
      "businessId": "northstar",
      "expenseId": "id-0092",
+     "actor": "local-demo-user",
+     "at": "2026-10-15T12:00:00.000Z",
+     "duplicateReason": ""
+    },
+    {
+     "id": "id-0111",
+     "businessId": "northstar",
+     "expenseId": "id-0106",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -9890,19 +10878,64 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0371",
+     "id": "id-0105",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0103",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Owner loan recorded"
+    },
+    {
+     "id": "id-0109",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0367",
+     "entityId": "id-0106",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0373",
+     "id": "id-0113",
+     "businessId": "northstar",
+     "action": "expense.approved",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Reviewed and approved. No payment initiated."
+    },
+    {
+     "id": "id-0115",
+     "businessId": "northstar",
+     "action": "expense.posted",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Balanced journal entry recorded"
+    },
+    {
+     "id": "id-0118",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0116",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Loan repayment recorded"
+    },
+    {
+     "id": "id-0403",
+     "businessId": "northstar",
+     "action": "expense.created",
+     "entityId": "id-0399",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Expense draft created"
+    },
+    {
+     "id": "id-0405",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0367",
+     "entityId": "id-0399",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -10315,31 +11348,98 @@
      }
     },
     {
-     "id": "id-0370",
+     "id": "id-0104",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0103",
+     "payload": {
+      "detail": "Owner loan recorded"
+     }
+    },
+    {
+     "id": "id-0108",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Expense draft created"
+     }
+    },
+    {
+     "id": "id-0112",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0114",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.posted",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0110"
+     ],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Balanced journal entry recorded"
+     }
+    },
+    {
+     "id": "id-0117",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0116",
+     "payload": {
+      "detail": "Loan repayment recorded"
+     }
+    },
+    {
+     "id": "id-0402",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0368"
+      "id-0400"
      ],
-     "entityId": "id-0367",
+     "entityId": "id-0399",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0372",
+     "id": "id-0404",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0368"
+      "id-0400"
      ],
-     "entityId": "id-0367",
+     "entityId": "id-0399",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -10352,7 +11452,7 @@
   "name": "previewImport: conflicting reference against existing payment",
   "call": "previewImport",
   "env": {
-   "nextId": 374,
+   "nextId": 406,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -10429,6 +11529,13 @@
       "businessId": "northstar",
       "name": "Marketing & design",
       "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
       "currency": "USD"
      }
     ],
@@ -10511,7 +11618,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0369",
+      "id": "id-0107",
+      "businessId": "northstar",
+      "name": "Lantern Type Foundry"
+     },
+     {
+      "id": "id-0401",
       "businessId": "northstar",
       "name": "Vendor"
      }
@@ -10632,7 +11744,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0368",
+      "id": "id-0400",
       "businessId": "northstar",
       "date": "2026-10-01",
       "description": "Vendor",
@@ -10641,7 +11753,7 @@
       "accountId": "northstar-checking",
       "reference": "ABC",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-      "draftId": "id-0367"
+      "draftId": "id-0399"
      }
     ],
     "drafts": [
@@ -10851,7 +11963,24 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0367",
+      "id": "id-0106",
+      "businessId": "northstar",
+      "vendor": "Lantern Type Foundry",
+      "date": "2026-09-15",
+      "description": "Paid personally · font licence",
+      "amountMinor": 21470,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-owner-loan",
+      "purpose": "Typeface for a client identity project",
+      "documentIds": [],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0110"
+     },
+     {
+      "id": "id-0399",
       "businessId": "northstar",
       "vendor": "Vendor",
       "date": "2026-10-01",
@@ -10865,7 +11994,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0368"
+      "paymentId": "id-0400"
      }
     ],
     "journals": [
@@ -11062,6 +12191,8 @@
       "kind": "transfer",
       "memo": "Operating account → Reserve account",
       "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "betweenAccounts",
+      "purpose": "Set aside a reserve",
       "lines": [
        {
         "accountId": "northstar-reserve",
@@ -11074,6 +12205,75 @@
         "credit": 200000
        }
       ]
+     },
+     {
+      "id": "id-0103",
+      "businessId": "northstar",
+      "date": "2026-09-04",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-checking",
+        "debit": 600000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 600000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Owner's loan → Operating account",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "ownerLoan",
+      "purpose": "Working capital from the owner"
+     },
+     {
+      "id": "id-0110",
+      "businessId": "northstar",
+      "date": "2026-09-15",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 21470,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 21470
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0106",
+      "memo": "Lantern Type Foundry · Paid personally · font licence",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0116",
+      "businessId": "northstar",
+      "date": "2026-09-27",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 150000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-checking",
+        "debit": 0,
+        "credit": 150000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Operating account → Owner's loan",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "loanRepayment",
+      "purpose": "First repayment to the owner"
      }
     ],
     "approvals": [
@@ -11129,6 +12329,14 @@
       "id": "id-0097",
       "businessId": "northstar",
       "expenseId": "id-0092",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0111",
+      "businessId": "northstar",
+      "expenseId": "id-0106",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -11389,19 +12597,64 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0371",
+      "id": "id-0105",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0103",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Owner loan recorded"
+     },
+     {
+      "id": "id-0109",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0367",
+      "entityId": "id-0106",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0373",
+      "id": "id-0113",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0115",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0118",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0116",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Loan repayment recorded"
+     },
+     {
+      "id": "id-0403",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0399",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0405",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0367",
+      "entityId": "id-0399",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -11814,31 +13067,98 @@
       }
      },
      {
-      "id": "id-0370",
+      "id": "id-0104",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0103",
+      "payload": {
+       "detail": "Owner loan recorded"
+      }
+     },
+     {
+      "id": "id-0108",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0112",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0114",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0110"
+      ],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0117",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0116",
+      "payload": {
+       "detail": "Loan repayment recorded"
+      }
+     },
+     {
+      "id": "id-0402",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0368"
+       "id-0400"
       ],
-      "entityId": "id-0367",
+      "entityId": "id-0399",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0372",
+      "id": "id-0404",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0368"
+       "id-0400"
       ],
-      "entityId": "id-0367",
+      "entityId": "id-0399",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -11896,7 +13216,7 @@
   "name": "commitImport: conflict with existing payment at commit time",
   "call": "commitImport",
   "env": {
-   "nextId": 381,
+   "nextId": 413,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -11973,6 +13293,13 @@
       "businessId": "northstar",
       "name": "Marketing & design",
       "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
       "currency": "USD"
      }
     ],
@@ -12055,7 +13382,12 @@
       "name": "Common Ground"
      },
      {
-      "id": "id-0376",
+      "id": "id-0107",
+      "businessId": "northstar",
+      "name": "Lantern Type Foundry"
+     },
+     {
+      "id": "id-0408",
       "businessId": "northstar",
       "name": "Vendor"
      }
@@ -12176,7 +13508,7 @@
       "draftId": "id-0011"
      },
      {
-      "id": "id-0375",
+      "id": "id-0407",
       "businessId": "northstar",
       "date": "2026-10-01",
       "description": "Vendor",
@@ -12185,7 +13517,7 @@
       "accountId": "northstar-checking",
       "reference": "ABC",
       "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-      "draftId": "id-0374"
+      "draftId": "id-0406"
      }
     ],
     "drafts": [
@@ -12395,7 +13727,24 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0374",
+      "id": "id-0106",
+      "businessId": "northstar",
+      "vendor": "Lantern Type Foundry",
+      "date": "2026-09-15",
+      "description": "Paid personally · font licence",
+      "amountMinor": 21470,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-owner-loan",
+      "purpose": "Typeface for a client identity project",
+      "documentIds": [],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0110"
+     },
+     {
+      "id": "id-0406",
       "businessId": "northstar",
       "vendor": "Vendor",
       "date": "2026-10-01",
@@ -12409,7 +13758,7 @@
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0375"
+      "paymentId": "id-0407"
      }
     ],
     "journals": [
@@ -12606,6 +13955,8 @@
       "kind": "transfer",
       "memo": "Operating account → Reserve account",
       "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "betweenAccounts",
+      "purpose": "Set aside a reserve",
       "lines": [
        {
         "accountId": "northstar-reserve",
@@ -12618,6 +13969,75 @@
         "credit": 200000
        }
       ]
+     },
+     {
+      "id": "id-0103",
+      "businessId": "northstar",
+      "date": "2026-09-04",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-checking",
+        "debit": 600000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 600000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Owner's loan → Operating account",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "ownerLoan",
+      "purpose": "Working capital from the owner"
+     },
+     {
+      "id": "id-0110",
+      "businessId": "northstar",
+      "date": "2026-09-15",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 21470,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 21470
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0106",
+      "memo": "Lantern Type Foundry · Paid personally · font licence",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0116",
+      "businessId": "northstar",
+      "date": "2026-09-27",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 150000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-checking",
+        "debit": 0,
+        "credit": 150000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Operating account → Owner's loan",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "loanRepayment",
+      "purpose": "First repayment to the owner"
      }
     ],
     "approvals": [
@@ -12673,6 +14093,14 @@
       "id": "id-0097",
       "businessId": "northstar",
       "expenseId": "id-0092",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0111",
+      "businessId": "northstar",
+      "expenseId": "id-0106",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -12933,19 +14361,64 @@
       "detail": "Balanced journal entry recorded"
      },
      {
-      "id": "id-0378",
+      "id": "id-0105",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0103",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Owner loan recorded"
+     },
+     {
+      "id": "id-0109",
       "businessId": "northstar",
       "action": "expense.created",
-      "entityId": "id-0374",
+      "entityId": "id-0106",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Expense draft created"
      },
      {
-      "id": "id-0380",
+      "id": "id-0113",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0115",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0118",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0116",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Loan repayment recorded"
+     },
+     {
+      "id": "id-0410",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0406",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0412",
       "businessId": "northstar",
       "action": "expense.matched",
-      "entityId": "id-0374",
+      "entityId": "id-0406",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -13358,31 +14831,98 @@
       }
      },
      {
-      "id": "id-0377",
+      "id": "id-0104",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0103",
+      "payload": {
+       "detail": "Owner loan recorded"
+      }
+     },
+     {
+      "id": "id-0108",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0112",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0114",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0110"
+      ],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0117",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0116",
+      "payload": {
+       "detail": "Loan repayment recorded"
+      }
+     },
+     {
+      "id": "id-0409",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.created",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0375"
+       "id-0407"
       ],
-      "entityId": "id-0374",
+      "entityId": "id-0406",
       "payload": {
        "detail": "Expense draft created"
       }
      },
      {
-      "id": "id-0379",
+      "id": "id-0411",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "expense.matched",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [
-       "id-0375"
+       "id-0407"
       ],
-      "entityId": "id-0374",
+      "entityId": "id-0406",
       "payload": {
        "detail": "Imported payment linked to one draft. Attach receipts to this draft."
       }
@@ -13415,7 +14955,7 @@
   "name": "commitImport: expense account rejected",
   "call": "commitImport",
   "env": {
-   "nextId": 381,
+   "nextId": 413,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13448,7 +14988,7 @@
   "name": "commitImport: other business account rejected",
   "call": "commitImport",
   "env": {
-   "nextId": 381,
+   "nextId": 413,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13481,7 +15021,7 @@
   "name": "commitImport: crafted invalid row",
   "call": "commitImport",
   "env": {
-   "nextId": 381,
+   "nextId": 413,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13514,7 +15054,7 @@
   "name": "commitImport: crafted currency mismatch",
   "call": "commitImport",
   "env": {
-   "nextId": 381,
+   "nextId": 413,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13547,7 +15087,7 @@
   "name": "commitImport: empty error string is not an error",
   "call": "commitImport",
   "env": {
-   "nextId": 381,
+   "nextId": 413,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -13648,6 +15188,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -13729,7 +15276,12 @@
      "name": "Common Ground"
     },
     {
-     "id": "id-0383",
+     "id": "id-0107",
+     "businessId": "northstar",
+     "name": "Lantern Type Foundry"
+    },
+    {
+     "id": "id-0415",
      "businessId": "northstar",
      "name": "Vendor"
     }
@@ -13850,7 +15402,7 @@
      "draftId": "id-0011"
     },
     {
-     "id": "id-0382",
+     "id": "id-0414",
      "businessId": "northstar",
      "date": "2026-10-01",
      "description": "Vendor",
@@ -13859,7 +15411,7 @@
      "accountId": "northstar-checking",
      "reference": "ABC",
      "fingerprint": "[\"northstar\",\"northstar-checking\",\"ref\",\"ABC\"]",
-     "draftId": "id-0381"
+     "draftId": "id-0413"
     }
    ],
    "drafts": [
@@ -14069,7 +15621,24 @@
      "journalId": "id-0096"
     },
     {
-     "id": "id-0381",
+     "id": "id-0106",
+     "businessId": "northstar",
+     "vendor": "Lantern Type Foundry",
+     "date": "2026-09-15",
+     "description": "Paid personally · font licence",
+     "amountMinor": 21470,
+     "currency": "USD",
+     "categoryId": "northstar-category-0",
+     "accountId": "northstar-owner-loan",
+     "purpose": "Typeface for a client identity project",
+     "documentIds": [],
+     "status": "posted",
+     "duplicateReason": "",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "journalId": "id-0110"
+    },
+    {
+     "id": "id-0413",
      "businessId": "northstar",
      "vendor": "Vendor",
      "date": "2026-10-01",
@@ -14083,7 +15652,7 @@
      "status": "draft",
      "duplicateReason": "",
      "createdAt": "2026-10-15T12:00:00.000Z",
-     "paymentId": "id-0382"
+     "paymentId": "id-0414"
     }
    ],
    "journals": [
@@ -14280,6 +15849,8 @@
      "kind": "transfer",
      "memo": "Operating account → Reserve account",
      "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "betweenAccounts",
+     "purpose": "Set aside a reserve",
      "lines": [
       {
        "accountId": "northstar-reserve",
@@ -14292,6 +15863,75 @@
        "credit": 200000
       }
      ]
+    },
+    {
+     "id": "id-0103",
+     "businessId": "northstar",
+     "date": "2026-09-04",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-checking",
+       "debit": 600000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 600000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Owner's loan → Operating account",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "ownerLoan",
+     "purpose": "Working capital from the owner"
+    },
+    {
+     "id": "id-0110",
+     "businessId": "northstar",
+     "date": "2026-09-15",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-expense-0",
+       "categoryId": "northstar-category-0",
+       "debit": 21470,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 0,
+       "credit": 21470
+      }
+     ],
+     "kind": "expense",
+     "expenseId": "id-0106",
+     "memo": "Lantern Type Foundry · Paid personally · font licence",
+     "createdAt": "2026-10-15T12:00:00.000Z"
+    },
+    {
+     "id": "id-0116",
+     "businessId": "northstar",
+     "date": "2026-09-27",
+     "currency": "USD",
+     "lines": [
+      {
+       "accountId": "northstar-owner-loan",
+       "debit": 150000,
+       "credit": 0
+      },
+      {
+       "accountId": "northstar-checking",
+       "debit": 0,
+       "credit": 150000
+      }
+     ],
+     "kind": "transfer",
+     "memo": "Operating account → Owner's loan",
+     "createdAt": "2026-10-15T12:00:00.000Z",
+     "transferType": "loanRepayment",
+     "purpose": "First repayment to the owner"
     }
    ],
    "approvals": [
@@ -14347,6 +15987,14 @@
      "id": "id-0097",
      "businessId": "northstar",
      "expenseId": "id-0092",
+     "actor": "local-demo-user",
+     "at": "2026-10-15T12:00:00.000Z",
+     "duplicateReason": ""
+    },
+    {
+     "id": "id-0111",
+     "businessId": "northstar",
+     "expenseId": "id-0106",
      "actor": "local-demo-user",
      "at": "2026-10-15T12:00:00.000Z",
      "duplicateReason": ""
@@ -14607,19 +16255,64 @@
      "detail": "Balanced journal entry recorded"
     },
     {
-     "id": "id-0385",
+     "id": "id-0105",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0103",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Owner loan recorded"
+    },
+    {
+     "id": "id-0109",
      "businessId": "northstar",
      "action": "expense.created",
-     "entityId": "id-0381",
+     "entityId": "id-0106",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Expense draft created"
     },
     {
-     "id": "id-0387",
+     "id": "id-0113",
+     "businessId": "northstar",
+     "action": "expense.approved",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Reviewed and approved. No payment initiated."
+    },
+    {
+     "id": "id-0115",
+     "businessId": "northstar",
+     "action": "expense.posted",
+     "entityId": "id-0106",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Balanced journal entry recorded"
+    },
+    {
+     "id": "id-0118",
+     "businessId": "northstar",
+     "action": "transfer.recorded",
+     "entityId": "id-0116",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Loan repayment recorded"
+    },
+    {
+     "id": "id-0417",
+     "businessId": "northstar",
+     "action": "expense.created",
+     "entityId": "id-0413",
+     "at": "2026-10-15T12:00:00.000Z",
+     "actor": "local-demo-user",
+     "detail": "Expense draft created"
+    },
+    {
+     "id": "id-0419",
      "businessId": "northstar",
      "action": "expense.matched",
-     "entityId": "id-0381",
+     "entityId": "id-0413",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Imported payment linked to one draft. Attach receipts to this draft."
@@ -15032,31 +16725,98 @@
      }
     },
     {
-     "id": "id-0384",
+     "id": "id-0104",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0103",
+     "payload": {
+      "detail": "Owner loan recorded"
+     }
+    },
+    {
+     "id": "id-0108",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.created",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Expense draft created"
+     }
+    },
+    {
+     "id": "id-0112",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.approved",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Reviewed and approved. No payment initiated."
+     }
+    },
+    {
+     "id": "id-0114",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "expense.posted",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [
+      "id-0110"
+     ],
+     "entityId": "id-0106",
+     "payload": {
+      "detail": "Balanced journal entry recorded"
+     }
+    },
+    {
+     "id": "id-0117",
+     "businessId": "northstar",
+     "schemaVersion": 1,
+     "type": "transfer.recorded",
+     "actor": "local-demo-user",
+     "occurredAt": "2026-10-15T12:00:00.000Z",
+     "sourceIds": [],
+     "entityId": "id-0116",
+     "payload": {
+      "detail": "Loan repayment recorded"
+     }
+    },
+    {
+     "id": "id-0416",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.created",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0382"
+      "id-0414"
      ],
-     "entityId": "id-0381",
+     "entityId": "id-0413",
      "payload": {
       "detail": "Expense draft created"
      }
     },
     {
-     "id": "id-0386",
+     "id": "id-0418",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "expense.matched",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [
-      "id-0382"
+      "id-0414"
      ],
-     "entityId": "id-0381",
+     "entityId": "id-0413",
      "payload": {
       "detail": "Imported payment linked to one draft. Attach receipts to this draft."
      }
@@ -15069,7 +16829,7 @@
   "name": "commitImport: payment rows previewed for another business",
   "call": "commitImport",
   "env": {
-   "nextId": 388,
+   "nextId": 420,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -15102,7 +16862,7 @@
   "name": "previewImport: date before 1900",
   "call": "previewImport",
   "env": {
-   "nextId": 624,
+   "nextId": 621,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
