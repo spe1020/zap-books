@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::bitcoin::account_currency_error;
 use crate::env::Env;
 use crate::error::{LedgerError, Result};
 use crate::js;
@@ -145,6 +146,9 @@ pub fn update_settings(
         SettingsChange::AddAccount { kind, currency, .. } => {
             if *kind == AccountKind::Expense {
                 return Err(LedgerError::AccountKindInvalid);
+            }
+            if let Some(error) = account_currency_error(*kind, *currency) {
+                return Err(LedgerError::Bitcoin(error));
             }
             b.accounts.push(Account {
                 id: env.new_id(),

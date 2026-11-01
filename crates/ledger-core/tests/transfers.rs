@@ -72,6 +72,8 @@ fn transfer(t: TransferType, from: &str, to: &str) -> TransferInput {
         purpose: "Invented purpose".into(),
         reference: None,
         document_ids: Vec::new(),
+        fiat_value: None,
+        millisats: None,
     }
 }
 
@@ -156,6 +158,7 @@ fn transfers_never_count_as_spending() {
         date: "2026-01-01".into(),
         amount_minor: minor(70_000),
         reference: None,
+        fiat_value: None,
     };
     b = record_opening_balance(&b, &opening, &mut env).unwrap();
     assert!(totals(&b, "2026").unwrap().is_empty());
@@ -337,6 +340,7 @@ fn an_opening_balance_dated_after_the_first_entry_is_refused() {
         date: "2026-03-13".into(),
         amount_minor: minor(11_700),
         reference: None,
+        fiat_value: None,
     };
     assert_eq!(
         record_opening_balance(&started, &late, &mut env)
@@ -365,6 +369,7 @@ fn balances_are_right_before_between_and_after_entries_with_reversals() {
         date: "2026-01-01".into(),
         amount_minor: minor(100_000),
         reference: None,
+        fiat_value: None,
     };
     b = record_opening_balance(&b, &opening, &mut env).unwrap();
     let loan = with(
@@ -428,6 +433,7 @@ fn a_cards_opening_balance_is_entered_as_the_amount_owed() {
         date: "2026-01-01".into(),
         amount_minor: minor(8_000),
         reference: None,
+        fiat_value: None,
     };
     let owed = record_opening_balance(&b, &input, &mut env).unwrap();
     assert_eq!(balance(&owed, &a.card, "2026-12-31"), 8_000);
@@ -455,6 +461,7 @@ fn opened() -> (BusinessData, SequentialEnv, String, String) {
         date: "2026-01-01".into(),
         amount_minor: minor(10_000),
         reference: None,
+        fiat_value: None,
     };
     let b = record_opening_balance(&b, &input, &mut env).unwrap();
     let journal = b.journals.last().unwrap().id.clone();
@@ -630,8 +637,7 @@ proptest! {
                         account_id: usd[[0, 1, 2, 3][account]].clone(),
                         date: "2026-01-01".into(),
                         amount_minor: minor(amount),
-                        reference: None,
-                    };
+                        reference: None, fiat_value: None, };
                     record_opening_balance(&b, &input, &mut env)
                 }
             };

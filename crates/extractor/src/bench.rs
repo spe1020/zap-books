@@ -412,7 +412,7 @@ pub async fn run_model(
     if let Some(first) = receipts.first() {
         if let Ok(bytes) = std::fs::read(&first.path) {
             let started = Instant::now();
-            let _ = extractor.extract(&bytes, categories, &Currency::ALL).await;
+            let _ = extractor.extract(&bytes, categories, &Currency::FIAT).await;
             warmup = Some(u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX));
         }
     }
@@ -421,7 +421,7 @@ pub async fn run_model(
         progress(i + 1, receipts.len());
         let started = Instant::now();
         let outcome = match std::fs::read(&receipt.path) {
-            Ok(bytes) => extractor.extract(&bytes, categories, &Currency::ALL).await,
+            Ok(bytes) => extractor.extract(&bytes, categories, &Currency::FIAT).await,
             Err(_) => Err(ExtractError::Internal),
         };
         let millis = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);

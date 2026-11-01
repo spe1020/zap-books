@@ -9,6 +9,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use serde::Serialize;
 
+use crate::bitcoin::{fiat_value_error, fiat_value_matches, fiat_value_shape, millisats_error};
 use crate::date::valid_date;
 use crate::env::Env;
 use crate::error::{LedgerError, Result};
@@ -17,8 +18,8 @@ use crate::js;
 use crate::money::{Currency, Minor};
 use crate::types::{
     check_line_amounts, check_totals, AccountKind, Approval, AuditEvent, BusinessData,
-    DraftAuthority, ExpenseDraft, ExpenseStatus, FinancialEvent, JournalEntry, JournalKind,
-    JournalLine, PayloadValue, SchemaVersion, UncheckedJournal, Vendor,
+    DraftAuthority, ExpenseDraft, ExpenseStatus, FiatSource, FinancialEvent, JournalEntry,
+    JournalKind, JournalLine, PayloadValue, SchemaVersion, TransferType, UncheckedJournal, Vendor,
 };
 use crate::EventType;
 
@@ -115,6 +116,11 @@ pub fn missing_details(b: &BusinessData, d: &ExpenseDraft) -> Vec<String> {
             push("Expense must match its imported payment amount, date, currency, and account.");
         }
     }
+    let value = fiat_value_error(d.currency, d.amount_minor, d.fiat_value.as_ref());
+    let millisats = millisats_error(d.currency, d.amount_minor, d.millisats);
+    for error in [value, millisats].into_iter().flatten() {
+        push(error);
+    }
     errors
 }
 
@@ -134,6 +140,9 @@ pub fn assert_balanced(b: &BusinessData, entry: &UncheckedJournal) -> Result<()>
     // `currencies.includes(entry.currency)` is guaranteed by `Currency`.
     if entry.business_id != b.profile.id || !valid_date(&entry.date) || entry.lines.len() < 2 {
         return Err(LedgerError::InvalidJournalContext);
+    }
+    if entry.transfer_type == Some(TransferType::Exchange) {
+        return assert_exchange(b, entry);
     }
     let (mut debit, mut credit) = (Minor::ZERO, Minor::ZERO);
     for line in &entry.lines {
@@ -164,7 +173,73 @@ pub fn assert_balanced(b: &BusinessData, entry: &UncheckedJournal) -> Result<()>
         debit = debit.checked_add(line.debit)?;
         credit = credit.checked_add(line.credit)?;
     }
-    check_totals(debit, credit)
+    check_totals(debit, credit)?;
+    // A BTC journal's sats are its total; it carries its fiat value at the
+    // time, and no other journal carries one.
+    if fiat_value_error(entry.currency, debit, entry.fiat_value.as_ref()).is_some() {
+        return Err(LedgerError::InvalidJournalFiatValue);
+    }
+    if millisats_error(entry.currency, debit, entry.millisats).is_some() {
+        return Err(LedgerError::InvalidJournalAmounts);
+    }
+    Ok(())
+}
+
+/// `assertExchange`: a BTC wallet's line in sats and a fiat bank or card
+/// account's line for exactly the fiat value's amount, in opposite
+/// directions. Each side balances in its own currency through the rate.
+fn assert_exchange(b: &BusinessData, entry: &UncheckedJournal) -> Result<()> {
+    if entry.currency != Currency::Btc || entry.lines.len() != 2 {
+        return Err(LedgerError::InvalidJournalContext);
+    }
+    let value = entry
+        .fiat_value
+        .as_ref()
+        .filter(|v| fiat_value_shape(v).is_none() && v.source == FiatSource::Exchange)
+        .ok_or(LedgerError::InvalidJournalFiatValue)?;
+    let (mut btc, mut fiat) = (None, None);
+    for line in &entry.lines {
+        let account = b
+            .accounts
+            .iter()
+            .find(|x| x.id == line.account_id && x.business_id == entry.business_id);
+        let is_btc =
+            account.is_some_and(|a| a.kind == AccountKind::Wallet && a.currency == Currency::Btc);
+        let is_fiat = account.is_some_and(|a| {
+            matches!(a.kind, AccountKind::Bank | AccountKind::Card) && a.currency == value.currency
+        });
+        if !is_btc && !is_fiat {
+            return Err(LedgerError::InvalidJournalAccount);
+        }
+        check_line_amounts(line)?;
+        if truthy(&line.category_id).is_some() {
+            return Err(LedgerError::InvalidJournalCategory);
+        }
+        if is_btc {
+            btc.get_or_insert(line);
+        } else {
+            fiat.get_or_insert(line);
+        }
+    }
+    let (Some(btc), Some(fiat)) = (btc, fiat) else {
+        return Err(LedgerError::InvalidJournalAccount);
+    };
+    let sats = btc.debit.checked_add(btc.credit)?;
+    let opposite = if btc.debit > Minor::ZERO {
+        fiat.credit > Minor::ZERO
+    } else {
+        btc.credit > Minor::ZERO && fiat.debit > Minor::ZERO
+    };
+    if !opposite || fiat.debit.checked_add(fiat.credit)? != value.amount_minor {
+        return Err(LedgerError::Unbalanced);
+    }
+    if !fiat_value_matches(sats, value) {
+        return Err(LedgerError::InvalidJournalFiatValue);
+    }
+    if millisats_error(entry.currency, sats, entry.millisats).is_some() {
+        return Err(LedgerError::InvalidJournalAmounts);
+    }
+    Ok(())
 }
 
 /// `event`: appends a financial event and its matching audit entry.
@@ -315,6 +390,11 @@ pub(crate) fn write_draft(
             .any(|x| x.id == draft.id && x.status() != ExpenseStatus::Draft)
     {
         return Err(LedgerError::NotEditable);
+    }
+    // "Choose a supported currency." and the safe-integer checks are
+    // guaranteed by the types (D2); the fiat value's shape isn't.
+    if let Some(error) = draft.fiat_value.as_ref().and_then(fiat_value_shape) {
+        return Err(LedgerError::Bitcoin(error));
     }
     if draft.document_ids.iter().any(|doc_id| {
         !b.documents
@@ -483,6 +563,8 @@ fn approve_in(b: &mut BusinessData, expense_id: &str, env: &mut impl Env) -> Res
         reference: None,
         document_ids: None,
         correction_of: None,
+        fiat_value: d.fiat_value.clone(),
+        millisats: d.millisats,
     };
     let journal = JournalEntry::new(b, journal)?;
     let journal_id = journal.id.clone();
@@ -685,6 +767,37 @@ pub fn totals(b: &BusinessData, period: &str) -> Result<BTreeMap<Currency, Minor
             let total = result.get(&j.currency).copied().unwrap_or_default();
             result.insert(j.currency, Minor::checked_add(total, delta)?);
         }
+    }
+    Ok(result)
+}
+
+/// `recordedFiatSpending`: spending's "dollar value at time of
+/// transaction", per reporting currency, from the recorded fiat values of
+/// the period's bitcoin expenses, a reversal subtracting its original's.
+/// Never a price, and never added to [`totals`].
+pub fn recorded_fiat_spending(b: &BusinessData, period: &str) -> Result<BTreeMap<Currency, Minor>> {
+    let mut result = BTreeMap::new();
+    for j in &b.journals {
+        let Some(value) = &j.fiat_value else { continue };
+        if j.business_id != b.profile.id || !j.date.starts_with(period) {
+            continue;
+        }
+        let mut spend = Minor::ZERO;
+        for line in &j.lines {
+            if truthy(&line.category_id).is_some() {
+                spend = spend.checked_add(line.debit.checked_sub(line.credit)?)?;
+            }
+        }
+        if spend == Minor::ZERO {
+            continue;
+        }
+        let amount = if spend > Minor::ZERO {
+            value.amount_minor
+        } else {
+            -value.amount_minor
+        };
+        let total = result.get(&value.currency).copied().unwrap_or_default();
+        result.insert(value.currency, Minor::checked_add(total, amount)?);
     }
     Ok(result)
 }

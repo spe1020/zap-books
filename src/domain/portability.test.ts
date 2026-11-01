@@ -41,7 +41,7 @@ describe("portable financial exports", () => {
     const rows = parseCSV(csv.csv);
     const amount = rows[0].indexOf("Amount");
     expect(
-      rows.slice(1).reduce((sum, r) => sum + parseMoney(r[amount]), 0),
+      rows.slice(1).reduce((sum, r) => sum + parseMoney(r[amount], "USD"), 0),
     ).toBe(totals(b, "").USD);
     // This month's six, and last month's expense the owner paid personally.
     expect(csv.rows).toHaveLength(7);
@@ -49,10 +49,10 @@ describe("portable financial exports", () => {
     const journal = exportRecords(b, "journal", filters);
     expect(journal.rows.some((r) => r[4] === "reversal" && r[6])).toBe(true);
     expect(journal.rows.some((r) => r[4] === "transfer")).toBe(true);
-    for (const currency of ["USD", "EUR", "GBP"]) {
+    for (const currency of ["USD", "EUR", "GBP"] as const) {
       const rows = journal.rows.filter((r) => r[12] === currency);
-      expect(rows.reduce((n, r) => n + parseMoney(r[10]), 0)).toBe(
-        rows.reduce((n, r) => n + parseMoney(r[11]), 0),
+      expect(rows.reduce((n, r) => n + parseMoney(r[10], currency), 0)).toBe(
+        rows.reduce((n, r) => n + parseMoney(r[11], currency), 0),
       );
     }
   });

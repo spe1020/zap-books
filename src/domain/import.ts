@@ -5,7 +5,7 @@ import type {
   ImportedExpenseSource,
   ImportProvider,
 } from "./types";
-import { currencies } from "./types";
+import { currencies, precision } from "./types";
 import {
   blankDraft,
   event,
@@ -180,11 +180,12 @@ export function normalizeImportDate(value: string, format: DateFormat): string {
     day = format === "mdy" ? second : first;
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
-function importAmount(value: string) {
+function importAmount(value: string, currency: Currency) {
   // Permit explicit comma thousands groups, never infer a decimal convention.
-  if (/^-?\d{1,3}(,\d{3})+(\.\d{1,2})?$/.test(value))
-    return parseMoney(value.replaceAll(",", ""));
-  return parseMoney(value);
+  const places = precision[currency];
+  if (new RegExp(`^-?\\d{1,3}(,\\d{3})+(\\.\\d{1,${places}})?$`).test(value))
+    return parseMoney(value.replaceAll(",", ""), currency);
+  return parseMoney(value, currency);
 }
 export function previewImport(
   b: BusinessData,
@@ -283,7 +284,8 @@ export function previewImport(
           "Only paid expense rows are supported; remove bills, income, transfers, and subtotal rows.",
         );
       amountMinor =
-        importAmount(value("amount")) * (convention === "negative" ? -1 : 1);
+        importAmount(value("amount"), account.currency) *
+        (convention === "negative" ? -1 : 1);
       if (amountMinor <= 0)
         throw new Error(
           "This is not an expense outflow under the selected sign convention.",

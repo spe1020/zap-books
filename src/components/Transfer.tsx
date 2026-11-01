@@ -5,7 +5,7 @@ import type {
   Currency,
   JournalEntry,
 } from "../domain/types";
-import { currencies } from "../domain/types";
+import { fiatCurrencies } from "../domain/types";
 import { amountInput, money, parseMoney, today } from "../domain/ledger";
 import {
   transferAccounts,
@@ -81,7 +81,9 @@ export function RecordTransfer({
     correcting &&
     ({
       type:
-        correcting.transferType && correcting.transferType !== "openingBalance"
+        correcting.transferType &&
+        correcting.transferType !== "openingBalance" &&
+        correcting.transferType !== "exchange"
           ? correcting.transferType
           : "betweenAccounts",
       fromId: correcting.lines.find((l) => l.credit > 0)?.accountId ?? "",
@@ -107,7 +109,10 @@ export function RecordTransfer({
   const [date, setDate] = useState(correcting?.date ?? today());
   const [amount, setAmount] = useState(
     correcting
-      ? amountInput(correcting.lines[0].debit || correcting.lines[0].credit)
+      ? amountInput(
+          correcting.lines[0].debit || correcting.lines[0].credit,
+          correcting.currency,
+        )
       : "",
   );
   const [purpose, setPurpose] = useState(correcting?.purpose ?? "");
@@ -119,7 +124,7 @@ export function RecordTransfer({
   const toAccount = to.find((a) => a.id === toId);
   let amountMinor: number | undefined;
   try {
-    amountMinor = amount.trim() ? parseMoney(amount) : undefined;
+    amountMinor = amount.trim() ? parseMoney(amount, currency) : undefined;
   } catch {
     amountMinor = undefined;
   }
@@ -142,7 +147,7 @@ export function RecordTransfer({
     setError("");
     let minor: number;
     try {
-      minor = parseMoney(amount);
+      minor = parseMoney(amount, currency);
     } catch (e) {
       setError((e as Error).message);
       return;
@@ -221,7 +226,7 @@ export function RecordTransfer({
             value={currency}
             onChange={(e) => choose(type, e.target.value as Currency)}
           >
-            {currencies.map((c) => (
+            {fiatCurrencies.map((c) => (
               <option key={c}>{c}</option>
             ))}
           </select>

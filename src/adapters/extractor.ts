@@ -1,5 +1,5 @@
 import type {
-  Currency,
+  FiatCurrency,
   ExtractionAdapter,
   ExtractionFieldName,
   ExtractionFields,
@@ -7,7 +7,7 @@ import type {
   ExtractorHealth,
 } from "../domain/types";
 import {
-  currencies,
+  fiatCurrencies,
   extractionFields,
   extractionLists,
   type ExtractionListName,
@@ -69,7 +69,7 @@ const valueChecks: Record<ExtractionFieldName, (v: unknown) => boolean> = {
   vendor: isString,
   date: (v) => isString(v) && validDate(v as string),
   total: isMinor,
-  currency: (v) => currencies.includes(v as Currency),
+  currency: (v) => fiatCurrencies.includes(v as FiatCurrency),
   reference: isString,
   subtotal: isMinor,
   tax: isMinor,
@@ -153,7 +153,7 @@ export const extractor: ExtractionAdapter = {
       "categories",
       JSON.stringify(categories.map(({ id, name }) => ({ id, name }))),
     );
-    form.append("currencies", JSON.stringify(currencies));
+    form.append("currencies", JSON.stringify(fiatCurrencies));
     // The caller's signal cancels; the timeout bounds a service that never
     // answers. A cancelled read rethrows the AbortError for the caller.
     const timeout = AbortSignal.timeout(EXTRACT_TIMEOUT_MS);

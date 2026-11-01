@@ -311,22 +311,23 @@ pub fn guess_mapping(headers: &[String]) -> CsvMapping {
 }
 
 /// `importAmount`: accepts explicit comma thousands groups
-/// (`-?\d{1,3}(,\d{3})+(\.\d{1,2})?`) and never infers a decimal convention.
-fn import_amount(value: &str) -> Result<Minor> {
-    if has_thousands_groups(value) {
-        parse_money(&value.replace(',', ""))
+/// (`-?\d{1,3}(,\d{3})+(\.\d{1,p})?`, p the currency's precision) and
+/// never infers a decimal convention.
+fn import_amount(value: &str, currency: Currency) -> Result<Minor> {
+    if has_thousands_groups(value, currency.precision() as usize) {
+        parse_money(&value.replace(',', ""), currency)
     } else {
-        parse_money(value)
+        parse_money(value, currency)
     }
 }
 
-fn has_thousands_groups(value: &str) -> bool {
+fn has_thousands_groups(value: &str, places: usize) -> bool {
     let unsigned = value.strip_prefix('-').unwrap_or(value);
     let (int, frac) = match unsigned.split_once('.') {
         Some((int, frac)) => (int, Some(frac)),
         None => (unsigned, None),
     };
-    let frac_ok = frac.is_none_or(|f| (1..=2).contains(&f.len()) && js::all_digits(f));
+    let frac_ok = frac.is_none_or(|f| (1..=places).contains(&f.len()) && js::all_digits(f));
     let mut groups = int.split(',');
     let first_ok = groups
         .next()
@@ -487,7 +488,7 @@ pub fn preview_import(
                     return Err(LedgerError::UnsupportedTransactionType);
                 }
             }
-            let parsed = import_amount(&value(Some(&map.amount)))?;
+            let parsed = import_amount(&value(Some(&map.amount)), account.currency)?;
             amount_minor = match convention {
                 SignConvention::Negative => -parsed,
                 SignConvention::Positive => parsed,

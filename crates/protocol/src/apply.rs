@@ -76,6 +76,17 @@ pub fn genesis_business(business: BusinessId, command: &Command) -> Result<Busin
     if profile.id != id || profile.business_id != id {
         return Err(bad("the profile must carry the business id"));
     }
+    if !profile.currency.is_fiat() {
+        return Err(bad("the business reports in US dollars, euros or pounds"));
+    }
+    if accounts
+        .iter()
+        .any(|a| ledger_core::account_currency_error(a.kind, a.currency).is_some())
+    {
+        return Err(bad(
+            "bitcoin is held in wallet accounts, and a wallet holds only bitcoin",
+        ));
+    }
     if accounts
         .iter()
         .map(|a| a.id.as_str())

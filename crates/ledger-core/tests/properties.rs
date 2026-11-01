@@ -150,7 +150,7 @@ fn csv_text(rows: &[(u32, String, i64, bool)]) -> String {
         } else {
             String::new()
         };
-        let amount = amount_input(minor(-amount));
+        let amount = amount_input(minor(-amount), Currency::Usd);
         text.push_str(&format!(
             "2026-10-{day:02},\"{description}\",{amount},USD,{reference}\n"
         ));
@@ -256,9 +256,9 @@ proptest! {
     // amountInput(parseMoney(s)) == s for every valid canonical input.
     #[test]
     fn amount_input_round_trips_canonical_amounts(n in -MAX_MINOR..=MAX_MINOR) {
-        let s = amount_input(minor(n));
-        prop_assert_eq!(parse_money(&s).unwrap(), minor(n));
-        prop_assert_eq!(amount_input(parse_money(&s).unwrap()), s);
+        let s = amount_input(minor(n), Currency::Usd);
+        prop_assert_eq!(parse_money(&s, Currency::Usd).unwrap(), minor(n));
+        prop_assert_eq!(amount_input(parse_money(&s, Currency::Usd).unwrap(), Currency::Usd), s);
     }
 
     #[test]
@@ -270,7 +270,7 @@ proptest! {
         let s = format!("{}{whole}.{cents}", if negative { "-" } else { "" });
         let value = format!("{whole}{cents}").parse::<i128>().unwrap();
         prop_assume!(value <= i128::from(MAX_MINOR) && !(negative && value == 0));
-        prop_assert_eq!(amount_input(parse_money(&s).unwrap()), s);
+        prop_assert_eq!(amount_input(parse_money(&s, Currency::Usd).unwrap(), Currency::Usd), s);
     }
 
     // parseMoney rejects anything outside MAX_MINOR.
@@ -281,7 +281,7 @@ proptest! {
     ) {
         let value = u128::from(MAX_MINOR.unsigned_abs()) + excess;
         let s = format!("{}{}.{:02}", if negative { "-" } else { "" }, value / 100, value % 100);
-        prop_assert_eq!(parse_money(&s), Err(LedgerError::AmountTooLarge));
+        prop_assert_eq!(parse_money(&s, Currency::Usd), Err(LedgerError::AmountTooLarge));
     }
 
     // Importing the same CSV twice creates zero new drafts the second time.

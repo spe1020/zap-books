@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Download, FileSpreadsheet } from "lucide-react";
 import type { BusinessData, Currency } from "../domain/types";
-import { currencies } from "../domain/types";
+import { fiatCurrencies } from "../domain/types";
 import { exportBalances, exportRecords } from "../domain/export";
 import { today } from "../domain/ledger";
 import type { ExportFilter, ExportFormat } from "../domain/export";
@@ -117,7 +117,7 @@ export function ExportDialog({
                   setDownloaded(false);
                 }}
               >
-                {currencies.map((c) => (
+                {fiatCurrencies.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
@@ -160,7 +160,7 @@ export function ExportDialog({
                 }}
               >
                 <option value="">All currencies · separate amounts</option>
-                {currencies.map((c) => (
+                {fiatCurrencies.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>

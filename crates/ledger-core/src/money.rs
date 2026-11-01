@@ -13,25 +13,45 @@ use crate::js;
 /// range check against this constant.
 pub const MAX_MINOR: i64 = 9_007_199_254_740_991;
 
-/// `type Currency = "USD" | "EUR" | "GBP"`
+/// `type Currency = FiatCurrency | "BTC"`. BTC amounts are in sats; a
+/// business reports, and records fiat values, in the other three.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Currency {
     Usd,
     Eur,
     Gbp,
+    Btc,
 }
 
 impl Currency {
     /// `currencies`, in the same order as the TypeScript array.
-    pub const ALL: [Currency; 3] = [Currency::Usd, Currency::Eur, Currency::Gbp];
+    pub const ALL: [Currency; 4] = [Currency::Usd, Currency::Eur, Currency::Gbp, Currency::Btc];
+
+    /// `fiatCurrencies`: the reporting currencies.
+    pub const FIAT: [Currency; 3] = [Currency::Usd, Currency::Eur, Currency::Gbp];
 
     pub fn code(self) -> &'static str {
         match self {
             Currency::Usd => "USD",
             Currency::Eur => "EUR",
             Currency::Gbp => "GBP",
+            Currency::Btc => "BTC",
         }
+    }
+
+    /// `precision`: the decimal places of the minor unit, 2 for cents and 8
+    /// for sats.
+    pub fn precision(self) -> u32 {
+        match self {
+            Currency::Btc => 8,
+            Currency::Usd | Currency::Eur | Currency::Gbp => 2,
+        }
+    }
+
+    /// `fiatCurrencies.includes(this)`
+    pub fn is_fiat(self) -> bool {
+        self != Currency::Btc
     }
 
     /// `currencies.includes(code)`, returning the matching currency.
@@ -115,25 +135,26 @@ impl fmt::Display for Minor {
     }
 }
 
-/// `parseMoney`: parses `-?\d+(\.\d{1,2})?` after a JS `trim()` into exact
-/// minor units.
-pub fn parse_money(input: &str) -> Result<Minor> {
+/// `parseMoney`: parses `-?\d+(\.\d{1,p})?` after a JS `trim()` into exact
+/// minor units, with p the currency's precision.
+pub fn parse_money(input: &str, currency: Currency) -> Result<Minor> {
+    let places = currency.precision() as usize;
     let s = js::trim(input);
     let (negative, unsigned) = match s.strip_prefix('-') {
         Some(rest) => (true, rest),
         None => (false, s),
     };
-    let (whole, cents) = match unsigned.split_once('.') {
-        Some((whole, cents)) => (whole, Some(cents)),
+    let (whole, fraction) = match unsigned.split_once('.') {
+        Some((whole, fraction)) => (whole, Some(fraction)),
         None => (unsigned, None),
     };
-    let cents_ok = cents.is_none_or(|c| (1..=2).contains(&c.len()) && js::all_digits(c));
-    if !js::all_digits(whole) || !cents_ok {
-        return Err(LedgerError::InvalidAmount);
+    let fraction_ok = fraction.is_none_or(|c| (1..=places).contains(&c.len()) && js::all_digits(c));
+    if !js::all_digits(whole) || !fraction_ok {
+        return Err(LedgerError::InvalidAmount(currency));
     }
-    // Number(whole) * 100 + Number(cents.padEnd(2, "0")). Accumulate exactly
-    // and stop as soon as the value leaves the safe range, so long runs of
-    // digits cannot overflow.
+    // Number(whole) * 10^p + Number(fraction.padEnd(p, "0")). Accumulate
+    // exactly and stop as soon as the value leaves the safe range, so long
+    // runs of digits cannot overflow.
     let limit = u128::from(MAX_MINOR.unsigned_abs());
     let mut value: u128 = 0;
     for digit in whole.bytes() {
@@ -142,12 +163,11 @@ pub fn parse_money(input: &str) -> Result<Minor> {
             return Err(LedgerError::AmountTooLarge);
         }
     }
-    let cents_value = match cents.map(str::as_bytes) {
-        Some([tens]) => u128::from(tens - b'0') * 10,
-        Some([tens, ones]) => u128::from(tens - b'0') * 10 + u128::from(ones - b'0'),
-        _ => 0,
-    };
-    value = value * 100 + cents_value;
+    let digits = fraction.unwrap_or("").as_bytes();
+    for place in 0..places {
+        let digit = digits.get(place).map_or(0, |d| u128::from(d - b'0'));
+        value = value * 10 + digit;
+    }
     let value = i64::try_from(value)
         .ok()
         .filter(|v| *v <= MAX_MINOR)
@@ -155,10 +175,37 @@ pub fn parse_money(input: &str) -> Result<Minor> {
     Minor::new(if negative { -value } else { value })
 }
 
-/// `amountInput`: formats minor units as `-?\d+\.\d\d`.
-pub fn amount_input(n: Minor) -> String {
+/// `parseSats`: a whole number of sats, after a JS `trim()`.
+pub fn parse_sats(input: &str) -> Result<Minor> {
+    let s = js::trim(input);
+    let unsigned = s.strip_prefix('-').unwrap_or(s);
+    if !js::all_digits(unsigned) {
+        return Err(LedgerError::InvalidSats);
+    }
+    let limit = u128::from(MAX_MINOR.unsigned_abs());
+    let mut value: u128 = 0;
+    for digit in unsigned.bytes() {
+        value = value * 10 + u128::from(digit - b'0');
+        if value > limit {
+            return Err(LedgerError::AmountTooLarge);
+        }
+    }
+    let value = i64::try_from(value).map_err(|_| LedgerError::AmountTooLarge)?;
+    Minor::new(if s.starts_with('-') { -value } else { value })
+}
+
+/// `amountInput`: formats minor units in the major unit, to the currency's
+/// places (`-?\d+\.\d{p}`).
+pub fn amount_input(n: Minor, currency: Currency) -> String {
+    let places = currency.precision();
+    let unit = 10u64.pow(places);
     let value = n.get();
     let sign = if value < 0 { "-" } else { "" };
     let abs = value.unsigned_abs();
-    format!("{sign}{}.{:02}", abs / 100, abs % 100)
+    format!(
+        "{sign}{}.{:0width$}",
+        abs / unit,
+        abs % unit,
+        width = places as usize
+    )
 }

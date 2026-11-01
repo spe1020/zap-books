@@ -101,6 +101,43 @@ fn d2_a_stored_size_that_isnt_a_whole_number_does_not_deserialize() {
     }
 }
 
+#[test]
+fn d2_a_fiat_value_or_millisats_that_cant_be_held_does_not_deserialize() {
+    let value = json!({
+        "currency": "USD",
+        "amountMinor": 6000,
+        "rate": "60000.00",
+        "source": "manual",
+        "at": "2026-09-10",
+    });
+    assert!(serde_json::from_value::<FiatValue>(value.clone()).is_ok());
+    for (field, bad) in [
+        ("rate", json!(60000)),
+        ("amountMinor", json!(60.5)),
+        ("source", json!("guess")),
+        ("currency", json!("JPY")),
+    ] {
+        let mut v = value.clone();
+        v[field] = bad;
+        assert!(serde_json::from_value::<FiatValue>(v).is_err(), "{field}");
+    }
+    let transfer = json!({
+        "date": "2026-10-20",
+        "amountMinor": 100,
+        "currency": "BTC",
+        "fromAccountId": "a",
+        "toAccountId": "b",
+        "transferType": "exchange",
+        "purpose": "Invented",
+        "fiatValue": value,
+        "millisats": 100_000,
+    });
+    assert!(serde_json::from_value::<TransferInput>(transfer.clone()).is_ok());
+    let mut bad = transfer;
+    bad["millisats"] = json!(100_000.5);
+    assert!(serde_json::from_value::<TransferInput>(bad).is_err());
+}
+
 // D3: a stored journal that does not balance cannot be loaded.
 #[test]
 fn d3_unbalanced_stored_journals_do_not_deserialize() {
@@ -153,6 +190,9 @@ fn d4_import_source_comparison_ignores_key_order() {
 // Both serialize as `0` and format as `0.00`.
 #[test]
 fn d6_negative_zero_is_zero() {
-    assert_eq!(parse_money("-0").unwrap(), minor(0));
-    assert_eq!(amount_input(parse_money("-0.00").unwrap()), "0.00");
+    assert_eq!(parse_money("-0", Currency::Usd).unwrap(), minor(0));
+    assert_eq!(
+        amount_input(parse_money("-0.00", Currency::Usd).unwrap(), Currency::Usd),
+        "0.00"
+    );
 }

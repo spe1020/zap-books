@@ -16,7 +16,7 @@ import type {
   ClassificationRule,
   Currency,
 } from "../domain/types";
-import { currencies } from "../domain/types";
+import { fiatCurrencies } from "../domain/types";
 import { amountInput, id, money, parseMoney, today } from "../domain/ledger";
 import {
   accountKindLabels,
@@ -38,6 +38,7 @@ const kindHelp: Record<AccountChoice, string> = {
     "Money the business owes, such as a loan from the owner. An expense the owner pays personally can be owed back here.",
   equity:
     "The owner's stake: money put in that isn't paid back. An expense the owner pays personally can count as a contribution here.",
+  wallet: "Bitcoin the business holds, on-chain or on Lightning, in sats.",
 };
 const ACCOUNTANT_NOTE =
   "Ask your accountant whether owner money is a loan or a contribution.";
@@ -112,7 +113,7 @@ export function Settings({
     if (!opening) return;
     let amountMinor: number;
     try {
-      amountMinor = parseMoney(opening.amount);
+      amountMinor = parseMoney(opening.amount, opening.account.currency);
     } catch (e) {
       setError((e as Error).message);
       return;
@@ -283,7 +284,9 @@ export function Settings({
                     setOpening({
                       account: a,
                       date: current?.journal.date ?? first ?? today(),
-                      amount: current ? amountInput(current.amountMinor) : "",
+                      amount: current
+                        ? amountInput(current.amountMinor, a.currency)
+                        : "",
                       reason: "",
                     });
                   }}
@@ -618,7 +621,7 @@ export function Settings({
                       })
                     }
                   >
-                    {currencies.map((c) => (
+                    {fiatCurrencies.map((c) => (
                       <option key={c}>{c}</option>
                     ))}
                   </select>

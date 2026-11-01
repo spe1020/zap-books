@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { decode, nsecEncode } from "nostr-tools/nip19";
 import type { Currency } from "../domain/types";
-import { currencies } from "../domain/types";
+import { fiatCurrencies } from "../domain/types";
 import type { RemoteLedgerClient } from "../remote";
 import { protocol } from "../remote/protocol";
 import { SERVICE_PUBKEY } from "../remote/config";
@@ -230,7 +230,7 @@ export function CreateBusiness({
               value={currency}
               onChange={(e) => setCurrency(e.target.value as Currency)}
             >
-              {currencies.map((c) => (
+              {fiatCurrencies.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>

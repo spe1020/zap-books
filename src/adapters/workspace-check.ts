@@ -7,11 +7,13 @@ import type {
 } from "../domain/types";
 import {
   currencies,
+  fiatCurrencies,
   extractionFields,
   type ExtractionOutcome,
 } from "../domain/types";
 import { assertBalanced, now } from "../domain/ledger";
 import { upgradeExtractionFields } from "../domain/extraction";
+import { fiatSources } from "../domain/bitcoin";
 import { isExtractionFields } from "./extractor";
 
 /**
@@ -71,6 +73,7 @@ const oneOf =
   (v) =>
     values.includes(v);
 const currency = oneOf(...currencies);
+const optionalMinor: Check = (v) => v === undefined || minor(v);
 
 // A record of every event type, so a new one can't be left out.
 const eventTypes: Record<EventType, true> = {
@@ -111,6 +114,15 @@ const importSource = shape({
   filename: text,
 });
 
+const fiatValue = shape({
+  currency: oneOf(...fiatCurrencies),
+  amountMinor: minor,
+  rate: text,
+  source: oneOf(...fiatSources),
+  at: text,
+});
+const optionalFiatValue: Check = (v) => v === undefined || fiatValue(v);
+
 const line = shape({
   accountId: text,
   categoryId: optionalText,
@@ -122,7 +134,7 @@ const line = shape({
 const records: Record<Exclude<keyof BusinessData, "profile">, Check> = {
   accounts: shape({
     name: text,
-    kind: oneOf("bank", "card", "expense", "liability", "equity"),
+    kind: oneOf("bank", "card", "expense", "liability", "equity", "wallet"),
     currency,
   }),
   categories: shape({ name: text, accountId: text }),
@@ -153,6 +165,8 @@ const records: Record<Exclude<keyof BusinessData, "profile">, Check> = {
     description: text,
     amountMinor: minor,
     currency,
+    fiatValue: optionalFiatValue,
+    millisats: optionalMinor,
     categoryId: text,
     accountId: text,
     purpose: text,
@@ -183,11 +197,14 @@ const records: Record<Exclude<keyof BusinessData, "profile">, Check> = {
         "ownerDraw",
         "betweenAccounts",
         "openingBalance",
+        "exchange",
       )(v),
     purpose: optionalText,
     reference: optionalText,
     documentIds: (v) => v === undefined || texts(v),
     correctionOf: optionalText,
+    fiatValue: optionalFiatValue,
+    millisats: optionalMinor,
   }),
   approvals: shape({
     expenseId: text,
@@ -273,7 +290,7 @@ const profile = shape({
   id: text,
   name: text,
   industry: text,
-  currency,
+  currency: oneOf(...fiatCurrencies),
   initials: text,
   color: text,
 });

@@ -128,6 +128,33 @@ fn genesis_needs_the_business_id_and_sound_records() {
         categories[0].account_id = bank.id.clone();
     }
     assert!(genesis_business(business_id(), &bad).is_err());
+
+    // A business reports in fiat, and bitcoin is held only in wallets.
+    let mut btc = genesis_command();
+    if let Command::CreateBusiness { profile, .. } = &mut btc {
+        profile.currency = ledger_core::Currency::Btc;
+    }
+    assert!(matches!(
+        genesis_business(business_id(), &btc).unwrap_err(),
+        Refusal::Protocol(ProtocolError::InvalidGenesis(_))
+    ));
+    for (kind, currency) in [
+        (ledger_core::AccountKind::Wallet, ledger_core::Currency::Usd),
+        (ledger_core::AccountKind::Bank, ledger_core::Currency::Btc),
+    ] {
+        let mut bad = genesis_command();
+        if let Command::CreateBusiness { accounts, .. } = &mut bad {
+            accounts[0].kind = kind;
+            accounts[0].currency = currency;
+        }
+        assert!(genesis_business(business_id(), &bad).is_err());
+    }
+    let mut wallet = genesis_command();
+    if let Command::CreateBusiness { accounts, .. } = &mut wallet {
+        accounts[0].kind = ledger_core::AccountKind::Wallet;
+        accounts[0].currency = ledger_core::Currency::Btc;
+    }
+    assert!(genesis_business(business_id(), &wallet).is_ok());
 }
 
 #[test]

@@ -46,7 +46,8 @@ pub struct Business {
 }
 
 /// `liability` is money the business owes (a loan from the owner, say) and
-/// `equity` the owner's stake. Both can pay an expense.
+/// `equity` the owner's stake. Both can pay an expense. A `wallet` holds
+/// bitcoin; its balance works like a bank's.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AccountKind {
@@ -55,6 +56,33 @@ pub enum AccountKind {
     Expense,
     Liability,
     Equity,
+    Wallet,
+}
+
+/// `FiatSource`: where a recorded fiat value came from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum FiatSource {
+    Manual,
+    PriceSeries,
+    Exchange,
+}
+
+/// `FiatValue`: what a bitcoin entry was worth in a reporting currency when
+/// it happened, entered or confirmed by a person. Checked by
+/// [`crate::fiat_value_shape`] and [`crate::fiat_value_matches`].
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FiatValue {
+    /// Any currency deserializes, so BTC reaches the check's message.
+    pub currency: Currency,
+    pub amount_minor: Minor,
+    /// The price of one bitcoin, as a decimal string. A string, not a
+    /// number, so the check reads exactly what was written.
+    pub rate: String,
+    pub source: FiatSource,
+    /// The day or UTC time the value applies to.
+    pub at: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -215,6 +243,12 @@ pub struct ExpenseDraft {
     pub description: String,
     pub amount_minor: Minor,
     pub currency: Currency,
+    /// BTC drafts: the fiat value at the time. Required to approve.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fiat_value: Option<FiatValue>,
+    /// A Lightning amount as paid; `amount_minor` is it rounded to sats.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub millisats: Option<Minor>,
     pub category_id: String,
     pub account_id: String,
     pub purpose: String,
@@ -249,6 +283,8 @@ impl ExpenseDraft {
             description: String::new(),
             amount_minor: Minor::ZERO,
             currency,
+            fiat_value: None,
+            millisats: None,
             category_id: String::new(),
             account_id,
             purpose: String::new(),
@@ -294,6 +330,8 @@ impl ExpenseDraft {
             description: self.description,
             amount_minor: self.amount_minor,
             currency: self.currency,
+            fiat_value: self.fiat_value,
+            millisats: self.millisats,
             category_id: self.category_id,
             account_id: self.account_id,
             purpose: self.purpose,
@@ -347,6 +385,8 @@ pub enum TransferType {
     OwnerDraw,
     BetweenAccounts,
     OpeningBalance,
+    /// Buying or selling bitcoin: the one journal in two currencies.
+    Exchange,
 }
 
 /// The fields of a journal entry before any checks. Build one, then turn it
@@ -379,6 +419,12 @@ pub struct UncheckedJournal {
     /// On a transfer that replaced a corrected one: the original's id.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub correction_of: Option<String>,
+    /// BTC journals only, and on every one of them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fiat_value: Option<FiatValue>,
+    /// A Lightning amount as paid, in millisats.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub millisats: Option<Minor>,
 }
 
 pub(crate) fn check_line_amounts(line: &JournalLine) -> Result<()> {
@@ -399,7 +445,7 @@ pub(crate) fn check_totals(debit: Minor, credit: Minor) -> Result<()> {
     }
 }
 
-/// A balanced, single-currency journal entry.
+/// A balanced journal entry, in one currency except for an exchange.
 ///
 /// The only constructor is [`JournalEntry::new`], which runs every
 /// `assertBalanced` check against the business. Load persisted entries through

@@ -24,12 +24,12 @@ import { MockTransport } from "../adapters/transport";
 const fresh = () => seedWorkspace().businesses[0];
 describe("financial invariants", () => {
   test("parses decimal inputs exactly and rejects invalid precision", () => {
-    expect(parseMoney("0.29")).toBe(29);
-    expect(parseMoney("100.01")).toBe(10001);
-    expect(parseMoney("-4.05")).toBe(-405);
-    expect(amountInput(10001)).toBe("100.01");
+    expect(parseMoney("0.29", "USD")).toBe(29);
+    expect(parseMoney("100.01", "USD")).toBe(10001);
+    expect(parseMoney("-4.05", "USD")).toBe(-405);
+    expect(amountInput(10001, "USD")).toBe("100.01");
     for (const x of ["1.001", "NaN", "1e4", "9007199254740992", ""])
-      expect(() => parseMoney(x)).toThrow();
+      expect(() => parseMoney(x, "USD")).toThrow();
   });
   test("all seeded journals balance, corrections net and transfers are excluded", () => {
     const b = fresh();
@@ -541,8 +541,8 @@ test("dates before 1900 are rejected with the caller's existing message", () => 
     "A valid expense date is required.",
   );
   // Leading zeros and -0 stay accepted (kept on purpose).
-  expect(parseMoney("00012.30")).toBe(1230);
-  expect(parseMoney("-0")).toBe(-0);
+  expect(parseMoney("00012.30", "USD")).toBe(1230);
+  expect(parseMoney("-0", "USD")).toBe(-0);
 });
 
 test("W12: payment links can only be created by an import and belong to one expense", () => {

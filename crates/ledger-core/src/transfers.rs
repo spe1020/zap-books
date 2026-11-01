@@ -3,6 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::bitcoin::{fiat_value_error, millisats_error};
 use crate::date::valid_date;
 use crate::env::Env;
 use crate::error::{LedgerError, Result};
@@ -10,13 +11,17 @@ use crate::js;
 use crate::ledger::push_event;
 use crate::money::{Currency, Minor};
 use crate::types::{
-    Account, AccountKind, BusinessData, EventType, JournalEntry, JournalKind, JournalLine,
-    TransferType, UncheckedJournal,
+    Account, AccountKind, BusinessData, EventType, FiatSource, FiatValue, JournalEntry,
+    JournalKind, JournalLine, TransferType, UncheckedJournal,
 };
 
 /// `TransferInput`: money moving between two of the business's own
 /// non-expense accounts. `OpeningBalance` is refused by
 /// [`record_transfer`]; only a correction of an opening balance passes it.
+///
+/// An `Exchange` buys or sells bitcoin: `currency` is BTC and `amount_minor`
+/// the sats, one account a BTC wallet and the other a fiat bank or card
+/// account, and `fiat_value` (source `exchange`) holds the fiat side.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TransferInput {
@@ -32,6 +37,12 @@ pub struct TransferInput {
     pub reference: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub document_ids: Vec<String>,
+    /// Required in BTC, refused otherwise.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fiat_value: Option<FiatValue>,
+    /// A Lightning amount as paid; `amount_minor` is it rounded to sats.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub millisats: Option<Minor>,
 }
 
 /// `OpeningBalanceInput`: an account's balance before the business's first
@@ -45,6 +56,9 @@ pub struct OpeningBalanceInput {
     pub amount_minor: Minor,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference: Option<String>,
+    /// Required for a BTC account, refused otherwise.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fiat_value: Option<FiatValue>,
 }
 
 /// One row of [`balances`].
@@ -67,6 +81,7 @@ pub fn transfer_type_label(t: TransferType) -> &'static str {
         TransferType::OwnerDraw => "Owner draw",
         TransferType::BetweenAccounts => "Transfer between accounts",
         TransferType::OpeningBalance => "Opening balance",
+        TransferType::Exchange => "Exchange",
     }
 }
 
@@ -78,6 +93,7 @@ pub(crate) fn account_kind_label(k: AccountKind) -> &'static str {
         AccountKind::Liability => "Loan",
         AccountKind::Equity => "Owner equity",
         AccountKind::Expense => "Expense",
+        AccountKind::Wallet => "Bitcoin wallet",
     }
 }
 
@@ -86,7 +102,7 @@ pub(crate) fn account_kind_label(k: AccountKind) -> &'static str {
 /// expense account.
 pub(crate) fn balance_meaning(k: AccountKind) -> &'static str {
     match k {
-        AccountKind::Bank => "Held",
+        AccountKind::Bank | AccountKind::Wallet => "Held",
         AccountKind::Card => "Owed",
         AccountKind::Liability => "Owed to owner",
         AccountKind::Equity => "Owner's stake",
@@ -95,7 +111,23 @@ pub(crate) fn balance_meaning(k: AccountKind) -> &'static str {
 }
 
 fn paying(k: AccountKind) -> bool {
-    matches!(k, AccountKind::Bank | AccountKind::Card)
+    matches!(
+        k,
+        AccountKind::Bank | AccountKind::Card | AccountKind::Wallet
+    )
+}
+
+/// `holding`: accounts whose balance is debits minus credits.
+fn holding(k: AccountKind) -> bool {
+    matches!(k, AccountKind::Bank | AccountKind::Wallet)
+}
+
+/// `openable`: the accounts opening balances are for.
+fn openable(k: AccountKind) -> bool {
+    matches!(
+        k,
+        AccountKind::Bank | AccountKind::Card | AccountKind::Liability | AccountKind::Wallet
+    )
 }
 
 /// A user-chosen transfer type's label, the account kinds it moves money
@@ -108,7 +140,7 @@ type Shape = (
 );
 
 /// Which accounts a transfer type moves money between. `None` for an
-/// opening balance.
+/// opening balance or an exchange.
 fn shape(t: TransferType) -> Option<Shape> {
     let liability = |k| k == AccountKind::Liability;
     let equity = |k| k == AccountKind::Equity;
@@ -143,7 +175,7 @@ fn shape(t: TransferType) -> Option<Shape> {
             paying,
             "A transfer between accounts moves money from one bank or card account to another.",
         ),
-        TransferType::OpeningBalance => return None,
+        TransferType::OpeningBalance | TransferType::Exchange => return None,
     })
 }
 
@@ -209,6 +241,9 @@ fn post(
     if from.id == to.id {
         return Err(LedgerError::TransferSameAccount);
     }
+    if input.transfer_type == TransferType::Exchange {
+        return post_exchange(b, input, &from, &to, correction_of, env);
+    }
     if from.currency != input.currency || to.currency != input.currency {
         return Err(LedgerError::TransferCurrency);
     }
@@ -224,6 +259,119 @@ fn post(
             label
         }
     };
+    check_values(input)?;
+    let lines = vec![
+        JournalLine {
+            account_id: to.id.clone(),
+            category_id: None,
+            debit: input.amount_minor,
+            credit: Minor::ZERO,
+        },
+        JournalLine {
+            account_id: from.id.clone(),
+            category_id: None,
+            debit: Minor::ZERO,
+            credit: input.amount_minor,
+        },
+    ];
+    append(b, input, &from, &to, label, correction_of, lines, env)
+}
+
+/// The fiat value and millisat rules every transfer keeps.
+fn check_values(input: &TransferInput) -> Result<()> {
+    let error = fiat_value_error(
+        input.currency,
+        input.amount_minor,
+        input.fiat_value.as_ref(),
+    )
+    .or_else(|| millisats_error(input.currency, input.amount_minor, input.millisats));
+    match error {
+        Some(error) => Err(LedgerError::Bitcoin(error)),
+        None => Ok(()),
+    }
+}
+
+/// `postExchange`: sats into or out of a BTC wallet, against a fiat bank or
+/// card account for the fiat value's amount.
+fn post_exchange(
+    b: &mut BusinessData,
+    input: &TransferInput,
+    from: &Account,
+    to: &Account,
+    correction_of: Option<&str>,
+    env: &mut impl Env,
+) -> Result<String> {
+    if input.currency != Currency::Btc {
+        return Err(LedgerError::Bitcoin(
+            "An exchange is recorded in sats, with its other side as the fiat value.",
+        ));
+    }
+    let wallet = |a: &Account| a.kind == AccountKind::Wallet && a.currency == Currency::Btc;
+    let fiat = |a: &Account| {
+        matches!(a.kind, AccountKind::Bank | AccountKind::Card) && a.currency.is_fiat()
+    };
+    if !((wallet(from) && fiat(to)) || (fiat(from) && wallet(to))) {
+        return Err(LedgerError::Bitcoin(
+            "An exchange moves money between a bitcoin wallet and a dollar, euro or pound bank or card account.",
+        ));
+    }
+    check_values(input)?;
+    let value = input.fiat_value.as_ref().ok_or(LedgerError::Internal(
+        "an exchange passed without a fiat value",
+    ))?;
+    let fiat_account = if wallet(from) { to } else { from };
+    if value.source != FiatSource::Exchange {
+        return Err(LedgerError::Bitcoin(
+            "An exchange records its fiat value with the source exchange.",
+        ));
+    }
+    if value.currency != fiat_account.currency {
+        return Err(LedgerError::Bitcoin(
+            "An exchange's fiat value is in the currency of its dollar, euro or pound account.",
+        ));
+    }
+    if value.amount_minor <= Minor::ZERO {
+        return Err(LedgerError::Bitcoin(
+            "An exchange needs a fiat amount greater than zero.",
+        ));
+    }
+    let amount = |a: &Account| {
+        if a.id == fiat_account.id {
+            value.amount_minor
+        } else {
+            input.amount_minor
+        }
+    };
+    let lines = vec![
+        JournalLine {
+            account_id: to.id.clone(),
+            category_id: None,
+            debit: amount(to),
+            credit: Minor::ZERO,
+        },
+        JournalLine {
+            account_id: from.id.clone(),
+            category_id: None,
+            debit: Minor::ZERO,
+            credit: amount(from),
+        },
+    ];
+    append(b, input, from, to, "Exchange", correction_of, lines, env)
+}
+
+/// `append`: checks the receipts, builds the transfer's journal and
+/// appends it.
+#[allow(clippy::too_many_arguments)]
+fn append(
+    b: &mut BusinessData,
+    input: &TransferInput,
+    from: &Account,
+    to: &Account,
+    label: &str,
+    correction_of: Option<&str>,
+    lines: Vec<JournalLine>,
+    env: &mut impl Env,
+) -> Result<String> {
     if input.document_ids.iter().any(|doc_id| {
         !b.documents
             .iter()
@@ -236,20 +384,7 @@ fn post(
         business_id: b.profile.id.clone(),
         date: input.date.clone(),
         currency: input.currency,
-        lines: vec![
-            JournalLine {
-                account_id: to.id.clone(),
-                category_id: None,
-                debit: input.amount_minor,
-                credit: Minor::ZERO,
-            },
-            JournalLine {
-                account_id: from.id.clone(),
-                category_id: None,
-                debit: Minor::ZERO,
-                credit: input.amount_minor,
-            },
-        ],
+        lines,
         kind: JournalKind::Transfer,
         expense_id: None,
         reverses_id: None,
@@ -265,6 +400,8 @@ fn post(
             .map(str::to_string),
         document_ids: Some(input.document_ids.clone()).filter(|d| !d.is_empty()),
         correction_of: correction_of.map(str::to_string),
+        fiat_value: input.fiat_value.clone(),
+        millisats: input.millisats,
     };
     let journal = JournalEntry::new(b, journal)?;
     let id = journal.id.clone();
@@ -298,14 +435,17 @@ fn check_opening_balance(
     } else {
         None
     };
-    let Some(account) = account.filter(|a| {
-        matches!(
-            a.kind,
-            AccountKind::Bank | AccountKind::Card | AccountKind::Liability
-        )
-    }) else {
+    // The message predates wallets, which may also take one.
+    let Some(account) = account.filter(|a| openable(a.kind)) else {
         return Err(LedgerError::OpeningBalanceAccountKind);
     };
+    // A wallet's opening balance is a debit; one credited to it would open
+    // below zero, and a wallet can't hold less than no bitcoin.
+    if account.kind == AccountKind::Wallet && account.id == from.id {
+        return Err(LedgerError::Bitcoin(
+            "A wallet can't open below zero. Enter its opening balance as sats greater than zero.",
+        ));
+    }
     if has_opening_balance(b, &account.id) {
         return Err(LedgerError::OpeningBalanceExists);
     }
@@ -341,7 +481,8 @@ pub fn record_transfer(
 /// `replacement` in its place, all or nothing. The reversal names the
 /// original (`reverses_id`), and so does the replacement (`correction_of`).
 /// A transfer already reversed can't be corrected again. An opening balance
-/// is corrected by another, on the same account.
+/// is corrected by another, on the same account, and an exchange by another
+/// between the same two accounts.
 pub fn correct_transfer(
     business: &BusinessData,
     original_id: &str,
@@ -370,6 +511,45 @@ pub fn correct_transfer(
         && !(on_original(&replacement.from_account_id) && on_original(&replacement.to_account_id))
     {
         return Err(LedgerError::OpeningBalanceAccountChanged);
+    }
+    // An exchange is corrected by another between the same wallet and the
+    // same fiat account; the amounts, direction, date and rate may change.
+    // Nothing else becomes one.
+    if original.transfer_type != Some(TransferType::Exchange)
+        && replacement.transfer_type == TransferType::Exchange
+    {
+        return Err(LedgerError::Bitcoin(
+            "Only an exchange can be corrected by an exchange.",
+        ));
+    }
+    if original.transfer_type == Some(TransferType::Exchange) {
+        if replacement.transfer_type != TransferType::Exchange {
+            return Err(LedgerError::Bitcoin(
+                "Correct an exchange with another exchange.",
+            ));
+        }
+        let sides = [&replacement.from_account_id, &replacement.to_account_id];
+        let is_wallet = |id: &str| {
+            b.accounts
+                .iter()
+                .any(|a| a.id == id && a.kind == AccountKind::Wallet)
+        };
+        let kept = |wallet: bool| {
+            original
+                .lines
+                .iter()
+                .all(|l| is_wallet(&l.account_id) != wallet || sides.contains(&&l.account_id))
+        };
+        if !kept(true) {
+            return Err(LedgerError::Bitcoin(
+                "An exchange correction keeps its wallet.",
+            ));
+        }
+        if !kept(false) {
+            return Err(LedgerError::Bitcoin(
+                "An exchange correction keeps its dollar, euro or pound account.",
+            ));
+        }
     }
     let mut reversal = original.clone();
     reversal.correction_of = None;
@@ -411,19 +591,16 @@ pub fn record_opening_balance(
         .find(|a| a.id == input.account_id && a.business_id == b.profile.id)
         .cloned()
         .ok_or(LedgerError::OpeningBalanceAccountNotFound)?;
-    if !matches!(
-        account.kind,
-        AccountKind::Bank | AccountKind::Card | AccountKind::Liability
-    ) {
+    if !openable(account.kind) {
         return Err(LedgerError::OpeningBalanceAccountKind);
     }
     if input.amount_minor == Minor::ZERO {
         return Err(LedgerError::OpeningBalanceZero);
     }
     let equity = opening_balances_account(&mut b, account.currency, env)?;
-    // A bank account's balance is a debit; what's owed on a card or loan is
-    // a credit.
-    let debit = (account.kind == AccountKind::Bank) == (input.amount_minor > Minor::ZERO);
+    // A bank account's or wallet's balance is a debit; what's owed on a
+    // card or loan is a credit.
+    let debit = holding(account.kind) == (input.amount_minor > Minor::ZERO);
     let amount = if input.amount_minor < Minor::ZERO {
         -input.amount_minor
     } else {
@@ -444,6 +621,8 @@ pub fn record_opening_balance(
         purpose: "Opening balance".to_string(),
         reference: input.reference.clone(),
         document_ids: Vec::new(),
+        fiat_value: input.fiat_value.clone(),
+        millisats: None,
     };
     post(&mut b, &transfer, None, env)?;
     Ok(b)
@@ -489,9 +668,11 @@ fn opening_balances_account(
 
 /// `balances`: every non-expense account in `currency` with its balance on
 /// `as_of`, from journals dated on or before it: debits minus credits for
-/// bank accounts, and credits minus debits for card, loan and equity
-/// accounts, so a card's balance is what's owed on it. Reversals offset
-/// their originals. Currencies are never combined.
+/// bank accounts and wallets, and credits minus debits for card, loan and
+/// equity accounts, so a card's balance is what's owed on it. BTC balances
+/// are in sats. An exchange moves both of its accounts, each in its own
+/// currency. Reversals offset their originals. Currencies are never
+/// combined.
 pub fn balances(b: &BusinessData, as_of: &str, currency: Currency) -> Result<Vec<Balance>> {
     if !valid_date(as_of) {
         return Err(LedgerError::InvalidBalanceDate);
@@ -512,14 +693,22 @@ pub fn balances(b: &BusinessData, as_of: &str, currency: Currency) -> Result<Vec
         })
         .collect();
     for j in &b.journals {
-        if j.business_id != b.profile.id || j.currency != currency || j.date.as_str() > as_of {
+        let exchange_in = j.transfer_type == Some(TransferType::Exchange)
+            && j.fiat_value
+                .as_ref()
+                .is_some_and(|v| v.currency == currency);
+        if j.business_id != b.profile.id
+            || !(j.currency == currency || exchange_in)
+            || j.date.as_str() > as_of
+        {
             continue;
         }
+        // Only lines on accounts in `currency` find a row.
         for line in &j.lines {
             let Some(row) = rows.iter_mut().find(|r| r.account_id == line.account_id) else {
                 continue;
             };
-            let delta = if row.kind == AccountKind::Bank {
+            let delta = if holding(row.kind) {
                 line.debit.checked_sub(line.credit)?
             } else {
                 line.credit.checked_sub(line.debit)?

@@ -56,6 +56,8 @@ async fn a_bookkeepers_transfer_is_accepted_an_assistants_refused_and_both_rebui
         purpose: "Invented working capital".into(),
         reference: None,
         document_ids: vec![],
+        fiat_value: None,
+        millisats: None,
     };
 
     // The assistant is refused, signed, and nothing is stored.
@@ -81,6 +83,7 @@ async fn a_bookkeepers_transfer_is_accepted_an_assistants_refused_and_both_rebui
             date: "2023-01-01".into(),
             amount_minor: Minor::new(120_000).unwrap(),
             reference: None,
+            fiat_value: None,
         },
     };
     let ack = w.send(&bookkeeper, Some(3), opening).await;

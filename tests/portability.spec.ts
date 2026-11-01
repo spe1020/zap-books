@@ -22,7 +22,7 @@ test("expense and journal CSV downloads contain accurate, scoped records", async
   expect(download.suggestedFilename()).toContain("northstar-studio-expenses");
   const rows = parseCSV(await readFile((await download.path())!, "utf8"));
   expect(rows.slice(1).every((r) => r[0] === "northstar")).toBe(true);
-  expect(rows.slice(1).reduce((n, r) => n + parseMoney(r[6]), 0)).toBe(
+  expect(rows.slice(1).reduce((n, r) => n + parseMoney(r[6], "USD"), 0)).toBe(
     458559 + 21470,
   );
   const personal = rows.find((r) => r[4] === "Lantern Type Foundry")!;
