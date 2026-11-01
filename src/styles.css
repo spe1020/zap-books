@@ -924,7 +924,7 @@ td:last-child {
   font-size: 10px;
 }
 .row-action:hover {
-  background: #edf2e5;
+  background: var(--warm-highlight);
 }
 .align-right {
   text-align: right;
@@ -1772,7 +1772,7 @@ textarea:disabled {
 }
 .rule-symbol {
   color: #616878;
-  background: #eff4e6;
+  background: var(--warm-highlight);
   padding: 9px;
   border-radius: 6px;
 }
@@ -1784,7 +1784,7 @@ textarea:disabled {
 }
 .category-chips button {
   padding: 10px 12px;
-  border: 1px solid #e2e8d8;
+  border: 1px solid var(--warm-highlight-line);
   border-radius: 5px;
   font-size: 11px;
   display: flex;
@@ -1794,7 +1794,7 @@ textarea:disabled {
   background: #fcfdf9;
 }
 .category-chips button:hover {
-  background: #f0f5e8;
+  background: var(--warm-highlight);
 }
 .reset-panel {
   display: flex;
@@ -1877,7 +1877,7 @@ textarea:disabled {
   width: 66px;
   height: 66px;
   border-radius: 18px;
-  background: #eef3e4;
+  background: var(--warm-highlight);
   color: #616878;
   margin-bottom: 20px;
 }
