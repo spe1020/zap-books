@@ -20,7 +20,8 @@ DATABASE_URL=postgres://… cargo run -p ledger-service -- \
   --public-url https://ledger.example \
   --listen 127.0.0.1:8787 \
   --trusted-proxy 127.0.0.1 \
-  --allowed-origin https://app.example
+  --allowed-origin https://app.example \
+  --blob-dir /encrypted-volume/zapbooks/blobs
 ```
 
 - `--key-file` may be given more than once. The first is the primary key:
@@ -37,10 +38,17 @@ DATABASE_URL=postgres://… cargo run -p ledger-service -- \
   (see Limits). From any other peer the header is ignored. Without it, the
   peer's address counts, which behind a proxy is the proxy's.
 - `--allowed-origin <origin>` (repeatable) lets a browser app on that
-  origin call the API (CORS): `GET` and `POST`, with the `Authorization`
-  and `Content-Type` headers, no credentials. Each must be a plain origin
+  origin call the API (CORS): `GET`, `POST` and `PUT`, with the
+  `Authorization` and `Content-Type` headers, no credentials. Each must be a plain origin
   (`https://app.example`, no path or trailing slash); `*` is refused. With
   none, no other origin is allowed.
+- `--blob-dir <path>` is where encrypted receipts are kept (see Receipt
+  storage). It is created with mode `0700` if it doesn't exist. Without
+  it, receipt storage is off: uploads answer 503, and a proposal whose
+  document has a stored copy is rejected, since no blob can be uploaded.
+- `--blob-quota <size>` is each business's storage limit: bytes, or a
+  whole number followed by `MB` or `GB` (1024² and 1024³ bytes). The
+  default is 5 GB.
 - **Stopping.** SIGINT (Ctrl-C) or SIGTERM (what systemd and Docker send)
   stops accepting connections and lets requests in flight finish.
 - `--public-url` is the address clients use. NIP-98 auth events must name
@@ -128,6 +136,8 @@ Replacing the key a business uses is an owner-level change
 | `GET /v1/rejections?after=`                         | NIP-98              | `{"cursor": n, "rejections": [...]}`: the caller's rejections, oldest first                                                                       |
 | `GET /v1/service`                                   | None                | `{"pubkey"}`: the primary key, which every genesis must name                                                                                      |
 | `POST /v1/session`                                  | NIP-98 (`POST`)     | `{"token", "expiresAt"}`: a read session for an hour; 403 unless the caller is a member or recovery key of some business                          |
+| `PUT /v1/blobs/{hash}?business=`, the ciphertext    | Session token       | `{"hash", "size", "created"}`; 400, 404, 413, 415, 503 or 507 with `{"error", "code"}` (see Receipt storage)                                      |
+| `GET /v1/blobs/{hash}?business=`                    | Session token       | The ciphertext, `application/octet-stream`; 404 unless the caller reads the books and an accepted record refers to the blob                       |
 | `GET /health`                                       | None                | `ok`                                                                                                                                              |
 
 - **Acknowledgments are idempotent.** The proposal's event id is the key:
@@ -166,7 +176,8 @@ such business."}` for a business that doesn't exist or a proposer who
   not even the ones delivered to them before.
 - **Limits.** Before any JSON is parsed or signature verified, every
   request passes three cheap checks, in order: a declared body
-  (`Content-Length`) over 65,536 + 4,096 bytes (one event) is a 413; then
+  (`Content-Length`) over 65,536 + 4,096 bytes (one event), or for a blob
+  upload over 10 MB plus 16 bytes, is a 413; then
   a bucket for all requests together (400 at once, 200 a second) and one
   per client address (180 at once, 30 a second) answer 429 when empty.
   After the signature, each public key gets its own buckets: 60 proposals
@@ -178,6 +189,64 @@ such business."}` for a business that doesn't exist or a proposer who
   own limits bound its CPU, but a flood still costs the proxy's and the
   network's; and without `--trusted-proxy` every client behind the proxy
   shares one address bucket.
+
+## Receipt storage
+
+Receipts are stored encrypted, beside the books
+([brief](briefs/receipt-storage.md), `crates/ledger-service/src/blobs.rs`).
+The browser encrypts each file with AES-256-GCM under a fresh key of its
+own, uploads the ciphertext, then proposes the document with a `stored`
+field naming the blob and carrying the file's key (`docs/protocol.md`,
+Documents). The blob store holds ciphertext only.
+
+**The service sees each file's key.** The key is in the document record,
+and the service decrypts every proposal to check it, so it reads the key
+when it validates the proposal, as it reads all proposal plaintext, and the
+key is in the books' snapshot (`businesses.snapshot`), plaintext at rest
+like the rest of the books (see Storage). That is decision 0001's trust
+model: the service is trusted with plaintext. Anyone with a copy of the
+database and the blob store can therefore read every receipt; protect both
+as the key file (see Deployment requirements). Relays, and Blossom mirrors
+later (stage 4), get ciphertext they can't open without the keys in the
+books.
+
+- **Upload:** `PUT /v1/blobs/{hash}?business=<id>` with a session token
+  and `Content-Type: application/octet-stream`. The caller must be an
+  owner, bookkeeper, assistant or submitter of the business, checked
+  before the body is read. The body may be at most 10 MB plus the 16-byte
+  tag (10,485,776 bytes): a larger declared length is refused before any of
+  the body is read, and a body without one is refused as soon as it passes
+  the limit. The service hashes what it received and refuses a mismatch
+  with `{hash}` (400, `hashMismatch`), and an empty body (400, `empty`). Uploading a blob the business
+  already has succeeds (`"created": false`) and stores nothing. A new blob
+  is **pending**.
+- **Proposals:** a document whose `stored` names a blob not uploaded for
+  this business, or with another size, is rejected (`SaveDraft`, `Correct`
+  and `SubmitReceiptDraft` alike). When the proposal is accepted, its
+  blobs become **referenced**, in the same transaction.
+- **Download:** `GET /v1/blobs/{hash}?business=<id>` with a session token,
+  for an owner, bookkeeper, viewer or assistant, once an accepted record
+  refers to the blob. Submitters, the recovery key, removed members and
+  everyone else get the same 404 as for a blob that isn't there. It is
+  served as `application/octet-stream`, with `X-Content-Type-Options:
+nosniff` and `Content-Disposition: attachment`.
+- **Cleanup:** the scheduler (every 30 seconds) deletes blobs still pending
+  24 hours after their upload. Referenced blobs are never deleted, since
+  corrections keep history.
+- **Files:** `<blob-dir>/<business id>/<hash>`, mode `0600`, written to a
+  temporary name, synced and renamed into place, so no reader ever sees
+  half of one. Temporary files left by a crash are removed at start. Each
+  upload is written before it takes the business's lock, and the index row
+  and rename happen under it, so a large upload never holds up the
+  business's proposals.
+- **Quota:** each business's blobs, pending and referenced, may total at
+  most `--blob-quota` (default 5 GB). An upload beyond it is a 507 with
+  `code: "quota"` and the limit in the message.
+- **A full disk** is a 507 with `code: "diskFull"`; the temporary file is
+  removed, and nothing is indexed.
+- **Logs** carry the business and the blob's size, never its contents,
+  key or nonce (`crates/ledger-service/tests/blob_logs.rs` checks every
+  log line of a round trip).
 
 ## One proposal, one transaction
 
@@ -302,16 +371,20 @@ and its encrypted event, never the message, which can quote the payload.
 | `audit`                      | Signed rejections: the code and the encrypted event                                                                      |
 | `nip98_seen`                 | Used NIP-98 auth events                                                                                                  |
 | `sessions`                   | Read sessions: each token's SHA-256, its key and expiry                                                                  |
+| `blobs`                      | The blob store's index: business, hash, size, `pending` or `referenced`, upload time                                     |
 
 ## Deployment requirements
 
 For the deployment guide (the stage's last PR) to carry out:
 
 - **Full-disk encryption on the server**, covering Postgres's data
-  directory, since the books are plaintext at rest (see Storage).
+  directory, since the books are plaintext at rest (see Storage), and
+  `--blob-dir`: the blob store must be on the encrypted volume.
 - **Backups and replicas protected like the key file**: encrypted, and
   stored and accessed as carefully, since each holds every business's
-  books.
+  books. **Backups include the blob store** beside the database: a
+  document record without its blob can't be shown. Back them up together,
+  so every referenced blob in a database backup is in the blob backup too.
 - **A TLS-terminating proxy that rate-limits per client address**, named
   with `--trusted-proxy` so the service's per-address limit sees clients.
 - **Stop with SIGTERM** (systemd's and Docker's default) or SIGINT; both
