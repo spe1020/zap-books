@@ -45,8 +45,8 @@ Tests: `d1_correct_without_a_journal_is_an_internal_error`,
 ### D2. Range and enum checks happen when JSON is read
 
 `Minor` is always within `±MAX_MINOR` (`Number.MAX_SAFE_INTEGER`) and
-`Currency` is always `USD`, `EUR`, or `GBP`. JSON with a non-integer amount, an
-amount outside the safe range, or an unsupported currency fails to
+`Currency` is always `USD`, `EUR`, `GBP` or `BTC`. JSON with a non-integer
+amount, an amount outside the safe range, or an unsupported currency fails to
 deserialize. The TypeScript would instead accept it and later report a
 message. The affected checks are always true in Rust:
 
@@ -80,6 +80,16 @@ message. The affected checks are always true in Rust:
   size of 0 or over the limit: a negative, fractional or non-numeric
   `stored.size` doesn't deserialize, since it is a `u64`. Test:
   `d2_a_stored_size_that_isnt_a_whole_number_does_not_deserialize`.
+- `src/domain/bitcoin.ts` (`fiatValueShape`, behind `writeDraft`,
+  `validation`, the transfer commands and `assertBalanced`): "Enter the rate
+  as the price of one bitcoin, such as 65000.00." never fires for a rate
+  that isn't a string, "A fiat value must be zero or more, in whole minor
+  units." only for a negative amount, and "Choose where the fiat value came
+  from." is unreachable: a `FiatValue` with a numeric rate, a fractional
+  amount or an unknown source doesn't deserialize. Neither do fractional
+  `millisats`, so "Millisats must be a whole number greater than zero."
+  fires only for zero or less. Test:
+  `d2_a_fiat_value_or_millisats_that_cant_be_held_does_not_deserialize`.
 - `src/domain/ledger.ts:36` and `:52` (`parseMoney`, `sum`) and
   `src/domain/import.ts:311` (combined import amount) are ported as explicit
   range checks against `MAX_MINOR`, with the same messages.
@@ -280,6 +290,88 @@ currency)` is one row per `balances` row, with the account type and what
   repayment, so this month's spending is unchanged. Its existing transfer
   now carries the type `betweenAccounts` and a purpose.
 
+## B: Bitcoin design choices
+
+Choices [decision 0005](docs/decisions/0005-bitcoin-accounting.md) (phase 1)
+left open, made the same way in both languages and pinned by the `bitcoin`
+fixtures (`fixtures/parity/bitcoin.json`, recorded last so no earlier id
+shifts; every existing fixture is unchanged, checked by
+`scripts/check-fixture-renumbering.mjs`). Tests: `src/domain/bitcoin.test.ts`
+and `crates/ledger-core/tests/bitcoin.rs`, which hold the decision's merge
+gates in both languages.
+
+- **B1. A precision table.** `precision` (`Currency::precision`) gives 2
+  places for USD, EUR and GBP and 8 for BTC, whose minor unit is the sat.
+  `parseMoney(input, currency)` and `amountInput(n, currency)` take it, and
+  BTC amounts are typed in bitcoin ("0.00012345"). The two-place message is
+  unchanged; BTC's is "Use an amount with up to eight decimal places, such
+  as 0.00012345." `parseSats` reads whole sats ("Enter whole sats, such as
+  2100."). The existing range limit, `MAX_MINOR`, holds 90,071,992.54740991
+  BTC, more than the 21 million there will ever be. Fixtures recorded before
+  this name no currency, and the Rust replay reads them as USD. Fixtures:
+  `bitcoin/parseMoney *`, `bitcoin/parseSats *`, `bitcoin/amountInput *`.
+- **B2. BTC is a ledger currency, not a reporting one.** `currencies` gains
+  `BTC`; `fiatCurrencies` (`Currency::FIAT`) is the other three. A
+  business's own currency, and a fiat value's, is always fiat: genesis
+  refuses a BTC profile (`crates/protocol/src/apply.rs`), and the browser's
+  workspace check quarantines one. Rust would load one; nothing writes it.
+  The receipt extractor reads fiat only, as before, and the screens offer
+  fiat only until the screens PR.
+- **B3. A wallet is a bank account for bitcoin.** `wallet` must be in BTC
+  ("A wallet holds bitcoin. Choose BTC."), and a bank or card account can't
+  be ("Hold bitcoin in a wallet account."); a loan, equity or expense
+  account may be in any currency, so the owner can lend bitcoin and BTC
+  opening balances get their "Opening balances (BTC)" account. A wallet's
+  balance is debits minus credits, its opening balance is signed like a
+  bank's, it can pay an expense, and it can be either side of the transfer
+  types a bank can. Three messages predate wallets and stay as they were,
+  so no existing fixture changes: "Choose a bank or card account.",
+  "Opening balances are for bank, card and loan accounts." and the transfer
+  types' "… bank or card account …". Fixtures: `bitcoin/addAccount: *`,
+  `bitcoin/recordOpeningBalance: *`.
+- **B4. The fiat value.** `fiatValue` is `{ currency, amountMinor, rate,
+source, at }`. `rate` is the price of one bitcoin in `currency`, as a
+  decimal string (at most 12 digits each side of the point, more than zero)
+  so both languages read exactly what was written; a JSON number could
+  round differently. "Within one minor unit" means
+  |amount − sats × rate| ≤ 1 in the currency's minor unit, worked out in
+  integers (`BigInt`, `u128`). `at` is a day or a UTC time
+  (`YYYY-MM-DDTHH:MM[:SS[.sss]]Z`). It is required on every BTC journal
+  (expenses, transfers, opening balances, and reversals, which copy it) and
+  refused on any other. A draft may be saved without one, with only its
+  shape checked, and `validation` asks for it before approval, as for any
+  missing detail. `assertBalanced` is the backstop, with the generic
+  "Invalid journal fiat value." Fixtures: `bitcoin/recordTransfer: a fiat
+value *`, `bitcoin/validation: *`, `bitcoin/assertBalanced: *`.
+- **B5. An exchange is one journal in two currencies.** Its `currency` is
+  BTC; it has exactly two lines, a BTC wallet's in sats and a fiat bank or
+  card account's for the fiat value's `amountMinor`, in that account's
+  currency, in opposite directions. No clearing account: each side balances
+  in its own currency, through the recorded rate. Its fiat value's source
+  must be `exchange`, and its amount more than zero. The caller sends the
+  rate; `impliedRate` (a screen helper, to 12 places) always passes the
+  check. Like any transfer, it is corrected with `correctTransfer` by any
+  transfer other than an opening balance (O1's rule). `balances` counts it
+  in both currencies; the journal export lists it under either currency's
+  filter, each line in its own currency. Fixtures: `bitcoin/recordTransfer:
+an exchange *`, `bitcoin/correctTransfer: *`, `bitcoin/balances: *`,
+  `bitcoin/exportRecords: *`.
+- **B6. Millisats are kept beside the sats.** A draft, a transfer and its
+  journal may carry `millisats`, BTC only and more than zero. The caller
+  sends both amounts, and `amountMinor` must be the millisats rounded to the
+  nearest sat, half a sat rounding up (`satsFromMillisats`). Fixtures:
+  `bitcoin/satsFromMillisats *`, `bitcoin/recordTransfer: millisats *`.
+- **B7. Sats stay sats.** `totals` and `categoryTotals` report BTC in sats
+  under their own key. `recordedFiatSpending` is the "dollar value at time
+  of transaction": per fiat currency, the recorded fiat values of the
+  period's journals with spend lines (a reversal subtracting), so transfers
+  and exchanges never count. Fixtures: `bitcoin/totals: *`,
+  `bitcoin/recordedFiatSpending: *`, `bitcoin/categoryTotals: *`.
+- **B8. Imports read at the account's precision.** A CSV imported to a
+  wallet reads BTC amounts to 8 places, with the same comma rule. Its drafts
+  have no fiat value, so each needs one before it's approved. Fixture:
+  `bitcoin/previewImport: bitcoin payments into a wallet`.
+
 ## W: TypeScript behavior that looked wrong
 
 Each item was ported exactly and pinned by a parity fixture, then decided by
@@ -461,7 +553,9 @@ Fixture: `import/previewImport: combined amount exceeds the safe range`.
   which `approve` runs, and so `correct` for its replacement: the service
   judges a draft's readings when it posts it, as the browser does.
   Fixtures: `approve/readings: *`, `correct/readings: *`.
-- `money()` display formatting (uses `Intl`; a UI concern).
+- `money()` display formatting (uses `Intl`; a UI concern), including
+  bitcoin in sats or BTC, and `impliedRate`, which fills in an exchange's
+  rate on the screen.
 - The screen helpers at the end of `src/domain/transfers.ts`
   (`paymentAccounts`, `transferAccounts`, `openingBalance`,
   `openingBalanceReplacement`, `firstEntryDate`, and the label maps' use on

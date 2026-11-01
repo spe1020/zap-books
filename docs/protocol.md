@@ -226,15 +226,17 @@ Records use `ledger-core`'s JSON shapes (`src/domain/types.ts`).
 | `Suggest`              | `suggestion`: `draftId`, `author`, `categoryId`, `purpose`, `note` (each optional), `evidence`          | `suggest`                     |
 | `RecordTransfer`       | `transfer` (see Transfers)                                                                              | `record_transfer`             |
 | `CorrectTransfer`      | `originalId`, `replacement` (a `transfer`), `reason`                                                    | `correct_transfer`            |
-| `RecordOpeningBalance` | `openingBalance`: `accountId`, `date`, `amountMinor`, `reference` (optional)                            | `record_opening_balance`      |
+| `RecordOpeningBalance` | `openingBalance`: `accountId`, `date`, `amountMinor`, `reference` and `fiatValue` (each optional)       | `record_opening_balance`      |
 
 `update_settings` and `save_rule` port `src/domain/settings.ts`, which holds
 the Settings screen's rules: names unique within their list ignoring case,
 a new category with its own expense account under the same name (renamed
 with it, and free among the accounts too), and a saved rule moving to the
 end of the list. `addAccount` takes a `kind` of `bank`, `card`,
-`liability` (money the business owes, such as a loan from the owner) or
-`equity` (the owner's stake). Any of these four can pay an expense.
+`liability` (money the business owes, such as a loan from the owner),
+`equity` (the owner's stake) or `wallet` (bitcoin, see Bitcoin). Any of
+these can pay an expense. A wallet is always in BTC, and a bank or card
+account never is.
 
 ### Transfers
 
@@ -289,6 +291,59 @@ end of the list. `addAccount` takes a `kind` of `bank`, `card`,
 
 Document ids must name documents the business already has; these commands
 attach no new files.
+
+### Bitcoin
+
+[Decision 0005](decisions/0005-bitcoin-accounting.md), phase 1. The
+currency `BTC` is recorded in sats, its minor unit (8 decimal places; 1 BTC
+= 100,000,000 sats), and a `wallet` account holds it. A business still
+reports in USD, EUR or GBP: genesis refuses a BTC profile, and a wallet in
+another currency or a bank or card account in BTC.
+
+- **Every BTC journal carries a `fiatValue`**, and no other journal does:
+  a BTC expense draft (`draft.fiatValue`, required to approve), a BTC
+  transfer, and an opening balance on a BTC account
+  (`openingBalance.fiatValue`). Reversals copy their original's.
+
+  ```json
+  {
+    "currency": "USD",
+    "amountMinor": 6000,
+    "rate": "60000.00",
+    "source": "manual",
+    "at": "2027-01-15"
+  }
+  ```
+
+  `currency` is the reporting currency, `amountMinor` the value in its
+  minor units, and `rate` the price of one bitcoin in it, as a decimal
+  string of at most 12 digits on each side of the point. `source` is
+  `manual`, `price-series` or `exchange`; `at` is the day, or a UTC time
+  (`2027-01-15T14:30Z`, with optional seconds and milliseconds), the value
+  applies to. `ledger-core` checks the shape and that `amountMinor` is the
+  sats times the rate within one minor unit. The value is data a person
+  entered or confirmed: nothing in `ledger-core` or the service looks up a
+  price.
+
+- **An `exchange` transfer** buys or sells bitcoin. Its `currency` is
+  `BTC` and `amountMinor` the sats; one account is a BTC wallet and the
+  other a USD, EUR or GBP bank or card account; its `fiatValue` has the
+  source `exchange`, the fiat account's currency, and the fiat amount,
+  which must be more than zero. The journal debits the to-account and
+  credits the from-account, each in its own currency: the wallet's line
+  in sats, the other for the fiat amount. It is the only journal in two
+  currencies, never counts as spending, and is corrected with
+  `CorrectTransfer` like any transfer.
+- **Lightning amounts** may carry `millisats` (a draft's, a transfer's):
+  the amount as paid, kept on the journal. `amountMinor` must be it rounded
+  to the nearest sat, half a sat rounding up.
+- **Queries never combine currencies.** `balances` and `totals` give BTC
+  in sats; an exchange moves both of its accounts. The "dollar value at
+  time of transaction" of spending (`recorded_fiat_spending`) adds up the
+  recorded fiat values of bitcoin expenses only.
+
+These are record fields, so they need no new command and change no
+permission.
 
 Every command is applied by one function, `protocol::apply_command`, which
 the service runs and auditors re-run:
