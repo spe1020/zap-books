@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import App from "./App";
+import { ReceiptFiles } from "./components/Review";
+import type { SourceDocument } from "./domain/types";
 import { CreateBusiness } from "./components/CreateBusiness";
 import { RecoveryMode } from "./components/RecoveryMode";
 import { npub, peopleTools, type RemoteLedgerClient } from "./remote";
@@ -14,6 +16,10 @@ export default function RemoteWorkspace({
   client: RemoteLedgerClient;
   onSignOut: () => void;
 }) {
+  const receiptFile = useCallback(
+    (d: SourceDocument) => client.receiptFile(d.businessId, d),
+    [client],
+  );
   const hasBooks = () => client.workspace().businesses.length > 0;
   const [screen, setScreen] = useState<Screen>(() =>
     hasBooks() ? "books" : client.guarded.length ? "recovery" : "create",
@@ -60,16 +66,18 @@ export default function RemoteWorkspace({
       />
     );
   return (
-    <App
-      key={client.signer.pubkey}
-      remote={client}
-      remoteNpub={npub(client.signer.pubkey)}
-      peopleTools={(business) => peopleTools(client, business)}
-      onSignOut={onSignOut}
-      onNewBusiness={() => setScreen("create")}
-      onRecoveryMode={
-        client.guarded.length ? () => setScreen("recovery") : undefined
-      }
-    />
+    <ReceiptFiles.Provider value={receiptFile}>
+      <App
+        key={client.signer.pubkey}
+        remote={client}
+        remoteNpub={npub(client.signer.pubkey)}
+        peopleTools={(business) => peopleTools(client, business)}
+        onSignOut={onSignOut}
+        onNewBusiness={() => setScreen("create")}
+        onRecoveryMode={
+          client.guarded.length ? () => setScreen("recovery") : undefined
+        }
+      />
+    </ReceiptFiles.Provider>
   );
 }

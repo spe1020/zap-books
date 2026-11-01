@@ -1,7 +1,7 @@
 /**
  * The protocol command each `LedgerCommand` becomes (`docs/protocol.md`,
- * Commands). Receipt files stay in the browser: proposals carry only each
- * document's id and SHA-256.
+ * Commands). Proposals never carry a receipt file: only each document's id
+ * and SHA-256 and, once it is encrypted, its `stored` copy (`receipts.ts`).
  */
 import type { BusinessData, SourceDocument } from "../domain/types";
 import { recordExtraction } from "../domain/extraction";
@@ -38,6 +38,7 @@ const reference = (d: SourceDocument) => {
     name: d.name,
     mime: d.mime,
     size: d.size,
+    ...(d.stored && { stored: d.stored }),
   };
 };
 

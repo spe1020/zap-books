@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   Check,
   CheckCircle2,
@@ -49,19 +49,50 @@ export type Mutation = (
   commands: LedgerCommand[],
   message: string,
 ) => Promise<boolean>;
+/**
+ * Gets a receipt's file when this browser doesn't hold it: on the ledger
+ * service, the stored copy, downloaded, decrypted and checked. Absent in
+ * the local demo.
+ */
+export const ReceiptFiles = createContext<
+  ((document: SourceDocument) => Promise<Blob>) | undefined
+>(undefined);
 export function DocumentPreview({ document }: { document?: SourceDocument }) {
   const [url, setUrl] = useState("");
   const [failedUrl, setFailedUrl] = useState("");
+  const fetchFile = useContext(ReceiptFiles);
+  const [fetched, setFetched] = useState<{ id: string; blob: Blob }>();
+  const [fetchError, setFetchError] = useState<{
+    id: string;
+    message: string;
+  }>();
+  const stored = !document?.blob && !!document?.stored && !!fetchFile;
   useEffect(() => {
-    if (!document?.blob) {
+    if (!stored || !document || !fetchFile || fetched?.id === document.id)
+      return;
+    let current = true;
+    fetchFile(document).then(
+      (blob) => current && setFetched({ id: document.id, blob }),
+      (e: Error) =>
+        current && setFetchError({ id: document.id, message: e.message }),
+    );
+    return () => {
+      current = false;
+    };
+  }, [stored, document, fetchFile, fetched]);
+  const file =
+    document?.blob ??
+    (fetched && fetched.id === document?.id ? fetched.blob : undefined);
+  useEffect(() => {
+    if (!file) {
       setUrl("");
       return;
     }
     // Create and revoke in the same effect, including React StrictMode remounts.
-    const next = URL.createObjectURL(document.blob);
+    const next = URL.createObjectURL(file);
     setUrl(next);
     return () => URL.revokeObjectURL(next);
-  }, [document]);
+  }, [file]);
   if (!document)
     return (
       <div className="document-empty">
@@ -76,8 +107,27 @@ export function DocumentPreview({ document }: { document?: SourceDocument }) {
         </p>
       </div>
     );
-  // On the ledger service, a receipt stays in the browser that attached it.
-  if (!document.blob)
+  if (stored && !file) {
+    const failed = fetchError?.id === document.id ? fetchError.message : "";
+    return failed ? (
+      <div className="document-empty elsewhere">
+        <div className="paper-icon">
+          <FileText size={36} strokeWidth={1.3} />
+        </div>
+        <h3>This receipt can't be shown</h3>
+        <p role="alert" className="alert error">
+          {failed}
+        </p>
+      </div>
+    ) : (
+      <p className="document-caption" role="status">
+        Downloading receipt…
+      </p>
+    );
+  }
+  // Attached before receipt storage, on the ledger service: the file is
+  // only in the browser that attached it.
+  if (!file)
     return (
       <div className="document-empty elsewhere">
         <div className="paper-icon">

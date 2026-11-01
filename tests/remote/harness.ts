@@ -219,6 +219,7 @@ export function openWith(event: Event, business: string, secret: string) {
 
 interface Snapshot {
   accounts: { id: string; kind: string; currency: string }[];
+  documents: { id: string; stored?: { hash: string } }[];
   categories: { id: string; accountId: string }[];
   drafts: { id: string; status: string }[];
 }

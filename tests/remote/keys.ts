@@ -48,3 +48,5 @@ export const SERVICE_URL = `http://127.0.0.1:${SERVICE_PORT}`;
 export const APP_URL = `http://127.0.0.1:${APP_PORT}`;
 /** The test service's clock offset, in milliseconds (tests/remote/clock.ts). */
 export const CLOCK_FILE = join(tmpdir(), `zapbooks-e2e-clock-${SERVICE_PORT}`);
+/** The test service's blob store, emptied when it starts. */
+export const BLOB_DIR = join(tmpdir(), `zapbooks-e2e-blobs-${SERVICE_PORT}`);

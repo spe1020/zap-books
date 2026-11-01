@@ -126,7 +126,7 @@ test("screens", async ({ browser }) => {
     page.getByRole("button", { name: /Sync status: Synced/ }),
   ).toBeVisible();
 
-  // A second member sees the receipt as attached on another device.
+  // A second member's browser downloads and shows the stored receipt.
   const member = freshKey();
   await addMember(owner, await openBusiness(page), member);
   const other = await browser.newContext({ viewport });
@@ -140,9 +140,9 @@ test("screens", async ({ browser }) => {
     .getByRole("button", { name: "View Kiln Supply Depot", exact: true })
     .click();
   await expect(
-    second.getByText("This receipt was attached on another device"),
+    second.getByRole("img", { name: /Receipt evidence/ }),
   ).toBeVisible();
-  await shot(second, "receipt-on-another-device");
+  await shot(second, "receipt-from-the-service");
   await other.close();
 
   // A tampered acceptance: sync stops with the error.
