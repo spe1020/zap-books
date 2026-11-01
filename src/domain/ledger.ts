@@ -2,6 +2,7 @@ import type {
   BusinessData,
   Currency,
   ExpenseDraft,
+  FiatCurrency,
   FinancialEvent,
   EventType,
   ImportedExpenseSource,
@@ -10,8 +11,15 @@ import type {
   LedgerCommands,
   LedgerQueries,
 } from "./types";
-import { currencies } from "./types";
+import { currencies, precision } from "./types";
 import { finalizeExtractions } from "./extraction";
+import {
+  fiatValueError,
+  fiatValueOf,
+  fiatValueShape,
+  millisatsError,
+  fiatValueMatches,
+} from "./bitcoin";
 export const id = () => crypto.randomUUID();
 export const now = () => new Date().toISOString();
 /** The user's local calendar date as `YYYY-MM-DD`. Timestamps stay UTC. */
@@ -21,25 +29,76 @@ export function today() {
   return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 export const currentPeriod = () => today().slice(0, 7);
-export function money(value: number, currency: Currency) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
-    value / 100,
-  );
+/** How a bitcoin amount is shown: sats, the default, or BTC. */
+export type BitcoinUnit = "sats" | "BTC";
+/**
+ * An amount for display. Fiat uses the currency's own format; bitcoin shows
+ * whole sats ("2,100 sats"), or BTC to eight places ("0.00002100 BTC").
+ */
+export function money(
+  value: number,
+  currency: Currency,
+  unit: BitcoinUnit = "sats",
+) {
+  if (currency !== "BTC")
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+    }).format(value / 100);
+  if (unit === "sats")
+    return `${new Intl.NumberFormat("en-US").format(value)} ${Math.abs(value) === 1 ? "sat" : "sats"}`;
+  const [whole, fraction] = amountInput(value, "BTC").split(".");
+  return `${whole.replace(/\B(?=(\d{3})+$)/g, ",")}.${fraction} BTC`;
 }
-export function parseMoney(input: string): number {
+const placeNames = [
+  "no",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+];
+/** The message for an amount `parseMoney` can't read in `currency`. */
+const amountFormat = (currency: Currency) =>
+  currency === "BTC"
+    ? "Use an amount with up to eight decimal places, such as 0.00012345."
+    : `Use an amount with up to ${placeNames[precision[currency]]} decimal places, such as 42.50.`;
+/**
+ * Parses an amount typed in `currency`'s major unit (dollars, or bitcoin)
+ * into exact minor units (cents, or sats), with up to the currency's number
+ * of decimal places.
+ */
+export function parseMoney(input: string, currency: Currency): number {
+  const places = precision[currency];
   const s = input.trim();
-  if (!/^-?\d+(\.\d{1,2})?$/.test(s))
-    throw new Error(
-      "Use an amount with up to two decimal places, such as 42.50.",
-    );
+  if (!new RegExp(`^-?\\d+(\\.\\d{1,${places}})?$`).test(s))
+    throw new Error(amountFormat(currency));
   const negative = s.startsWith("-");
-  const [whole, cents = ""] = s.replace("-", "").split(".");
-  const value = Number(whole) * 100 + Number(cents.padEnd(2, "0"));
+  const [whole, fraction = ""] = s.replace("-", "").split(".");
+  const value =
+    Number(whole) * 10 ** places + Number(fraction.padEnd(places, "0"));
   if (!Number.isSafeInteger(value)) throw new Error("Amount is too large.");
   return negative ? -value : value;
 }
-export const amountInput = (n: number) =>
-  `${n < 0 ? "-" : ""}${Math.floor(Math.abs(n) / 100)}.${String(Math.abs(n) % 100).padStart(2, "0")}`;
+/** Parses a whole number of sats, such as 2100. */
+export function parseSats(input: string): number {
+  const s = input.trim();
+  if (!/^-?\d+$/.test(s)) throw new Error("Enter whole sats, such as 2100.");
+  const value = Number(s);
+  if (!Number.isSafeInteger(value)) throw new Error("Amount is too large.");
+  return value;
+}
+/** Minor units as an amount in the major unit, to `currency`'s places. */
+export function amountInput(n: number, currency: Currency) {
+  const places = precision[currency];
+  const unit = 10 ** places;
+  const abs = Math.abs(n);
+  const fraction = abs % unit;
+  return `${n < 0 ? "-" : ""}${(abs - fraction) / unit}.${String(fraction).padStart(places, "0")}`;
+}
 /** A real `YYYY-MM-DD` calendar day in 1900 or later. */
 export function validDate(date: string) {
   return (
@@ -121,6 +180,11 @@ export function missingDetails(b: BusinessData, d: ExpenseDraft): string[] {
         "Expense must match its imported payment amount, date, currency, and account.",
       );
   }
+  for (const error of [
+    fiatValueError(d.currency, d.amountMinor, d.fiatValue),
+    millisatsError(d.currency, d.amountMinor, d.millisats),
+  ])
+    if (error) errors.push(error);
   return errors;
 }
 export function validation(b: BusinessData, d: ExpenseDraft) {
@@ -137,6 +201,7 @@ export function assertBalanced(b: BusinessData, entry: JournalEntry) {
     entry.lines.length < 2
   )
     throw new Error("Invalid journal context.");
+  if (entry.transferType === "exchange") return assertExchange(b, entry);
   let debit = 0,
     credit = 0;
   for (const line of entry.lines) {
@@ -174,6 +239,57 @@ export function assertBalanced(b: BusinessData, entry: JournalEntry) {
   }
   if (debit !== credit || debit <= 0)
     throw new Error("Journal entry must balance.");
+  // A BTC journal's sats are its total; it carries its fiat value at the
+  // time, and no other journal carries one.
+  if (fiatValueError(entry.currency, debit, entry.fiatValue))
+    throw new Error("Invalid journal fiat value.");
+  if (millisatsError(entry.currency, debit, entry.millisats))
+    throw new Error("Invalid journal amounts.");
+}
+/**
+ * An exchange is the one journal where two currencies meet: a BTC wallet's
+ * line in sats, and a fiat bank or card account's line in its own currency,
+ * for exactly the fiat value's amount, the two in opposite directions. Each
+ * side balances in its own currency through the recorded rate.
+ */
+function assertExchange(b: BusinessData, entry: JournalEntry) {
+  const value = entry.fiatValue;
+  if (entry.currency !== "BTC" || entry.lines.length !== 2)
+    throw new Error("Invalid journal context.");
+  if (!value || fiatValueShape(value) || value.source !== "exchange")
+    throw new Error("Invalid journal fiat value.");
+  const sides = entry.lines.map((line) => {
+    const account = b.accounts.find(
+      (x) => x.id === line.accountId && x.businessId === entry.businessId,
+    );
+    const btc = account?.kind === "wallet" && account.currency === "BTC";
+    const fiat =
+      (account?.kind === "bank" || account?.kind === "card") &&
+      account.currency === value.currency;
+    if (!btc && !fiat) throw new Error("Invalid journal account or currency.");
+    if (
+      ![line.debit, line.credit].every(
+        (x) => Number.isSafeInteger(x) && x >= 0,
+      ) ||
+      (line.debit > 0 && line.credit > 0)
+    )
+      throw new Error("Invalid journal amounts.");
+    if (line.categoryId) throw new Error("Invalid journal category.");
+    return { btc, line };
+  });
+  const btc = sides.find((x) => x.btc)?.line;
+  const fiat = sides.find((x) => !x.btc)?.line;
+  if (!btc || !fiat) throw new Error("Invalid journal account or currency.");
+  const sats = btc.debit + btc.credit;
+  if (
+    !(btc.debit > 0 ? fiat.credit > 0 : btc.credit > 0 && fiat.debit > 0) ||
+    fiat.debit + fiat.credit !== value.amountMinor
+  )
+    throw new Error("Journal entry must balance.");
+  if (!fiatValueMatches(sats, value))
+    throw new Error("Invalid journal fiat value.");
+  if (millisatsError(entry.currency, sats, entry.millisats))
+    throw new Error("Invalid journal amounts.");
 }
 export function event(
   b: BusinessData,
@@ -290,6 +406,12 @@ export function writeDraft(
     throw new Error("Choose a supported currency.");
   if (!Number.isSafeInteger(draft.amountMinor))
     throw new Error("Amount must be in whole minor units.");
+  if (draft.fiatValue !== undefined) {
+    const error = fiatValueShape(draft.fiatValue);
+    if (error) throw new Error(error);
+  }
+  if (draft.millisats !== undefined && !Number.isSafeInteger(draft.millisats))
+    throw new Error("Millisats must be a whole number greater than zero.");
   if (
     draft.documentIds.some(
       (docId) =>
@@ -369,6 +491,9 @@ function storedDraft(
     duplicateReason: draft.duplicateReason,
     createdAt: draft.createdAt,
   };
+  if (draft.fiatValue !== undefined)
+    stored.fiatValue = fiatValueOf(draft.fiatValue);
+  if (draft.millisats !== undefined) stored.millisats = draft.millisats;
   if (authority.paymentId !== undefined) stored.paymentId = authority.paymentId;
   if (authority.importSource !== undefined)
     stored.importSource = structuredClone(authority.importSource);
@@ -445,6 +570,8 @@ export function approve(
     memo: `${d.vendor} · ${d.description}`,
     createdAt: now(),
   };
+  if (d.fiatValue) journal.fiatValue = fiatValueOf(d.fiatValue);
+  if (d.millisats !== undefined) journal.millisats = d.millisats;
   assertBalanced(b, journal);
   b.journals.push(journal);
   d.status = "posted";
@@ -577,8 +704,39 @@ export function totals(
           );
   return result;
 }
+/**
+ * Spending's "dollar value at time of transaction": for each reporting
+ * currency, the recorded fiat values of the period's bitcoin expenses, a
+ * reversal subtracting its original's. Built only from what was recorded,
+ * never a price, and never added to `totals`, which keeps sats as sats.
+ */
+export function recordedFiatSpending(
+  b: BusinessData,
+  period: string,
+): Partial<Record<FiatCurrency, number>> {
+  const result: Partial<Record<FiatCurrency, number>> = {};
+  for (const j of b.journals) {
+    if (
+      j.businessId !== b.profile.id ||
+      !j.date.startsWith(period) ||
+      !j.fiatValue
+    )
+      continue;
+    let spend = 0;
+    for (const line of j.lines)
+      if (line.categoryId) spend = sum(spend, line.debit - line.credit);
+    if (spend === 0) continue;
+    const c = j.fiatValue.currency;
+    result[c] = sum(
+      result[c] ?? 0,
+      spend > 0 ? j.fiatValue.amountMinor : -j.fiatValue.amountMinor,
+    );
+  }
+  return result;
+}
 export const ledger: LedgerCommands & LedgerQueries = {
   approve,
   correct,
   totals,
+  recordedFiatSpending,
 };

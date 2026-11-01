@@ -1,5 +1,6 @@
 import type { BusinessData, Currency } from "./types";
 import { amountInput, validDate } from "./ledger";
+import { lineCurrency } from "./bitcoin";
 import {
   accountKindLabels,
   balanceMeanings,
@@ -100,7 +101,7 @@ export function exportRecords(
           d.date,
           d.vendor,
           d.description,
-          amountInput(d.amountMinor),
+          amountInput(d.amountMinor, d.currency),
           d.currency,
           category(d.categoryId),
           account(d.accountId),
@@ -139,8 +140,14 @@ export function exportRecords(
       "Corrects journal ID",
     ];
     rows = b.journals
+      // An exchange is in both of its currencies.
       .filter(
-        (j) => j.businessId === b.profile.id && inRange(j.date, j.currency),
+        (j) =>
+          j.businessId === b.profile.id &&
+          (inRange(j.date, j.currency) ||
+            (j.transferType === "exchange" &&
+              !!j.fiatValue &&
+              inRange(j.date, j.fiatValue.currency))),
       )
       .sort(
         (a, z) =>
@@ -148,27 +155,30 @@ export function exportRecords(
           a.createdAt.localeCompare(z.createdAt),
       )
       .flatMap((j) =>
-        j.lines.map((l) => [
-          b.profile.id,
-          b.profile.name,
-          j.id,
-          j.date,
-          j.kind,
-          j.expenseId ?? "",
-          j.reversesId ?? "",
-          l.accountId,
-          account(l.accountId),
-          category(l.categoryId),
-          amountInput(l.debit),
-          amountInput(l.credit),
-          j.currency,
-          j.memo,
-          j.createdAt,
-          j.transferType ? transferTypeLabels[j.transferType] : "",
-          j.purpose ?? "",
-          j.reference ?? "",
-          j.correctionOf ?? "",
-        ]),
+        j.lines.map((l) => {
+          const currency = lineCurrency(j, accountOf(l.accountId)?.kind);
+          return [
+            b.profile.id,
+            b.profile.name,
+            j.id,
+            j.date,
+            j.kind,
+            j.expenseId ?? "",
+            j.reversesId ?? "",
+            l.accountId,
+            account(l.accountId),
+            category(l.categoryId),
+            amountInput(l.debit, currency),
+            amountInput(l.credit, currency),
+            currency,
+            j.memo,
+            j.createdAt,
+            j.transferType ? transferTypeLabels[j.transferType] : "",
+            j.purpose ?? "",
+            j.reference ?? "",
+            j.correctionOf ?? "",
+          ];
+        }),
       );
   }
   return {
@@ -213,7 +223,7 @@ export function exportBalances(
     r.accountId,
     r.name,
     accountKindLabels[r.kind],
-    amountInput(r.balance),
+    amountInput(r.balance, currency),
     currency,
     balanceMeanings[r.kind as keyof typeof balanceMeanings],
   ]);

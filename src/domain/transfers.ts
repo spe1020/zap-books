@@ -3,11 +3,13 @@ import type {
   AccountKind,
   BusinessData,
   Currency,
+  FiatValue,
   JournalEntry,
   TransferType,
 } from "./types";
-import { currencies } from "./types";
+import { currencies, fiatCurrencies } from "./types";
 import { assertBalanced, event, id, now, sum, validDate } from "./ledger";
+import { fiatValueError, fiatValueOf, millisatsError } from "./bitcoin";
 
 /**
  * Money moving between two of the business's own non-expense accounts: a
@@ -15,6 +17,11 @@ import { assertBalanced, event, id, now, sum, validDate } from "./ledger";
  * between bank and card accounts. `openingBalance` is refused here; it comes
  * from `recordOpeningBalance`, and only a correction of an opening balance
  * passes it back in.
+ *
+ * An `exchange` buys or sells bitcoin: `currency` is BTC and `amountMinor`
+ * the sats, one account is a BTC wallet and the other a fiat bank or card
+ * account, and `fiatValue` (source `exchange`) holds the fiat side's amount
+ * and the rate it implies.
  */
 export interface TransferInput {
   date: string;
@@ -27,6 +34,10 @@ export interface TransferInput {
   purpose: string;
   reference?: string;
   documentIds?: string[];
+  /** Required in BTC, refused otherwise. */
+  fiatValue?: FiatValue;
+  /** A Lightning amount as paid; `amountMinor` is it rounded to sats. */
+  millisats?: number;
 }
 
 /**
@@ -40,6 +51,8 @@ export interface OpeningBalanceInput {
   date: string;
   amountMinor: number;
   reference?: string;
+  /** Required for a BTC account, refused otherwise. */
+  fiatValue?: FiatValue;
 }
 
 /** One row of `balances`. */
@@ -50,7 +63,13 @@ export interface Balance {
   balance: number;
 }
 
-const paying = (k: AccountKind) => k === "bank" || k === "card";
+const paying = (k: AccountKind) =>
+  k === "bank" || k === "card" || k === "wallet";
+/** Accounts whose balance is debits minus credits: money held. */
+const holding = (k: AccountKind) => k === "bank" || k === "wallet";
+/** The accounts opening balances are for. */
+const openable = (k: AccountKind) =>
+  k === "bank" || k === "card" || k === "liability" || k === "wallet";
 
 /** What each transfer type is called on screens and in exports. */
 export const transferTypeLabels: Record<TransferType, string> = {
@@ -60,6 +79,7 @@ export const transferTypeLabels: Record<TransferType, string> = {
   ownerDraw: "Owner draw",
   betweenAccounts: "Transfer between accounts",
   openingBalance: "Opening balance",
+  exchange: "Exchange",
 };
 
 /** What each account kind is called on screens and in exports. */
@@ -69,6 +89,7 @@ export const accountKindLabels: Record<AccountKind, string> = {
   liability: "Loan",
   equity: "Owner equity",
   expense: "Expense",
+  wallet: "Bitcoin wallet",
 };
 
 /**
@@ -84,11 +105,12 @@ export const balanceMeanings: Record<
   card: "Owed",
   liability: "Owed to owner",
   equity: "Owner's stake",
+  wallet: "Held",
 };
 
 /** Which accounts each transfer type moves money between, and its message. */
 const shapes: Record<
-  Exclude<TransferType, "openingBalance">,
+  Exclude<TransferType, "openingBalance" | "exchange">,
   {
     label: string;
     from: (k: AccountKind) => boolean;
@@ -180,6 +202,8 @@ function post(
   const to = find(input.toAccountId);
   if (!from || !to) throw new Error("Choose accounts in this business.");
   if (from.id === to.id) throw new Error("Choose two different accounts.");
+  if (input.transferType === "exchange")
+    return postExchange(b, input, from, to, correctionOf);
   if (from.currency !== input.currency || to.currency !== input.currency)
     throw new Error("Both accounts must be in the transfer's currency.");
   let label: string;
@@ -193,6 +217,73 @@ function post(
       throw new Error(shape.message);
     label = shape.label;
   }
+  const valueError =
+    fiatValueError(input.currency, input.amountMinor, input.fiatValue) ??
+    millisatsError(input.currency, input.amountMinor, input.millisats);
+  if (valueError) throw new Error(valueError);
+  return append(b, input, from, to, label, correctionOf, [
+    { accountId: to.id, debit: input.amountMinor, credit: 0 },
+    { accountId: from.id, debit: 0, credit: input.amountMinor },
+  ]);
+}
+
+/**
+ * Buying or selling bitcoin: sats into or out of a BTC wallet, against a
+ * fiat bank or card account for the fiat value's amount.
+ */
+function postExchange(
+  b: BusinessData,
+  input: TransferInput,
+  from: Account,
+  to: Account,
+  correctionOf: string | undefined,
+): JournalEntry {
+  if (input.currency !== "BTC")
+    throw new Error(
+      "An exchange is recorded in sats, with its other side as the fiat value.",
+    );
+  const wallet = (a: Account) => a.kind === "wallet" && a.currency === "BTC";
+  const fiat = (a: Account) =>
+    (a.kind === "bank" || a.kind === "card") &&
+    (fiatCurrencies as Currency[]).includes(a.currency);
+  if (!((wallet(from) && fiat(to)) || (fiat(from) && wallet(to))))
+    throw new Error(
+      "An exchange moves money between a bitcoin wallet and a dollar, euro or pound bank or card account.",
+    );
+  const valueError =
+    fiatValueError(input.currency, input.amountMinor, input.fiatValue) ??
+    millisatsError(input.currency, input.amountMinor, input.millisats);
+  if (valueError) throw new Error(valueError);
+  const value = input.fiatValue!;
+  const fiatAccount = wallet(from) ? to : from;
+  if (value.source !== "exchange")
+    throw new Error(
+      "An exchange records its fiat value with the source exchange.",
+    );
+  if (value.currency !== fiatAccount.currency)
+    throw new Error(
+      "An exchange's fiat value is in the currency of its dollar, euro or pound account.",
+    );
+  if (value.amountMinor <= 0)
+    throw new Error("An exchange needs a fiat amount greater than zero.");
+  const amount = (a: Account) =>
+    a === fiatAccount ? value.amountMinor : input.amountMinor;
+  return append(b, input, from, to, "Exchange", correctionOf, [
+    { accountId: to.id, debit: amount(to), credit: 0 },
+    { accountId: from.id, debit: 0, credit: amount(from) },
+  ]);
+}
+
+/** Checks the receipts, builds the transfer's journal and appends it. */
+function append(
+  b: BusinessData,
+  input: TransferInput,
+  from: Account,
+  to: Account,
+  label: string,
+  correctionOf: string | undefined,
+  lines: JournalEntry["lines"],
+): JournalEntry {
   const documentIds = input.documentIds ?? [];
   if (
     documentIds.some(
@@ -208,10 +299,7 @@ function post(
     businessId: b.profile.id,
     date: input.date,
     currency: input.currency,
-    lines: [
-      { accountId: to.id, debit: input.amountMinor, credit: 0 },
-      { accountId: from.id, debit: 0, credit: input.amountMinor },
-    ],
+    lines,
     kind: "transfer",
     memo: `${from.name} → ${to.name}`,
     createdAt: now(),
@@ -222,6 +310,8 @@ function post(
   if (reference) journal.reference = reference;
   if (documentIds.length) journal.documentIds = [...documentIds];
   if (correctionOf !== undefined) journal.correctionOf = correctionOf;
+  if (input.fiatValue) journal.fiatValue = fiatValueOf(input.fiatValue);
+  if (input.millisats !== undefined) journal.millisats = input.millisats;
   assertBalanced(b, journal);
   b.journals.push(journal);
   event(b, "transfer.recorded", journal.id, `${label} recorded`, [
@@ -245,7 +335,8 @@ function checkOpeningBalance(
   const equity = (a: Account) =>
     a.kind === "equity" && a.name.toLowerCase() === name;
   const account = equity(from) ? to : equity(to) ? from : undefined;
-  if (!account || !["bank", "card", "liability"].includes(account.kind))
+  // The message predates wallets, which may also take one.
+  if (!account || !openable(account.kind))
     throw new Error("Opening balances are for bank, card and loan accounts.");
   if (openingBalanceOf(b, account.id))
     throw new Error(
@@ -346,14 +437,14 @@ export function recordOpeningBalance(
     (a) => a.id === input.accountId && a.businessId === b.profile.id,
   );
   if (!account) throw new Error("Choose an account in this business.");
-  if (!["bank", "card", "liability"].includes(account.kind))
+  if (!openable(account.kind))
     throw new Error("Opening balances are for bank, card and loan accounts.");
   if (!Number.isSafeInteger(input.amountMinor) || input.amountMinor === 0)
     throw new Error("Enter an opening balance other than zero.");
   const equity = openingBalancesAccount(b, account.currency);
-  // A bank account's balance is a debit; what's owed on a card or loan is
-  // a credit.
-  const debit = (account.kind === "bank") === input.amountMinor > 0;
+  // A bank account's or wallet's balance is a debit; what's owed on a card
+  // or loan is a credit.
+  const debit = holding(account.kind) === input.amountMinor > 0;
   post(b, {
     date: input.date,
     amountMinor: Math.abs(input.amountMinor),
@@ -363,6 +454,7 @@ export function recordOpeningBalance(
     transferType: "openingBalance",
     purpose: "Opening balance",
     ...(input.reference !== undefined && { reference: input.reference }),
+    ...(input.fiatValue !== undefined && { fiatValue: input.fiatValue }),
   });
   return b;
 }
@@ -397,8 +489,9 @@ function openingBalancesAccount(b: BusinessData, currency: Currency) {
 /**
  * Every non-expense account in `currency` with its balance on `asOf`, from
  * posted journals dated on or before it: debits minus credits for bank
- * accounts, and credits minus debits for card, loan and equity accounts, so
- * a card's balance is what's owed on it.
+ * accounts and wallets, and credits minus debits for card, loan and equity
+ * accounts, so a card's balance is what's owed on it. BTC balances are in
+ * sats. An exchange moves both of its accounts, each in its own currency.
  * Reversals offset their originals. Currencies are never combined.
  */
 export function balances(
@@ -418,16 +511,18 @@ export function balances(
   for (const j of b.journals)
     if (
       j.businessId === b.profile.id &&
-      j.currency === currency &&
+      (j.currency === currency ||
+        (j.transferType === "exchange" &&
+          j.fiatValue?.currency === currency)) &&
       j.date <= asOf
     )
+      // Only lines on accounts in `currency` find a row.
       for (const line of j.lines) {
         const row = rows.find((r) => r.accountId === line.accountId);
         if (!row) continue;
-        const delta =
-          row.kind === "bank"
-            ? line.debit - line.credit
-            : line.credit - line.debit;
+        const delta = holding(row.kind)
+          ? line.debit - line.credit
+          : line.credit - line.debit;
         row.balance = sum(row.balance, delta);
       }
   return rows;
@@ -502,7 +597,7 @@ export function openingBalance(b: BusinessData, accountId: string) {
   if (!journal || !account) return undefined;
   const line = journal.lines.find((l) => l.accountId === accountId)!;
   const debit = line.debit - line.credit;
-  return { journal, amountMinor: account.kind === "bank" ? debit : -debit };
+  return { journal, amountMinor: holding(account.kind) ? debit : -debit };
 }
 
 /**
@@ -520,7 +615,7 @@ export function openingBalanceReplacement(
   const equity = current.journal.lines.find(
     (l) => l.accountId !== input.accountId,
   )!.accountId;
-  const debit = (account.kind === "bank") === input.amountMinor > 0;
+  const debit = holding(account.kind) === input.amountMinor > 0;
   return {
     date: input.date,
     amountMinor: Math.abs(input.amountMinor),
@@ -530,6 +625,7 @@ export function openingBalanceReplacement(
     transferType: "openingBalance",
     purpose: "Opening balance",
     ...(input.reference !== undefined && { reference: input.reference }),
+    ...(input.fiatValue !== undefined && { fiatValue: input.fiatValue }),
   };
 }
 

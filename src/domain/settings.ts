@@ -1,6 +1,7 @@
 import type { BusinessData, ClassificationRule, Currency } from "./types";
 import { currencies } from "./types";
 import { event, id } from "./ledger";
+import { accountCurrencyError } from "./bitcoin";
 
 /** One edit from the Settings screen. New records get generated ids. */
 export type SettingsChange =
@@ -8,7 +9,7 @@ export type SettingsChange =
   | {
       op: "addAccount";
       name: string;
-      kind: "bank" | "card" | "liability" | "equity";
+      kind: "bank" | "card" | "liability" | "equity" | "wallet";
       currency: Currency;
     }
   | { op: "renameAccount"; id: string; name: string }
@@ -87,10 +88,14 @@ export function updateSettings(
     if (!currencies.includes(change.currency))
       throw new Error("Choose a supported currency.");
     if (change.op === "addAccount") {
-      // The message predates loan and equity accounts; only an expense
-      // account, which comes with its category, reaches it.
-      if (!["bank", "card", "liability", "equity"].includes(change.kind))
+      // The message predates loan, equity and wallet accounts; only an
+      // expense account, which comes with its category, reaches it.
+      if (
+        !["bank", "card", "liability", "equity", "wallet"].includes(change.kind)
+      )
         throw new Error("Choose a bank or card account.");
+      const mismatch = accountCurrencyError(change.kind, change.currency);
+      if (mismatch) throw new Error(mismatch);
       b.accounts.push({
         id: id(),
         businessId: b.profile.id,

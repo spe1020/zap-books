@@ -20,7 +20,7 @@ import type {
   ExtractorHealth,
   SourceDocument,
 } from "../domain/types";
-import { currencies } from "../domain/types";
+import { fiatCurrencies } from "../domain/types";
 import {
   amountInput,
   duplicates,
@@ -226,7 +226,9 @@ export function Review({
 }) {
   const [draft, setDraft] = useState<ExpenseDraft>(structuredClone(initial));
   const [amount, setAmount] = useState(
-    initial.amountMinor ? amountInput(initial.amountMinor) : "",
+    initial.amountMinor
+      ? amountInput(initial.amountMinor, initial.currency)
+      : "",
   );
   const [docs, setDocs] = useState<SourceDocument[]>([]);
   const [activeDoc, setActiveDoc] = useState(initial.documentIds[0]);
@@ -291,7 +293,7 @@ export function Review({
     setDraft((d) => {
       let amountMinor = d.amountMinor;
       try {
-        amountMinor = next.amount ? parseMoney(next.amount) : 0;
+        amountMinor = next.amount ? parseMoney(next.amount, d.currency) : 0;
       } catch {
         amountMinor = 0;
       }
@@ -356,7 +358,7 @@ export function Review({
     setError("");
     let amountMinor: number;
     try {
-      amountMinor = amount ? parseMoney(amount) : 0;
+      amountMinor = amount ? parseMoney(amount, draft.currency) : 0;
     } catch (e) {
       setError((e as Error).message);
       return;
@@ -695,7 +697,7 @@ export function Review({
                   }
                   disabled={!!payment || readOnly}
                 >
-                  {currencies.map((c) => (
+                  {fiatCurrencies.map((c) => (
                     <option key={c}>{c}</option>
                   ))}
                 </select>
@@ -720,7 +722,10 @@ export function Review({
                 onChange={(e) => {
                   setAmount(e.target.value);
                   try {
-                    update("amountMinor", parseMoney(e.target.value));
+                    update(
+                      "amountMinor",
+                      parseMoney(e.target.value, draft.currency),
+                    );
                   } catch {
                     update("amountMinor", 0);
                   }

@@ -97,7 +97,7 @@ export function suggestedValue(
   if (field === "total") {
     const f = result.fields.total;
     return f.status === "found" && f.value !== null
-      ? amountInput(f.value)
+      ? amountInput(f.value, result.fields.currency.value ?? "USD")
       : undefined;
   }
   const f = result.fields[field];

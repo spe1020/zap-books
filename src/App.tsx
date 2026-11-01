@@ -33,7 +33,7 @@ import type {
   JournalEntry,
   Workspace,
 } from "./domain/types";
-import { currencies } from "./domain/types";
+import { fiatCurrencies } from "./domain/types";
 import {
   blankDraft,
   categoryTotals,
@@ -899,7 +899,7 @@ function Overview({
             value={currency}
             onChange={(e) => setCurrency(e.target.value as Currency)}
           >
-            {currencies.map((c) => (
+            {fiatCurrencies.map((c) => (
               <option key={c}>{c}</option>
             ))}
           </select>

@@ -23,6 +23,7 @@ import * as S from "../src/domain/settings";
 import * as G from "../src/domain/suggestions";
 import * as T from "../src/domain/transfers";
 import * as D from "../src/domain/documents";
+import * as B from "../src/domain/bitcoin";
 import { seedWorkspace } from "../src/domain/seed";
 
 const NOW = "2026-10-15T12:00:00.000Z";
@@ -235,25 +236,25 @@ function money() {
       `parseMoney ${JSON.stringify(input)}`,
       "parseMoney",
       { input },
-      (i) => L.parseMoney(i.input),
+      (i) => L.parseMoney(i.input, "USD"),
     );
   record(
     "money",
     "parseMoney 400 digits",
     "parseMoney",
     { input: "1".repeat(400) },
-    (i) => L.parseMoney(i.input),
+    (i) => L.parseMoney(i.input, "USD"),
   );
   record(
     "money",
     "parseMoney 400 leading zeros",
     "parseMoney",
     { input: "0".repeat(400) + "1.25" },
-    (i) => L.parseMoney(i.input),
+    (i) => L.parseMoney(i.input, "USD"),
   );
   for (const n of [0, 1, -1, 5, 99, 100, 10001, -405, 123456, MAX, -MAX])
     record("money", `amountInput ${n}`, "amountInput", { n }, (i) =>
-      L.amountInput(i.n),
+      L.amountInput(i.n, "USD"),
     );
 }
 
@@ -2817,6 +2818,725 @@ function storedDocuments(setup: BusinessData) {
   );
 }
 
+/**
+ * Bitcoin (decision 0005, phase 1): BTC amounts in sats, wallets, recorded
+ * fiat values, exchanges, millisats, and the queries over them. Recorded
+ * last, from the next thousand, so no earlier ids shift. Every amount, rate
+ * and name is invented.
+ */
+function bitcoin(setup: BusinessData) {
+  nextId = Math.ceil(nextId / 1000) * 1000;
+  const area = "bitcoin";
+
+  // Money at each precision.
+  for (const input of [
+    "0.00000001",
+    "0.1",
+    "0.12",
+    "0.123",
+    "0.1234",
+    "0.12345",
+    "0.123456",
+    "0.1234567",
+    "0.12345678",
+    "0.123456789",
+    "1",
+    "-0.5",
+    "21000000",
+    "21000000.00000000",
+    "90071992.54740991",
+    "90071992.54740992",
+    "-90071992.54740991",
+    "1,000",
+    "1e-8",
+    " 0.00042 ",
+  ])
+    record(
+      area,
+      `parseMoney BTC ${JSON.stringify(input)}`,
+      "parseMoney",
+      { input, currency: "BTC" },
+      (i) => L.parseMoney(i.input, i.currency),
+    );
+  for (const [input, currency] of [
+    ["12.34", "EUR"],
+    ["12.345", "GBP"],
+    ["7", "GBP"],
+  ])
+    record(
+      area,
+      `parseMoney ${currency} ${JSON.stringify(input)}`,
+      "parseMoney",
+      { input, currency },
+      (i) => L.parseMoney(i.input, i.currency),
+    );
+  for (const input of [
+    "2100",
+    "0",
+    "-5",
+    " 42 ",
+    "2.1",
+    "1,000",
+    "",
+    "9007199254740991",
+    "9007199254740992",
+  ])
+    record(
+      area,
+      `parseSats ${JSON.stringify(input)}`,
+      "parseSats",
+      { input },
+      (i) => L.parseSats(i.input),
+    );
+  for (const n of [
+    0,
+    1,
+    -1,
+    99999999,
+    100000000,
+    123456789,
+    -123456789,
+    2100000000000000,
+    MAX,
+    -MAX,
+  ])
+    record(
+      area,
+      `amountInput BTC ${n}`,
+      "amountInput",
+      { n, currency: "BTC" },
+      (i) => L.amountInput(i.n, i.currency),
+    );
+  for (const n of [1, 499, 500, 501, 999, 1000, 1499, 1500, 2500, MAX])
+    record(
+      area,
+      `satsFromMillisats ${n}`,
+      "satsFromMillisats",
+      { millisats: n },
+      (i) => B.satsFromMillisats(i.millisats),
+    );
+
+  // Wallet accounts, and which kinds may hold bitcoin.
+  const update = (name: string, b: BusinessData, change: unknown) =>
+    record(area, name, "updateSettings", { business: b, change }, (i) =>
+      S.updateSettings(i.business, i.change),
+    );
+  const account = (name: string, kind: string, currency: string) => ({
+    op: "addAccount",
+    name,
+    kind,
+    currency,
+  });
+  const one = update(
+    "addAccount: a bitcoin wallet",
+    setup,
+    account("Lightning wallet", "wallet", "BTC"),
+  );
+  const wallets = state(
+    "northstar-wallets",
+    update(
+      "addAccount: a second wallet",
+      one,
+      account("Cold storage", "wallet", "BTC"),
+    ),
+  );
+  update(
+    "addAccount: a wallet in dollars",
+    setup,
+    account("Dollar wallet", "wallet", "USD"),
+  );
+  update(
+    "addAccount: a bank account in BTC",
+    setup,
+    account("Bitcoin bank", "bank", "BTC"),
+  );
+  update(
+    "addAccount: a card in BTC",
+    setup,
+    account("Bitcoin card", "card", "BTC"),
+  );
+  update(
+    "addAccount: a loan in BTC",
+    setup,
+    account("Bitcoin loan", "liability", "BTC"),
+  );
+  const named = (b: BusinessData, name: string) =>
+    b.accounts.find((a) => a.name === name)!.id;
+  const lightning = named(wallets, "Lightning wallet");
+  const cold = named(wallets, "Cold storage");
+  const bank = "northstar-checking";
+  const card = "northstar-card";
+  const euro = "northstar-eur";
+  const loan = "northstar-owner-loan";
+
+  // 100,000 sats at 60,000 a bitcoin is 60.00.
+  const value = (extra: Record<string, unknown> = {}) => ({
+    currency: "USD",
+    amountMinor: 6000,
+    rate: "60000.00",
+    source: "manual",
+    at: "2026-09-10",
+    ...extra,
+  });
+
+  // Opening balances on a wallet.
+  const open = (name: string, business: BusinessData, input: unknown) =>
+    record(
+      area,
+      `recordOpeningBalance: ${name}`,
+      "recordOpeningBalance",
+      { business, input },
+      (i) => T.recordOpeningBalance(i.business, i.input),
+    );
+  const opening = (extra: Record<string, unknown> = {}) => ({
+    accountId: cold,
+    date: "2026-09-01",
+    amountMinor: 100000,
+    fiatValue: value({ at: "2026-09-01" }),
+    ...extra,
+  });
+  const opened = open("a wallet, in sats", wallets, opening());
+  open("a wallet without a fiat value", wallets, {
+    ...opening(),
+    fiatValue: undefined,
+  });
+  open(
+    "a wallet with a value its rate doesn't give",
+    wallets,
+    opening({ fiatValue: value({ amountMinor: 6002 }) }),
+  );
+  open(
+    "a dollar account with a fiat value",
+    wallets,
+    opening({ accountId: bank, fiatValue: value() }),
+  );
+  open("a negative wallet balance", wallets, opening({ amountMinor: -100000 }));
+
+  // Fiat value rules, through a transfer between the two wallets.
+  const move = (extra: Record<string, unknown> = {}) => ({
+    date: "2026-09-10",
+    amountMinor: 100000,
+    currency: "BTC",
+    fromAccountId: cold,
+    toAccountId: lightning,
+    transferType: "betweenAccounts",
+    purpose: "Invented purpose",
+    fiatValue: value(),
+    ...extra,
+  });
+  const rec = (name: string, business: BusinessData, input: unknown) =>
+    record(
+      area,
+      `recordTransfer: ${name}`,
+      "recordTransfer",
+      { business, input },
+      (i) => T.recordTransfer(i.business, i.input),
+    );
+  const moved = rec("between two wallets", opened, move());
+  rec("between two wallets without a fiat value", opened, {
+    ...move(),
+    fiatValue: undefined,
+  });
+  const values: [string, Record<string, unknown>][] = [
+    ["rounded down", { amountMinor: 5999, rate: "59999.99" }],
+    ["one minor unit high", { amountMinor: 6001 }],
+    ["one minor unit low", { amountMinor: 5999 }],
+    ["two minor units high", { amountMinor: 6002 }],
+    ["a whole-number rate", { rate: "60000" }],
+    ["twelve decimal places", { rate: "60000.000000000001" }],
+    ["thirteen decimal places", { rate: "60000.0000000000001" }],
+    ["thirteen integer digits", { rate: "1000000000000" }],
+    ["a zero rate", { rate: "0.00", amountMinor: 0 }],
+    ["a negative rate", { rate: "-60000" }],
+    ["an exponent rate", { rate: "6e4" }],
+    ["in euros", { currency: "EUR" }],
+    ["in BTC", { currency: "BTC" }],
+    ["a negative amount", { amountMinor: -6000 }],
+    ["from a price series", { source: "price-series" }],
+    ["from an exchange", { source: "exchange" }],
+    ["at a UTC time", { at: "2026-09-10T14:30Z" }],
+    ["at a UTC time with seconds", { at: "2026-09-10T14:30:05.123Z" }],
+    ["at hour 24", { at: "2026-09-10T24:00Z" }],
+    ["at minute 60", { at: "2026-09-10T14:60Z" }],
+    ["at a local time", { at: "2026-09-10T14:30" }],
+    ["on an invalid day", { at: "2026-02-30" }],
+    ["before 1900", { at: "1899-12-31" }],
+  ];
+  for (const [name, extra] of values)
+    rec(`a fiat value ${name}`, opened, move({ fiatValue: value(extra) }));
+  // A numeric rate, a fractional amount or millisats, and an unknown source
+  // don't deserialize in Rust (PARITY_NOTES D2), so no fixture records
+  // them; src/domain/bitcoin.test.ts and divergences.rs pin each side.
+  rec(
+    "the most sats there can be",
+    opened,
+    move({
+      amountMinor: 2100000000000000,
+      fiatValue: value({ amountMinor: 126000000000000 }),
+    }),
+  );
+  rec(
+    "in dollars with a fiat value",
+    opened,
+    move({
+      currency: "USD",
+      fromAccountId: bank,
+      toAccountId: "northstar-reserve",
+    }),
+  );
+  rec(
+    "a loan of bitcoin into a wallet, from a dollar loan account",
+    opened,
+    move({ transferType: "ownerLoan", fromAccountId: loan }),
+  );
+
+  // Millisats.
+  for (const [name, millisats, sats] of [
+    ["rounded down", 100000499, 100000],
+    ["rounded up at a half", 99999500, 100000],
+    ["rounded the wrong way", 100000500, 100000],
+    ["zero", 0, 100000],
+  ] as const)
+    rec(`millisats ${name}`, opened, move({ millisats, amountMinor: sats }));
+  rec(
+    "millisats in dollars",
+    opened,
+    move({
+      currency: "USD",
+      fromAccountId: bank,
+      toAccountId: "northstar-reserve",
+      fiatValue: undefined,
+      millisats: 5000,
+    }),
+  );
+
+  // Exchanges: buying and selling bitcoin.
+  const exchange = (extra: Record<string, unknown> = {}) => ({
+    date: "2026-09-12",
+    amountMinor: 250000,
+    currency: "BTC",
+    fromAccountId: bank,
+    toAccountId: lightning,
+    transferType: "exchange",
+    purpose: "Invented purpose",
+    fiatValue: value({
+      amountMinor: 15000,
+      rate: "60000.000000000000",
+      source: "exchange",
+      at: "2026-09-12T10:00Z",
+    }),
+    ...extra,
+  });
+  const exchanged = (extra: Record<string, unknown>) => ({
+    ...exchange().fiatValue,
+    ...extra,
+  });
+  const bought = rec("an exchange buying bitcoin", moved, exchange());
+  const sold = rec(
+    "an exchange selling bitcoin",
+    bought,
+    exchange({
+      date: "2026-09-20",
+      amountMinor: 50000,
+      fromAccountId: lightning,
+      toAccountId: bank,
+      fiatValue: exchanged({ amountMinor: 3100, rate: "62000.000000000000" }),
+    }),
+  );
+  rec("an exchange from a card", moved, exchange({ fromAccountId: card }));
+  rec(
+    "an exchange from euros",
+    moved,
+    exchange({
+      fromAccountId: euro,
+      fiatValue: exchanged({ currency: "EUR" }),
+    }),
+  );
+  rec(
+    "an exchange with a millisat amount",
+    moved,
+    exchange({ millisats: 250000400 }),
+  );
+  rec("an exchange in dollars", moved, exchange({ currency: "USD" }));
+  rec(
+    "an exchange between two wallets",
+    moved,
+    exchange({ fromAccountId: cold }),
+  );
+  rec(
+    "an exchange between two dollar accounts",
+    moved,
+    exchange({ toAccountId: "northstar-reserve" }),
+  );
+  rec(
+    "an exchange from a loan account",
+    moved,
+    exchange({ fromAccountId: loan }),
+  );
+  rec(
+    "an exchange without a fiat value",
+    moved,
+    exchange({ fiatValue: undefined }),
+  );
+  rec(
+    "an exchange whose value isn't from the exchange",
+    moved,
+    exchange({ fiatValue: exchanged({ source: "manual" }) }),
+  );
+  rec(
+    "an exchange valued in another currency than its account",
+    moved,
+    exchange({ fiatValue: exchanged({ currency: "EUR" }) }),
+  );
+  rec(
+    "an exchange of no fiat at all",
+    moved,
+    exchange({
+      amountMinor: 1,
+      fiatValue: exchanged({ amountMinor: 0 }),
+    }),
+  );
+  rec(
+    "an exchange whose rate doesn't give its value",
+    moved,
+    exchange({ fiatValue: exchanged({ amountMinor: 15500 }) }),
+  );
+  const exchangeId = (b: BusinessData) =>
+    b.journals.find((j) => j.transferType === "exchange")!.id;
+  const fix = (
+    name: string,
+    business: BusinessData,
+    originalId: string,
+    replacement: unknown,
+  ) =>
+    record(
+      area,
+      `correctTransfer: ${name}`,
+      "correctTransfer",
+      { business, originalId, replacement, reason: "Invented reason" },
+      (i) =>
+        T.correctTransfer(i.business, i.originalId, i.replacement, i.reason),
+    );
+  const corrected = fix(
+    "an exchange, at another amount",
+    sold,
+    exchangeId(sold),
+    exchange({
+      amountMinor: 200000,
+      fiatValue: exchanged({ amountMinor: 12000 }),
+    }),
+  );
+  fix(
+    "an exchange, by one with a value that doesn't fit",
+    sold,
+    exchangeId(sold),
+    exchange({ fiatValue: exchanged({ amountMinor: 1 }) }),
+  );
+  const between = moved.journals.find(
+    (j: JournalEntry) => j.transferType === "betweenAccounts",
+  )!.id;
+  fix(
+    "a transfer between wallets, in sats",
+    moved,
+    between,
+    move({ amountMinor: 50000, fiatValue: value({ amountMinor: 3000 }) }),
+  );
+
+  // Bitcoin expenses.
+  const expense = (b: BusinessData, extra: Partial<ExpenseDraft> = {}) => ({
+    ...ready(b, {}),
+    id: "draft-sats",
+    vendor: "Invented Relay Co",
+    description: "Relay subscription",
+    currency: "BTC" as const,
+    accountId: lightning,
+    amountMinor: 21000,
+    fiatValue: {
+      currency: "USD" as const,
+      amountMinor: 1260,
+      rate: "60000.00",
+      source: "manual" as const,
+      at: "2026-09-15",
+    },
+    millisats: 21000123,
+    date: "2026-09-15",
+    ...extra,
+  });
+  const save = (name: string, business: BusinessData, draft: unknown) =>
+    record(area, `saveDraft: ${name}`, "saveDraft", { business, draft }, (i) =>
+      L.saveDraft(i.business, i.draft),
+    );
+  const check = (name: string, business: BusinessData, draft: unknown) =>
+    record(
+      area,
+      `validation: ${name}`,
+      "validation",
+      { business, draft },
+      (i) => L.validation(i.business, i.draft),
+    );
+  const saved = save("a bitcoin expense", sold, expense(sold));
+  save(
+    "a fiat value with a malformed rate",
+    sold,
+    expense(sold, { fiatValue: { ...expense(sold).fiatValue, rate: "abc" } }),
+  );
+  save(
+    "a fiat value at no valid time",
+    sold,
+    expense(sold, { fiatValue: { ...expense(sold).fiatValue, at: "soon" } }),
+  );
+  save(
+    "an expense without its fiat value",
+    sold,
+    expense(sold, { fiatValue: undefined }),
+  );
+  check("a bitcoin expense", sold, expense(sold));
+  check(
+    "a bitcoin expense without its fiat value",
+    sold,
+    expense(sold, { fiatValue: undefined }),
+  );
+  check(
+    "a bitcoin expense whose value doesn't fit",
+    sold,
+    expense(sold, {
+      fiatValue: { ...expense(sold).fiatValue, amountMinor: 1300 },
+    }),
+  );
+  check(
+    "a bitcoin expense whose millisats don't round to it",
+    sold,
+    expense(sold, { millisats: 21000500 }),
+  );
+  check(
+    "a dollar expense with a fiat value",
+    sold,
+    expense(sold, { currency: "USD", accountId: bank }),
+  );
+  check(
+    "a bitcoin expense paid from a dollar account",
+    sold,
+    expense(sold, { accountId: bank }),
+  );
+  const approve = (name: string, business: BusinessData, expenseId: string) =>
+    record(area, `approve: ${name}`, "approve", { business, expenseId }, (i) =>
+      L.approve(i.business, i.expenseId),
+    );
+  const spent = state(
+    "northstar-bitcoin",
+    approve("a bitcoin expense", saved, "draft-sats"),
+  );
+  const unvalued = save(
+    "a second expense without its fiat value",
+    sold,
+    expense(sold, { fiatValue: undefined }),
+  );
+  approve("a bitcoin expense without its fiat value", unvalued, "draft-sats");
+  const replaced = record(
+    area,
+    "correct: a bitcoin expense",
+    "correct",
+    {
+      business: spent,
+      originalId: "draft-sats",
+      replacement: {
+        ...find(spent, "Invented Relay Co", "posted"),
+        id: "draft-sats-2",
+        status: "draft",
+        amountMinor: 30000,
+        millisats: undefined,
+        fiatValue: { ...expense(sold).fiatValue, amountMinor: 1800 },
+      },
+      reason: "Invented reason",
+    },
+    (i) => L.correct(i.business, i.originalId, i.replacement, i.reason),
+  );
+
+  // Journals checked directly.
+  const journal = spent.journals.find(
+    (j: JournalEntry) => j.kind === "expense" && j.currency === "BTC",
+  )!;
+  const exchangeJournal = spent.journals.find(
+    (j: JournalEntry) => j.transferType === "exchange",
+  )!;
+  const assert = (name: string, entry: unknown) =>
+    record(
+      area,
+      `assertBalanced: ${name}`,
+      "assertBalanced",
+      { business: spent, entry },
+      (i) => L.assertBalanced(i.business, i.entry),
+    );
+  const { fiatValue: _, ...unvaluedJournal } = journal;
+  assert("a bitcoin expense", journal);
+  assert("a bitcoin journal without a fiat value", unvaluedJournal);
+  assert("a bitcoin journal whose value doesn't fit", {
+    ...journal,
+    fiatValue: { ...journal.fiatValue, amountMinor: 9 },
+  });
+  assert("a bitcoin journal whose millisats don't fit", {
+    ...journal,
+    millisats: 1,
+  });
+  assert("a dollar journal with a fiat value", {
+    ...journal,
+    currency: "USD",
+    kind: "transfer",
+    expenseId: undefined,
+    millisats: undefined,
+    lines: [
+      { accountId: "northstar-reserve", debit: 100, credit: 0 },
+      { accountId: bank, debit: 0, credit: 100 },
+    ],
+  });
+  assert("an exchange", exchangeJournal);
+  const [first, second] = exchangeJournal.lines;
+  assert("an exchange whose fiat line isn't its value", {
+    ...exchangeJournal,
+    lines: [
+      first.accountId === bank ? { ...first, credit: first.credit + 1 } : first,
+      second.accountId === bank
+        ? { ...second, credit: second.credit + 1 }
+        : second,
+    ],
+  });
+  assert("an exchange with both lines one way", {
+    ...exchangeJournal,
+    lines: exchangeJournal.lines.map((l) => ({
+      ...l,
+      debit: l.debit + l.credit,
+      credit: 0,
+    })),
+  });
+  assert("an exchange on an expense account", {
+    ...exchangeJournal,
+    lines: exchangeJournal.lines.map((l) =>
+      l.accountId === bank ? { ...l, accountId: "northstar-expense-0" } : l,
+    ),
+  });
+  assert("an exchange in dollars", { ...exchangeJournal, currency: "USD" });
+  assert("an exchange with three lines", {
+    ...exchangeJournal,
+    lines: [...exchangeJournal.lines, exchangeJournal.lines[0]],
+  });
+  assert("an exchange valued by hand", {
+    ...exchangeJournal,
+    fiatValue: { ...exchangeJournal.fiatValue, source: "manual" },
+  });
+
+  // Queries: sats stay sats, and the dollar value comes only from records.
+  for (const [name, business] of [
+    ["after a bitcoin expense", spent],
+    ["after a correction", replaced],
+  ] as const) {
+    for (const currency of ["BTC", "USD", "EUR"])
+      record(
+        area,
+        `balances: ${currency} ${name}`,
+        "balances",
+        { business, asOf: "2026-12-31", currency },
+        (i) => T.balances(i.business, i.asOf, i.currency),
+      );
+    record(
+      area,
+      `totals: ${name}`,
+      "totals",
+      { business, period: "2026-09" },
+      (i) => L.totals(i.business, i.period),
+    );
+    record(
+      area,
+      `recordedFiatSpending: ${name}`,
+      "recordedFiatSpending",
+      { business, period: "2026-09" },
+      (i) => L.recordedFiatSpending(i.business, i.period),
+    );
+    record(
+      area,
+      `categoryTotals: BTC ${name}`,
+      "categoryTotals",
+      { business, period: "2026-09", currency: "BTC" },
+      (i) => L.categoryTotals(i.business, i.period, i.currency),
+    );
+  }
+  record(
+    area,
+    "balances: before the exchange",
+    "balances",
+    { business: spent, asOf: "2026-09-11", currency: "USD" },
+    (i) => T.balances(i.business, i.asOf, i.currency),
+  );
+  record(
+    area,
+    "recordedFiatSpending: another month",
+    "recordedFiatSpending",
+    { business: spent, period: "2026-10" },
+    (i) => L.recordedFiatSpending(i.business, i.period),
+  );
+
+  // Exports.
+  for (const currency of ["", "BTC", "USD", "EUR"])
+    record(
+      area,
+      `exportRecords: journal, ${currency || "all currencies"}`,
+      "exportRecords",
+      {
+        business: replaced,
+        format: "journal",
+        filter: { from: "", to: "", currency },
+      },
+      (i) => X.exportRecords(i.business, i.format, i.filter),
+    );
+  record(
+    area,
+    "exportRecords: expenses in BTC",
+    "exportRecords",
+    {
+      business: replaced,
+      format: "expenses",
+      filter: { from: "", to: "", currency: "BTC" },
+    },
+    (i) => X.exportRecords(i.business, i.format, i.filter),
+  );
+  record(
+    area,
+    "exportBalances: BTC",
+    "exportBalances",
+    { business: replaced, asOf: "2026-12-31", currency: "BTC" },
+    (i) => X.exportBalances(i.business, i.asOf, i.currency),
+  );
+
+  // A CSV of bitcoin payments, read at BTC's precision.
+  const rows = [
+    ["date", "description", "amount", "currency", "reference"],
+    ["2026-09-21", "Invented node fee", "-0.00012345", "BTC", "LN-1"],
+    ["2026-09-22", "Invented hosting", "-1,234.5", "BTC", "LN-2"],
+    ["2026-09-23", "Invented relay", "-0.000000001", "BTC", "LN-3"],
+  ];
+  record(
+    area,
+    "previewImport: bitcoin payments into a wallet",
+    "previewImport",
+    {
+      business: wallets,
+      rows,
+      map: paymentMap,
+      accountId: lightning,
+      convention: "negative",
+      options: {},
+    },
+    (i) =>
+      I.previewImport(
+        i.business,
+        i.rows,
+        i.map,
+        i.accountId,
+        i.convention,
+        i.options,
+      ),
+  );
+}
+
 test("generate parity fixtures", () => {
   vi.spyOn(crypto, "randomUUID").mockImplementation(
     () =>
@@ -2856,6 +3576,7 @@ test("generate parity fixtures", () => {
     readingOutcomes(setup);
     ownerFunding(setup, ns);
     storedDocuments(setup);
+    bitcoin(setup);
     write();
   } finally {
     vi.useRealTimers();

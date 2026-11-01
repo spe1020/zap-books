@@ -1,5 +1,22 @@
-export type Currency = "USD" | "EUR" | "GBP";
-export const currencies: Currency[] = ["USD", "EUR", "GBP"];
+/** The currencies a business reports in, and a fiat value is recorded in. */
+export type FiatCurrency = "USD" | "EUR" | "GBP";
+export const fiatCurrencies: FiatCurrency[] = ["USD", "EUR", "GBP"];
+/**
+ * Every currency the ledger records. BTC amounts are in sats (decision
+ * 0005); a BTC journal also records its fiat value at the time.
+ */
+export type Currency = FiatCurrency | "BTC";
+export const currencies: Currency[] = [...fiatCurrencies, "BTC"];
+/**
+ * How many decimal places each currency's minor unit is: cents for USD, EUR
+ * and GBP, and sats for BTC (1 BTC = 100,000,000 sats).
+ */
+export const precision: Record<Currency, number> = {
+  USD: 2,
+  EUR: 2,
+  GBP: 2,
+  BTC: 8,
+};
 export interface Scoped {
   id: string;
   businessId: string;
@@ -7,16 +24,19 @@ export interface Scoped {
 export interface Business extends Scoped {
   name: string;
   industry: string;
-  currency: Currency;
+  /** The reporting currency: never BTC. */
+  currency: FiatCurrency;
   initials: string;
   color: string;
 }
 /**
  * `liability` is money the business owes (a loan from the owner, say) and
  * `equity` the owner's stake. Both can pay an expense: from a liability the
- * business now owes it, from equity the owner contributed it.
+ * business now owes it, from equity the owner contributed it. A `wallet`
+ * holds bitcoin, on-chain or Lightning; its balance works like a bank's.
  */
-export type AccountKind = "bank" | "card" | "expense" | "liability" | "equity";
+export type AccountKind =
+  "bank" | "card" | "expense" | "liability" | "equity" | "wallet";
 export interface Account extends Scoped {
   name: string;
   kind: AccountKind;
@@ -83,12 +103,37 @@ export interface ImportedExpenseSource extends Scoped {
   category: string;
   filename: string;
 }
+/** Where a recorded fiat value came from. */
+export type FiatSource = "manual" | "price-series" | "exchange";
+/**
+ * What a bitcoin entry was worth in a reporting currency when it happened,
+ * entered or confirmed by a person, never looked up by the ledger. Every BTC
+ * journal carries one; no other journal does.
+ */
+export interface FiatValue {
+  currency: FiatCurrency;
+  /** The value in the currency's minor units. */
+  amountMinor: number;
+  /**
+   * The price of one bitcoin in `currency`, as a decimal string such as
+   * "65000.00". `amountMinor` is the sats times this rate within one minor
+   * unit.
+   */
+  rate: string;
+  source: FiatSource;
+  /** The day (`YYYY-MM-DD`) or UTC time the value applies to. */
+  at: string;
+}
 export interface ExpenseDraft extends Scoped {
   vendor: string;
   date: string;
   description: string;
   amountMinor: number;
   currency: Currency;
+  /** BTC drafts: the fiat value at the time. Required to approve. */
+  fiatValue?: FiatValue;
+  /** A Lightning amount as paid, in millisats; `amountMinor` is it rounded. */
+  millisats?: number;
   categoryId: string;
   accountId: string;
   purpose: string;
@@ -117,7 +162,13 @@ export type TransferType =
   | "loanRepayment"
   | "ownerDraw"
   | "betweenAccounts"
-  | "openingBalance";
+  | "openingBalance"
+  | "exchange";
+/**
+ * A balanced journal. Every non-expense line is in `currency`, except on an
+ * `exchange`: there the BTC wallet's line is in sats and the other line is
+ * in `fiatValue.currency`, for `fiatValue.amountMinor`.
+ */
 export interface JournalEntry extends Scoped {
   date: string;
   currency: Currency;
@@ -134,6 +185,10 @@ export interface JournalEntry extends Scoped {
   documentIds?: string[];
   /** On a transfer that replaced a corrected one: the original's id. */
   correctionOf?: string;
+  /** BTC journals only, and on every one of them. */
+  fiatValue?: FiatValue;
+  /** A Lightning amount as paid, in millisats, when it was entered so. */
+  millisats?: number;
 }
 export interface Approval extends Scoped {
   expenseId: string;
@@ -285,7 +340,7 @@ export interface ExtractionFields {
   date: ExtractedField<string>;
   /** Minor units. */
   total: ExtractedField<number>;
-  currency: ExtractedField<Currency>;
+  currency: ExtractedField<FiatCurrency>;
   reference: ExtractedField<string>;
   subtotal: ExtractedField<number>;
   tax: ExtractedLines;
@@ -369,6 +424,10 @@ export interface LedgerQueries {
     business: BusinessData,
     period: string,
   ): Partial<Record<Currency, number>>;
+  recordedFiatSpending(
+    business: BusinessData,
+    period: string,
+  ): Partial<Record<FiatCurrency, number>>;
 }
 export interface EventTransport {
   publish(events: FinancialEvent[]): Promise<void>;
