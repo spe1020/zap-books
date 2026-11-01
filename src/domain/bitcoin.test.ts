@@ -268,11 +268,12 @@ describe("exchanges", () => {
 
   test("the implied rate always gives back its amount", () => {
     const next = random(9);
+    const b = setup();
     for (let k = 0; k < 500; k++) {
       // Any price up to 10^11 a bitcoin: the rate keeps 12 integer digits.
       const sats = 1000 + next(2_000_000_000);
       const cents = 1 + next(100_000_000);
-      const value = exchange(setup(), sats, cents).fiatValue!;
+      const value = exchange(b, sats, cents).fiatValue!;
       expect(fiatValueMatches(sats, value)).toBe(true);
     }
   });
@@ -350,8 +351,9 @@ describe("existing currencies are unchanged", () => {
 
 test("no report ever adds sats to dollars", () => {
   const next = random(17);
+  const base = setup();
   for (let run = 0; run < 40; run++) {
-    let b = setup();
+    let b = base;
     const wallet = named(b, "Lightning wallet");
     const bank = "northstar-checking";
     let usdSpent = 0,
