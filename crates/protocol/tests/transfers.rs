@@ -5,7 +5,9 @@
 mod common;
 
 use common::*;
-use ledger_core::{AccountKind, BusinessData, Currency, Minor, SequentialEnv, TransferType};
+use ledger_core::{
+    AccountKind, BusinessData, Currency, FiatSource, FiatValue, Minor, SequentialEnv, TransferType,
+};
 use nostr::prelude::{EventId, Keys};
 use protocol::{
     apply_changes, apply_command, diff, targets, Command, CommandType, History, MembershipChange,
@@ -76,6 +78,8 @@ fn loan(b: &BusinessData, loan: &str, amount: i64) -> TransferInput {
         purpose: "Invented working capital".into(),
         reference: None,
         document_ids: vec![],
+        fiat_value: None,
+        millisats: None,
     }
 }
 
@@ -107,6 +111,7 @@ fn commands(b: &BusinessData, loan_id: &str) -> [Command; 3] {
                 date: "2026-01-01".into(),
                 amount_minor: Minor::new(25_000).unwrap(),
                 reference: None,
+                fiat_value: None,
             },
         },
     ]
@@ -219,4 +224,109 @@ fn a_transfer_correction_targets_its_original_and_records_target_nothing() {
         targets(&correct, &b),
         vec![RecordKey::new(RecordType::Journal, original_id.clone())]
     );
+}
+
+/// The books with a BTC wallet, and an exchange buying 250,000 sats for
+/// 150.00 from the first bank account.
+fn exchange_books() -> (BusinessData, Command) {
+    let (b, mut env, _) = books();
+    let change = Command::UpdateSettings {
+        change: SettingsChange::AddAccount {
+            name: "Lightning wallet".into(),
+            kind: AccountKind::Wallet,
+            currency: Currency::Btc,
+        },
+    };
+    let b = apply_command(&b, &change, &mut env).unwrap();
+    let wallet = b.accounts.last().unwrap().id.clone();
+    let bank = b
+        .accounts
+        .iter()
+        .find(|a| a.kind == AccountKind::Bank && a.currency == Currency::Usd)
+        .unwrap()
+        .id
+        .clone();
+    let command = Command::RecordTransfer {
+        transfer: TransferInput {
+            date: "2026-10-20".into(),
+            amount_minor: Minor::new(250_000).unwrap(),
+            currency: Currency::Btc,
+            from_account_id: bank,
+            to_account_id: wallet,
+            transfer_type: TransferType::Exchange,
+            purpose: "Invented purpose".into(),
+            reference: None,
+            document_ids: vec![],
+            fiat_value: Some(FiatValue {
+                currency: Currency::Usd,
+                amount_minor: Minor::new(15_000).unwrap(),
+                rate: "60000.00".into(),
+                source: FiatSource::Exchange,
+                at: "2026-10-20T09:00Z".into(),
+            }),
+            millisats: None,
+        },
+    };
+    (b, command)
+}
+
+#[test]
+fn an_exchange_carries_its_fiat_value_on_the_wire_and_replays() {
+    let (b, command) = exchange_books();
+    let json = serde_json::to_value(&command).unwrap();
+    assert_eq!(json["transfer"]["transferType"], "exchange");
+    assert_eq!(json["transfer"]["fiatValue"]["amountMinor"], 15_000);
+    assert_eq!(json["transfer"]["fiatValue"]["rate"], "60000.00");
+    assert_eq!(json["transfer"]["fiatValue"]["source"], "exchange");
+    let read: Command = serde_json::from_value(json).unwrap();
+    assert_eq!(read, command);
+
+    let mut n = 0;
+    let mut env = RecordingEnv::new(
+        move || {
+            n += 1;
+            format!("svc-{n}")
+        },
+        "2026-10-21T09:00:00.000Z",
+    );
+    let after = apply_command(&b, &command, &mut env).unwrap();
+    let journal = after.journals.last().unwrap();
+    assert_eq!(
+        journal.fiat_value.as_ref().unwrap().amount_minor.get(),
+        15_000
+    );
+    let changes = diff(&b, &after).unwrap();
+    assert_eq!(apply_changes(&b, &changes).unwrap(), after);
+    let record = env.into_record();
+    let mut replay = ReplayEnv::new(&record);
+    let again = apply_command(&b, &command, &mut replay).unwrap();
+    replay.finish().unwrap();
+    assert_eq!(diff(&b, &again).unwrap(), changes);
+
+    // Without its fiat value, ledger-core refuses it.
+    let Command::RecordTransfer { mut transfer } = command else {
+        unreachable!()
+    };
+    transfer.fiat_value = None;
+    let unvalued = Command::RecordTransfer { transfer };
+    let mut env = RecordingEnv::new(|| "svc".into(), "2026-10-21T09:00:00.000Z");
+    assert!(apply_command(&b, &unvalued, &mut env).is_err());
+}
+
+#[test]
+fn bitcoin_commands_keep_the_transfer_permissions() {
+    let (_, command) = exchange_books();
+    let s = team();
+    for keys in [owner(), bookkeeper()] {
+        assert_eq!(s.authorize(&pk(&keys), &command), Ok(()));
+    }
+    let (b, _, loan_id) = books();
+    let [record, ..] = commands(&b, &loan_id);
+    for keys in [viewer(), submitter(), assistant(), outsider()] {
+        assert_eq!(
+            s.authorize(&pk(&keys), &command),
+            s.authorize(&pk(&keys), &record)
+        );
+        assert!(s.authorize(&pk(&keys), &command).is_err());
+    }
 }
