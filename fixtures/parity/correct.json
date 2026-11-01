@@ -204,7 +204,7 @@
      "businessId": "northstar",
      "name": "figma-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -214,7 +214,7 @@
      "businessId": "northstar",
      "name": "notion-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1292,
+     "size": 1285,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -224,7 +224,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -234,7 +234,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -244,7 +244,7 @@
      "businessId": "northstar",
      "name": "studio-supply-co.-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1303,
+     "size": 1296,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -254,7 +254,7 @@
      "businessId": "northstar",
      "name": "meridian-legal-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -264,7 +264,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -274,7 +274,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -284,7 +284,7 @@
      "businessId": "northstar",
      "name": "adobe-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -294,7 +294,7 @@
      "businessId": "northstar",
      "name": "common-ground-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1297,
+     "size": 1290,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2284,7 +2284,7 @@
      "businessId": "northstar",
      "name": "figma-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2294,7 +2294,7 @@
      "businessId": "northstar",
      "name": "notion-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1292,
+     "size": 1285,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2304,7 +2304,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2314,7 +2314,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2324,7 +2324,7 @@
      "businessId": "northstar",
      "name": "studio-supply-co.-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1303,
+     "size": 1296,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2334,7 +2334,7 @@
      "businessId": "northstar",
      "name": "meridian-legal-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2344,7 +2344,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2354,7 +2354,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2364,7 +2364,7 @@
      "businessId": "northstar",
      "name": "adobe-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -2374,7 +2374,7 @@
      "businessId": "northstar",
      "name": "common-ground-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1297,
+     "size": 1290,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -4094,7 +4094,7 @@
       "businessId": "northstar",
       "name": "figma-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4104,7 +4104,7 @@
       "businessId": "northstar",
       "name": "notion-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1292,
+      "size": 1285,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4114,7 +4114,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4124,7 +4124,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4134,7 +4134,7 @@
       "businessId": "northstar",
       "name": "studio-supply-co.-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1303,
+      "size": 1296,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4144,7 +4144,7 @@
       "businessId": "northstar",
       "name": "meridian-legal-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4154,7 +4154,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4164,7 +4164,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4174,7 +4174,7 @@
       "businessId": "northstar",
       "name": "adobe-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -4184,7 +4184,7 @@
       "businessId": "northstar",
       "name": "common-ground-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1297,
+      "size": 1290,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5926,7 +5926,7 @@
       "businessId": "northstar",
       "name": "figma-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5936,7 +5936,7 @@
       "businessId": "northstar",
       "name": "notion-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1292,
+      "size": 1285,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5946,7 +5946,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5956,7 +5956,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5966,7 +5966,7 @@
       "businessId": "northstar",
       "name": "studio-supply-co.-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1303,
+      "size": 1296,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5976,7 +5976,7 @@
       "businessId": "northstar",
       "name": "meridian-legal-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5986,7 +5986,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -5996,7 +5996,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -6006,7 +6006,7 @@
       "businessId": "northstar",
       "name": "adobe-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -6016,7 +6016,7 @@
       "businessId": "northstar",
       "name": "common-ground-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1297,
+      "size": 1290,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -7747,7 +7747,7 @@
      "businessId": "northstar",
      "name": "figma-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7757,7 +7757,7 @@
      "businessId": "northstar",
      "name": "notion-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1292,
+     "size": 1285,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7767,7 +7767,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7777,7 +7777,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7787,7 +7787,7 @@
      "businessId": "northstar",
      "name": "studio-supply-co.-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1303,
+     "size": 1296,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7797,7 +7797,7 @@
      "businessId": "northstar",
      "name": "meridian-legal-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7807,7 +7807,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7817,7 +7817,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7827,7 +7827,7 @@
      "businessId": "northstar",
      "name": "adobe-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -7837,7 +7837,7 @@
      "businessId": "northstar",
      "name": "common-ground-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1297,
+     "size": 1290,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -9730,7 +9730,7 @@
       "businessId": "northstar",
       "name": "figma-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9740,7 +9740,7 @@
       "businessId": "northstar",
       "name": "notion-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1292,
+      "size": 1285,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9750,7 +9750,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9760,7 +9760,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9770,7 +9770,7 @@
       "businessId": "northstar",
       "name": "studio-supply-co.-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1303,
+      "size": 1296,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9780,7 +9780,7 @@
       "businessId": "northstar",
       "name": "meridian-legal-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9790,7 +9790,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9800,7 +9800,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9810,7 +9810,7 @@
       "businessId": "northstar",
       "name": "adobe-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -9820,7 +9820,7 @@
       "businessId": "northstar",
       "name": "common-ground-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1297,
+      "size": 1290,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11471,7 +11471,7 @@
       "businessId": "northstar",
       "name": "figma-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11481,7 +11481,7 @@
       "businessId": "northstar",
       "name": "notion-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1292,
+      "size": 1285,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11491,7 +11491,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11501,7 +11501,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11511,7 +11511,7 @@
       "businessId": "northstar",
       "name": "studio-supply-co.-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1303,
+      "size": 1296,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11521,7 +11521,7 @@
       "businessId": "northstar",
       "name": "meridian-legal-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11531,7 +11531,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11541,7 +11541,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11551,7 +11551,7 @@
       "businessId": "northstar",
       "name": "adobe-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -11561,7 +11561,7 @@
       "businessId": "northstar",
       "name": "common-ground-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1297,
+      "size": 1290,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13213,7 +13213,7 @@
       "businessId": "northstar",
       "name": "figma-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13223,7 +13223,7 @@
       "businessId": "northstar",
       "name": "notion-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1292,
+      "size": 1285,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13233,7 +13233,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13243,7 +13243,7 @@
       "businessId": "northstar",
       "name": "linear-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1290,
+      "size": 1283,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13253,7 +13253,7 @@
       "businessId": "northstar",
       "name": "studio-supply-co.-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1303,
+      "size": 1296,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13263,7 +13263,7 @@
       "businessId": "northstar",
       "name": "meridian-legal-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13273,7 +13273,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13283,7 +13283,7 @@
       "businessId": "northstar",
       "name": "atlas-creative-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1302,
+      "size": 1295,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13293,7 +13293,7 @@
       "businessId": "northstar",
       "name": "adobe-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1288,
+      "size": 1281,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -13303,7 +13303,7 @@
       "businessId": "northstar",
       "name": "common-ground-receipt.svg",
       "mime": "image/svg+xml",
-      "size": 1297,
+      "size": 1290,
       "kind": "receipt",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "demo": true
@@ -14944,7 +14944,7 @@
      "businessId": "northstar",
      "name": "figma-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -14954,7 +14954,7 @@
      "businessId": "northstar",
      "name": "notion-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1292,
+     "size": 1285,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -14964,7 +14964,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -14974,7 +14974,7 @@
      "businessId": "northstar",
      "name": "linear-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1290,
+     "size": 1283,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -14984,7 +14984,7 @@
      "businessId": "northstar",
      "name": "studio-supply-co.-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1303,
+     "size": 1296,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -14994,7 +14994,7 @@
      "businessId": "northstar",
      "name": "meridian-legal-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -15004,7 +15004,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -15014,7 +15014,7 @@
      "businessId": "northstar",
      "name": "atlas-creative-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1302,
+     "size": 1295,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -15024,7 +15024,7 @@
      "businessId": "northstar",
      "name": "adobe-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1288,
+     "size": 1281,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true
@@ -15034,7 +15034,7 @@
      "businessId": "northstar",
      "name": "common-ground-receipt.svg",
      "mime": "image/svg+xml",
-     "size": 1297,
+     "size": 1290,
      "kind": "receipt",
      "createdAt": "2026-10-15T12:00:00.000Z",
      "demo": true

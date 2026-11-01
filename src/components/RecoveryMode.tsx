@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { KeyRound, LifeBuoy, LogOut } from "lucide-react";
-import { PRODUCT_NAME } from "../config";
+import { BRAND, PRODUCT_NAME } from "../config";
 import type { MembershipChange, PendingChange } from "../domain/members";
 import type { Guarded, RemoteLedgerClient } from "../remote";
 import { PendingChanges, shortKey, type PeopleTools } from "./Members";
@@ -74,9 +74,7 @@ export function RecoveryMode({
   return (
     <main className="recovery-mode">
       <header className="recovery-header">
-        <div className="brand-mark">
-          b<span>f</span>
-        </div>
+        <img className="brand-icon" src={BRAND.icon} alt="" />
         <div>
           <h1>{PRODUCT_NAME}: backup key</h1>
           <small title={tools.npub(tools.me)}>

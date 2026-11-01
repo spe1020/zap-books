@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { KeyRound, MonitorSmartphone } from "lucide-react";
-import { PRODUCT_NAME } from "../config";
+import { BRAND, PRODUCT_NAME } from "../config";
 import { checkSigner } from "../remote/signer";
 import type { RemoteLedgerClient } from "../remote";
 
@@ -40,10 +40,9 @@ export function SignIn({
   }
   return (
     <main className="loading sign-in">
-      <div className="brand-mark">
-        b<span>f</span>
-      </div>
-      <h1>{PRODUCT_NAME}</h1>
+      <h1 className="brand-heading">
+        <img className="brand-logo" src={BRAND.logo} alt={PRODUCT_NAME} />
+      </h1>
       <section className="card sign-in-card">
         <h2>
           <KeyRound size={19} />
