@@ -4,7 +4,7 @@ import type {
   ReceiptStorage,
   Workspace,
 } from "../domain/types";
-import { seedWorkspace } from "../domain/seed";
+import { demoWorkspace } from "../domain/seed";
 import { checkWorkspace } from "./workspace-check";
 const DB = "business-finance-v1";
 async function database(): Promise<IDBDatabase> {
@@ -43,7 +43,7 @@ export class LocalRepository implements BusinessRepository {
       db.close();
     }
     if (state !== undefined) return checkWorkspace(state);
-    return this.write(seedWorkspace(), -1);
+    return this.write(demoWorkspace(), -1);
   }
   private async write(
     state: Workspace,
@@ -134,7 +134,7 @@ export class LocalRepository implements BusinessRepository {
   }
   async reset(expectedRevision: number) {
     return this.write(
-      { ...seedWorkspace(), revision: expectedRevision + 1 },
+      { ...demoWorkspace(), revision: expectedRevision + 1 },
       expectedRevision,
     );
   }
