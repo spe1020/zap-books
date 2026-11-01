@@ -8,3 +8,4 @@ fixtures/parity
 target
 fixtures/protocol
 crates/protocol-wasm/pkg
+public/brand
