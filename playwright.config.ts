@@ -5,8 +5,9 @@ const chromium =
   (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined);
 export default defineConfig({
   testDir: "./tests",
-  // Against the ledger service: playwright.remote.config.ts.
-  testIgnore: "remote/**",
+  // Against the ledger service: playwright.remote.config.ts. The landing
+  // site: playwright.site.config.ts.
+  testIgnore: ["remote/**", "site/**"],
   fullyParallel: false,
   workers: 1,
   timeout: 30000,

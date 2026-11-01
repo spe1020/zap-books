@@ -10,3 +10,4 @@ bench-results*.md
 /corpus/
 # The WASM build (npm run wasm:build). CI builds it; it is never committed.
 crates/protocol-wasm/pkg/
+dist-pages/

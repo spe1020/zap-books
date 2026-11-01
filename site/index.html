@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!--
+      The form service's origin is the only other host this page may reach:
+      for the form's ordinary post and for its script's request. The
+      placeholders below are filled in from site/form-service.json by
+      scripts/build-pages.mjs (docs/landing-site.md).
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; manifest-src 'self'; connect-src __FORM_ORIGIN__; form-action __FORM_ORIGIN__; base-uri 'none'; object-src 'none'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zap Books: clear books, your control</title>
+    <meta
+      name="description"
+      content="Bookkeeping for independent and bitcoin-native businesses. Track expenses in dollars or in sats, keep receipts with each expense, and keep a signed history of every change."
+    />
+    <meta name="theme-color" content="#1b1f27" />
+    <link rel="canonical" href="https://zapbooks.io/" />
+    <link
+      rel="icon"
+      href="brand/favicon.svg"
+      type="image/svg+xml"
+      sizes="any"
+    />
+    <link
+      rel="icon"
+      href="brand/favicon-48.png"
+      type="image/png"
+      sizes="48x48"
+    />
+    <link
+      rel="icon"
+      href="brand/favicon-32.png"
+      type="image/png"
+      sizes="32x32"
+    />
+    <link
+      rel="icon"
+      href="brand/favicon-16.png"
+      type="image/png"
+      sizes="16x16"
+    />
+    <link rel="apple-touch-icon" href="brand/app-icon-180.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Zap Books" />
+    <meta property="og:url" content="https://zapbooks.io/" />
+    <meta property="og:title" content="Zap Books: clear books, your control" />
+    <meta
+      property="og:description"
+      content="Bookkeeping for independent and bitcoin-native businesses. Track expenses in dollars or in sats, with a signed history of every change."
+    />
+    <meta
+      property="og:image"
+      content="https://zapbooks.io/social-preview.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The Zap Books logo and the headline: Clear books. Your business. Your control."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="beta-form.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <nav class="wrap nav" aria-label="Main">
+        <a href="#top" class="nav-home" aria-label="Zap Books home">
+          <img src="brand/zap-books-logo.svg" alt="" width="145" height="34" />
+        </a>
+        <div class="nav-links">
+          <a href="#how">How it works</a>
+          <a href="#today">Features</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#trust">Privacy</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#faq">FAQ</a>
+          <a href="#beta" class="button button-small">Join the beta</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section id="top" class="hero tint">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">
+              Bookkeeping for independent and bitcoin-native businesses
+            </p>
+            <h1>Clear books. Your business. Your control.</h1>
+            <p class="lede">
+              Track expenses in dollars or in sats, organize receipts, and keep
+              owner loans and contributions clear. Zap Books helps you keep
+              records you can review, export, and share with your accountant,
+              with a signed history of every change.
+            </p>
+            <div class="actions">
+              <a href="/demo/" class="button button-large">Try the demo</a>
+              <a href="#beta" class="button button-large button-plain"
+                >Join the beta</a
+              >
+            </div>
+            <p class="note">
+              The demo uses fictional businesses and runs entirely in your
+              browser. Nothing is sent anywhere.
+            </p>
+          </div>
+
+          <div class="hero-figure">
+            <figure class="review">
+              <div class="review-head">
+                <span class="review-title">Review expense</span>
+                <span class="pill">Sample data</span>
+              </div>
+              <div class="review-body">
+                <div class="review-receipt">
+                  <span class="step-label">1 · Receipt</span>
+                  <div class="receipt">
+                    <strong>Paper &amp; Pine</strong>
+                    <span class="muted">Notebooks, pens, folders</span>
+                    <span class="receipt-line"
+                      ><span>Subtotal</span><span>$40.00</span></span
+                    >
+                    <span class="receipt-line"
+                      ><span>Tax</span><span>$2.50</span></span
+                    >
+                    <span class="receipt-line receipt-total"
+                      ><span>TOTAL</span><span>$42.50</span></span
+                    >
+                  </div>
+                </div>
+                <div class="review-fields">
+                  <span class="step-label">2 · Suggested details</span>
+                  <div class="field">
+                    <span class="field-name">Vendor</span>
+                    <span class="field-value">Paper &amp; Pine</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-name">Total</span>
+                    <span class="field-value">$42.50</span>
+                    <span class="field-name"
+                      >Seen on receipt: “TOTAL $42.50”</span
+                    >
+                  </div>
+                  <div class="field field-needs">
+                    <span class="field-name">Business purpose</span>
+                    <span class="field-flag"
+                      >Needs you: the receipt can't say why</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="review-approve">
+                <span class="step-label">3 · You approve</span>
+                <span class="fake-button">Approve &amp; post</span>
+              </div>
+              <div class="review-entry">
+                <span class="step-label">4 · Entry</span>
+                <span class="entry-text">Office &amp; supplies · $42.50</span>
+                <span class="entry-state">Posted · signed</span>
+              </div>
+              <figcaption>
+                A simplified view of the Review screen, using the demo's
+                fictional receipt.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Built on Nostr" class="strip">
+        <div class="wrap strip-row">
+          <span
+            ><strong>Built on Nostr:</strong> sign in with a key you own instead
+            of a password.</span
+          >
+          <span
+            ><strong>Bitcoin-native:</strong> keep your books in sats today.
+            Cost basis is next on the <a href="#roadmap">roadmap</a>.</span
+          >
+          <span class="strip-accent">Bookkeeping you can verify.</span>
+        </div>
+      </section>
+
+      <section id="how" class="section">
+        <div class="wrap stack">
+          <div class="intro">
+            <h2>From receipt to clean books in three steps.</h2>
+            <p>
+              Built for owners who would rather run the business than do the
+              books.
+            </p>
+          </div>
+          <ol class="steps">
+            <li>
+              <span class="step-number">Step 1</span>
+              <h3>Add an expense</h3>
+              <p>
+                Enter it by hand, attach a receipt photo or PDF, or import
+                payments from your bank's CSV export.
+              </p>
+            </li>
+            <li>
+              <span class="step-number">Step 2</span>
+              <h3>Review the details</h3>
+              <p>
+                Review suggested details and check anything flagged as
+                uncertain. Possible duplicates and missing information are
+                pointed out before you post.
+              </p>
+            </li>
+            <li>
+              <span class="step-number">Step 3</span>
+              <h3>Approve and post</h3>
+              <p>
+                Approving records a balanced entry. Totals, balances and exports
+                update. Approval records the expense; it never sends money.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="today" class="section tint">
+        <div class="wrap stack">
+          <div class="intro">
+            <h2>What you can do today</h2>
+            <p>
+              Zap Books focuses on expenses and the money between you and your
+              business. It isn't a full replacement for general accounting
+              software yet.
+            </p>
+          </div>
+          <ul class="cards">
+            <li>
+              <strong>Record and correct expenses</strong>
+              <span
+                >Drafts, approval, and corrections that keep the original entry
+                and its reversal visible.</span
+              >
+            </li>
+            <li>
+              <strong>Keep receipts with each expense</strong>
+              <span
+                >Photos and PDFs. On the hosted service, they're encrypted in
+                your browser before they're uploaded.</span
+              >
+            </li>
+            <li class="card-highlight">
+              <strong>Keep books in sats</strong>
+              <span
+                >Bitcoin wallets, amounts in sats, the dollar value recorded at
+                the time of each entry, and buying or selling bitcoin, all kept
+                apart from your dollar books.</span
+              >
+            </li>
+            <li>
+              <strong>Track owner money</strong>
+              <span
+                >Owner loans and contributions, expenses you paid personally,
+                repayments, transfers and opening balances.</span
+              >
+            </li>
+            <li>
+              <strong>Import from CSV</strong>
+              <span
+                >Bank and card payments, and paid-expense history exported from
+                tools like QuickBooks or Zoho Books.</span
+              >
+            </li>
+            <li>
+              <strong>See where money goes</strong>
+              <span
+                >Spending by month and category, and balances for bank, card,
+                loan and owner accounts.</span
+              >
+            </li>
+            <li>
+              <strong>Work with your accountant</strong>
+              <span
+                >Invite them as a read-only viewer, or export expenses, the full
+                journal and balances as CSV.</span
+              >
+            </li>
+            <li>
+              <strong>Run more than one business</strong>
+              <span
+                >Each business keeps its own accounts, records, receipts and
+                members.</span
+              >
+            </li>
+            <li>
+              <strong>Read receipts with private AI</strong>
+              <span
+                >An optional receipt reader runs on your own computer. It needs
+                technical setup and a capable computer.</span
+              >
+            </li>
+          </ul>
+          <div class="limits">
+            <strong>Beta limitations</strong>
+            <ul>
+              <li>
+                Expenses only: no income, invoicing, payroll, sales tax or bank
+                reconciliation yet.
+              </li>
+              <li>No live bank connections: payments come in by CSV.</li>
+              <li>
+                Sign-in works in a desktop browser with a Nostr signer
+                extension. Phone sign-in isn't available yet.
+              </li>
+              <li>
+                Dollars, euros, pounds and bitcoin are each kept separately,
+                with no automatic conversion.
+              </li>
+              <li>
+                Bitcoin cost basis and gains aren't tracked yet, and there's no
+                Lightning import or income yet.
+              </li>
+              <li>
+                The hosted service is in private beta and isn't open for sign-up
+                yet.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap" class="section dark">
+        <div class="wrap stack">
+          <div class="intro">
+            <span class="pill pill-zap">Planned · not available yet</span>
+            <h2>Coming next for bitcoin businesses</h2>
+            <p>
+              Books in sats are available now. Here is what we're building on
+              top of them. Order and timing may change, and beta members help
+              decide.
+            </p>
+          </div>
+          <div class="roadmap-lead">
+            <h3>Cost basis and gains</h3>
+            <ul>
+              <li>
+                Every bitcoin you acquire tracked as a lot, with its date and
+                dollar cost, per wallet.
+              </li>
+              <li>
+                When you spend or sell bitcoin, the gain or loss recorded, first
+                in, first out or from the lots you choose.
+              </li>
+              <li>A gains report and export your accountant can work from.</li>
+            </ul>
+            <p class="roadmap-note">
+              How bitcoin is taxed depends on where you are. Zap Books will keep
+              the records; your accountant makes the call.
+            </p>
+          </div>
+          <ul class="cards cards-dark">
+            <li>
+              <strong>Lightning payments</strong>
+              <span
+                >Bring in Lightning payments from your wallet and match them to
+                receipts.</span
+              >
+            </li>
+            <li>
+              <strong>Income, including zaps</strong>
+              <span
+                >Record what comes in as well as what goes out, zaps received
+                included.</span
+              >
+            </li>
+            <li>
+              <strong>A copy on your own relay</strong>
+              <span
+                >Keep a verified, encrypted copy of your books on a relay you
+                run.</span
+              >
+            </li>
+            <li>
+              <strong>Sign in on your phone</strong>
+              <span
+                >Use a remote signer to sign in and snap receipts from your
+                phone.</span
+              >
+            </li>
+            <li>
+              <strong>An AI helper you choose</strong>
+              <span
+                >Connect your own AI to draft entries and suggestions. Only
+                people can approve.</span
+              >
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="trust" class="section">
+        <div class="wrap trust-grid">
+          <div class="trust-intro">
+            <h2>Privacy, ownership and verification</h2>
+            <p>
+              What Zap Books does to protect your records, and where its limits
+              are.
+            </p>
+            <a href="https://github.com/spe1020/zap-books" class="strong-link"
+              >See the code on GitHub</a
+            >
+          </div>
+          <div class="trust-body">
+            <ul class="trust-points">
+              <li>
+                <strong
+                  >Sign in with your own key. No password required.</strong
+                >
+                <span
+                  >Your key stays in your signer app. Zap Books never asks for
+                  your secret key.</span
+                >
+              </li>
+              <li>
+                <strong>Changes leave a verifiable trail.</strong>
+                <span
+                  >Each accepted change is signed and linked to the one before.
+                  The app checks this trail when it loads your books.</span
+                >
+              </li>
+              <li>
+                <strong>Revoke access to future records.</strong>
+                <span
+                  >Removing someone changes the encryption keys for new records.
+                  Records they already saw or downloaded can't be
+                  recalled.</span
+                >
+              </li>
+              <li>
+                <strong
+                  >Review suggested details and check anything flagged as
+                  uncertain.</strong
+                >
+                <span
+                  >Suggestions show the receipt text they came from. Nothing is
+                  posted until a person approves it.</span
+                >
+              </li>
+            </ul>
+            <details class="panel">
+              <summary>What “verifiable” does and doesn't mean</summary>
+              <div class="panel-body">
+                <p>
+                  Verification checks the history: that every accepted change
+                  was signed by your business's service, links to the change
+                  before it, and came from a signed request by a member. If a
+                  stored entry is changed, removed or reordered, the check
+                  fails.
+                </p>
+                <p>
+                  It doesn't check that the bookkeeping itself is right. A wrong
+                  category or amount that someone approved is recorded
+                  faithfully, and is fixed with a correction that keeps both
+                  versions visible.
+                </p>
+                <p>
+                  The Zap Books service reads each change to check it against
+                  the accounting rules before signing it, so it can see your
+                  books. Receipt files and the signed history are stored
+                  encrypted. The service keeps a readable copy of your current
+                  books so it can check each change.
+                </p>
+              </div>
+            </details>
+            <details class="panel">
+              <summary>Keys, recovery and access</summary>
+              <div class="panel-body">
+                <p>
+                  Every business needs a way back in: a second owner or an
+                  offline backup key, chosen when you create it.
+                </p>
+                <p>
+                  Changes to owners, the backup key or the service's key wait 48
+                  hours, and another owner or the backup key can veto them.
+                  Because a backup key can take over after 48 hours, keep it as
+                  safe as your own key.
+                </p>
+                <p>
+                  Roles decide who can do what: owners, bookkeepers who record
+                  and approve, and viewers who can only read.
+                </p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" class="section tint">
+        <div class="wrap stack">
+          <div class="intro">
+            <h2>Planned pricing</h2>
+            <p>
+              Hosted plans aren't on sale yet. These are the prices we plan to
+              charge once the beta ends.
+            </p>
+          </div>
+          <div class="offer">
+            <div class="offer-text">
+              <span class="pill pill-zap">Founding offer</span>
+              <strong class="offer-headline"
+                >Free during the beta. Then $79 a year for the first 50
+                businesses.</strong
+              >
+              <span
+                >Full details, including when billing starts, will be shared
+                with beta members before anyone is charged.</span
+              >
+            </div>
+            <a href="#beta" class="button button-light">Join the beta</a>
+          </div>
+          <div class="plans">
+            <div class="plan">
+              <h3>Solo</h3>
+              <p class="plan-price">
+                <span class="plan-unit">from</span> $99
+                <span class="plan-unit">a year</span>
+              </p>
+              <p>Hosted Zap Books for a single business.</p>
+            </div>
+            <div class="plan">
+              <h3>Business</h3>
+              <p class="plan-price">
+                <span class="plan-unit">from</span> $199
+                <span class="plan-unit">a year</span>
+              </p>
+              <p>For owners with more than one business, or a larger team.</p>
+            </div>
+          </div>
+          <p class="body-small">Full plan details before billing starts.</p>
+          <p class="body-small">
+            <strong>About AI:</strong> the receipt reader runs on your own
+            computer and isn't tied to a plan. An AI assistant that can draft
+            entries for your review is planned and not available yet.
+          </p>
+          <div class="self-host">
+            <strong>Prefer to run it yourself?</strong>
+            <span
+              >Zap Books is open source under the MIT license and free to
+              self-host. It needs
+              <a
+                href="https://github.com/spe1020/zap-books/blob/business-finance-mvp/docs/service.md"
+                >technical setup</a
+              >.
+              <a href="https://github.com/spe1020/zap-books"
+                >View it on GitHub</a
+              >.</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section id="beta" class="section beta">
+        <div class="wrap beta-wrap">
+          <h2>Join the beta</h2>
+          <p class="beta-intro">
+            We're inviting a small group of businesses to help shape Zap Books.
+            New to Nostr? We'll help you get started.
+          </p>
+          <div id="beta-done" class="beta-done" role="status" hidden>
+            <strong id="beta-done-title" tabindex="-1"
+              >Thanks, you're on the list.</strong
+            >
+            <span id="beta-done-text"></span>
+          </div>
+          <!--
+            Without JavaScript this is an ordinary post to the form service.
+            beta-form.js validates it, sends the same two fields with fetch,
+            and adds the Nostr public key option.
+          -->
+          <form
+            id="beta-form"
+            class="beta-form"
+            action="__FORM_ENDPOINT__"
+            method="post"
+            data-contact-email="__FORM_CONTACT_EMAIL__"
+          >
+            <input type="hidden" name="contact_type" value="email" />
+            <label for="beta-contact" id="beta-label">Email address</label>
+            <div class="beta-row">
+              <input
+                id="beta-contact"
+                name="contact"
+                type="email"
+                autocomplete="email"
+                placeholder="you@business.com"
+                required
+                aria-describedby="beta-help beta-error"
+              />
+              <button type="submit" class="button" id="beta-submit">
+                Request an invite
+              </button>
+            </div>
+            <div id="beta-error" class="beta-error" aria-live="polite"></div>
+            <button type="button" id="beta-mode" class="link-button" hidden>
+              Use a Nostr public key instead
+            </button>
+            <p id="beta-help" class="beta-help">
+              Requests are collected through __FORM_SERVICE__. We only use this
+              to send your invite. No newsletters unless you ask.
+            </p>
+          </form>
+        </div>
+      </section>
+
+      <section id="faq" class="section">
+        <div class="wrap faq-wrap">
+          <h2>Questions</h2>
+          <div class="faq">
+            <details>
+              <summary>Who is Zap Books for?</summary>
+              <p>
+                Independent businesses, freelancers and small teams who want
+                clear expense records they control, especially owners who lend
+                or put their own money into the business. If you need invoicing,
+                payroll or sales tax, you'll still need other tools for now.
+              </p>
+            </details>
+            <details>
+              <summary>What can I do during the beta?</summary>
+              <p>
+                Everything listed under What you can do today: expenses,
+                receipts, owner money, CSV imports, reports, exports and
+                inviting members. Beta members also help decide what comes next.
+                The limitations listed there apply.
+              </p>
+            </details>
+            <details>
+              <summary>Can my accountant use it?</summary>
+              <p>
+                Yes. Add them as a viewer so they can read your records without
+                changing them, or send them CSV exports of your expenses, the
+                full journal and account balances. They'll need their own Nostr
+                key to sign in.
+              </p>
+            </details>
+            <details>
+              <summary>Can I import and export my records?</summary>
+              <p>
+                You can import bank and card payments, and paid-expense history
+                exported from tools like QuickBooks or Zoho Books, as CSV files.
+                Imports create drafts for you to review. You can export
+                expenses, the journal and balances as CSV at any time. Full
+                migration of complete books, and a complete backup-and-restore
+                file, aren't available yet.
+              </p>
+            </details>
+            <details>
+              <summary>Do I need bitcoin or to know about Nostr?</summary>
+              <p>
+                You don't need bitcoin. You do need a Nostr key and a signer
+                extension in a desktop browser to sign in. If you've never used
+                one, we'll help you set it up. You can keep books in sats today,
+                with the dollar value recorded at the time of each entry. Cost
+                basis and gains aren't tracked yet; they're next on the roadmap.
+              </p>
+            </details>
+            <details>
+              <summary>Who can read my books?</summary>
+              <p>
+                The members you add, according to their role, and the Zap Books
+                service, which reads each change to check it before recording
+                it. Receipt files and the signed history are stored encrypted;
+                the service keeps a readable copy of your current books so it
+                can check each change. Someone you remove can't read new
+                records, but keeps anything they already saw.
+              </p>
+            </details>
+            <details>
+              <summary>What happens if I lose my key?</summary>
+              <p>
+                Every business is set up with a second owner or an offline
+                backup key. A backup key can replace your key after a 48-hour
+                wait. A second owner can remove your old key and add a new one,
+                also after 48 hours. If you lose your key and that backup,
+                nobody can restore your access, including us. Keep the backup
+                key offline and safe.
+              </p>
+            </details>
+            <details>
+              <summary>What happens if Zap Books disappears?</summary>
+              <p>
+                Export your records to CSV whenever you like, and keep those
+                copies yourself. Zap Books is open source under the MIT license,
+                so you can also run it yourself. Keeping a verified copy of your
+                books on a relay you run is planned, not available yet.
+              </p>
+            </details>
+            <details>
+              <summary>Is this tax or accounting advice?</summary>
+              <p>
+                No. Zap Books helps you keep accurate records. For tax and
+                accounting decisions, talk to a qualified professional.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-row">
+        <div class="footer-brand">
+          <img
+            src="brand/zap-books-logo-dark-transparent.svg"
+            alt="Zap Books"
+            width="128"
+            height="30"
+          />
+          <span
+            >Bookkeeping you can verify. Built on Nostr. Open source
+            (MIT).</span
+          >
+        </div>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="https://github.com/spe1020/zap-books">GitHub</a>
+          <a href="#trust">Privacy</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#beta">Join the beta</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>
