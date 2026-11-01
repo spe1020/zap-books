@@ -2448,9 +2448,18 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
   const seededTransfer = ns.journals.find(
     (j: JournalEntry) => j.kind === "transfer",
   )!;
+  // The seed's transfer as stored before transfer types existed.
+  const untyped = {
+    ...ns,
+    journals: ns.journals.map((j: JournalEntry) => {
+      if (j.id !== seededTransfer.id) return j;
+      const { transferType: _, purpose: __, ...rest } = j;
+      return rest;
+    }),
+  };
   fix(
-    "correctTransfer: a seeded transfer without a type",
-    ns,
+    "correctTransfer: a transfer stored before transfer types",
+    untyped,
     seededTransfer.id,
     transfer("betweenAccounts", seededTransfer.lines[1].accountId, reserve, {
       date: seededTransfer.date,
@@ -2687,6 +2696,54 @@ function ownerFunding(setup: BusinessData, ns: BusinessData) {
     }),
   );
   sheet("balances: a card purchase and a payment", card, "2026-12-31");
+
+  // Exports: transfer columns, expenses paid personally, and balances.
+  const exported = (
+    name: string,
+    business: BusinessData,
+    format: string,
+    filter = { from: "", to: "", currency: "" },
+  ) =>
+    record("export", name, "exportRecords", { business, format, filter }, (i) =>
+      X.exportRecords(i.business, i.format, i.filter),
+    );
+  exported(
+    "exportRecords: journal with transfers and a correction",
+    history,
+    "journal",
+  );
+  exported(
+    "exportRecords: an expense paid from a loan account",
+    personally,
+    "expenses",
+  );
+  const balanceSheet = (
+    name: string,
+    business: BusinessData,
+    asOf: string,
+    currency = "USD",
+  ) =>
+    record(
+      "export",
+      name,
+      "exportBalances",
+      { business, asOf, currency },
+      (i) => X.exportBalances(i.business, i.asOf, i.currency),
+    );
+  balanceSheet("exportBalances: owner funding history", history, "2026-12-31");
+  balanceSheet(
+    "exportBalances: a card purchase and a payment",
+    card,
+    "2026-12-31",
+  );
+  balanceSheet("exportBalances: the seed", ns, "2026-12-31");
+  balanceSheet(
+    "exportBalances: another currency",
+    history,
+    "2026-12-31",
+    "EUR",
+  );
+  balanceSheet("exportBalances: invalid date", history, "2026-02-30");
 }
 
 test("generate parity fixtures", () => {

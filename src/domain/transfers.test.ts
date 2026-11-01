@@ -12,6 +12,10 @@ import {
 import {
   balances,
   correctTransfer,
+  openingBalance,
+  openingBalanceReplacement,
+  paymentAccounts,
+  transferAccounts,
   recordOpeningBalance,
   recordTransfer,
   type TransferInput,
@@ -565,5 +569,67 @@ describe("owner funding properties", () => {
       );
       expect(net + (totals(b, "2026").USD ?? 0)).toBe(0);
     }
+  });
+});
+
+describe("screen helpers", () => {
+  test("Paid from lists business accounts, then the accounts the owner pays from", () => {
+    let b = setup();
+    b = recordOpeningBalance(b, {
+      accountId: ids(b).bank,
+      date: "2026-01-01",
+      amountMinor: 1000,
+    });
+    const { own, personal } = paymentAccounts(b);
+    expect(own.map((a) => a.kind)).toEqual(["bank", "card", "bank", "bank"]);
+    // Never the opening balances account.
+    expect(personal.map((a) => a.name)).toEqual([
+      "Owner's loan",
+      "Loan from owner",
+      "Owner contributions",
+    ]);
+  });
+
+  test("each transfer type offers only the accounts it fits, in its currency", () => {
+    const b = setup();
+    const names = (list: { name: string }[]) => list.map((a) => a.name);
+    const loan = transferAccounts(b, "ownerLoan", "USD");
+    expect(names(loan.from)).toEqual(["Owner's loan", "Loan from owner"]);
+    expect(names(loan.to)).toEqual([
+      "Operating account",
+      "Business card",
+      "Reserve account",
+    ]);
+    expect(names(transferAccounts(b, "ownerDraw", "USD").to)).toEqual([
+      "Owner contributions",
+    ]);
+    expect(names(transferAccounts(b, "betweenAccounts", "EUR").from)).toEqual([
+      "Euro account",
+    ]);
+  });
+
+  test("an opening balance reads back, and its replacement corrects it", () => {
+    let b = setup();
+    const { card } = ids(b);
+    b = recordOpeningBalance(b, {
+      accountId: card,
+      date: "2026-01-01",
+      amountMinor: 8000,
+    });
+    const current = openingBalance(b, card)!;
+    expect(current.amountMinor).toBe(8000);
+    const replacement = openingBalanceReplacement(b, {
+      accountId: card,
+      date: "2025-12-31",
+      amountMinor: 6500,
+    });
+    const fixed = correctTransfer(
+      b,
+      current.journal.id,
+      replacement,
+      "Statement misread",
+    );
+    expect(openingBalance(fixed, card)).toMatchObject({ amountMinor: 6500 });
+    expect(balanceOf(fixed, card)).toBe(6500);
   });
 });

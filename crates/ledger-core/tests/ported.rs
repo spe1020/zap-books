@@ -456,8 +456,10 @@ fn exports_current_expenses_once_excludes_drafts_transfers_and_keeps_corrected_h
         .iter()
         .map(|r| parse_money(&r[amount]).unwrap().get())
         .sum();
-    assert_eq!(sum, usd(&b));
-    assert_eq!(csv.rows.len(), 6);
+    let all_periods = totals(&b, "").unwrap()[&Currency::Usd].get();
+    assert_eq!(sum, all_periods);
+    // This month's six, and last month's expense the owner paid personally.
+    assert_eq!(csv.rows.len(), 7);
     assert_eq!(
         csv.rows.iter().filter(|r| r[4] == "Atlas Creative").count(),
         1
@@ -700,8 +702,15 @@ fn source_evidence_and_approval_remain_business_scoped() {
 // "our expense CSV maps back into reviewable drafts with preserved exact amounts"
 #[test]
 fn our_expense_csv_maps_back_into_reviewable_drafts_with_preserved_exact_amounts() {
+    // This month's expenses, all paid by card: an import is from one
+    // payment account, and last month's was paid personally.
     let (b, mut env) = fresh();
-    let csv = export_records(&b, ExportFormat::Expenses, &all()).unwrap();
+    let month = ExportFilter {
+        from: format!("{PERIOD}-01"),
+        to: format!("{PERIOD}-31"),
+        currency: None,
+    };
+    let csv = export_records(&b, ExportFormat::Expenses, &month).unwrap();
     let preview = history_preview(&b, &csv.csv, &history_options(None, None), &mut env);
     assert!(preview.iter().all(|r| r.error.is_none()));
     let sum: i64 = preview.iter().map(|r| r.amount_minor.get()).sum();

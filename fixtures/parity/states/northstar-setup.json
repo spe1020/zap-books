@@ -71,6 +71,13 @@
    "name": "Marketing & design",
    "kind": "expense",
    "currency": "USD"
+  },
+  {
+   "id": "northstar-owner-loan",
+   "businessId": "northstar",
+   "name": "Owner's loan",
+   "kind": "liability",
+   "currency": "USD"
   }
  ],
  "categories": [

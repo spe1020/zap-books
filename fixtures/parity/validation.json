@@ -3,7 +3,7 @@
   "name": "duplicates: drafts from another business",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -80,6 +80,13 @@
       "businessId": "northstar",
       "name": "Marketing & design",
       "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
       "currency": "USD"
      }
     ],
@@ -160,6 +167,11 @@
       "id": "id-0093",
       "businessId": "northstar",
       "name": "Common Ground"
+     },
+     {
+      "id": "id-0107",
+      "businessId": "northstar",
+      "name": "Lantern Type Foundry"
      }
     ],
     "documents": [
@@ -485,7 +497,24 @@
       "journalId": "id-0096"
      },
      {
-      "id": "id-0105",
+      "id": "id-0106",
+      "businessId": "northstar",
+      "vendor": "Lantern Type Foundry",
+      "date": "2026-09-15",
+      "description": "Paid personally · font licence",
+      "amountMinor": 21470,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-owner-loan",
+      "purpose": "Typeface for a client identity project",
+      "documentIds": [],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0110"
+     },
+     {
+      "id": "id-0121",
       "businessId": "fieldwork",
       "vendor": "Jobber",
       "date": "2026-10-22",
@@ -496,14 +525,14 @@
       "accountId": "fieldwork-card",
       "purpose": "Monthly field service subscription",
       "documentIds": [
-       "id-0104"
+       "id-0120"
       ],
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
      {
-      "id": "id-0109",
+      "id": "id-0125",
       "businessId": "fieldwork",
       "vendor": "Greenway Supply",
       "date": "2026-10-21",
@@ -519,7 +548,7 @@
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
      {
-      "id": "id-0113",
+      "id": "id-0129",
       "businessId": "fieldwork",
       "vendor": "Oak Valley Nursery",
       "date": "2026-10-20",
@@ -530,15 +559,15 @@
       "accountId": "fieldwork-checking",
       "purpose": "Plants for a client landscape project",
       "documentIds": [
-       "id-0120"
+       "id-0136"
       ],
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "paymentId": "id-0114"
+      "paymentId": "id-0130"
      },
      {
-      "id": "id-0122",
+      "id": "id-0138",
       "businessId": "fieldwork",
       "vendor": "Trail Fuel",
       "date": "2026-10-18",
@@ -549,15 +578,15 @@
       "accountId": "fieldwork-card",
       "purpose": "Fuel for field equipment",
       "documentIds": [
-       "id-0121"
+       "id-0137"
       ],
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0126"
+      "journalId": "id-0142"
      },
      {
-      "id": "id-0133",
+      "id": "id-0149",
       "businessId": "fieldwork",
       "vendor": "Trail Fuel",
       "date": "2026-10-18",
@@ -568,14 +597,14 @@
       "accountId": "fieldwork-card",
       "purpose": "Possible repeat charge · review before posting",
       "documentIds": [
-       "id-0132"
+       "id-0148"
       ],
       "status": "draft",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z"
      },
      {
-      "id": "id-0137",
+      "id": "id-0153",
       "businessId": "fieldwork",
       "vendor": "Cedar Equipment",
       "date": "2026-10-16",
@@ -586,15 +615,15 @@
       "accountId": "fieldwork-card",
       "purpose": "Commercial mower maintenance",
       "documentIds": [
-       "id-0136"
+       "id-0152"
       ],
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0141"
+      "journalId": "id-0157"
      },
      {
-      "id": "id-0148",
+      "id": "id-0164",
       "businessId": "fieldwork",
       "vendor": "Clearwater Insurance",
       "date": "2026-10-12",
@@ -605,15 +634,15 @@
       "accountId": "fieldwork-card",
       "purpose": "Business liability insurance",
       "documentIds": [
-       "id-0147"
+       "id-0163"
       ],
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0152"
+      "journalId": "id-0168"
      },
      {
-      "id": "id-0159",
+      "id": "id-0175",
       "businessId": "fieldwork",
       "vendor": "Field Crew Co.",
       "date": "2026-10-08",
@@ -624,15 +653,15 @@
       "accountId": "fieldwork-card",
       "purpose": "Project services · initial record",
       "documentIds": [
-       "id-0158"
+       "id-0174"
       ],
       "status": "corrected",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0163"
+      "journalId": "id-0179"
      },
      {
-      "id": "id-0170",
+      "id": "id-0186",
       "businessId": "fieldwork",
       "vendor": "Field Crew Co.",
       "date": "2026-10-08",
@@ -643,16 +672,16 @@
       "accountId": "fieldwork-card",
       "purpose": "Project services · initial record",
       "documentIds": [
-       "id-0169"
+       "id-0185"
       ],
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "correctionOf": "id-0159",
-      "journalId": "id-0176"
+      "correctionOf": "id-0175",
+      "journalId": "id-0192"
      },
      {
-      "id": "id-0183",
+      "id": "id-0199",
       "businessId": "fieldwork",
       "vendor": "Sprout Software",
       "date": "2026-10-05",
@@ -663,15 +692,15 @@
       "accountId": "fieldwork-card",
       "purpose": "Monthly creative tools subscription",
       "documentIds": [
-       "id-0182"
+       "id-0198"
       ],
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0187"
+      "journalId": "id-0203"
      },
      {
-      "id": "id-0194",
+      "id": "id-0210",
       "businessId": "fieldwork",
       "vendor": "Route Coffee",
       "date": "2026-10-03",
@@ -682,12 +711,29 @@
       "accountId": "fieldwork-card",
       "purpose": "Client project planning meeting",
       "documentIds": [
-       "id-0193"
+       "id-0209"
       ],
       "status": "posted",
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
-      "journalId": "id-0198"
+      "journalId": "id-0214"
+     },
+     {
+      "id": "id-0224",
+      "businessId": "fieldwork",
+      "vendor": "Bramble Tool Hire",
+      "date": "2026-09-15",
+      "description": "Paid personally · trailer hire",
+      "amountMinor": 18640,
+      "currency": "USD",
+      "categoryId": "fieldwork-category-4",
+      "accountId": "fieldwork-owner-loan",
+      "purpose": "Trailer for a client site clean-up",
+      "documentIds": [],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0228"
      }
     ],
     "journals": [
@@ -884,6 +930,8 @@
       "kind": "transfer",
       "memo": "Operating account → Reserve account",
       "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "betweenAccounts",
+      "purpose": "Set aside a reserve",
       "lines": [
        {
         "accountId": "northstar-reserve",
@@ -896,6 +944,75 @@
         "credit": 200000
        }
       ]
+     },
+     {
+      "id": "id-0103",
+      "businessId": "northstar",
+      "date": "2026-09-04",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-checking",
+        "debit": 600000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 600000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Owner's loan → Operating account",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "ownerLoan",
+      "purpose": "Working capital from the owner"
+     },
+     {
+      "id": "id-0110",
+      "businessId": "northstar",
+      "date": "2026-09-15",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 21470,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 21470
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0106",
+      "memo": "Lantern Type Foundry · Paid personally · font licence",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0116",
+      "businessId": "northstar",
+      "date": "2026-09-27",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 150000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-checking",
+        "debit": 0,
+        "credit": 150000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Operating account → Owner's loan",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "loanRepayment",
+      "purpose": "First repayment to the owner"
      }
     ],
     "approvals": [
@@ -951,6 +1068,14 @@
       "id": "id-0097",
       "businessId": "northstar",
       "expenseId": "id-0092",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0111",
+      "businessId": "northstar",
+      "expenseId": "id-0106",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -1209,6 +1334,51 @@
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0105",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0103",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Owner loan recorded"
+     },
+     {
+      "id": "id-0109",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0113",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0115",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0118",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0116",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Loan repayment recorded"
      }
     ],
     "events": [
@@ -1616,6 +1786,73 @@
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
+     },
+     {
+      "id": "id-0104",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0103",
+      "payload": {
+       "detail": "Owner loan recorded"
+      }
+     },
+     {
+      "id": "id-0108",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0112",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0114",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0110"
+      ],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0117",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0116",
+      "payload": {
+       "detail": "Loan repayment recorded"
+      }
      }
     ],
     "extractions": []
@@ -1645,7 +1882,7 @@
   "name": "validation: blank draft",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1654,7 +1891,7 @@
     "$state": "northstar"
    },
    "draft": {
-    "id": "id-0205",
+    "id": "id-0237",
     "businessId": "northstar",
     "vendor": "",
     "date": "2026-10-15",
@@ -1682,7 +1919,7 @@
   "name": "missingDetails: blank draft",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1691,7 +1928,7 @@
     "$state": "northstar"
    },
    "draft": {
-    "id": "id-0205",
+    "id": "id-0237",
     "businessId": "northstar",
     "vendor": "",
     "date": "2026-10-15",
@@ -1719,7 +1956,7 @@
   "name": "duplicates: blank draft",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1728,7 +1965,7 @@
     "$state": "northstar"
    },
    "draft": {
-    "id": "id-0205",
+    "id": "id-0237",
     "businessId": "northstar",
     "vendor": "",
     "date": "2026-10-15",
@@ -1750,7 +1987,7 @@
   "name": "validation: incomplete seeded draft",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1784,7 +2021,7 @@
   "name": "missingDetails: incomplete seeded draft",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1818,7 +2055,7 @@
   "name": "duplicates: incomplete seeded draft",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1849,7 +2086,7 @@
   "name": "validation: complete draft",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1882,7 +2119,7 @@
   "name": "missingDetails: complete draft",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1915,7 +2152,7 @@
   "name": "duplicates: complete draft",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1948,7 +2185,7 @@
   "name": "validation: possible duplicate",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1983,7 +2220,7 @@
   "name": "missingDetails: possible duplicate",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2016,7 +2253,7 @@
   "name": "duplicates: possible duplicate",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2069,7 +2306,7 @@
   "name": "validation: possible duplicate with reason",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2102,7 +2339,7 @@
   "name": "missingDetails: possible duplicate with reason",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2135,7 +2372,7 @@
   "name": "duplicates: possible duplicate with reason",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2188,7 +2425,7 @@
   "name": "validation: duplicate vendor differs only by case and spacing",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2223,7 +2460,7 @@
   "name": "missingDetails: duplicate vendor differs only by case and spacing",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2256,7 +2493,7 @@
   "name": "duplicates: duplicate vendor differs only by case and spacing",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2309,7 +2546,7 @@
   "name": "validation: different vendor is not a duplicate",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2342,7 +2579,7 @@
   "name": "missingDetails: different vendor is not a duplicate",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2375,7 +2612,7 @@
   "name": "duplicates: different vendor is not a duplicate",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2408,7 +2645,7 @@
   "name": "validation: blank vendor never duplicates",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2443,7 +2680,7 @@
   "name": "missingDetails: blank vendor never duplicates",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2478,7 +2715,7 @@
   "name": "duplicates: blank vendor never duplicates",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2511,7 +2748,7 @@
   "name": "validation: posted draft",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2545,7 +2782,7 @@
   "name": "missingDetails: posted draft",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2579,7 +2816,7 @@
   "name": "duplicates: posted draft",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2613,7 +2850,7 @@
   "name": "validation: foreign draft",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2622,7 +2859,7 @@
     "$state": "northstar"
    },
    "draft": {
-    "id": "id-0105",
+    "id": "id-0121",
     "businessId": "fieldwork",
     "vendor": "Jobber",
     "date": "2026-10-22",
@@ -2633,7 +2870,7 @@
     "accountId": "fieldwork-card",
     "purpose": "Monthly field service subscription",
     "documentIds": [
-     "id-0104"
+     "id-0120"
     ],
     "status": "draft",
     "duplicateReason": "",
@@ -2651,7 +2888,7 @@
   "name": "missingDetails: foreign draft",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2660,7 +2897,7 @@
     "$state": "northstar"
    },
    "draft": {
-    "id": "id-0105",
+    "id": "id-0121",
     "businessId": "fieldwork",
     "vendor": "Jobber",
     "date": "2026-10-22",
@@ -2671,7 +2908,7 @@
     "accountId": "fieldwork-card",
     "purpose": "Monthly field service subscription",
     "documentIds": [
-     "id-0104"
+     "id-0120"
     ],
     "status": "draft",
     "duplicateReason": "",
@@ -2689,7 +2926,7 @@
   "name": "duplicates: foreign draft",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2698,7 +2935,7 @@
     "$state": "northstar"
    },
    "draft": {
-    "id": "id-0105",
+    "id": "id-0121",
     "businessId": "fieldwork",
     "vendor": "Jobber",
     "date": "2026-10-22",
@@ -2709,7 +2946,7 @@
     "accountId": "fieldwork-card",
     "purpose": "Monthly field service subscription",
     "documentIds": [
-     "id-0104"
+     "id-0120"
     ],
     "status": "draft",
     "duplicateReason": "",
@@ -2722,7 +2959,7 @@
   "name": "validation: foreign payment account",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2757,7 +2994,7 @@
   "name": "missingDetails: foreign payment account",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2792,7 +3029,7 @@
   "name": "duplicates: foreign payment account",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2825,7 +3062,7 @@
   "name": "validation: expense account as payment account",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2860,7 +3097,7 @@
   "name": "missingDetails: expense account as payment account",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2895,7 +3132,7 @@
   "name": "duplicates: expense account as payment account",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2928,7 +3165,7 @@
   "name": "validation: currency mismatch",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2963,7 +3200,7 @@
   "name": "missingDetails: currency mismatch",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2998,7 +3235,7 @@
   "name": "duplicates: currency mismatch",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3031,7 +3268,7 @@
   "name": "validation: foreign receipt",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3051,7 +3288,7 @@
     "accountId": "northstar-card",
     "purpose": "Professional plan · monthly subscription",
     "documentIds": [
-     "id-0104"
+     "id-0120"
     ],
     "status": "draft",
     "duplicateReason": "",
@@ -3066,7 +3303,7 @@
   "name": "missingDetails: foreign receipt",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3086,7 +3323,7 @@
     "accountId": "northstar-card",
     "purpose": "Professional plan · monthly subscription",
     "documentIds": [
-     "id-0104"
+     "id-0120"
     ],
     "status": "draft",
     "duplicateReason": "",
@@ -3101,7 +3338,7 @@
   "name": "duplicates: foreign receipt",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3121,7 +3358,7 @@
     "accountId": "northstar-card",
     "purpose": "Professional plan · monthly subscription",
     "documentIds": [
-     "id-0104"
+     "id-0120"
     ],
     "status": "draft",
     "duplicateReason": "",
@@ -3134,7 +3371,7 @@
   "name": "validation: payment amount mismatch",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3170,7 +3407,7 @@
   "name": "missingDetails: payment amount mismatch",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3206,7 +3443,7 @@
   "name": "duplicates: payment amount mismatch",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3240,7 +3477,7 @@
   "name": "validation: payment date mismatch",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3276,7 +3513,7 @@
   "name": "missingDetails: payment date mismatch",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3312,7 +3549,7 @@
   "name": "duplicates: payment date mismatch",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3346,7 +3583,7 @@
   "name": "validation: unknown payment",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3382,7 +3619,7 @@
   "name": "missingDetails: unknown payment",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3418,7 +3655,7 @@
   "name": "duplicates: unknown payment",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3452,7 +3689,7 @@
   "name": "validation: empty payment id is ignored",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3486,7 +3723,7 @@
   "name": "missingDetails: empty payment id is ignored",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3520,7 +3757,7 @@
   "name": "duplicates: empty payment id is ignored",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3554,7 +3791,7 @@
   "name": "validation: invalid date and zero amount",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3590,7 +3827,7 @@
   "name": "missingDetails: invalid date and zero amount",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3626,7 +3863,7 @@
   "name": "duplicates: invalid date and zero amount",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3659,7 +3896,7 @@
   "name": "validation: negative amount",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3694,7 +3931,7 @@
   "name": "missingDetails: negative amount",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3729,7 +3966,7 @@
   "name": "duplicates: negative amount",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3762,7 +3999,7 @@
   "name": "validation: whitespace-only text fields",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3798,7 +4035,7 @@
   "name": "missingDetails: whitespace-only text fields",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3834,7 +4071,7 @@
   "name": "duplicates: whitespace-only text fields",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3867,7 +4104,7 @@
   "name": "validation: foreign category",
   "call": "validation",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3902,7 +4139,7 @@
   "name": "missingDetails: foreign category",
   "call": "missingDetails",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3937,7 +4174,7 @@
   "name": "duplicates: foreign category",
   "call": "duplicates",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -3970,7 +4207,7 @@
   "name": "assertBalanced: seeded journal 0 (expense)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4008,7 +4245,7 @@
   "name": "assertBalanced: seeded journal 1 (expense)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4046,7 +4283,7 @@
   "name": "assertBalanced: seeded journal 2 (expense)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4084,7 +4321,7 @@
   "name": "assertBalanced: seeded journal 3 (expense)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4122,7 +4359,7 @@
   "name": "assertBalanced: seeded journal 4 (reversal)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4161,7 +4398,7 @@
   "name": "assertBalanced: seeded journal 5 (expense)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4199,7 +4436,7 @@
   "name": "assertBalanced: seeded journal 6 (expense)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4237,7 +4474,7 @@
   "name": "assertBalanced: seeded journal 7 (expense)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4275,7 +4512,7 @@
   "name": "assertBalanced: seeded journal 8 (transfer)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4291,6 +4528,8 @@
     "kind": "transfer",
     "memo": "Operating account → Reserve account",
     "createdAt": "2026-10-15T12:00:00.000Z",
+    "transferType": "betweenAccounts",
+    "purpose": "Set aside a reserve",
     "lines": [
      {
       "accountId": "northstar-reserve",
@@ -4308,10 +4547,10 @@
   "output": null
  },
  {
-  "name": "assertBalanced: foreign business journal",
+  "name": "assertBalanced: seeded journal 9 (transfer)",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4320,7 +4559,121 @@
     "$state": "northstar"
    },
    "entry": {
-    "id": "id-0126",
+    "id": "id-0103",
+    "businessId": "northstar",
+    "date": "2026-09-04",
+    "currency": "USD",
+    "lines": [
+     {
+      "accountId": "northstar-checking",
+      "debit": 600000,
+      "credit": 0
+     },
+     {
+      "accountId": "northstar-owner-loan",
+      "debit": 0,
+      "credit": 600000
+     }
+    ],
+    "kind": "transfer",
+    "memo": "Owner's loan → Operating account",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "transferType": "ownerLoan",
+    "purpose": "Working capital from the owner"
+   }
+  },
+  "output": null
+ },
+ {
+  "name": "assertBalanced: seeded journal 10 (expense)",
+  "call": "assertBalanced",
+  "env": {
+   "nextId": 238,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "entry": {
+    "id": "id-0110",
+    "businessId": "northstar",
+    "date": "2026-09-15",
+    "currency": "USD",
+    "lines": [
+     {
+      "accountId": "northstar-expense-0",
+      "categoryId": "northstar-category-0",
+      "debit": 21470,
+      "credit": 0
+     },
+     {
+      "accountId": "northstar-owner-loan",
+      "debit": 0,
+      "credit": 21470
+     }
+    ],
+    "kind": "expense",
+    "expenseId": "id-0106",
+    "memo": "Lantern Type Foundry · Paid personally · font licence",
+    "createdAt": "2026-10-15T12:00:00.000Z"
+   }
+  },
+  "output": null
+ },
+ {
+  "name": "assertBalanced: seeded journal 11 (transfer)",
+  "call": "assertBalanced",
+  "env": {
+   "nextId": 238,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "entry": {
+    "id": "id-0116",
+    "businessId": "northstar",
+    "date": "2026-09-27",
+    "currency": "USD",
+    "lines": [
+     {
+      "accountId": "northstar-owner-loan",
+      "debit": 150000,
+      "credit": 0
+     },
+     {
+      "accountId": "northstar-checking",
+      "debit": 0,
+      "credit": 150000
+     }
+    ],
+    "kind": "transfer",
+    "memo": "Operating account → Owner's loan",
+    "createdAt": "2026-10-15T12:00:00.000Z",
+    "transferType": "loanRepayment",
+    "purpose": "First repayment to the owner"
+   }
+  },
+  "output": null
+ },
+ {
+  "name": "assertBalanced: foreign business journal",
+  "call": "assertBalanced",
+  "env": {
+   "nextId": 238,
+   "now": "2026-10-15T12:00:00.000Z",
+   "today": "2026-10-15"
+  },
+  "input": {
+   "business": {
+    "$state": "northstar"
+   },
+   "entry": {
+    "id": "id-0142",
     "businessId": "fieldwork",
     "date": "2026-10-18",
     "currency": "USD",
@@ -4338,7 +4691,7 @@
      }
     ],
     "kind": "expense",
-    "expenseId": "id-0122",
+    "expenseId": "id-0138",
     "memo": "Trail Fuel · Fuel for field equipment",
     "createdAt": "2026-10-15T12:00:00.000Z"
    }
@@ -4349,7 +4702,7 @@
   "name": "assertBalanced: unbalanced",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4387,7 +4740,7 @@
   "name": "assertBalanced: single line",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4420,7 +4773,7 @@
   "name": "assertBalanced: invalid date",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4458,7 +4811,7 @@
   "name": "assertBalanced: unknown account",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4496,7 +4849,7 @@
   "name": "assertBalanced: negative amount",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4534,7 +4887,7 @@
   "name": "assertBalanced: two-sided line",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4572,7 +4925,7 @@
   "name": "assertBalanced: category on wrong account",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4610,7 +4963,7 @@
   "name": "assertBalanced: zero amounts",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4648,7 +5001,7 @@
   "name": "assertBalanced: EUR journal on USD bank",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4686,7 +5039,7 @@
   "name": "assertBalanced: EUR journal on EUR bank and expense account",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4724,7 +5077,7 @@
   "name": "assertBalanced: total exceeds safe range",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4773,7 +5126,7 @@
   "name": "assertBalanced: category on the paying account",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -4850,6 +5203,13 @@
       "businessId": "northstar",
       "name": "Marketing & design",
       "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
       "currency": "USD"
      }
     ],
@@ -4936,6 +5296,11 @@
       "id": "id-0093",
       "businessId": "northstar",
       "name": "Common Ground"
+     },
+     {
+      "id": "id-0107",
+      "businessId": "northstar",
+      "name": "Lantern Type Foundry"
      }
     ],
     "documents": [
@@ -5259,6 +5624,23 @@
       "duplicateReason": "",
       "createdAt": "2026-10-15T12:00:00.000Z",
       "journalId": "id-0096"
+     },
+     {
+      "id": "id-0106",
+      "businessId": "northstar",
+      "vendor": "Lantern Type Foundry",
+      "date": "2026-09-15",
+      "description": "Paid personally · font licence",
+      "amountMinor": 21470,
+      "currency": "USD",
+      "categoryId": "northstar-category-0",
+      "accountId": "northstar-owner-loan",
+      "purpose": "Typeface for a client identity project",
+      "documentIds": [],
+      "status": "posted",
+      "duplicateReason": "",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "journalId": "id-0110"
      }
     ],
     "journals": [
@@ -5455,6 +5837,8 @@
       "kind": "transfer",
       "memo": "Operating account → Reserve account",
       "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "betweenAccounts",
+      "purpose": "Set aside a reserve",
       "lines": [
        {
         "accountId": "northstar-reserve",
@@ -5467,6 +5851,75 @@
         "credit": 200000
        }
       ]
+     },
+     {
+      "id": "id-0103",
+      "businessId": "northstar",
+      "date": "2026-09-04",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-checking",
+        "debit": 600000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 600000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Owner's loan → Operating account",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "ownerLoan",
+      "purpose": "Working capital from the owner"
+     },
+     {
+      "id": "id-0110",
+      "businessId": "northstar",
+      "date": "2026-09-15",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-expense-0",
+        "categoryId": "northstar-category-0",
+        "debit": 21470,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 0,
+        "credit": 21470
+       }
+      ],
+      "kind": "expense",
+      "expenseId": "id-0106",
+      "memo": "Lantern Type Foundry · Paid personally · font licence",
+      "createdAt": "2026-10-15T12:00:00.000Z"
+     },
+     {
+      "id": "id-0116",
+      "businessId": "northstar",
+      "date": "2026-09-27",
+      "currency": "USD",
+      "lines": [
+       {
+        "accountId": "northstar-owner-loan",
+        "debit": 150000,
+        "credit": 0
+       },
+       {
+        "accountId": "northstar-checking",
+        "debit": 0,
+        "credit": 150000
+       }
+      ],
+      "kind": "transfer",
+      "memo": "Operating account → Owner's loan",
+      "createdAt": "2026-10-15T12:00:00.000Z",
+      "transferType": "loanRepayment",
+      "purpose": "First repayment to the owner"
      }
     ],
     "approvals": [
@@ -5522,6 +5975,14 @@
       "id": "id-0097",
       "businessId": "northstar",
       "expenseId": "id-0092",
+      "actor": "local-demo-user",
+      "at": "2026-10-15T12:00:00.000Z",
+      "duplicateReason": ""
+     },
+     {
+      "id": "id-0111",
+      "businessId": "northstar",
+      "expenseId": "id-0106",
       "actor": "local-demo-user",
       "at": "2026-10-15T12:00:00.000Z",
       "duplicateReason": ""
@@ -5780,6 +6241,51 @@
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0105",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0103",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Owner loan recorded"
+     },
+     {
+      "id": "id-0109",
+      "businessId": "northstar",
+      "action": "expense.created",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Expense draft created"
+     },
+     {
+      "id": "id-0113",
+      "businessId": "northstar",
+      "action": "expense.approved",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Reviewed and approved. No payment initiated."
+     },
+     {
+      "id": "id-0115",
+      "businessId": "northstar",
+      "action": "expense.posted",
+      "entityId": "id-0106",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Balanced journal entry recorded"
+     },
+     {
+      "id": "id-0118",
+      "businessId": "northstar",
+      "action": "transfer.recorded",
+      "entityId": "id-0116",
+      "at": "2026-10-15T12:00:00.000Z",
+      "actor": "local-demo-user",
+      "detail": "Loan repayment recorded"
      }
     ],
     "events": [
@@ -6187,6 +6693,73 @@
       "payload": {
        "detail": "Balanced journal entry recorded"
       }
+     },
+     {
+      "id": "id-0104",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0103",
+      "payload": {
+       "detail": "Owner loan recorded"
+      }
+     },
+     {
+      "id": "id-0108",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.created",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Expense draft created"
+      }
+     },
+     {
+      "id": "id-0112",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.approved",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Reviewed and approved. No payment initiated."
+      }
+     },
+     {
+      "id": "id-0114",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "expense.posted",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [
+       "id-0110"
+      ],
+      "entityId": "id-0106",
+      "payload": {
+       "detail": "Balanced journal entry recorded"
+      }
+     },
+     {
+      "id": "id-0117",
+      "businessId": "northstar",
+      "schemaVersion": 1,
+      "type": "transfer.recorded",
+      "actor": "local-demo-user",
+      "occurredAt": "2026-10-15T12:00:00.000Z",
+      "sourceIds": [],
+      "entityId": "id-0116",
+      "payload": {
+       "detail": "Loan repayment recorded"
+      }
      }
     ],
     "extractions": []
@@ -6221,7 +6794,7 @@
   "name": "assertBalanced: expense account line without a category",
   "call": "assertBalanced",
   "env": {
-   "nextId": 206,
+   "nextId": 238,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -6258,7 +6831,7 @@
   "name": "missingDetails: date before 1900",
   "call": "missingDetails",
   "env": {
-   "nextId": 624,
+   "nextId": 621,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },

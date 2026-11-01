@@ -208,6 +208,11 @@ fn run(call: &str, a: &Args, env: &mut SequentialEnv) -> std::result::Result<Val
         "recordOpeningBalance" => out(record_opening_balance(&business(), &a.get("input"), env)),
         "balances" => out(balances(&business(), &a.str("asOf"), a.get("currency"))),
         "encodeCSV" => ok(encode_csv(&a.get::<Vec<Vec<String>>>("rows"))),
+        "exportBalances" => out(export_balances(
+            &business(),
+            &a.str("asOf"),
+            a.get("currency"),
+        )),
         "exportRecords" => out(export_records(
             &business(),
             a.get("format"),

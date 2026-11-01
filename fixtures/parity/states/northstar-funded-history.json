@@ -73,6 +73,13 @@
    "currency": "USD"
   },
   {
+   "id": "northstar-owner-loan",
+   "businessId": "northstar",
+   "name": "Owner's loan",
+   "kind": "liability",
+   "currency": "USD"
+  },
+  {
    "id": "id-1000",
    "businessId": "northstar",
    "name": "Loan from owner",

@@ -41,6 +41,7 @@ import {
   duplicates,
   missingDetails,
   money,
+  today,
   totals,
 } from "./domain/ledger";
 import { localLedger } from "./adapters/local-ledger";
@@ -69,6 +70,13 @@ import type { Mutation } from "./components/Review";
 import { ImportDialog } from "./components/Import";
 import { ExportDialog } from "./components/Export";
 import { Settings } from "./components/Settings";
+import { RecordTransfer } from "./components/Transfer";
+import {
+  accountKindLabels,
+  balanceMeanings,
+  balances,
+  transferTypeLabels,
+} from "./domain/transfers";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 type View = "overview" | "inbox" | "transactions" | "settings" | "members";
 const nav = [
@@ -130,6 +138,8 @@ export default function App({
   const [reset, setReset] = useState(false),
     [resetText, setResetText] = useState("");
   const [transfer, setTransfer] = useState<JournalEntry | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [correcting, setCorrecting] = useState<JournalEntry | null>(null);
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
   useEffect(() => {
@@ -475,6 +485,15 @@ export default function App({
                   </button>
                   {writes && (
                     <>
+                      {view === "transactions" && (
+                        <button
+                          className="button secondary"
+                          onClick={() => setRecording(true)}
+                        >
+                          <ArrowLeftRight size={17} />
+                          Record transfer
+                        </button>
+                      )}
                       <button
                         className="button secondary"
                         onClick={() => setImporting(true)}
@@ -636,6 +655,24 @@ export default function App({
         {exporting && (
           <ExportDialog b={b} onClose={() => setExporting(false)} />
         )}
+        {recording && (
+          <RecordTransfer
+            b={b}
+            mutate={mutate}
+            busy={busy}
+            onClose={() => setRecording(false)}
+          />
+        )}
+        {correcting && (
+          <RecordTransfer
+            key={correcting.id}
+            b={b}
+            mutate={mutate}
+            busy={busy}
+            correcting={correcting}
+            onClose={() => setCorrecting(null)}
+          />
+        )}
         {toast && (
           <div className="toast" role="status">
             <Check size={17} />
@@ -751,10 +788,22 @@ export default function App({
           <Modal title="Account transfer" onClose={() => setTransfer(null)}>
             <div className="modal-form">
               <span className="badge blue">
-                Transfer · excluded from spending
+                {transfer.transferType
+                  ? transferTypeLabels[transfer.transferType]
+                  : "Transfer"}{" "}
+                · excluded from spending
               </span>
               <h3>{transfer.memo}</h3>
-              <p>{transfer.date}</p>
+              <p>
+                {transfer.date}
+                {transfer.purpose && ` · ${transfer.purpose}`}
+                {transfer.reference && ` · Reference ${transfer.reference}`}
+              </p>
+              {b.journals.some((j) => j.reversesId === transfer.id) && (
+                <p className="small muted">
+                  Corrected: a reversal and a replacement were posted.
+                </p>
+              )}
               {transfer.lines.map((l, i) => (
                 <div className="setting-row" key={i}>
                   <strong>
@@ -770,6 +819,24 @@ export default function App({
                 This balanced entry moves value between accounts. It is not an
                 expense or a payment instruction.
               </p>
+              {writes &&
+                transfer.transferType !== "openingBalance" &&
+                !b.journals.some((j) => j.reversesId === transfer.id) && (
+                  <button
+                    className="button secondary"
+                    onClick={() => {
+                      setCorrecting(transfer);
+                      setTransfer(null);
+                    }}
+                  >
+                    Correct transfer
+                  </button>
+                )}
+              {transfer.transferType === "openingBalance" && (
+                <p className="small muted">
+                  Correct an opening balance in Settings.
+                </p>
+              )}
             </div>
           </Modal>
         )}
@@ -998,6 +1065,7 @@ function Overview({
           </div>
         </section>
       </div>
+      <BalancesPanel b={b} currency={currency} />
       <section className="card recent-card">
         <div className="card-heading">
           <div>
@@ -1027,6 +1095,60 @@ function Overview({
         </p>
       </div>
     </>
+  );
+}
+/**
+ * Each bank, card, loan and equity account's balance in `currency` as of
+ * today. A card shows what's owed on it, and a loan what's owed to the
+ * owner.
+ */
+function BalancesPanel({
+  b,
+  currency,
+}: {
+  b: BusinessData;
+  currency: Currency;
+}) {
+  const asOf = today();
+  const rows = balances(b, asOf, currency);
+  return (
+    <section className="card recent-card" aria-labelledby="balances-heading">
+      <div className="card-heading">
+        <div>
+          <h2 id="balances-heading">Balances</h2>
+          <p>
+            As of today, {shortDate(asOf)} <span>· {currency}</span>
+          </p>
+        </div>
+      </div>
+      {rows.length ? (
+        <div className="balances-list">
+          {rows.map((r) => (
+            <div className="setting-row" key={r.accountId}>
+              <div>
+                <strong>{r.name}</strong>
+                <small>{accountKindLabels[r.kind]}</small>
+              </div>
+              <span>
+                <small className="small muted">
+                  {balanceMeanings[r.kind as keyof typeof balanceMeanings]}
+                </small>{" "}
+                <strong>{money(r.balance, currency)}</strong>
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Empty title="No accounts in this currency">
+          Add a {currency} account in Settings to see its balance.
+        </Empty>
+      )}
+      <div className="card-foot">
+        <span>
+          Cards and loans show what's owed. Transfers are never spending.
+        </span>
+      </div>
+    </section>
   );
 }
 function ExpenseTable({
@@ -1265,12 +1387,16 @@ function Transactions({
           (d.status === "corrected" || d.correctionOf)),
     )
     .sort((a, z) => z.date.localeCompare(a.date));
-  const transfers = b.journals.filter(
-    (j) =>
-      j.kind === "transfer" &&
-      j.memo.toLowerCase().includes(search.toLowerCase()) &&
-      filter !== "Corrections",
-  );
+  const transfers = b.journals
+    .filter(
+      (j) =>
+        j.kind === "transfer" &&
+        `${j.memo} ${j.purpose ?? ""} ${j.transferType ? transferTypeLabels[j.transferType] : ""}`
+          .toLowerCase()
+          .includes(search.toLowerCase()) &&
+        filter !== "Corrections",
+    )
+    .sort((a, z) => z.date.localeCompare(a.date));
   return (
     <section className="card">
       <div className="list-toolbar">
@@ -1310,9 +1436,22 @@ function Transactions({
           </span>
           <span>
             <strong>{t.memo}</strong>
-            <small>{shortDate(t.date)} · Between business accounts</small>
+            <small>
+              {shortDate(t.date)} ·{" "}
+              {t.transferType
+                ? transferTypeLabels[t.transferType]
+                : "Between business accounts"}
+              {t.purpose &&
+                t.purpose !==
+                  (t.transferType && transferTypeLabels[t.transferType]) &&
+                ` · ${t.purpose}`}
+            </small>
           </span>
-          <span className="badge blue">Transfer</span>
+          <span className="badge blue">
+            {b.journals.some((j) => j.reversesId === t.id)
+              ? "Corrected"
+              : "Transfer"}
+          </span>
           <strong>{money(t.lines[0].debit, t.currency)}</strong>
           <ArrowUpRight size={16} />
         </button>

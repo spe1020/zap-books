@@ -3,7 +3,7 @@
   "name": "profile: trimmed and logged",
   "call": "updateSettings",
   "env": {
-   "nextId": 624,
+   "nextId": 621,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -90,6 +90,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -142,7 +149,7 @@
    ],
    "audits": [
     {
-     "id": "id-0625",
+     "id": "id-0622",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -153,7 +160,7 @@
    ],
    "events": [
     {
-     "id": "id-0624",
+     "id": "id-0621",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -173,7 +180,7 @@
   "name": "profile: empty name",
   "call": "updateSettings",
   "env": {
-   "nextId": 626,
+   "nextId": 623,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -193,7 +200,7 @@
   "name": "profile: empty industry",
   "call": "updateSettings",
   "env": {
-   "nextId": 626,
+   "nextId": 623,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -213,7 +220,7 @@
   "name": "addAccount: card",
   "call": "updateSettings",
   "env": {
-   "nextId": 626,
+   "nextId": 623,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -303,7 +310,14 @@
      "currency": "USD"
     },
     {
-     "id": "id-0626",
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
+    },
+    {
+     "id": "id-0623",
      "businessId": "northstar",
      "name": "Travel card",
      "kind": "card",
@@ -360,7 +374,7 @@
    ],
    "audits": [
     {
-     "id": "id-0628",
+     "id": "id-0625",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -371,7 +385,7 @@
    ],
    "events": [
     {
-     "id": "id-0627",
+     "id": "id-0624",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -391,7 +405,7 @@
   "name": "addAccount: name taken, ignoring case",
   "call": "updateSettings",
   "env": {
-   "nextId": 629,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -412,7 +426,7 @@
   "name": "addAccount: a category's expense account name is taken",
   "call": "updateSettings",
   "env": {
-   "nextId": 629,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -433,7 +447,7 @@
   "name": "addAccount: expense kind",
   "call": "updateSettings",
   "env": {
-   "nextId": 629,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -454,7 +468,7 @@
   "name": "addAccount: empty name",
   "call": "updateSettings",
   "env": {
-   "nextId": 629,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -475,7 +489,7 @@
   "name": "renameAccount: own name in another case",
   "call": "updateSettings",
   "env": {
-   "nextId": 629,
+   "nextId": 626,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -562,6 +576,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -614,7 +635,7 @@
    ],
    "audits": [
     {
-     "id": "id-0630",
+     "id": "id-0627",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -625,7 +646,7 @@
    ],
    "events": [
     {
-     "id": "id-0629",
+     "id": "id-0626",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -645,7 +666,7 @@
   "name": "renameAccount: another business's account",
   "call": "updateSettings",
   "env": {
-   "nextId": 631,
+   "nextId": 628,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -665,7 +686,7 @@
   "name": "addCategory: with its expense account",
   "call": "updateSettings",
   "env": {
-   "nextId": 631,
+   "nextId": 628,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -754,7 +775,14 @@
      "currency": "USD"
     },
     {
-     "id": "id-0631",
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
+    },
+    {
+     "id": "id-0628",
      "businessId": "northstar",
      "name": "Field trips",
      "kind": "expense",
@@ -793,10 +821,10 @@
      "accountId": "northstar-expense-4"
     },
     {
-     "id": "id-0632",
+     "id": "id-0629",
      "businessId": "northstar",
      "name": "Field trips",
-     "accountId": "id-0631"
+     "accountId": "id-0628"
     }
    ],
    "vendors": [],
@@ -817,7 +845,7 @@
    ],
    "audits": [
     {
-     "id": "id-0634",
+     "id": "id-0631",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -828,7 +856,7 @@
    ],
    "events": [
     {
-     "id": "id-0633",
+     "id": "id-0630",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -848,7 +876,7 @@
   "name": "renameCategory: name taken",
   "call": "updateSettings",
   "env": {
-   "nextId": 635,
+   "nextId": 632,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -868,7 +896,7 @@
   "name": "renameCategory: renamed with its expense account",
   "call": "updateSettings",
   "env": {
-   "nextId": 635,
+   "nextId": 632,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -955,6 +983,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -1007,7 +1042,7 @@
    ],
    "audits": [
     {
-     "id": "id-0636",
+     "id": "id-0633",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -1018,7 +1053,7 @@
    ],
    "events": [
     {
-     "id": "id-0635",
+     "id": "id-0632",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -1038,7 +1073,7 @@
   "name": "renameCategory: another account's name is taken",
   "call": "updateSettings",
   "env": {
-   "nextId": 637,
+   "nextId": 634,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1058,7 +1093,7 @@
   "name": "renameCategory: its own account's name, in another case",
   "call": "updateSettings",
   "env": {
-   "nextId": 637,
+   "nextId": 634,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1145,6 +1180,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -1197,7 +1239,7 @@
    ],
    "audits": [
     {
-     "id": "id-0638",
+     "id": "id-0635",
      "businessId": "northstar",
      "action": "settings.updated",
      "entityId": "northstar",
@@ -1208,7 +1250,7 @@
    ],
    "events": [
     {
-     "id": "id-0637",
+     "id": "id-0634",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "settings.updated",
@@ -1228,7 +1270,7 @@
   "name": "addCategory: a bank account's name is taken",
   "call": "updateSettings",
   "env": {
-   "nextId": 639,
+   "nextId": 636,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1248,7 +1290,7 @@
   "name": "renameAccount: an expense account",
   "call": "updateSettings",
   "env": {
-   "nextId": 639,
+   "nextId": 636,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1268,7 +1310,7 @@
   "name": "renameCategory: unknown id",
   "call": "updateSettings",
   "env": {
-   "nextId": 639,
+   "nextId": 636,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1288,7 +1330,7 @@
   "name": "saveRule: new rule, trimmed",
   "call": "saveRule",
   "env": {
-   "nextId": 639,
+   "nextId": 636,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1376,6 +1418,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -1426,7 +1475,7 @@
      "enabled": true
     },
     {
-     "id": "id-0639",
+     "id": "id-0636",
      "businessId": "northstar",
      "vendorIncludes": "Paper Shop",
      "categoryId": "northstar-category-0",
@@ -1436,10 +1485,10 @@
    ],
    "audits": [
     {
-     "id": "id-0641",
+     "id": "id-0638",
      "businessId": "northstar",
      "action": "rule.saved",
-     "entityId": "id-0639",
+     "entityId": "id-0636",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Classification rule saved:   Paper Shop "
@@ -1447,14 +1496,14 @@
    ],
    "events": [
     {
-     "id": "id-0640",
+     "id": "id-0637",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "rule.saved",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [],
-     "entityId": "id-0639",
+     "entityId": "id-0636",
      "payload": {
       "detail": "Classification rule saved:   Paper Shop "
      }
@@ -1467,7 +1516,7 @@
   "name": "saveRule: edited rule moves to the end",
   "call": "saveRule",
   "env": {
-   "nextId": 642,
+   "nextId": 639,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1545,6 +1594,13 @@
       "name": "Marketing & design",
       "kind": "expense",
       "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
+      "currency": "USD"
      }
     ],
     "categories": [
@@ -1595,7 +1651,7 @@
       "enabled": true
      },
      {
-      "id": "id-0639",
+      "id": "id-0636",
       "businessId": "northstar",
       "vendorIncludes": "Paper Shop",
       "categoryId": "northstar-category-0",
@@ -1605,10 +1661,10 @@
     ],
     "audits": [
      {
-      "id": "id-0641",
+      "id": "id-0638",
       "businessId": "northstar",
       "action": "rule.saved",
-      "entityId": "id-0639",
+      "entityId": "id-0636",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Classification rule saved:   Paper Shop "
@@ -1616,14 +1672,14 @@
     ],
     "events": [
      {
-      "id": "id-0640",
+      "id": "id-0637",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "rule.saved",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [],
-      "entityId": "id-0639",
+      "entityId": "id-0636",
       "payload": {
        "detail": "Classification rule saved:   Paper Shop "
       }
@@ -1713,6 +1769,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -1755,7 +1818,7 @@
    "approvals": [],
    "rules": [
     {
-     "id": "id-0639",
+     "id": "id-0636",
      "businessId": "northstar",
      "vendorIncludes": "Paper Shop",
      "categoryId": "northstar-category-0",
@@ -1773,16 +1836,16 @@
    ],
    "audits": [
     {
-     "id": "id-0641",
+     "id": "id-0638",
      "businessId": "northstar",
      "action": "rule.saved",
-     "entityId": "id-0639",
+     "entityId": "id-0636",
      "at": "2026-10-15T12:00:00.000Z",
      "actor": "local-demo-user",
      "detail": "Classification rule saved:   Paper Shop "
     },
     {
-     "id": "id-0643",
+     "id": "id-0640",
      "businessId": "northstar",
      "action": "rule.saved",
      "entityId": "id-0001",
@@ -1793,20 +1856,20 @@
    ],
    "events": [
     {
-     "id": "id-0640",
+     "id": "id-0637",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "rule.saved",
      "actor": "local-demo-user",
      "occurredAt": "2026-10-15T12:00:00.000Z",
      "sourceIds": [],
-     "entityId": "id-0639",
+     "entityId": "id-0636",
      "payload": {
       "detail": "Classification rule saved:   Paper Shop "
      }
     },
     {
-     "id": "id-0642",
+     "id": "id-0639",
      "businessId": "northstar",
      "schemaVersion": 1,
      "type": "rule.saved",
@@ -1826,7 +1889,7 @@
   "name": "saveRule: vendor taken, ignoring case",
   "call": "saveRule",
   "env": {
-   "nextId": 644,
+   "nextId": 641,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -1904,6 +1967,13 @@
       "name": "Marketing & design",
       "kind": "expense",
       "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
+      "currency": "USD"
      }
     ],
     "categories": [
@@ -1954,7 +2024,7 @@
       "enabled": true
      },
      {
-      "id": "id-0639",
+      "id": "id-0636",
       "businessId": "northstar",
       "vendorIncludes": "Paper Shop",
       "categoryId": "northstar-category-0",
@@ -1964,10 +2034,10 @@
     ],
     "audits": [
      {
-      "id": "id-0641",
+      "id": "id-0638",
       "businessId": "northstar",
       "action": "rule.saved",
-      "entityId": "id-0639",
+      "entityId": "id-0636",
       "at": "2026-10-15T12:00:00.000Z",
       "actor": "local-demo-user",
       "detail": "Classification rule saved:   Paper Shop "
@@ -1975,14 +2045,14 @@
     ],
     "events": [
      {
-      "id": "id-0640",
+      "id": "id-0637",
       "businessId": "northstar",
       "schemaVersion": 1,
       "type": "rule.saved",
       "actor": "local-demo-user",
       "occurredAt": "2026-10-15T12:00:00.000Z",
       "sourceIds": [],
-      "entityId": "id-0639",
+      "entityId": "id-0636",
       "payload": {
        "detail": "Classification rule saved:   Paper Shop "
       }
@@ -2003,7 +2073,7 @@
   "name": "saveRule: empty purpose",
   "call": "saveRule",
   "env": {
-   "nextId": 644,
+   "nextId": 641,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -2024,7 +2094,7 @@
   "name": "saveRule: another business's category",
   "call": "saveRule",
   "env": {
-   "nextId": 644,
+   "nextId": 641,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },

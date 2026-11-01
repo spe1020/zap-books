@@ -1,5 +1,11 @@
 import type { BusinessData, Currency } from "./types";
 import { amountInput, validDate } from "./ledger";
+import {
+  accountKindLabels,
+  balanceMeanings,
+  balances,
+  transferTypeLabels,
+} from "./transfers";
 export type ExportFormat = "expenses" | "journal";
 export interface ExportFilter {
   from: string;
@@ -49,9 +55,9 @@ export function exportRecords(
     (!filter.from || date >= filter.from) &&
     (!filter.to || date <= filter.to) &&
     (!filter.currency || currency === filter.currency);
-  const account = (id: string) =>
-    b.accounts.find((a) => a.id === id && a.businessId === b.profile.id)
-      ?.name ?? "";
+  const accountOf = (id: string) =>
+    b.accounts.find((a) => a.id === id && a.businessId === b.profile.id);
+  const account = (id: string) => accountOf(id)?.name ?? "";
   const category = (id: string | undefined) =>
     b.categories.find((c) => c.id === id && c.businessId === b.profile.id)
       ?.name ?? "";
@@ -73,6 +79,7 @@ export function exportRecords(
       "Source system",
       "Source reference",
       "Receipt count",
+      "Paid personally",
     ];
     rows = b.drafts
       .filter(
@@ -102,6 +109,11 @@ export function exportRecords(
           d.importSource?.provider ?? (payment ? "Payment CSV" : ""),
           d.importSource?.reference ?? payment?.reference ?? "",
           String(d.documentIds.length),
+          // An expense paid from a loan account is owed to the owner; from
+          // an equity account, it's the owner's contribution.
+          { liability: "Loan", equity: "Contribution" }[
+            accountOf(d.accountId)?.kind as string
+          ] ?? "",
         ];
       });
   } else {
@@ -121,6 +133,10 @@ export function exportRecords(
       "Currency",
       "Memo",
       "Recorded at",
+      "Transfer type",
+      "Purpose",
+      "Reference",
+      "Corrects journal ID",
     ];
     rows = b.journals
       .filter(
@@ -148,18 +164,63 @@ export function exportRecords(
           j.currency,
           j.memo,
           j.createdAt,
+          j.transferType ? transferTypeLabels[j.transferType] : "",
+          j.purpose ?? "",
+          j.reference ?? "",
+          j.correctionOf ?? "",
         ]),
       );
   }
-  const name =
-    b.profile.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "") || "business";
   return {
     headers,
     rows,
-    filename: `${name}-${format}-${filter.from || "start"}-to-${filter.to || "latest"}-${filter.currency || "all-currencies"}.csv`,
+    filename: `${fileStem(b)}-${format}-${filter.from || "start"}-to-${filter.to || "latest"}-${filter.currency || "all-currencies"}.csv`,
+    csv: encodeCSV([headers, ...rows]),
+  };
+}
+
+const fileStem = (b: BusinessData) =>
+  b.profile.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "business";
+
+/**
+ * Every bank, card, loan and equity account's balance in `currency` on
+ * `asOf`, one row each, from `balances`. A card's balance is what's owed on
+ * it, and a loan's what's owed to the owner.
+ */
+export function exportBalances(
+  b: BusinessData,
+  asOf: string,
+  currency: Currency,
+): CSVExport {
+  const headers = [
+    "Business ID",
+    "Business",
+    "As of",
+    "Account ID",
+    "Account",
+    "Account type",
+    "Balance",
+    "Currency",
+    "Balance is",
+  ];
+  const rows = balances(b, asOf, currency).map((r) => [
+    b.profile.id,
+    b.profile.name,
+    asOf,
+    r.accountId,
+    r.name,
+    accountKindLabels[r.kind],
+    amountInput(r.balance),
+    currency,
+    balanceMeanings[r.kind as keyof typeof balanceMeanings],
+  ]);
+  return {
+    headers,
+    rows,
+    filename: `${fileStem(b)}-balances-${asOf}-${currency}.csv`,
     csv: encodeCSV([headers, ...rows]),
   };
 }

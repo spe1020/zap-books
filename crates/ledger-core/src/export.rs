@@ -8,7 +8,8 @@ use crate::date::valid_date;
 use crate::error::{LedgerError, Result};
 use crate::js;
 use crate::money::{amount_input, Currency};
-use crate::types::{BusinessData, ExpenseStatus, JournalKind};
+use crate::transfers::{account_kind_label, balance_meaning, balances, transfer_type_label};
+use crate::types::{AccountKind, BusinessData, ExpenseStatus, JournalKind};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -136,13 +137,12 @@ pub fn export_records(
             && (filter.to.is_empty() || js::cmp(date, &filter.to) != Ordering::Greater)
             && filter.currency.is_none_or(|c| c == currency)
     };
-    let account = |id: &str| {
+    let account_of = |id: &str| {
         b.accounts
             .iter()
             .find(|a| a.id == id && a.business_id == b.profile.id)
-            .map(|a| a.name.clone())
-            .unwrap_or_default()
     };
+    let account = |id: &str| account_of(id).map(|a| a.name.clone()).unwrap_or_default();
     let category = |id: Option<&str>| {
         b.categories
             .iter()
@@ -196,6 +196,14 @@ pub fn export_records(
                         source_system,
                         source_reference,
                         d.document_ids.len().to_string(),
+                        // Paid from a loan account, it's owed to the owner;
+                        // from an equity account, it's their contribution.
+                        match account_of(&d.account_id).map(|a| a.kind) {
+                            Some(AccountKind::Liability) => "Loan",
+                            Some(AccountKind::Equity) => "Contribution",
+                            _ => "",
+                        }
+                        .to_string(),
                     ]
                 })
                 .collect();
@@ -231,6 +239,13 @@ pub fn export_records(
                             j.currency.code().to_string(),
                             j.memo.clone(),
                             j.created_at.clone(),
+                            j.transfer_type
+                                .map(transfer_type_label)
+                                .unwrap_or_default()
+                                .to_string(),
+                            j.purpose.clone().unwrap_or_default(),
+                            j.reference.clone().unwrap_or_default(),
+                            j.correction_of.clone().unwrap_or_default(),
                         ]
                     })
                 })
@@ -266,7 +281,7 @@ pub fn export_records(
     })
 }
 
-const EXPENSE_HEADERS: [&str; 15] = [
+const EXPENSE_HEADERS: [&str; 16] = [
     "Business ID",
     "Business",
     "Expense ID",
@@ -282,9 +297,10 @@ const EXPENSE_HEADERS: [&str; 15] = [
     "Source system",
     "Source reference",
     "Receipt count",
+    "Paid personally",
 ];
 
-const JOURNAL_HEADERS: [&str; 15] = [
+const JOURNAL_HEADERS: [&str; 19] = [
     "Business ID",
     "Business",
     "Journal ID",
@@ -300,6 +316,10 @@ const JOURNAL_HEADERS: [&str; 15] = [
     "Currency",
     "Memo",
     "Recorded at",
+    "Transfer type",
+    "Purpose",
+    "Reference",
+    "Corrects journal ID",
 ];
 
 fn journal_kind(kind: JournalKind) -> &'static str {
@@ -331,4 +351,53 @@ fn file_stem(name: &str) -> String {
     } else {
         stem.to_string()
     }
+}
+
+const BALANCE_HEADERS: [&str; 9] = [
+    "Business ID",
+    "Business",
+    "As of",
+    "Account ID",
+    "Account",
+    "Account type",
+    "Balance",
+    "Currency",
+    "Balance is",
+];
+
+/// `exportBalances`: every bank, card, loan and equity account's balance in
+/// `currency` on `as_of`, one row each, from [`balances`]. A card's balance
+/// is what's owed on it, and a loan's what's owed to the owner.
+pub fn export_balances(b: &BusinessData, as_of: &str, currency: Currency) -> Result<CsvExport> {
+    let headers: Vec<String> = BALANCE_HEADERS.iter().map(|h| h.to_string()).collect();
+    let rows: Vec<Vec<String>> = balances(b, as_of, currency)?
+        .into_iter()
+        .map(|r| {
+            vec![
+                b.profile.id.clone(),
+                b.profile.name.clone(),
+                as_of.to_string(),
+                r.account_id,
+                r.name,
+                account_kind_label(r.kind).to_string(),
+                amount_input(r.balance),
+                currency.code().to_string(),
+                balance_meaning(r.kind).to_string(),
+            ]
+        })
+        .collect();
+    let mut all = Vec::with_capacity(rows.len() + 1);
+    all.push(headers.clone());
+    all.extend(rows.iter().cloned());
+    Ok(CsvExport {
+        headers,
+        rows,
+        filename: format!(
+            "{}-balances-{}-{}.csv",
+            file_stem(&b.profile.name),
+            as_of,
+            currency.code()
+        ),
+        csv: encode_csv(&all),
+    })
 }

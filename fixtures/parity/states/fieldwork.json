@@ -71,6 +71,13 @@
    "name": "Equipment & materials",
    "kind": "expense",
    "currency": "USD"
+  },
+  {
+   "id": "fieldwork-owner-loan",
+   "businessId": "fieldwork",
+   "name": "Owner's loan",
+   "kind": "liability",
+   "currency": "USD"
   }
  ],
  "categories": [
@@ -107,54 +114,59 @@
  ],
  "vendors": [
   {
-   "id": "id-0106",
+   "id": "id-0122",
    "businessId": "fieldwork",
    "name": "Jobber"
   },
   {
-   "id": "id-0110",
+   "id": "id-0126",
    "businessId": "fieldwork",
    "name": "Greenway Supply"
   },
   {
-   "id": "id-0115",
+   "id": "id-0131",
    "businessId": "fieldwork",
    "name": "Oak Valley Nursery"
   },
   {
-   "id": "id-0123",
+   "id": "id-0139",
    "businessId": "fieldwork",
    "name": "Trail Fuel"
   },
   {
-   "id": "id-0138",
+   "id": "id-0154",
    "businessId": "fieldwork",
    "name": "Cedar Equipment"
   },
   {
-   "id": "id-0149",
+   "id": "id-0165",
    "businessId": "fieldwork",
    "name": "Clearwater Insurance"
   },
   {
-   "id": "id-0160",
+   "id": "id-0176",
    "businessId": "fieldwork",
    "name": "Field Crew Co."
   },
   {
-   "id": "id-0184",
+   "id": "id-0200",
    "businessId": "fieldwork",
    "name": "Sprout Software"
   },
   {
-   "id": "id-0195",
+   "id": "id-0211",
    "businessId": "fieldwork",
    "name": "Route Coffee"
+  },
+  {
+   "id": "id-0225",
+   "businessId": "fieldwork",
+   "name": "Bramble Tool Hire"
   }
  ],
  "documents": [
   {
-   "id": "id-0104",
+   "id": "id-0120",
    "businessId": "fieldwork",
    "name": "jobber-receipt.svg",
    "mime": "image/svg+xml",
@@ -164,7 +176,7 @@
    "demo": true
   },
   {
-   "id": "id-0120",
+   "id": "id-0136",
    "businessId": "fieldwork",
    "name": "oak-valley-nursery-receipt.svg",
    "mime": "image/svg+xml",
@@ -174,7 +186,7 @@
    "demo": true
   },
   {
-   "id": "id-0121",
+   "id": "id-0137",
    "businessId": "fieldwork",
    "name": "trail-fuel-receipt.svg",
    "mime": "image/svg+xml",
@@ -184,7 +196,7 @@
    "demo": true
   },
   {
-   "id": "id-0132",
+   "id": "id-0148",
    "businessId": "fieldwork",
    "name": "trail-fuel-receipt.svg",
    "mime": "image/svg+xml",
@@ -194,7 +206,7 @@
    "demo": true
   },
   {
-   "id": "id-0136",
+   "id": "id-0152",
    "businessId": "fieldwork",
    "name": "cedar-equipment-receipt.svg",
    "mime": "image/svg+xml",
@@ -204,7 +216,7 @@
    "demo": true
   },
   {
-   "id": "id-0147",
+   "id": "id-0163",
    "businessId": "fieldwork",
    "name": "clearwater-insurance-receipt.svg",
    "mime": "image/svg+xml",
@@ -214,7 +226,7 @@
    "demo": true
   },
   {
-   "id": "id-0158",
+   "id": "id-0174",
    "businessId": "fieldwork",
    "name": "field-crew-co.-receipt.svg",
    "mime": "image/svg+xml",
@@ -224,7 +236,7 @@
    "demo": true
   },
   {
-   "id": "id-0169",
+   "id": "id-0185",
    "businessId": "fieldwork",
    "name": "field-crew-co.-receipt.svg",
    "mime": "image/svg+xml",
@@ -234,7 +246,7 @@
    "demo": true
   },
   {
-   "id": "id-0182",
+   "id": "id-0198",
    "businessId": "fieldwork",
    "name": "sprout-software-receipt.svg",
    "mime": "image/svg+xml",
@@ -244,7 +256,7 @@
    "demo": true
   },
   {
-   "id": "id-0193",
+   "id": "id-0209",
    "businessId": "fieldwork",
    "name": "route-coffee-receipt.svg",
    "mime": "image/svg+xml",
@@ -256,7 +268,7 @@
  ],
  "payments": [
   {
-   "id": "id-0114",
+   "id": "id-0130",
    "businessId": "fieldwork",
    "date": "2026-10-20",
    "description": "Oak Valley Nursery",
@@ -265,12 +277,12 @@
    "accountId": "fieldwork-checking",
    "reference": "fieldwork-PAY-020",
    "fingerprint": "[\"fieldwork\",\"fieldwork-checking\",\"ref\",\"fieldwork-PAY-020\"]",
-   "draftId": "id-0113"
+   "draftId": "id-0129"
   }
  ],
  "drafts": [
   {
-   "id": "id-0105",
+   "id": "id-0121",
    "businessId": "fieldwork",
    "vendor": "Jobber",
    "date": "2026-10-22",
@@ -281,14 +293,14 @@
    "accountId": "fieldwork-card",
    "purpose": "Monthly field service subscription",
    "documentIds": [
-    "id-0104"
+    "id-0120"
    ],
    "status": "draft",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0109",
+   "id": "id-0125",
    "businessId": "fieldwork",
    "vendor": "Greenway Supply",
    "date": "2026-10-21",
@@ -304,7 +316,7 @@
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0113",
+   "id": "id-0129",
    "businessId": "fieldwork",
    "vendor": "Oak Valley Nursery",
    "date": "2026-10-20",
@@ -315,15 +327,15 @@
    "accountId": "fieldwork-checking",
    "purpose": "Plants for a client landscape project",
    "documentIds": [
-    "id-0120"
+    "id-0136"
    ],
    "status": "draft",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "paymentId": "id-0114"
+   "paymentId": "id-0130"
   },
   {
-   "id": "id-0122",
+   "id": "id-0138",
    "businessId": "fieldwork",
    "vendor": "Trail Fuel",
    "date": "2026-10-18",
@@ -334,15 +346,15 @@
    "accountId": "fieldwork-card",
    "purpose": "Fuel for field equipment",
    "documentIds": [
-    "id-0121"
+    "id-0137"
    ],
    "status": "posted",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "journalId": "id-0126"
+   "journalId": "id-0142"
   },
   {
-   "id": "id-0133",
+   "id": "id-0149",
    "businessId": "fieldwork",
    "vendor": "Trail Fuel",
    "date": "2026-10-18",
@@ -353,14 +365,14 @@
    "accountId": "fieldwork-card",
    "purpose": "Possible repeat charge · review before posting",
    "documentIds": [
-    "id-0132"
+    "id-0148"
    ],
    "status": "draft",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0137",
+   "id": "id-0153",
    "businessId": "fieldwork",
    "vendor": "Cedar Equipment",
    "date": "2026-10-16",
@@ -371,15 +383,15 @@
    "accountId": "fieldwork-card",
    "purpose": "Commercial mower maintenance",
    "documentIds": [
-    "id-0136"
+    "id-0152"
    ],
    "status": "posted",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "journalId": "id-0141"
+   "journalId": "id-0157"
   },
   {
-   "id": "id-0148",
+   "id": "id-0164",
    "businessId": "fieldwork",
    "vendor": "Clearwater Insurance",
    "date": "2026-10-12",
@@ -390,15 +402,15 @@
    "accountId": "fieldwork-card",
    "purpose": "Business liability insurance",
    "documentIds": [
-    "id-0147"
+    "id-0163"
    ],
    "status": "posted",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "journalId": "id-0152"
+   "journalId": "id-0168"
   },
   {
-   "id": "id-0159",
+   "id": "id-0175",
    "businessId": "fieldwork",
    "vendor": "Field Crew Co.",
    "date": "2026-10-08",
@@ -409,15 +421,15 @@
    "accountId": "fieldwork-card",
    "purpose": "Project services · initial record",
    "documentIds": [
-    "id-0158"
+    "id-0174"
    ],
    "status": "corrected",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "journalId": "id-0163"
+   "journalId": "id-0179"
   },
   {
-   "id": "id-0170",
+   "id": "id-0186",
    "businessId": "fieldwork",
    "vendor": "Field Crew Co.",
    "date": "2026-10-08",
@@ -428,16 +440,16 @@
    "accountId": "fieldwork-card",
    "purpose": "Project services · initial record",
    "documentIds": [
-    "id-0169"
+    "id-0185"
    ],
    "status": "posted",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "correctionOf": "id-0159",
-   "journalId": "id-0176"
+   "correctionOf": "id-0175",
+   "journalId": "id-0192"
   },
   {
-   "id": "id-0183",
+   "id": "id-0199",
    "businessId": "fieldwork",
    "vendor": "Sprout Software",
    "date": "2026-10-05",
@@ -448,15 +460,15 @@
    "accountId": "fieldwork-card",
    "purpose": "Monthly creative tools subscription",
    "documentIds": [
-    "id-0182"
+    "id-0198"
    ],
    "status": "posted",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "journalId": "id-0187"
+   "journalId": "id-0203"
   },
   {
-   "id": "id-0194",
+   "id": "id-0210",
    "businessId": "fieldwork",
    "vendor": "Route Coffee",
    "date": "2026-10-03",
@@ -467,17 +479,34 @@
    "accountId": "fieldwork-card",
    "purpose": "Client project planning meeting",
    "documentIds": [
-    "id-0193"
+    "id-0209"
    ],
    "status": "posted",
    "duplicateReason": "",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "journalId": "id-0198"
+   "journalId": "id-0214"
+  },
+  {
+   "id": "id-0224",
+   "businessId": "fieldwork",
+   "vendor": "Bramble Tool Hire",
+   "date": "2026-09-15",
+   "description": "Paid personally · trailer hire",
+   "amountMinor": 18640,
+   "currency": "USD",
+   "categoryId": "fieldwork-category-4",
+   "accountId": "fieldwork-owner-loan",
+   "purpose": "Trailer for a client site clean-up",
+   "documentIds": [],
+   "status": "posted",
+   "duplicateReason": "",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "journalId": "id-0228"
   }
  ],
  "journals": [
   {
-   "id": "id-0126",
+   "id": "id-0142",
    "businessId": "fieldwork",
    "date": "2026-10-18",
    "currency": "USD",
@@ -495,12 +524,12 @@
     }
    ],
    "kind": "expense",
-   "expenseId": "id-0122",
+   "expenseId": "id-0138",
    "memo": "Trail Fuel · Fuel for field equipment",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0141",
+   "id": "id-0157",
    "businessId": "fieldwork",
    "date": "2026-10-16",
    "currency": "USD",
@@ -518,12 +547,12 @@
     }
    ],
    "kind": "expense",
-   "expenseId": "id-0137",
+   "expenseId": "id-0153",
    "memo": "Cedar Equipment · Commercial mower maintenance",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0152",
+   "id": "id-0168",
    "businessId": "fieldwork",
    "date": "2026-10-12",
    "currency": "USD",
@@ -541,12 +570,12 @@
     }
    ],
    "kind": "expense",
-   "expenseId": "id-0148",
+   "expenseId": "id-0164",
    "memo": "Clearwater Insurance · Business liability insurance",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0163",
+   "id": "id-0179",
    "businessId": "fieldwork",
    "date": "2026-10-08",
    "currency": "USD",
@@ -564,12 +593,12 @@
     }
    ],
    "kind": "expense",
-   "expenseId": "id-0159",
+   "expenseId": "id-0175",
    "memo": "Field Crew Co. · Project services · initial record",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0171",
+   "id": "id-0187",
    "businessId": "fieldwork",
    "date": "2026-10-08",
    "currency": "USD",
@@ -587,13 +616,13 @@
     }
    ],
    "kind": "reversal",
-   "expenseId": "id-0159",
+   "expenseId": "id-0175",
    "memo": "Correction: Supplier issued a corrected invoice: reduced by $137.25.",
    "createdAt": "2026-10-15T12:00:00.000Z",
-   "reversesId": "id-0163"
+   "reversesId": "id-0179"
   },
   {
-   "id": "id-0176",
+   "id": "id-0192",
    "businessId": "fieldwork",
    "date": "2026-10-08",
    "currency": "USD",
@@ -611,12 +640,12 @@
     }
    ],
    "kind": "expense",
-   "expenseId": "id-0170",
+   "expenseId": "id-0186",
    "memo": "Field Crew Co. · Project services · corrected invoice amount",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0187",
+   "id": "id-0203",
    "businessId": "fieldwork",
    "date": "2026-10-05",
    "currency": "USD",
@@ -634,12 +663,12 @@
     }
    ],
    "kind": "expense",
-   "expenseId": "id-0183",
+   "expenseId": "id-0199",
    "memo": "Sprout Software · Monthly creative tools subscription",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0198",
+   "id": "id-0214",
    "businessId": "fieldwork",
    "date": "2026-10-03",
    "currency": "USD",
@@ -657,18 +686,20 @@
     }
    ],
    "kind": "expense",
-   "expenseId": "id-0194",
+   "expenseId": "id-0210",
    "memo": "Route Coffee · Client project planning meeting",
    "createdAt": "2026-10-15T12:00:00.000Z"
   },
   {
-   "id": "id-0204",
+   "id": "id-0220",
    "businessId": "fieldwork",
    "date": "2026-10-10",
    "currency": "USD",
    "kind": "transfer",
    "memo": "Operating account → Reserve account",
    "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "betweenAccounts",
+   "purpose": "Set aside a reserve",
    "lines": [
     {
      "accountId": "fieldwork-reserve",
@@ -681,61 +712,138 @@
      "credit": 200000
     }
    ]
+  },
+  {
+   "id": "id-0221",
+   "businessId": "fieldwork",
+   "date": "2026-09-04",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "fieldwork-checking",
+     "debit": 600000,
+     "credit": 0
+    },
+    {
+     "accountId": "fieldwork-owner-loan",
+     "debit": 0,
+     "credit": 600000
+    }
+   ],
+   "kind": "transfer",
+   "memo": "Owner's loan → Operating account",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "ownerLoan",
+   "purpose": "Working capital from the owner"
+  },
+  {
+   "id": "id-0228",
+   "businessId": "fieldwork",
+   "date": "2026-09-15",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "fieldwork-expense-4",
+     "categoryId": "fieldwork-category-4",
+     "debit": 18640,
+     "credit": 0
+    },
+    {
+     "accountId": "fieldwork-owner-loan",
+     "debit": 0,
+     "credit": 18640
+    }
+   ],
+   "kind": "expense",
+   "expenseId": "id-0224",
+   "memo": "Bramble Tool Hire · Paid personally · trailer hire",
+   "createdAt": "2026-10-15T12:00:00.000Z"
+  },
+  {
+   "id": "id-0234",
+   "businessId": "fieldwork",
+   "date": "2026-09-27",
+   "currency": "USD",
+   "lines": [
+    {
+     "accountId": "fieldwork-owner-loan",
+     "debit": 150000,
+     "credit": 0
+    },
+    {
+     "accountId": "fieldwork-checking",
+     "debit": 0,
+     "credit": 150000
+    }
+   ],
+   "kind": "transfer",
+   "memo": "Operating account → Owner's loan",
+   "createdAt": "2026-10-15T12:00:00.000Z",
+   "transferType": "loanRepayment",
+   "purpose": "First repayment to the owner"
   }
  ],
  "approvals": [
   {
-   "id": "id-0127",
+   "id": "id-0143",
    "businessId": "fieldwork",
-   "expenseId": "id-0122",
+   "expenseId": "id-0138",
    "actor": "local-demo-user",
    "at": "2026-10-15T12:00:00.000Z",
    "duplicateReason": ""
   },
   {
-   "id": "id-0142",
+   "id": "id-0158",
    "businessId": "fieldwork",
-   "expenseId": "id-0137",
+   "expenseId": "id-0153",
    "actor": "local-demo-user",
    "at": "2026-10-15T12:00:00.000Z",
    "duplicateReason": ""
   },
   {
-   "id": "id-0153",
+   "id": "id-0169",
    "businessId": "fieldwork",
-   "expenseId": "id-0148",
+   "expenseId": "id-0164",
    "actor": "local-demo-user",
    "at": "2026-10-15T12:00:00.000Z",
    "duplicateReason": ""
   },
   {
-   "id": "id-0164",
+   "id": "id-0180",
    "businessId": "fieldwork",
-   "expenseId": "id-0159",
+   "expenseId": "id-0175",
    "actor": "local-demo-user",
    "at": "2026-10-15T12:00:00.000Z",
    "duplicateReason": ""
   },
   {
-   "id": "id-0177",
+   "id": "id-0193",
    "businessId": "fieldwork",
-   "expenseId": "id-0170",
+   "expenseId": "id-0186",
    "actor": "local-demo-user",
    "at": "2026-10-15T12:00:00.000Z",
    "duplicateReason": ""
   },
   {
-   "id": "id-0188",
+   "id": "id-0204",
    "businessId": "fieldwork",
-   "expenseId": "id-0183",
+   "expenseId": "id-0199",
    "actor": "local-demo-user",
    "at": "2026-10-15T12:00:00.000Z",
    "duplicateReason": ""
   },
   {
-   "id": "id-0199",
+   "id": "id-0215",
    "businessId": "fieldwork",
-   "expenseId": "id-0194",
+   "expenseId": "id-0210",
+   "actor": "local-demo-user",
+   "at": "2026-10-15T12:00:00.000Z",
+   "duplicateReason": ""
+  },
+  {
+   "id": "id-0229",
+   "businessId": "fieldwork",
+   "expenseId": "id-0224",
    "actor": "local-demo-user",
    "at": "2026-10-15T12:00:00.000Z",
    "duplicateReason": ""
@@ -743,7 +851,7 @@
  ],
  "rules": [
   {
-   "id": "id-0103",
+   "id": "id-0119",
    "businessId": "fieldwork",
    "vendorIncludes": "Jobber",
    "categoryId": "fieldwork-category-0",
@@ -753,100 +861,64 @@
  ],
  "audits": [
   {
-   "id": "id-0108",
+   "id": "id-0124",
    "businessId": "fieldwork",
    "action": "expense.created",
-   "entityId": "id-0105",
+   "entityId": "id-0121",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0112",
+   "id": "id-0128",
    "businessId": "fieldwork",
    "action": "expense.created",
-   "entityId": "id-0109",
+   "entityId": "id-0125",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0117",
+   "id": "id-0133",
    "businessId": "fieldwork",
    "action": "expense.created",
-   "entityId": "id-0113",
+   "entityId": "id-0129",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0119",
+   "id": "id-0135",
    "businessId": "fieldwork",
    "action": "expense.matched",
-   "entityId": "id-0113",
+   "entityId": "id-0129",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Imported payment linked to one draft. Attach receipts to this draft."
   },
   {
-   "id": "id-0125",
+   "id": "id-0141",
    "businessId": "fieldwork",
    "action": "expense.created",
-   "entityId": "id-0122",
+   "entityId": "id-0138",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0129",
+   "id": "id-0145",
    "businessId": "fieldwork",
    "action": "expense.approved",
-   "entityId": "id-0122",
+   "entityId": "id-0138",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Reviewed and approved. No payment initiated."
   },
   {
-   "id": "id-0131",
+   "id": "id-0147",
    "businessId": "fieldwork",
    "action": "expense.posted",
-   "entityId": "id-0122",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Balanced journal entry recorded"
-  },
-  {
-   "id": "id-0135",
-   "businessId": "fieldwork",
-   "action": "expense.created",
-   "entityId": "id-0133",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Expense draft created"
-  },
-  {
-   "id": "id-0140",
-   "businessId": "fieldwork",
-   "action": "expense.created",
-   "entityId": "id-0137",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Expense draft created"
-  },
-  {
-   "id": "id-0144",
-   "businessId": "fieldwork",
-   "action": "expense.approved",
-   "entityId": "id-0137",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Reviewed and approved. No payment initiated."
-  },
-  {
-   "id": "id-0146",
-   "businessId": "fieldwork",
-   "action": "expense.posted",
-   "entityId": "id-0137",
+   "entityId": "id-0138",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Balanced journal entry recorded"
@@ -855,307 +927,328 @@
    "id": "id-0151",
    "businessId": "fieldwork",
    "action": "expense.created",
-   "entityId": "id-0148",
+   "entityId": "id-0149",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0155",
+   "id": "id-0156",
+   "businessId": "fieldwork",
+   "action": "expense.created",
+   "entityId": "id-0153",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Expense draft created"
+  },
+  {
+   "id": "id-0160",
    "businessId": "fieldwork",
    "action": "expense.approved",
-   "entityId": "id-0148",
+   "entityId": "id-0153",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Reviewed and approved. No payment initiated."
-  },
-  {
-   "id": "id-0157",
-   "businessId": "fieldwork",
-   "action": "expense.posted",
-   "entityId": "id-0148",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Balanced journal entry recorded"
   },
   {
    "id": "id-0162",
    "businessId": "fieldwork",
-   "action": "expense.created",
-   "entityId": "id-0159",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Expense draft created"
-  },
-  {
-   "id": "id-0166",
-   "businessId": "fieldwork",
-   "action": "expense.approved",
-   "entityId": "id-0159",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Reviewed and approved. No payment initiated."
-  },
-  {
-   "id": "id-0168",
-   "businessId": "fieldwork",
    "action": "expense.posted",
-   "entityId": "id-0159",
+   "entityId": "id-0153",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Balanced journal entry recorded"
   },
   {
+   "id": "id-0167",
+   "businessId": "fieldwork",
+   "action": "expense.created",
+   "entityId": "id-0164",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Expense draft created"
+  },
+  {
+   "id": "id-0171",
+   "businessId": "fieldwork",
+   "action": "expense.approved",
+   "entityId": "id-0164",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Reviewed and approved. No payment initiated."
+  },
+  {
    "id": "id-0173",
    "businessId": "fieldwork",
+   "action": "expense.posted",
+   "entityId": "id-0164",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Balanced journal entry recorded"
+  },
+  {
+   "id": "id-0178",
+   "businessId": "fieldwork",
+   "action": "expense.created",
+   "entityId": "id-0175",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Expense draft created"
+  },
+  {
+   "id": "id-0182",
+   "businessId": "fieldwork",
+   "action": "expense.approved",
+   "entityId": "id-0175",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Reviewed and approved. No payment initiated."
+  },
+  {
+   "id": "id-0184",
+   "businessId": "fieldwork",
+   "action": "expense.posted",
+   "entityId": "id-0175",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Balanced journal entry recorded"
+  },
+  {
+   "id": "id-0189",
+   "businessId": "fieldwork",
    "action": "expense.reversed",
-   "entityId": "id-0159",
+   "entityId": "id-0175",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Supplier issued a corrected invoice: reduced by $137.25."
   },
   {
-   "id": "id-0175",
+   "id": "id-0191",
    "businessId": "fieldwork",
    "action": "expense.created",
-   "entityId": "id-0170",
+   "entityId": "id-0186",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0179",
+   "id": "id-0195",
    "businessId": "fieldwork",
    "action": "expense.approved",
-   "entityId": "id-0170",
+   "entityId": "id-0186",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Reviewed and approved. No payment initiated."
-  },
-  {
-   "id": "id-0181",
-   "businessId": "fieldwork",
-   "action": "expense.posted",
-   "entityId": "id-0170",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Balanced journal entry recorded"
-  },
-  {
-   "id": "id-0186",
-   "businessId": "fieldwork",
-   "action": "expense.created",
-   "entityId": "id-0183",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Expense draft created"
-  },
-  {
-   "id": "id-0190",
-   "businessId": "fieldwork",
-   "action": "expense.approved",
-   "entityId": "id-0183",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Reviewed and approved. No payment initiated."
-  },
-  {
-   "id": "id-0192",
-   "businessId": "fieldwork",
-   "action": "expense.posted",
-   "entityId": "id-0183",
-   "at": "2026-10-15T12:00:00.000Z",
-   "actor": "local-demo-user",
-   "detail": "Balanced journal entry recorded"
   },
   {
    "id": "id-0197",
    "businessId": "fieldwork",
+   "action": "expense.posted",
+   "entityId": "id-0186",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Balanced journal entry recorded"
+  },
+  {
+   "id": "id-0202",
+   "businessId": "fieldwork",
    "action": "expense.created",
-   "entityId": "id-0194",
+   "entityId": "id-0199",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Expense draft created"
   },
   {
-   "id": "id-0201",
+   "id": "id-0206",
    "businessId": "fieldwork",
    "action": "expense.approved",
-   "entityId": "id-0194",
+   "entityId": "id-0199",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Reviewed and approved. No payment initiated."
   },
   {
-   "id": "id-0203",
+   "id": "id-0208",
    "businessId": "fieldwork",
    "action": "expense.posted",
-   "entityId": "id-0194",
+   "entityId": "id-0199",
    "at": "2026-10-15T12:00:00.000Z",
    "actor": "local-demo-user",
    "detail": "Balanced journal entry recorded"
+  },
+  {
+   "id": "id-0213",
+   "businessId": "fieldwork",
+   "action": "expense.created",
+   "entityId": "id-0210",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Expense draft created"
+  },
+  {
+   "id": "id-0217",
+   "businessId": "fieldwork",
+   "action": "expense.approved",
+   "entityId": "id-0210",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Reviewed and approved. No payment initiated."
+  },
+  {
+   "id": "id-0219",
+   "businessId": "fieldwork",
+   "action": "expense.posted",
+   "entityId": "id-0210",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Balanced journal entry recorded"
+  },
+  {
+   "id": "id-0223",
+   "businessId": "fieldwork",
+   "action": "transfer.recorded",
+   "entityId": "id-0221",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Owner loan recorded"
+  },
+  {
+   "id": "id-0227",
+   "businessId": "fieldwork",
+   "action": "expense.created",
+   "entityId": "id-0224",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Expense draft created"
+  },
+  {
+   "id": "id-0231",
+   "businessId": "fieldwork",
+   "action": "expense.approved",
+   "entityId": "id-0224",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Reviewed and approved. No payment initiated."
+  },
+  {
+   "id": "id-0233",
+   "businessId": "fieldwork",
+   "action": "expense.posted",
+   "entityId": "id-0224",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Balanced journal entry recorded"
+  },
+  {
+   "id": "id-0236",
+   "businessId": "fieldwork",
+   "action": "transfer.recorded",
+   "entityId": "id-0234",
+   "at": "2026-10-15T12:00:00.000Z",
+   "actor": "local-demo-user",
+   "detail": "Loan repayment recorded"
   }
  ],
  "events": [
   {
-   "id": "id-0107",
+   "id": "id-0123",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0104"
+    "id-0120"
    ],
-   "entityId": "id-0105",
+   "entityId": "id-0121",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0111",
+   "id": "id-0127",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [],
-   "entityId": "id-0109",
+   "entityId": "id-0125",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0116",
+   "id": "id-0132",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0114"
+    "id-0130"
    ],
-   "entityId": "id-0113",
+   "entityId": "id-0129",
    "payload": {
     "detail": "Expense draft created"
-   }
-  },
-  {
-   "id": "id-0118",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.matched",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0114"
-   ],
-   "entityId": "id-0113",
-   "payload": {
-    "detail": "Imported payment linked to one draft. Attach receipts to this draft."
-   }
-  },
-  {
-   "id": "id-0124",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.created",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0121"
-   ],
-   "entityId": "id-0122",
-   "payload": {
-    "detail": "Expense draft created"
-   }
-  },
-  {
-   "id": "id-0128",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.approved",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0121"
-   ],
-   "entityId": "id-0122",
-   "payload": {
-    "detail": "Reviewed and approved. No payment initiated."
-   }
-  },
-  {
-   "id": "id-0130",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.posted",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0126"
-   ],
-   "entityId": "id-0122",
-   "payload": {
-    "detail": "Balanced journal entry recorded"
    }
   },
   {
    "id": "id-0134",
    "businessId": "fieldwork",
    "schemaVersion": 1,
-   "type": "expense.created",
+   "type": "expense.matched",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0132"
+    "id-0130"
    ],
-   "entityId": "id-0133",
+   "entityId": "id-0129",
    "payload": {
-    "detail": "Expense draft created"
+    "detail": "Imported payment linked to one draft. Attach receipts to this draft."
    }
   },
   {
-   "id": "id-0139",
+   "id": "id-0140",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0136"
+    "id-0137"
    ],
-   "entityId": "id-0137",
+   "entityId": "id-0138",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0143",
+   "id": "id-0144",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.approved",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0136"
+    "id-0137"
    ],
-   "entityId": "id-0137",
+   "entityId": "id-0138",
    "payload": {
     "detail": "Reviewed and approved. No payment initiated."
    }
   },
   {
-   "id": "id-0145",
+   "id": "id-0146",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.posted",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0141"
+    "id-0142"
    ],
-   "entityId": "id-0137",
+   "entityId": "id-0138",
    "payload": {
     "detail": "Balanced journal entry recorded"
    }
@@ -1168,238 +1261,365 @@
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0147"
+    "id-0148"
    ],
-   "entityId": "id-0148",
+   "entityId": "id-0149",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0154",
+   "id": "id-0155",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.created",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0152"
+   ],
+   "entityId": "id-0153",
+   "payload": {
+    "detail": "Expense draft created"
+   }
+  },
+  {
+   "id": "id-0159",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.approved",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0147"
-   ],
-   "entityId": "id-0148",
-   "payload": {
-    "detail": "Reviewed and approved. No payment initiated."
-   }
-  },
-  {
-   "id": "id-0156",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.posted",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
     "id-0152"
    ],
-   "entityId": "id-0148",
+   "entityId": "id-0153",
    "payload": {
-    "detail": "Balanced journal entry recorded"
+    "detail": "Reviewed and approved. No payment initiated."
    }
   },
   {
    "id": "id-0161",
    "businessId": "fieldwork",
    "schemaVersion": 1,
+   "type": "expense.posted",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0157"
+   ],
+   "entityId": "id-0153",
+   "payload": {
+    "detail": "Balanced journal entry recorded"
+   }
+  },
+  {
+   "id": "id-0166",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0158"
+    "id-0163"
    ],
-   "entityId": "id-0159",
+   "entityId": "id-0164",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0165",
+   "id": "id-0170",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.approved",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0158"
-   ],
-   "entityId": "id-0159",
-   "payload": {
-    "detail": "Reviewed and approved. No payment initiated."
-   }
-  },
-  {
-   "id": "id-0167",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.posted",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
     "id-0163"
    ],
-   "entityId": "id-0159",
+   "entityId": "id-0164",
    "payload": {
-    "detail": "Balanced journal entry recorded"
+    "detail": "Reviewed and approved. No payment initiated."
    }
   },
   {
    "id": "id-0172",
    "businessId": "fieldwork",
    "schemaVersion": 1,
+   "type": "expense.posted",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0168"
+   ],
+   "entityId": "id-0164",
+   "payload": {
+    "detail": "Balanced journal entry recorded"
+   }
+  },
+  {
+   "id": "id-0177",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.created",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0174"
+   ],
+   "entityId": "id-0175",
+   "payload": {
+    "detail": "Expense draft created"
+   }
+  },
+  {
+   "id": "id-0181",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.approved",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0174"
+   ],
+   "entityId": "id-0175",
+   "payload": {
+    "detail": "Reviewed and approved. No payment initiated."
+   }
+  },
+  {
+   "id": "id-0183",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.posted",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0179"
+   ],
+   "entityId": "id-0175",
+   "payload": {
+    "detail": "Balanced journal entry recorded"
+   }
+  },
+  {
+   "id": "id-0188",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
    "type": "expense.reversed",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0163",
-    "id-0171",
-    "id-0170"
+    "id-0179",
+    "id-0187",
+    "id-0186"
    ],
-   "entityId": "id-0159",
+   "entityId": "id-0175",
    "payload": {
     "detail": "Supplier issued a corrected invoice: reduced by $137.25."
    }
   },
   {
-   "id": "id-0174",
+   "id": "id-0190",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0169"
+    "id-0185"
    ],
-   "entityId": "id-0170",
+   "entityId": "id-0186",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0178",
+   "id": "id-0194",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.approved",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0169"
+    "id-0185"
    ],
-   "entityId": "id-0170",
+   "entityId": "id-0186",
    "payload": {
     "detail": "Reviewed and approved. No payment initiated."
-   }
-  },
-  {
-   "id": "id-0180",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.posted",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0176"
-   ],
-   "entityId": "id-0170",
-   "payload": {
-    "detail": "Balanced journal entry recorded"
-   }
-  },
-  {
-   "id": "id-0185",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.created",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0182"
-   ],
-   "entityId": "id-0183",
-   "payload": {
-    "detail": "Expense draft created"
-   }
-  },
-  {
-   "id": "id-0189",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.approved",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0182"
-   ],
-   "entityId": "id-0183",
-   "payload": {
-    "detail": "Reviewed and approved. No payment initiated."
-   }
-  },
-  {
-   "id": "id-0191",
-   "businessId": "fieldwork",
-   "schemaVersion": 1,
-   "type": "expense.posted",
-   "actor": "local-demo-user",
-   "occurredAt": "2026-10-15T12:00:00.000Z",
-   "sourceIds": [
-    "id-0187"
-   ],
-   "entityId": "id-0183",
-   "payload": {
-    "detail": "Balanced journal entry recorded"
    }
   },
   {
    "id": "id-0196",
    "businessId": "fieldwork",
    "schemaVersion": 1,
+   "type": "expense.posted",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0192"
+   ],
+   "entityId": "id-0186",
+   "payload": {
+    "detail": "Balanced journal entry recorded"
+   }
+  },
+  {
+   "id": "id-0201",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
    "type": "expense.created",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0193"
+    "id-0198"
    ],
-   "entityId": "id-0194",
+   "entityId": "id-0199",
    "payload": {
     "detail": "Expense draft created"
    }
   },
   {
-   "id": "id-0200",
+   "id": "id-0205",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.approved",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0193"
+    "id-0198"
    ],
-   "entityId": "id-0194",
+   "entityId": "id-0199",
    "payload": {
     "detail": "Reviewed and approved. No payment initiated."
    }
   },
   {
-   "id": "id-0202",
+   "id": "id-0207",
    "businessId": "fieldwork",
    "schemaVersion": 1,
    "type": "expense.posted",
    "actor": "local-demo-user",
    "occurredAt": "2026-10-15T12:00:00.000Z",
    "sourceIds": [
-    "id-0198"
+    "id-0203"
    ],
-   "entityId": "id-0194",
+   "entityId": "id-0199",
    "payload": {
     "detail": "Balanced journal entry recorded"
+   }
+  },
+  {
+   "id": "id-0212",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.created",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0209"
+   ],
+   "entityId": "id-0210",
+   "payload": {
+    "detail": "Expense draft created"
+   }
+  },
+  {
+   "id": "id-0216",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.approved",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0209"
+   ],
+   "entityId": "id-0210",
+   "payload": {
+    "detail": "Reviewed and approved. No payment initiated."
+   }
+  },
+  {
+   "id": "id-0218",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.posted",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0214"
+   ],
+   "entityId": "id-0210",
+   "payload": {
+    "detail": "Balanced journal entry recorded"
+   }
+  },
+  {
+   "id": "id-0222",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "transfer.recorded",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-0221",
+   "payload": {
+    "detail": "Owner loan recorded"
+   }
+  },
+  {
+   "id": "id-0226",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.created",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-0224",
+   "payload": {
+    "detail": "Expense draft created"
+   }
+  },
+  {
+   "id": "id-0230",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.approved",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-0224",
+   "payload": {
+    "detail": "Reviewed and approved. No payment initiated."
+   }
+  },
+  {
+   "id": "id-0232",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "expense.posted",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [
+    "id-0228"
+   ],
+   "entityId": "id-0224",
+   "payload": {
+    "detail": "Balanced journal entry recorded"
+   }
+  },
+  {
+   "id": "id-0235",
+   "businessId": "fieldwork",
+   "schemaVersion": 1,
+   "type": "transfer.recorded",
+   "actor": "local-demo-user",
+   "occurredAt": "2026-10-15T12:00:00.000Z",
+   "sourceIds": [],
+   "entityId": "id-0234",
+   "payload": {
+    "detail": "Loan repayment recorded"
    }
   }
  ],

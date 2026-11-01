@@ -16,6 +16,7 @@ import {
   saveDraft,
 } from "./ledger";
 import { commitImport, previewImport } from "./import";
+import { recordTransfer } from "./transfers";
 import { PRODUCT_NAME } from "../config";
 const escapeXML = (value: string) =>
   value
@@ -305,6 +306,8 @@ function business(
     kind: "transfer" as const,
     memo: "Operating account → Reserve account",
     createdAt: now(),
+    transferType: "betweenAccounts" as const,
+    purpose: "Set aside a reserve",
     lines: [
       { accountId: b.accounts[2].id, debit: 200000, credit: 0 },
       { accountId: b.accounts[0].id, debit: 0, credit: 200000 },
@@ -312,6 +315,65 @@ function business(
   };
   assertBalanced(b, transfer);
   b.journals.push(transfer);
+  return ownerFunding(b, landscape);
+}
+/** The month before `period` (`YYYY-MM`). */
+function monthBefore(period: string) {
+  const [year, month] = period.split("-").map(Number);
+  return month === 1
+    ? `${year - 1}-12`
+    : `${year}-${String(month - 1).padStart(2, "0")}`;
+}
+/**
+ * A loan from the owner, an expense the owner paid personally, and a
+ * repayment, all last month, so this month's spending is unchanged.
+ */
+function ownerFunding(business: BusinessData, landscape: boolean) {
+  let b = business;
+  const businessId = b.profile.id;
+  const month = monthBefore(currentPeriod());
+  const loan = `${businessId}-owner-loan`;
+  b.accounts.push({
+    id: loan,
+    businessId,
+    name: "Owner's loan",
+    kind: "liability",
+    currency: "USD",
+  });
+  const funding = (
+    transferType: "ownerLoan" | "loanRepayment",
+    day: string,
+    amountMinor: number,
+    purpose: string,
+  ) => {
+    const toLoan = transferType === "loanRepayment";
+    b = recordTransfer(b, {
+      date: `${month}-${day}`,
+      amountMinor,
+      currency: "USD",
+      fromAccountId: toLoan ? b.accounts[0].id : loan,
+      toAccountId: toLoan ? loan : b.accounts[0].id,
+      transferType,
+      purpose,
+    });
+  };
+  funding("ownerLoan", "04", 600000, "Working capital from the owner");
+  const draft: ExpenseDraft = {
+    ...blankDraft(b),
+    vendor: landscape ? "Bramble Tool Hire" : "Lantern Type Foundry",
+    description: landscape
+      ? "Paid personally · trailer hire"
+      : "Paid personally · font licence",
+    purpose: landscape
+      ? "Trailer for a client site clean-up"
+      : "Typeface for a client identity project",
+    amountMinor: landscape ? 18640 : 21470,
+    date: `${month}-15`,
+    categoryId: b.categories[landscape ? 4 : 0].id,
+    accountId: loan,
+  };
+  b = approve(saveDraft(b, draft), draft.id);
+  funding("loanRepayment", "27", 150000, "First repayment to the owner");
   return b;
 }
 export function seedWorkspace(): Workspace {

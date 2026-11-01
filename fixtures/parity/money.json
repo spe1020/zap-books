@@ -3,7 +3,7 @@
   "name": "parseMoney \"0.29\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -16,7 +16,7 @@
   "name": "parseMoney \"100.01\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -29,7 +29,7 @@
   "name": "parseMoney \"-4.05\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -42,7 +42,7 @@
   "name": "parseMoney \"1.001\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -55,7 +55,7 @@
   "name": "parseMoney \"NaN\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -68,7 +68,7 @@
   "name": "parseMoney \"1e4\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -81,7 +81,7 @@
   "name": "parseMoney \"9007199254740992\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -94,7 +94,7 @@
   "name": "parseMoney \"\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -107,7 +107,7 @@
   "name": "parseMoney \"42\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -120,7 +120,7 @@
   "name": "parseMoney \"42.5\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -133,7 +133,7 @@
   "name": "parseMoney \"42.50\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -146,7 +146,7 @@
   "name": "parseMoney \" 42.50 \"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -159,7 +159,7 @@
   "name": "parseMoney \" ﻿7.25　\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -172,7 +172,7 @@
   "name": "parseMoney \"7.25\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -185,7 +185,7 @@
   "name": "parseMoney \"-0\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -198,7 +198,7 @@
   "name": "parseMoney \"-0.00\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -211,7 +211,7 @@
   "name": "parseMoney \"0.00\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -224,7 +224,7 @@
   "name": "parseMoney \"00012.30\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -237,7 +237,7 @@
   "name": "parseMoney \"1,234.56\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -250,7 +250,7 @@
   "name": "parseMoney \"+1\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -263,7 +263,7 @@
   "name": "parseMoney \".5\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -276,7 +276,7 @@
   "name": "parseMoney \"5.\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -289,7 +289,7 @@
   "name": "parseMoney \"--1\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -302,7 +302,7 @@
   "name": "parseMoney \"1.2.3\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -315,7 +315,7 @@
   "name": "parseMoney \"１２\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -328,7 +328,7 @@
   "name": "parseMoney \"90071992547409.91\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -341,7 +341,7 @@
   "name": "parseMoney \"90071992547409.92\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -354,7 +354,7 @@
   "name": "parseMoney \"-90071992547409.91\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -367,7 +367,7 @@
   "name": "parseMoney \"-90071992547409.92\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -380,7 +380,7 @@
   "name": "parseMoney \"90071992547409\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -393,7 +393,7 @@
   "name": "parseMoney \"90071992547410\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -406,7 +406,7 @@
   "name": "parseMoney \"9007199254740991\"",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -419,7 +419,7 @@
   "name": "parseMoney 400 digits",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -432,7 +432,7 @@
   "name": "parseMoney 400 leading zeros",
   "call": "parseMoney",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -445,7 +445,7 @@
   "name": "amountInput 0",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -458,7 +458,7 @@
   "name": "amountInput 1",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -471,7 +471,7 @@
   "name": "amountInput -1",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -484,7 +484,7 @@
   "name": "amountInput 5",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -497,7 +497,7 @@
   "name": "amountInput 99",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -510,7 +510,7 @@
   "name": "amountInput 100",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -523,7 +523,7 @@
   "name": "amountInput 10001",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -536,7 +536,7 @@
   "name": "amountInput -405",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -549,7 +549,7 @@
   "name": "amountInput 123456",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -562,7 +562,7 @@
   "name": "amountInput 9007199254740991",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -575,7 +575,7 @@
   "name": "amountInput -9007199254740991",
   "call": "amountInput",
   "env": {
-   "nextId": 205,
+   "nextId": 237,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },

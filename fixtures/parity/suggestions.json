@@ -3,7 +3,7 @@
   "name": "suggest: category, purpose and note, trimmed",
   "call": "suggest",
   "env": {
-   "nextId": 649,
+   "nextId": 646,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -96,6 +96,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -184,7 +191,7 @@
    "extractions": [],
    "suggestions": [
     {
-     "id": "id-0649",
+     "id": "id-0646",
      "businessId": "northstar",
      "draftId": "draft-open",
      "author": "abababababababababababababababababababababababababababababababab",
@@ -204,7 +211,7 @@
   "name": "suggest: a second suggestion is appended",
   "call": "suggest",
   "env": {
-   "nextId": 650,
+   "nextId": 647,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -281,6 +288,13 @@
       "businessId": "northstar",
       "name": "Marketing & design",
       "kind": "expense",
+      "currency": "USD"
+     },
+     {
+      "id": "northstar-owner-loan",
+      "businessId": "northstar",
+      "name": "Owner's loan",
+      "kind": "liability",
       "currency": "USD"
      }
     ],
@@ -370,7 +384,7 @@
     "extractions": [],
     "suggestions": [
      {
-      "id": "id-0649",
+      "id": "id-0646",
       "businessId": "northstar",
       "draftId": "draft-open",
       "author": "abababababababababababababababababababababababababababababababab",
@@ -467,6 +481,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -555,7 +576,7 @@
    "extractions": [],
    "suggestions": [
     {
-     "id": "id-0649",
+     "id": "id-0646",
      "businessId": "northstar",
      "draftId": "draft-open",
      "author": "abababababababababababababababababababababababababababababababab",
@@ -569,7 +590,7 @@
      "createdAt": "2026-10-15T12:00:00.000Z"
     },
     {
-     "id": "id-0650",
+     "id": "id-0647",
      "businessId": "northstar",
      "draftId": "draft-open",
      "author": "abababababababababababababababababababababababababababababababab",
@@ -586,7 +607,7 @@
   "name": "suggest: blank purpose and note are left out",
   "call": "suggest",
   "env": {
-   "nextId": 651,
+   "nextId": 648,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -678,6 +699,13 @@
      "name": "Marketing & design",
      "kind": "expense",
      "currency": "USD"
+    },
+    {
+     "id": "northstar-owner-loan",
+     "businessId": "northstar",
+     "name": "Owner's loan",
+     "kind": "liability",
+     "currency": "USD"
     }
    ],
    "categories": [
@@ -766,7 +794,7 @@
    "extractions": [],
    "suggestions": [
     {
-     "id": "id-0651",
+     "id": "id-0648",
      "businessId": "northstar",
      "draftId": "draft-open",
      "author": "abababababababababababababababababababababababababababababababab",
@@ -783,7 +811,7 @@
   "name": "suggest: nothing suggested",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -807,7 +835,7 @@
   "name": "suggest: author key in upper case",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -830,7 +858,7 @@
   "name": "suggest: author key too short",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -853,7 +881,7 @@
   "name": "suggest: unknown draft",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -876,7 +904,7 @@
   "name": "suggest: another business's draft",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -885,7 +913,7 @@
     "$state": "northstar-setup-drafts"
    },
    "input": {
-    "draftId": "id-0105",
+    "draftId": "id-0121",
     "author": "abababababababababababababababababababababababababababababababab",
     "evidence": [
      "Invented evidence line"
@@ -899,7 +927,7 @@
   "name": "suggest: a posted expense",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -922,7 +950,7 @@
   "name": "suggest: another business's category",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -945,7 +973,7 @@
   "name": "suggest: no evidence",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
@@ -966,7 +994,7 @@
   "name": "suggest: a blank evidence line",
   "call": "suggest",
   "env": {
-   "nextId": 652,
+   "nextId": 649,
    "now": "2026-10-15T12:00:00.000Z",
    "today": "2026-10-15"
   },
