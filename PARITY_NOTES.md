@@ -393,6 +393,28 @@ by an exchange`.
   refuses only the opening balance, as decided. Fixtures:
   `bitcoin/recordOpeningBalance: a negative wallet balance`,
   `bitcoin/correctTransfer: a wallet's opening balance, to below zero`.
+- **B11. Exports add sats and the recorded fiat value after their
+  existing columns,** so a spreadsheet that reads the old columns by
+  position still reads them. The expense export adds "Amount in sats" and
+  the journal export "Debit in sats" and "Credit in sats" (whole sats on a
+  BTC line, blank on any other), then both add "Fiat value", "Fiat
+  currency", "Fiat rate", "Fiat source", "Fiat value at" and "Millisats",
+  as recorded (`amountInput` at the value's currency, and the rate string
+  as written), blank without one. The journal export gives the journal's
+  value on each of its lines: for an exchange, both lines carry it. The
+  balances export adds "Balance in sats", blank outside BTC. These changed
+  existing fixtures by more than id renumbering, as agreed for this PR:
+  the 39 `export/exportRecords: *` and `export/exportBalances: *` fixtures
+  whose call succeeds (the refusals and `encodeCSV` ones are unchanged),
+  the five `bitcoin/exportRecords: *` fixtures and `bitcoin/exportBalances:
+BTC`, and `history/previewImport: our expense export maps back`, whose
+  input is an expense export. Each changed only by cells added at the end
+  of each row and of each CSV line, which `scripts/check-fixture-renumbering.mjs
+--appended-columns` checks; nothing else in them changed.
+- **B12. The demo's bitcoin isn't in the fixtures.** The app starts from
+  `demoWorkspace`: `seedWorkspace` with a fictional Lightning wallet, an
+  exchange and a sats expense for Northstar. Every fixture still starts
+  from `seedWorkspace`, so adding the demo changed none.
 
 ## W: TypeScript behavior that looked wrong
 

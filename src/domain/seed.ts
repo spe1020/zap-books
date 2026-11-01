@@ -16,6 +16,7 @@ import {
   saveDraft,
 } from "./ledger";
 import { commitImport, previewImport } from "./import";
+import { impliedRate } from "./bitcoin";
 import { recordTransfer } from "./transfers";
 import { PRODUCT_NAME } from "../config";
 const escapeXML = (value: string) =>
@@ -399,4 +400,67 @@ export function seedWorkspace(): Workspace {
       ),
     ],
   };
+}
+
+/**
+ * The demo the app starts with and resets to: the seed, with a Lightning
+ * wallet for Northstar, bitcoin bought into it last month, and a relay
+ * subscription paid from it in sats this month. All fictional. The parity
+ * fixtures start from `seedWorkspace`, which stays without bitcoin.
+ */
+export function demoWorkspace(): Workspace {
+  const workspace = seedWorkspace();
+  workspace.businesses[0] = bitcoin(workspace.businesses[0]);
+  return workspace;
+}
+function bitcoin(business: BusinessData): BusinessData {
+  let b = business;
+  const businessId = b.profile.id;
+  const wallet = `${businessId}-wallet`;
+  b.accounts.push({
+    id: wallet,
+    businessId,
+    name: "Lightning wallet",
+    kind: "wallet",
+    currency: "BTC",
+  });
+  const bought = `${monthBefore(currentPeriod())}-08`;
+  b = recordTransfer(b, {
+    date: bought,
+    amountMinor: 250000,
+    currency: "BTC",
+    fromAccountId: b.accounts[0].id,
+    toAccountId: wallet,
+    transferType: "exchange",
+    purpose: "Bitcoin for paying relay and tool subscriptions",
+    fiatValue: {
+      currency: "USD",
+      amountMinor: 15000,
+      rate: impliedRate(250000, 15000, "USD"),
+      source: "exchange",
+      at: `${bought}T15:00Z`,
+    },
+  });
+  // The first of the month is never after today, so the wallet's balance
+  // as of today always includes it.
+  const date = `${currentPeriod()}-01`;
+  const draft: ExpenseDraft = {
+    ...blankDraft(b),
+    vendor: "Quillfeather Relay",
+    description: "Relay hosting · monthly, paid over Lightning",
+    purpose: "Hosting for the studio's client notes relay",
+    amountMinor: 21000,
+    date,
+    currency: "BTC",
+    categoryId: b.categories[0].id,
+    accountId: wallet,
+    fiatValue: {
+      currency: "USD",
+      amountMinor: 1260,
+      rate: impliedRate(21000, 1260, "USD"),
+      source: "manual",
+      at: date,
+    },
+  };
+  return approve(saveDraft(b, draft), draft.id);
 }

@@ -13,18 +13,41 @@ test("expense and journal CSV downloads contain accurate, scoped records", async
   page,
 }) => {
   await page.getByRole("button", { name: "Export", exact: true }).click();
-  // This month's six expenses, and last month's that the owner paid
-  // personally from their loan.
-  await expect(page.getByText("7 rows · first 5 shown")).toBeVisible();
+  // This month's six expenses and one in sats, and last month's that the
+  // owner paid personally from their loan.
+  await expect(page.getByText("8 rows · first 5 shown")).toBeVisible();
   const waiting = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download CSV" }).click();
   const download = await waiting;
   expect(download.suggestedFilename()).toContain("northstar-studio-expenses");
   const rows = parseCSV(await readFile((await download.path())!, "utf8"));
   expect(rows.slice(1).every((r) => r[0] === "northstar")).toBe(true);
-  expect(rows.slice(1).reduce((n, r) => n + parseMoney(r[6], "USD"), 0)).toBe(
+  const column = (name: string) => rows[0].indexOf(name);
+  // Dollars add up only with dollars; the bitcoin expense is apart.
+  const dollars = rows.slice(1).filter((r) => r[7] === "USD");
+  expect(dollars).toHaveLength(7);
+  expect(dollars.reduce((n, r) => n + parseMoney(r[6], "USD"), 0)).toBe(
     458559 + 21470,
   );
+  expect(dollars.every((r) => r[column("Amount in sats")] === "")).toBe(true);
+  const sats = rows.find((r) => r[7] === "BTC")!;
+  expect(sats[6]).toBe("0.00021000");
+  expect(rows[0].slice(16)).toEqual([
+    "Amount in sats",
+    "Fiat value",
+    "Fiat currency",
+    "Fiat rate",
+    "Fiat source",
+    "Fiat value at",
+    "Millisats",
+  ]);
+  expect(sats.slice(16, 21)).toEqual([
+    "21000",
+    "12.60",
+    "USD",
+    "60000.000000000000",
+    "manual",
+  ]);
   const personal = rows.find((r) => r[4] === "Lantern Type Foundry")!;
   expect(personal[9]).toBe("Owner's loan");
   expect(personal[rows[0].indexOf("Paid personally")]).toBe("Loan");
