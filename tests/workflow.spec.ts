@@ -356,7 +356,7 @@ test("bank-linked corrections explain locked amounts and preserve payment eviden
     page.getByRole("combobox", { name: "Currency", exact: true }),
   ).toBeDisabled();
   await expect(
-    page.getByRole("combobox", { name: "Payment account", exact: true }),
+    page.getByRole("combobox", { name: "Paid from", exact: true }),
   ).toBeDisabled();
   await page
     .getByLabel("Description", { exact: true })

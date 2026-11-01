@@ -13,14 +13,21 @@ test("expense and journal CSV downloads contain accurate, scoped records", async
   page,
 }) => {
   await page.getByRole("button", { name: "Export", exact: true }).click();
-  await expect(page.getByText("6 rows · first 5 shown")).toBeVisible();
+  // This month's six expenses, and last month's that the owner paid
+  // personally from their loan.
+  await expect(page.getByText("7 rows · first 5 shown")).toBeVisible();
   const waiting = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download CSV" }).click();
   const download = await waiting;
   expect(download.suggestedFilename()).toContain("northstar-studio-expenses");
   const rows = parseCSV(await readFile((await download.path())!, "utf8"));
   expect(rows.slice(1).every((r) => r[0] === "northstar")).toBe(true);
-  expect(rows.slice(1).reduce((n, r) => n + parseMoney(r[6]), 0)).toBe(458559);
+  expect(rows.slice(1).reduce((n, r) => n + parseMoney(r[6]), 0)).toBe(
+    458559 + 21470,
+  );
+  const personal = rows.find((r) => r[4] === "Lantern Type Foundry")!;
+  expect(personal[9]).toBe("Owner's loan");
+  expect(personal[rows[0].indexOf("Paid personally")]).toBe("Loan");
   expect(rows.slice(1).some((r) => r[4] === "Figma")).toBe(false);
   await page
     .getByRole("combobox", { name: "Export format" })

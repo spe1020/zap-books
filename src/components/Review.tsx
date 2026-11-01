@@ -42,6 +42,7 @@ import {
   type FormValues,
 } from "../domain/extraction";
 import { Modal, Status } from "./common";
+import { paymentAccounts } from "../domain/transfers";
 import { Suggestions } from "./Suggestions";
 /** Runs one action's commands through the app's `LedgerClient`. */
 export type Mutation = (
@@ -203,6 +204,7 @@ export function Review({
   const details = missingDetails(working, draft);
   const duplicate = duplicates(working, draft);
   const payment = b.payments.find((p) => p.id === draft.paymentId);
+  const paid = paymentAccounts(b);
   const document = working.documents.find((d) => d.id === activeDoc);
   useEffect(() => {
     if (readOnly) return;
@@ -701,22 +703,38 @@ export function Review({
               </select>
             </label>
             <label>
-              Payment account
+              Paid from
               <select
                 value={draft.accountId}
+                aria-describedby={
+                  paid.personal.some((a) => a.id === draft.accountId)
+                    ? "paid-from-help"
+                    : undefined
+                }
                 disabled={!!payment || readOnly}
                 onChange={(e) => update("accountId", e.target.value)}
               >
                 <option value="">Choose an account</option>
-                {b.accounts
-                  .filter((a) => a.kind !== "expense")
-                  .map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name} · {a.currency}
-                    </option>
-                  ))}
+                {paid.own.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} · {a.currency}
+                  </option>
+                ))}
+                {paid.personal.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    Paid personally: {a.name} · {a.currency}
+                  </option>
+                ))}
               </select>
             </label>
+            {paid.personal.some((a) => a.id === draft.accountId) && (
+              <small id="paid-from-help" className="small muted field-help">
+                {b.accounts.find((a) => a.id === draft.accountId)?.kind ===
+                "liability"
+                  ? "The owner paid this personally; the business will owe them the amount."
+                  : "The owner paid this personally, as a contribution to the business."}
+              </small>
+            )}
             <label>
               Business purpose
               <textarea

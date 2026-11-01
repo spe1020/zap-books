@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Download, FileSpreadsheet } from "lucide-react";
 import type { BusinessData, Currency } from "../domain/types";
 import { currencies } from "../domain/types";
-import { exportRecords } from "../domain/export";
+import { exportBalances, exportRecords } from "../domain/export";
+import { today } from "../domain/ledger";
 import type { ExportFilter, ExportFormat } from "../domain/export";
 import { Modal, Empty } from "./common";
 export function ExportDialog({
@@ -12,7 +13,11 @@ export function ExportDialog({
   b: BusinessData;
   onClose: () => void;
 }) {
-  const [format, setFormat] = useState<ExportFormat>("expenses");
+  const [format, setFormat] = useState<ExportFormat | "balances">("expenses");
+  const [asOf, setAsOf] = useState(today());
+  const [balanceCurrency, setBalanceCurrency] = useState<Currency>(
+    b.profile.currency,
+  );
   const [filter, setFilter] = useState<ExportFilter>({
     from: "",
     to: "",
@@ -20,14 +25,24 @@ export function ExportDialog({
   });
   const [downloaded, setDownloaded] = useState(false);
   const previewColumns =
-    format === "expenses" ? [3, 4, 6, 7, 8] : [3, 4, 8, 10, 11, 12];
+    format === "expenses"
+      ? [3, 4, 6, 7, 8, 9]
+      : format === "balances"
+        ? [4, 5, 6, 8]
+        : [3, 4, 8, 10, 11, 12, 15];
   const result = useMemo(() => {
     try {
-      return { data: exportRecords(b, format, filter), error: "" };
+      return {
+        data:
+          format === "balances"
+            ? exportBalances(b, asOf, balanceCurrency)
+            : exportRecords(b, format, filter),
+        error: "",
+      };
     } catch (e) {
       return { data: undefined, error: (e as Error).message };
     }
-  }, [b, format, filter]);
+  }, [b, format, filter, asOf, balanceCurrency]);
   function download() {
     if (!result.data?.rows.length) return;
     const url = URL.createObjectURL(
@@ -62,7 +77,7 @@ export function ExportDialog({
           <select
             value={format}
             onChange={(e) => {
-              setFormat(e.target.value as ExportFormat);
+              setFormat(e.target.value as ExportFormat | "balances");
               setDownloaded(false);
             }}
           >
@@ -70,59 +85,92 @@ export function ExportDialog({
             <option value="journal">
               Journal entries and corrections · CSV
             </option>
+            <option value="balances">Account balances · CSV</option>
           </select>
         </label>
         <p className="small muted export-description">
           {format === "expenses"
-            ? "One row per current posted expense. Replaced originals, drafts, and transfers are excluded. Use the journal export for complete posting history."
-            : "One row per journal line, including original entries, reversals, replacements, and transfers. Debit and credit amounts remain separate by currency."}
+            ? "One row per current posted expense, with the account that paid it. Paid personally shows Loan or Contribution. Replaced originals, drafts, and transfers are excluded."
+            : format === "balances"
+              ? "One row per bank, card, loan and owner equity account in one currency, as of the date you choose. Cards and loans show what's owed."
+              : "One row per journal line, including original entries, reversals, replacements, and transfers with their type and purpose. Debit and credit amounts remain separate by currency."}
         </p>
-        <div className="field-row">
-          <label>
-            From date
-            <input
-              type="date"
-              value={filter.from}
-              onChange={(e) => {
-                setFilter({ ...filter, from: e.target.value });
-                setDownloaded(false);
-              }}
-            />
-          </label>
-          <label>
-            To date
-            <input
-              type="date"
-              value={filter.to}
-              onChange={(e) => {
-                setFilter({ ...filter, to: e.target.value });
-                setDownloaded(false);
-              }}
-            />
-          </label>
-          <label>
-            Export currency
-            <select
-              value={filter.currency}
-              onChange={(e) => {
-                setFilter({
-                  ...filter,
-                  currency: e.target.value as Currency | "",
-                });
-                setDownloaded(false);
-              }}
-            >
-              <option value="">All currencies · separate amounts</option>
-              {currencies.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </label>
-        </div>
+        {format === "balances" ? (
+          <div className="field-row">
+            <label>
+              As of
+              <input
+                type="date"
+                value={asOf}
+                onChange={(e) => {
+                  setAsOf(e.target.value);
+                  setDownloaded(false);
+                }}
+              />
+            </label>
+            <label>
+              Balance currency
+              <select
+                value={balanceCurrency}
+                onChange={(e) => {
+                  setBalanceCurrency(e.target.value as Currency);
+                  setDownloaded(false);
+                }}
+              >
+                {currencies.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : (
+          <div className="field-row">
+            <label>
+              From date
+              <input
+                type="date"
+                value={filter.from}
+                onChange={(e) => {
+                  setFilter({ ...filter, from: e.target.value });
+                  setDownloaded(false);
+                }}
+              />
+            </label>
+            <label>
+              To date
+              <input
+                type="date"
+                value={filter.to}
+                onChange={(e) => {
+                  setFilter({ ...filter, to: e.target.value });
+                  setDownloaded(false);
+                }}
+              />
+            </label>
+            <label>
+              Export currency
+              <select
+                value={filter.currency}
+                onChange={(e) => {
+                  setFilter({
+                    ...filter,
+                    currency: e.target.value as Currency | "",
+                  });
+                  setDownloaded(false);
+                }}
+              >
+                <option value="">All currencies · separate amounts</option>
+                {currencies.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
         <p className="small muted export-description">
-          Leave dates blank for all history. CSV files contain financial
-          information and are not encrypted. Receipt files are not included;
-          open them from the corresponding transaction.
+          {format === "balances"
+            ? "CSV files contain financial information and are not encrypted."
+            : "Leave dates blank for all history. CSV files contain financial information and are not encrypted. Receipt files are not included; open them from the corresponding transaction."}
         </p>
         {result.error && (
           <p className="alert error" role="alert">

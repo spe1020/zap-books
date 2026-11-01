@@ -7,16 +7,47 @@ import {
   Pencil,
   Sparkles,
   RotateCcw,
+  Landmark,
 } from "lucide-react";
 import type {
+  Account,
+  AccountKind,
   BusinessData,
   ClassificationRule,
   Currency,
 } from "../domain/types";
 import { currencies } from "../domain/types";
-import { id } from "../domain/ledger";
+import { amountInput, id, money, parseMoney, today } from "../domain/ledger";
+import {
+  accountKindLabels,
+  firstEntryDate,
+  openingBalance,
+  openingBalanceReplacement,
+} from "../domain/transfers";
+import { PRODUCT_NAME } from "../config";
 import type { Mutation } from "./Review";
 import { Modal } from "./common";
+
+type AccountChoice = Exclude<AccountKind, "expense">;
+
+/** One line on what each kind of account is for. */
+const kindHelp: Record<AccountChoice, string> = {
+  bank: "Money the business holds.",
+  card: "A business credit card. Its balance is what's owed on it.",
+  liability:
+    "Money the business owes, such as a loan from the owner. An expense the owner pays personally can be owed back here.",
+  equity:
+    "The owner's stake: money put in that isn't paid back. An expense the owner pays personally can count as a contribution here.",
+};
+const ACCOUNTANT_NOTE =
+  "Ask your accountant whether owner money is a loan or a contribution.";
+
+/** What an opening balance means for each kind it's offered for. */
+const openingLabel: Record<"bank" | "card" | "liability", string> = {
+  bank: "Balance in the account",
+  card: "Amount owed on the card",
+  liability: "Amount owed to the owner",
+};
 export function Settings({
   b,
   mutate,
@@ -37,7 +68,13 @@ export function Settings({
     id?: string;
     name: string;
     currency: Currency;
-    kind: "bank" | "card";
+    kind: AccountChoice;
+  }>();
+  const [opening, setOpening] = useState<{
+    account: Account;
+    date: string;
+    amount: string;
+    reason: string;
   }>();
   const [error, setError] = useState("");
   async function saveEditor() {
@@ -64,6 +101,43 @@ export function Settings({
       `${type === "account" ? "Account" : "Category"} saved.`,
     );
     if (ok) setEditor(undefined);
+  }
+  const first = firstEntryDate(b);
+  const openable = b.accounts.filter(
+    (a) =>
+      a.businessId === b.profile.id &&
+      (a.kind === "bank" || a.kind === "card" || a.kind === "liability"),
+  );
+  async function saveOpening() {
+    if (!opening) return;
+    let amountMinor: number;
+    try {
+      amountMinor = parseMoney(opening.amount);
+    } catch (e) {
+      setError((e as Error).message);
+      return;
+    }
+    const input = {
+      accountId: opening.account.id,
+      date: opening.date,
+      amountMinor,
+    };
+    let command;
+    try {
+      command = openingBalance(b, opening.account.id)
+        ? {
+            type: "CorrectTransfer" as const,
+            originalId: openingBalance(b, opening.account.id)!.journal.id,
+            replacement: openingBalanceReplacement(b, input),
+            reason: opening.reason,
+          }
+        : { type: "RecordOpeningBalance" as const, openingBalance: input };
+    } catch (e) {
+      setError((e as Error).message);
+      return;
+    }
+    const ok = await mutate([command], "Opening balance saved.");
+    if (ok) setOpening(undefined);
   }
   return (
     <div className="settings">
@@ -120,7 +194,7 @@ export function Settings({
           <div className="flex-between">
             <h2>
               <CreditCard size={19} />
-              Payment accounts
+              Accounts
             </h2>
             <button
               className="icon-button"
@@ -138,7 +212,11 @@ export function Settings({
               <Plus size={18} />
             </button>
           </div>
-          <p>Accounts are local demo records, with no bank connection.</p>
+          <p>
+            Bank and card accounts, loans from the owner, and owner equity.
+            Accounts are local demo records, with no bank connection.
+          </p>
+          <p className="small muted">{ACCOUNTANT_NOTE}</p>
           {b.accounts
             .filter((a) => a.kind !== "expense")
             .map((a) => (
@@ -146,8 +224,7 @@ export function Settings({
                 <div>
                   <strong>{a.name}</strong>
                   <small>
-                    {a.kind === "card" ? "Credit card" : "Bank account"} ·{" "}
-                    {a.currency}
+                    {accountKindLabels[a.kind]} · {a.currency}
                   </small>
                 </div>
                 <button
@@ -160,7 +237,7 @@ export function Settings({
                       id: a.id,
                       name: a.name,
                       currency: a.currency,
-                      kind: a.kind as "bank" | "card",
+                      kind: a.kind as AccountChoice,
                     });
                   }}
                 >
@@ -170,6 +247,54 @@ export function Settings({
             ))}
         </section>
       </div>
+      <section className="card setting-card">
+        <h2>
+          <Landmark size={19} />
+          Opening balances
+        </h2>
+        <p>
+          For accounts that existed before {b.profile.name} started using{" "}
+          {PRODUCT_NAME}: what each held or owed before the first entry
+          {first ? `, on ${first}` : ""}. Each account has one, and it can be
+          corrected.
+        </p>
+        {openable.length === 0 ? (
+          <p className="small muted">
+            Add a bank, card or loan account to record its opening balance.
+          </p>
+        ) : (
+          openable.map((a) => {
+            const current = openingBalance(b, a.id);
+            return (
+              <div key={a.id} className="setting-row">
+                <div>
+                  <strong>{a.name}</strong>
+                  <small>
+                    {current
+                      ? `${openingLabel[a.kind as keyof typeof openingLabel]}: ${money(current.amountMinor, a.currency)} · ${current.journal.date}`
+                      : `${accountKindLabels[a.kind]} · no opening balance`}
+                  </small>
+                </div>
+                <button
+                  className="button secondary"
+                  aria-label={`${current ? "Correct" : "Set"} opening balance for ${a.name}`}
+                  onClick={() => {
+                    setError("");
+                    setOpening({
+                      account: a,
+                      date: current?.journal.date ?? first ?? today(),
+                      amount: current ? amountInput(current.amountMinor) : "",
+                      reason: "",
+                    });
+                  }}
+                >
+                  {current ? "Correct" : "Set"}
+                </button>
+              </div>
+            );
+          })
+        )}
+      </section>
       <section className="card setting-card">
         <div className="flex-between">
           <h2>
@@ -362,6 +487,75 @@ export function Settings({
           </form>
         </Modal>
       )}
+      {opening && (
+        <Modal
+          title={`Opening balance · ${opening.account.name}`}
+          onClose={() => setOpening(undefined)}
+        >
+          <form
+            className="modal-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void saveOpening();
+            }}
+          >
+            {error && (
+              <p role="alert" className="error-text">
+                {error}
+              </p>
+            )}
+            <p>
+              Enter what this account showed before your first entry in{" "}
+              {PRODUCT_NAME}, as of the day you start from.
+            </p>
+            <label>
+              As of
+              <input
+                type="date"
+                required
+                value={opening.date}
+                onChange={(e) =>
+                  setOpening({ ...opening, date: e.target.value })
+                }
+              />
+            </label>
+            <label>
+              {openingLabel[opening.account.kind as keyof typeof openingLabel]}{" "}
+              ({opening.account.currency})
+              <input
+                required
+                inputMode="decimal"
+                value={opening.amount}
+                onChange={(e) =>
+                  setOpening({ ...opening, amount: e.target.value })
+                }
+              />
+            </label>
+            <p className="small muted">
+              {opening.account.kind === "bank"
+                ? "For an overdrawn account, enter a negative amount."
+                : opening.account.kind === "card"
+                  ? "What the business owed on the card, as a positive amount."
+                  : "What the business owed the owner, as a positive amount."}
+            </p>
+            {openingBalance(b, opening.account.id) && (
+              <label>
+                Reason for the correction
+                <input
+                  required
+                  value={opening.reason}
+                  onChange={(e) =>
+                    setOpening({ ...opening, reason: e.target.value })
+                  }
+                />
+              </label>
+            )}
+            <button className="button primary" disabled={busy}>
+              Save opening balance
+            </button>
+          </form>
+        </Modal>
+      )}
       {editor && (
         <Modal
           title={`${editor.id ? "Edit" : "Add"} ${editor.type}`}
@@ -397,14 +591,22 @@ export function Settings({
                     onChange={(e) =>
                       setEditor({
                         ...editor,
-                        kind: e.target.value as "bank" | "card",
+                        kind: e.target.value as AccountChoice,
                       })
                     }
                   >
                     <option value="bank">Bank account</option>
                     <option value="card">Credit card</option>
+                    <option value="liability">Loan (owed to the owner)</option>
+                    <option value="equity">Owner equity</option>
                   </select>
                 </label>
+                <p className="small muted" id="kind-help">
+                  {kindHelp[editor.kind]}
+                </p>
+                {(editor.kind === "liability" || editor.kind === "equity") && (
+                  <p className="small muted">{ACCOUNTANT_NOTE}</p>
+                )}
                 <label>
                   Currency
                   <select
