@@ -75,3 +75,17 @@ test("the demo offers no receipt reading, and asks for none", async ({
   for (const url of requests)
     expect(new URL(url).origin, url).toBe("http://127.0.0.1:4180");
 });
+
+test("the demo build keeps its sample assistant, labeled as no live AI", async ({
+  page,
+}) => {
+  await page.goto("/demo/");
+  await page.getByLabel("Switch business").selectOption("fieldwork");
+  await page.getByRole("button", { name: "Ask assistant" }).click();
+  const panel = page.getByRole("dialog", { name: "Your workspace assistant" });
+  await expect(panel).toContainText("Deterministic demo · no live AI");
+  await panel.getByRole("button", { name: "What needs review?" }).click();
+  await expect(panel.locator(".assistant-answer")).toContainText(
+    "Fieldwork Landscapes",
+  );
+});

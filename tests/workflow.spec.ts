@@ -62,11 +62,25 @@ test("create, preview, post once, reload, and keep businesses isolated", async (
   await expect(
     page.getByRole("heading", { name: "No matching records" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Ask assistant" }).click();
-  await page.getByRole("button", { name: "What needs review?" }).click();
-  await expect(page.locator(".assistant-answer")).toContainText(
-    "Fieldwork Landscapes",
+});
+
+test("the sample assistant is only in the demo build; the guide stays", async ({
+  page,
+}) => {
+  // tests/site/demo.spec.ts checks that the demo build has it.
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Ask assistant" })).toHaveCount(
+    0,
   );
+  await page.getByRole("button", { name: "Workspace guide" }).click();
+  const guide = page.getByRole("dialog", { name: "Workspace guide" });
+  await expect(
+    guide.getByRole("heading", { name: "Your expense workflow" }),
+  ).toBeVisible();
+  await expect(
+    guide.getByRole("button", { name: "What needs review?" }),
+  ).toHaveCount(0);
+  await expect(guide.getByText(/no live AI/i)).toHaveCount(0);
 });
 test("CSV mapping, invalid rows, preview, repeated imports, and matching receipt", async ({
   page,
