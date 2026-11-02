@@ -58,6 +58,7 @@ import {
 import { transport } from "./adapters/transport";
 import { demoAI } from "./adapters/ai";
 import { BRAND, PRODUCT_NAME } from "./config";
+import { demoOnly } from "./demo";
 import {
   ArrowLink,
   Empty,
@@ -440,16 +441,19 @@ export default function App({
                     Demo data
                   </span>
                 )}
-                <button
-                  className="assistant-button"
-                  onClick={() => {
-                    setAnswer("");
-                    setAssistant(true);
-                  }}
-                >
-                  <Sparkles size={16} />
-                  Ask assistant
-                </button>
+                {/* Fixed sample answers, no live AI: only in the demo build. */}
+                {demoOnly && (
+                  <button
+                    className="assistant-button"
+                    onClick={() => {
+                      setAnswer("");
+                      setAssistant(true);
+                    }}
+                  >
+                    <Sparkles size={16} />
+                    Ask assistant
+                  </button>
+                )}
               </div>
             </header>
             <main id="main" className="main-content">
@@ -731,41 +735,46 @@ export default function App({
           )}
           {assistant && (
             <Modal
-              title="Your workspace assistant"
+              title={demoOnly ? "Your workspace assistant" : "Workspace guide"}
               onClose={() => setAssistant(false)}
             >
               <div className="assistant-body">
-                <div className="assistant-orb">
-                  <Sparkles size={28} />
-                </div>
-                <span className="badge neutral">
-                  Deterministic demo · no live AI
-                </span>
-                <h3>A little help finding clarity.</h3>
-                <p>
-                  Answers use {b.profile.name}’s saved records for{" "}
-                  <strong>{period}</strong>. Documents are not read or analyzed.
-                </p>
-                <div className="assistant-prompts">
-                  {[
-                    "What needs review?",
-                    "What did we spend?",
-                    "Which category is largest?",
-                  ].map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => setAnswer(demoAI.answer(b, q, period))}
-                    >
-                      {q}
-                      <ArrowUpRight size={16} />
-                    </button>
-                  ))}
-                </div>
-                {answer && (
-                  <div className="assistant-answer" role="status">
-                    <Sparkles size={16} />
-                    <p>{answer}</p>
-                  </div>
+                {demoOnly && (
+                  <>
+                    <div className="assistant-orb">
+                      <Sparkles size={28} />
+                    </div>
+                    <span className="badge neutral">
+                      Deterministic demo · no live AI
+                    </span>
+                    <h3>A little help finding clarity.</h3>
+                    <p>
+                      Answers use {b.profile.name}’s saved records for{" "}
+                      <strong>{period}</strong>. Documents are not read or
+                      analyzed.
+                    </p>
+                    <div className="assistant-prompts">
+                      {[
+                        "What needs review?",
+                        "What did we spend?",
+                        "Which category is largest?",
+                      ].map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => setAnswer(demoAI.answer(b, q, period))}
+                        >
+                          {q}
+                          <ArrowUpRight size={16} />
+                        </button>
+                      ))}
+                    </div>
+                    {answer && (
+                      <div className="assistant-answer" role="status">
+                        <Sparkles size={16} />
+                        <p>{answer}</p>
+                      </div>
+                    )}
+                  </>
                 )}
                 <div className="guide-note">
                   <h4>Your expense workflow</h4>
@@ -775,10 +784,13 @@ export default function App({
                     Transactions and use “Correct expense” to preserve a linked
                     history.
                   </p>
-                  <small>
-                    Local demo storage is not production authentication. No
-                    payments, financial data, or documents are sent externally.
-                  </small>
+                  {!remote && (
+                    <small>
+                      Local demo storage is not production authentication. No
+                      payments, financial data, or documents are sent
+                      externally.
+                    </small>
+                  )}
                 </div>
               </div>
             </Modal>

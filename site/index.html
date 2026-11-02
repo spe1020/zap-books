@@ -13,10 +13,10 @@
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; manifest-src 'self'; connect-src __FORM_ORIGIN__; form-action __FORM_ORIGIN__; base-uri 'none'; object-src 'none'"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zap Books: clear books, your control</title>
+    <title>Zap Books: less bookkeeping, more control</title>
     <meta
       name="description"
-      content="Bookkeeping for independent and bitcoin-native businesses. Track expenses in dollars or in sats, keep receipts with each expense, and keep a signed history of every change."
+      content="Bookkeeping for independent businesses. Organize expenses, keep receipts together, and keep a signed history of every change. Optional AI help, with a person approving every entry."
     />
     <meta name="theme-color" content="#1b1f27" />
     <link rel="canonical" href="https://zapbooks.io/" />
@@ -49,10 +49,13 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Zap Books" />
     <meta property="og:url" content="https://zapbooks.io/" />
-    <meta property="og:title" content="Zap Books: clear books, your control" />
+    <meta
+      property="og:title"
+      content="Zap Books: less bookkeeping, more control"
+    />
     <meta
       property="og:description"
-      content="Bookkeeping for independent and bitcoin-native businesses. Track expenses in dollars or in sats, with a signed history of every change."
+      content="Bookkeeping for independent businesses. Expenses, receipts and a signed history of every change. Your books. Your keys. AI on your terms."
     />
     <meta
       property="og:image"
@@ -62,7 +65,7 @@
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="The Zap Books logo and the headline: Clear books. Your business. Your control."
+      content="The Zap Books logo and the headline: Less bookkeeping. More control."
     />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="stylesheet" href="styles.css" />
@@ -76,13 +79,13 @@
           <img src="brand/zap-books-logo.svg" alt="" width="145" height="34" />
         </a>
         <div class="nav-links">
-          <a href="#how">How it works</a>
-          <a href="#today">Features</a>
-          <a href="#roadmap">Roadmap</a>
-          <a href="#trust">Privacy</a>
+          <a href="#status">What's ready</a>
+          <a href="#ai">AI</a>
+          <a href="#workflow">How it works</a>
+          <a href="#security">Security</a>
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
-          <a href="#beta" class="button button-small">Join the beta</a>
+          <a href="#beta" class="button button-small">Request beta access</a>
         </div>
       </nav>
     </header>
@@ -91,40 +94,428 @@
       <section id="top" class="hero tint">
         <div class="wrap hero-grid">
           <div class="hero-copy">
-            <p class="eyebrow">
-              Bookkeeping for independent and bitcoin-native businesses
-            </p>
-            <h1>Clear books. Your business. Your control.</h1>
+            <p class="eyebrow">Bookkeeping for independent businesses</p>
+            <h1>Less bookkeeping.<br />More control.</h1>
             <p class="lede">
-              Track expenses in dollars or in sats, organize receipts, and keep
-              owner loans and contributions clear. Zap Books helps you keep
-              records you can review, export, and share with your accountant,
-              with a signed history of every change.
+              Organize expenses, keep receipts together, and maintain a signed
+              history of every change. Get AI help on your terms, with human
+              approval before entries reach your books.
             </p>
             <div class="actions">
-              <a href="/demo/" class="button button-large">Try the demo</a>
+              <a href="/demo/" class="button button-large">Explore the demo</a>
               <a href="#beta" class="button button-large button-plain"
-                >Join the beta</a
+                >Request beta access</a
               >
             </div>
+            <p class="brand-line">Your books. Your keys. AI on your terms.</p>
             <p class="note">
               The demo uses fictional businesses and runs entirely in your
-              browser. Nothing is sent anywhere.
+              browser. Nothing is sent anywhere. AI today means an optional
+              receipt reader on your own computer; connecting your own AI
+              assistant is <a href="#ai">coming next</a>.
             </p>
           </div>
 
           <div class="hero-figure">
-            <figure class="review">
-              <div class="review-head">
-                <span class="review-title">Review expense</span>
-                <span class="pill">Sample data</span>
+            <figure class="app">
+              <div class="app-bar" aria-hidden="true">
+                <span class="app-dots"
+                  ><span></span><span></span><span></span
+                ></span>
+                <span class="app-crumb">Juniper Lane Studio / Expenses</span>
               </div>
-              <div class="review-body">
-                <div class="review-receipt">
-                  <span class="step-label">1 · Receipt</span>
+              <div class="app-body">
+                <div class="app-tiles">
+                  <div class="app-tile">
+                    <span class="tile-label">Needs review</span>
+                    <strong class="tile-value tile-zap">1 draft</strong>
+                  </div>
+                  <div class="app-tile">
+                    <span class="tile-label">Approved</span>
+                    <strong class="tile-value">3 entries</strong>
+                  </div>
+                  <div class="app-tile">
+                    <span class="tile-label">Receipts attached</span>
+                    <strong class="tile-value">4 of 4</strong>
+                  </div>
+                </div>
+                <ul class="app-rows">
+                  <li class="app-row row-review">
+                    <span class="row-main"
+                      ><strong>Paper &amp; Pine</strong
+                      ><span
+                        >Office &amp; supplies · receipt attached</span
+                      ></span
+                    >
+                    <span class="row-amount">$42.50</span>
+                    <span class="status status-review">Needs review</span>
+                  </li>
+                  <li class="app-row">
+                    <span class="row-main"
+                      ><strong>Fernway Hosting</strong
+                      ><span>Software · receipt attached</span></span
+                    >
+                    <span class="row-amount">$18.00</span>
+                    <span class="status status-done">Approved · signed</span>
+                  </li>
+                  <li class="app-row">
+                    <span class="row-main"
+                      ><strong>Lumen Print Lab</strong
+                      ><span
+                        >Printing · paid personally by the owner</span
+                      ></span
+                    >
+                    <span class="row-amount">$126.40</span>
+                    <span class="status status-done">Approved · signed</span>
+                  </li>
+                  <li class="app-row">
+                    <span class="row-main"
+                      ><strong>Domain renewal</strong
+                      ><span
+                        >Lightning wallet · $14.70 recorded at entry</span
+                      ></span
+                    >
+                    <span class="row-amount">21,000 sats</span>
+                    <span class="status status-done">Approved · signed</span>
+                  </li>
+                </ul>
+                <p class="app-history">
+                  <span class="history-mark" aria-hidden="true"></span>
+                  Last change: approved by Sam, bookkeeper. Signed and linked to
+                  the change before it.
+                </p>
+              </div>
+              <figcaption>
+                A simplified illustration with fictional data. The
+                <a href="/demo/">demo</a> has the real screens.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="benefits-title" class="section benefits">
+        <div class="wrap stack">
+          <h2 id="benefits-title" class="visually-hidden">
+            What Zap Books does for you
+          </h2>
+          <ul class="benefit-list">
+            <li>
+              <h3>Expenses in order, receipts attached</h3>
+              <p>
+                Enter an expense, attach the photo or PDF, or import payments
+                from your bank's CSV. Possible duplicates and missing details
+                are pointed out before anything is posted.
+              </p>
+            </li>
+            <li>
+              <h3>Clear numbers for you and your accountant</h3>
+              <p>
+                Spending by month and category, balances for bank, card, loan
+                and owner accounts, and CSV exports. Invite your accountant as a
+                read-only viewer.
+              </p>
+            </li>
+            <li>
+              <h3>Every change on the record</h3>
+              <p>
+                Each approved change is signed and linked to the one before.
+                Corrections keep the original and its reversal visible, so
+                nothing quietly disappears.
+              </p>
+            </li>
+          </ul>
+          <p class="benefit-also">
+            <strong>Also built in:</strong> owner loans, contributions and
+            expenses you paid personally. If your business holds bitcoin, keep
+            those books in sats, with the dollar value recorded at each entry.
+            No bitcoin needed to use Zap Books.
+          </p>
+        </div>
+      </section>
+
+      <section id="status" class="section tint">
+        <div class="wrap stack">
+          <div class="intro">
+            <h2>What's ready, and what isn't</h2>
+            <p>
+              Zap Books focuses on expenses and the money between you and your
+              business. It isn't a full replacement for general accounting
+              software yet.
+            </p>
+          </div>
+          <div class="status-cols">
+            <div class="status-col">
+              <h3><span class="pill pill-zap">Available now</span></h3>
+              <ul>
+                <li>
+                  Expense drafts, approval, and corrections that keep the
+                  original visible
+                </li>
+                <li>Receipt photos and PDFs kept with each expense</li>
+                <li>
+                  Bank, card and paid-expense CSV imports, including exports
+                  from tools like QuickBooks or Zoho Books
+                </li>
+                <li>
+                  Owner loans, contributions, repayments, transfers and opening
+                  balances
+                </li>
+                <li>Spending by month and category, and account balances</li>
+                <li>
+                  Read-only accountant access, and CSV exports of expenses, the
+                  journal and balances
+                </li>
+                <li>
+                  More than one business, each with its own records and members
+                </li>
+                <li>
+                  Books in sats: wallets, the dollar value at each entry, buying
+                  and selling bitcoin
+                </li>
+                <li>The local receipt reader (technical setup)</li>
+              </ul>
+            </div>
+            <div class="status-col">
+              <h3><span class="pill pill-next-light">Coming next</span></h3>
+              <ul>
+                <li>
+                  Bring your own AI: connect an agent as an assistant, and use
+                  your own model for receipts
+                </li>
+                <li>Assistant suggestions on the Review screen</li>
+                <li>
+                  Bitcoin cost basis and gains, with a report for your
+                  accountant
+                </li>
+                <li>Lightning payments, matched to receipts</li>
+                <li>Income, including zaps received</li>
+                <li>
+                  A verified, encrypted copy of your books on a relay you run
+                </li>
+                <li>Signing in and snapping receipts on your phone</li>
+              </ul>
+              <p class="status-note">
+                Order and timing may change, and beta members help decide.
+              </p>
+            </div>
+            <div class="status-col status-limits">
+              <h3>Beta limitations</h3>
+              <ul>
+                <li>
+                  Expenses only: no income, invoicing, payroll, sales tax or
+                  bank reconciliation yet.
+                </li>
+                <li>No live bank connections: payments come in by CSV.</li>
+                <li>
+                  Sign-in works in a desktop browser with a Nostr signer
+                  extension. Phone sign-in isn't available yet.
+                </li>
+                <li>
+                  Dollars, euros, pounds and bitcoin are each kept separately,
+                  with no automatic conversion.
+                </li>
+                <li>
+                  The hosted service is in private beta and isn't open for
+                  sign-up yet.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ai" class="section dark">
+        <div class="wrap stack">
+          <div class="intro">
+            <p class="eyebrow eyebrow-dark">AI</p>
+            <h2>Your AI assistant. Your choice.</h2>
+            <p>
+              Choose how you get help with your books, and where that work
+              happens.
+            </p>
+          </div>
+
+          <div class="choices">
+            <article class="choice">
+              <div class="choice-head">
+                <span class="pill pill-zap">Available now</span>
+                <h3>Run AI locally</h3>
+                <p>
+                  A receipt reader that runs on your own computer. It reads
+                  receipts; it isn't a chat assistant.
+                </p>
+              </div>
+              <dl class="choice-facts">
+                <div>
+                  <dt>What it does</dt>
+                  <dd>
+                    Reads a receipt photo or PDF and suggests the vendor, date,
+                    total, tax, tip, fees, discounts, receipt number and a
+                    category from your list. Each suggestion shows the printed
+                    text it came from.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Where it runs</dt>
+                  <dd>
+                    On your computer. The browser hands the receipt to the
+                    reader on your machine, which asks a vision model that also
+                    runs there. The reader refuses a model on any other
+                    computer.
+                  </dd>
+                </div>
+                <div>
+                  <dt>What it sees</dt>
+                  <dd>
+                    The receipt you send it and your category names. Never your
+                    books.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Setup</dt>
+                  <dd>
+                    Technical: Ollama, a 20 GB model and about 22 GB of free
+                    memory (a smaller model needs about 6 GB).
+                    <a
+                      href="https://github.com/spe1020/zap-books/blob/business-finance-mvp/docs/receipt-extraction.md"
+                      >Setup guide</a
+                    >.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Turn it off</dt>
+                  <dd>
+                    Stop the reader. <em>Read receipt</em> switches off and
+                    everything else keeps working.
+                  </dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="choice choice-next">
+              <div class="choice-head">
+                <span class="pill pill-next"
+                  >Coming next · not available yet</span
+                >
+                <h3>Bring your own AI</h3>
+                <p>
+                  Connect an AI agent you already use, and choose your own model
+                  for reading receipts.
+                </p>
+              </div>
+              <dl class="choice-facts">
+                <div>
+                  <dt>What it will do</dt>
+                  <dd>
+                    Your agent joins the business like a person, with its own
+                    key and the AI assistant role. It can create drafts and
+                    attach suggestions. It can't approve, correct, import or
+                    change settings.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Where it runs</dt>
+                  <dd>
+                    Wherever you run it: on your computer, or with an outside AI
+                    provider you pick.
+                  </dd>
+                </div>
+                <div>
+                  <dt>What it sees</dt>
+                  <dd>
+                    Your books, within the history you choose when you add it.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Ready today</dt>
+                  <dd>
+                    The assistant role and its limits, enforced by the service.
+                    The tools that connect an agent aren't available yet, and no
+                    providers are supported yet.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Turn it off</dt>
+                  <dd>
+                    Remove it like any member. It's refused at once, and new
+                    records use a new key.
+                  </dd>
+                </div>
+              </dl>
+              <p class="choice-warning">
+                <strong>An API key isn't the same as local.</strong> If your
+                assistant uses an outside provider, that provider receives what
+                the assistant reads or sends, which can include your books.
+                Their terms decide how it's kept and whether it's used for
+                training. Zap Books can't promise anything on their behalf.
+              </p>
+            </article>
+
+            <article class="choice">
+              <div class="choice-head">
+                <span class="pill pill-plain">Always available</span>
+                <h3>Work without AI</h3>
+                <p>AI is optional. Every bookkeeping task works without it.</p>
+              </div>
+              <dl class="choice-facts">
+                <div>
+                  <dt>What still works</dt>
+                  <dd>
+                    Entering expenses by hand, attaching receipts, importing
+                    bank and card CSVs, approving, correcting, reports and
+                    exports.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Suggestions without AI</dt>
+                  <dd>
+                    Vendor rules you save suggest a category and business
+                    purpose. Duplicate and missing-detail checks run on every
+                    draft.
+                  </dd>
+                </div>
+                <div>
+                  <dt>What it sees</dt>
+                  <dd>No AI is involved, so there's nothing extra to see.</dd>
+                </div>
+                <div>
+                  <dt>Setup</dt>
+                  <dd>None.</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="ai-jobs" class="section">
+        <div class="wrap stack">
+          <div class="intro">
+            <h2>Practical jobs, not vague promises</h2>
+            <p>
+              What AI does in Zap Books today, next to what the assistant is
+              being built to do.
+            </p>
+          </div>
+          <div class="jobs">
+            <figure class="job">
+              <div class="job-top">
+                <span class="pill pill-zap">Available now</span>
+                <span class="mode">Local processing · on this computer</span>
+              </div>
+              <ol class="job-list">
+                <li>Extract the vendor, date and total from a receipt.</li>
+                <li>Suggest details for the expense draft.</li>
+                <li>Flag what it couldn't confirm, for you to check.</li>
+              </ol>
+              <div class="reader">
+                <div class="reader-source">
+                  <span class="step-label">Source: the receipt</span>
                   <div class="receipt">
                     <strong>Paper &amp; Pine</strong>
-                    <span class="muted">Notebooks, pens, folders</span>
+                    <span class="muted">Oct 24, 2026</span>
+                    <span class="muted">Receipt DEMO-RECEIPT-001</span>
                     <span class="receipt-line"
                       ><span>Subtotal</span><span>$40.00</span></span
                     >
@@ -136,321 +527,309 @@
                     >
                   </div>
                 </div>
-                <div class="review-fields">
-                  <span class="step-label">2 · Suggested details</span>
+                <div class="reader-fields">
+                  <span class="step-label">Suggested details</span>
                   <div class="field">
-                    <span class="field-name">Vendor</span>
-                    <span class="field-value">Paper &amp; Pine</span>
+                    <span class="field-row"
+                      ><span class="field-name">Vendor</span
+                      ><span class="field-value">Paper &amp; Pine</span></span
+                    >
+                    <span class="field-evidence"
+                      >Read from “PAPER &amp; PINE”</span
+                    >
                   </div>
                   <div class="field">
-                    <span class="field-name">Total</span>
-                    <span class="field-value">$42.50</span>
-                    <span class="field-name"
-                      >Seen on receipt: “TOTAL $42.50”</span
+                    <span class="field-row"
+                      ><span class="field-name">Total</span
+                      ><span class="field-value">$42.50</span></span
+                    >
+                    <span class="field-evidence">Read from “TOTAL $42.50”</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-row"
+                      ><span class="field-name">Category</span
+                      ><span class="field-value"
+                        >Office &amp; supplies</span
+                      ></span
+                    >
+                    <span class="field-evidence"
+                      >Chosen from your categories</span
                     >
                   </div>
                   <div class="field field-needs">
-                    <span class="field-name">Business purpose</span>
-                    <span class="field-flag"
-                      >Needs you: the receipt can't say why</span
+                    <span class="field-row"
+                      ><span class="field-name">Business purpose</span
+                      ><span class="field-flag">Needs you</span></span
                     >
+                    <span class="field-evidence"
+                      >The receipt can't say why.</span
+                    >
+                  </div>
+                  <div class="review-actions" aria-hidden="true">
+                    <span class="fake-button">Accept</span>
+                    <span class="fake-button fake-plain">Edit</span>
+                    <span class="fake-button fake-plain">Ignore</span>
                   </div>
                 </div>
               </div>
-              <div class="review-approve">
-                <span class="step-label">3 · You approve</span>
-                <span class="fake-button">Approve &amp; post</span>
+              <figcaption>
+                Based on the Review screen, with the fictional sample receipt. A
+                value that doesn't match the printed text is marked
+                <em>unclear</em> instead of guessed. Nothing is applied without
+                your click.
+              </figcaption>
+            </figure>
+
+            <figure class="job job-concept">
+              <div class="job-top">
+                <span class="pill pill-next-light"
+                  >Concept preview · coming next</span
+                >
+                <span class="mode mode-plain">Runs where you choose</span>
               </div>
-              <div class="review-entry">
-                <span class="step-label">4 · Entry</span>
-                <span class="entry-text">Office &amp; supplies · $42.50</span>
-                <span class="entry-state">Posted · signed</span>
+              <p class="concept-note">
+                Not a working feature. This shows what a connected assistant is
+                designed to do.
+              </p>
+              <div class="chat">
+                <p class="chat-question">Which expenses still need review?</p>
+                <div class="chat-sources">
+                  <span class="step-label">Source records</span>
+                  <ul>
+                    <li>
+                      <strong>Paper &amp; Pine</strong> · $42.50 · draft, no
+                      business purpose
+                    </li>
+                    <li>
+                      <strong>Lumen Print Lab</strong> · $126.40 · draft, no
+                      receipt attached
+                    </li>
+                  </ul>
+                </div>
+                <p class="chat-answer">
+                  Two drafts need a person before they can be approved. Paper
+                  &amp; Pine needs a business purpose, and Lumen Print Lab needs
+                  its receipt.
+                </p>
+                <div class="review-actions" aria-hidden="true">
+                  <span class="fake-button">Open in Review</span>
+                  <span class="concept-only">The assistant can't approve.</span>
+                </div>
+              </div>
+              <div class="concept-examples">
+                <span class="step-label">Other planned examples</span>
+                <ul>
+                  <li>“What changed in my spending this month?”</li>
+                  <li>“Draft an expense from this receipt.”</li>
+                </ul>
               </div>
               <figcaption>
-                A simplified view of the Review screen, using the demo's
-                fictional receipt.
+                A concept with fictional data. The demo's
+                <em>Ask assistant</em> panel gives fixed sample answers and uses
+                no AI.
               </figcaption>
             </figure>
           </div>
         </div>
       </section>
 
-      <section aria-label="Built on Nostr" class="strip">
-        <div class="wrap strip-row">
-          <span
-            ><strong>Built on Nostr:</strong> sign in with a key you own instead
-            of a password.</span
-          >
-          <span
-            ><strong>Bitcoin-native:</strong> keep your books in sats today.
-            Cost basis is next on the <a href="#roadmap">roadmap</a>.</span
-          >
-          <span class="strip-accent">Bookkeeping you can verify.</span>
-        </div>
-      </section>
-
-      <section id="how" class="section">
+      <section id="workflow" class="section tint">
         <div class="wrap stack">
           <div class="intro">
-            <h2>From receipt to clean books in three steps.</h2>
+            <h2>Helpful AI. Human approval. Verifiable records.</h2>
             <p>
-              Built for owners who would rather run the business than do the
-              books.
+              From receipt to approved entry, each step has its own protection,
+              and each protection is enforced by the software, not just shown on
+              screen.
             </p>
           </div>
-          <ol class="steps">
+          <ol class="flow">
             <li>
-              <span class="step-number">Step 1</span>
-              <h3>Add an expense</h3>
+              <span class="flow-step">1 · Add</span>
+              <h3>Bring in the expense</h3>
               <p>
-                Enter it by hand, attach a receipt photo or PDF, or import
-                payments from your bank's CSV export.
+                Type it in, attach a receipt photo or PDF, or import a bank or
+                card CSV. Imports arrive as drafts.
               </p>
             </li>
             <li>
-              <span class="step-number">Step 2</span>
-              <h3>Review the details</h3>
+              <span class="flow-step">2 · Prepare</span>
+              <h3>AI helps prepare</h3>
               <p>
-                Review suggested details and check anything flagged as
-                uncertain. Possible duplicates and missing information are
-                pointed out before you post.
+                The receipt reader, or your saved rules, suggest details with
+                their evidence. You accept, edit or ignore each one.
+              </p>
+              <p class="flow-proof">
+                <strong>Enforced:</strong> the reader can't reach your books and
+                has no key to sign with. The AI assistant role can only draft
+                and suggest; the service refuses its approvals.
               </p>
             </li>
             <li>
-              <span class="step-number">Step 3</span>
-              <h3>Approve and post</h3>
+              <span class="flow-step">3 · Approve</span>
+              <h3>Authorized people approve</h3>
               <p>
-                Approving records a balanced entry. Totals, balances and exports
-                update. Approval records the expense; it never sends money.
+                Owners and bookkeepers approve. Viewers only read. Approval
+                records the expense; it never sends money.
+              </p>
+              <p class="flow-proof">
+                <strong>Enforced:</strong> every change is a request signed with
+                the member's own key, and the service checks the signer's role
+                before accepting it.
+              </p>
+            </li>
+            <li>
+              <span class="flow-step">4 · Record</span>
+              <h3>Signed history keeps the trail</h3>
+              <p>
+                The accepted change is signed and linked to the one before.
+                Totals, balances and exports update.
+              </p>
+              <p class="flow-proof">
+                <strong>Enforced:</strong> the app checks the whole chain when
+                it loads your books. A changed, removed or reordered entry makes
+                the check fail.
               </p>
             </li>
           </ol>
         </div>
       </section>
 
-      <section id="today" class="section tint">
+      <section id="security" class="section">
         <div class="wrap stack">
-          <div class="intro">
-            <h2>What you can do today</h2>
-            <p>
-              Zap Books focuses on expenses and the money between you and your
-              business. It isn't a full replacement for general accounting
-              software yet.
-            </p>
+          <div class="security-head">
+            <div class="intro">
+              <h2>Know who can access your books. Know what changed.</h2>
+              <p>
+                What Zap Books does to protect your records, and where the
+                limits are.
+              </p>
+            </div>
+            <div class="security-links">
+              <a
+                href="https://github.com/spe1020/zap-books/blob/business-finance-mvp/docs/decisions/0001-nostr-security-model.md"
+                class="strong-link"
+                >Read the security model</a
+              >
+              <a href="https://github.com/spe1020/zap-books" class="strong-link"
+                >See the source code</a
+              >
+            </div>
           </div>
-          <ul class="cards">
+
+          <ul class="safeguards">
             <li>
-              <strong>Record and correct expenses</strong>
-              <span
-                >Drafts, approval, and corrections that keep the original entry
-                and its reversal visible.</span
-              >
+              <h3>Sign in with a key you control</h3>
+              <p>
+                No password. Your key stays in your signer app, and Zap Books
+                never asks for the secret part of it.
+              </p>
             </li>
             <li>
-              <strong>Keep receipts with each expense</strong>
-              <span
-                >Photos and PDFs. On the hosted service, they're encrypted in
-                your browser before they're uploaded.</span
-              >
-            </li>
-            <li class="card-highlight">
-              <strong>Keep books in sats</strong>
-              <span
-                >Bitcoin wallets, amounts in sats, the dollar value recorded at
-                the time of each entry, and buying or selling bitcoin, all kept
-                apart from your dollar books.</span
-              >
+              <h3>Role-based permissions</h3>
+              <p>
+                Owners, bookkeepers who record and approve, submitters who send
+                receipts, viewers who only read, and an AI assistant role that
+                can never approve.
+              </p>
             </li>
             <li>
-              <strong>Track owner money</strong>
-              <span
-                >Owner loans and contributions, expenses you paid personally,
-                repayments, transfers and opening balances.</span
-              >
+              <h3>Encrypted storage</h3>
+              <p>
+                Receipt files are encrypted in your browser before upload. Each
+                change is encrypted for your members. The service keeps a
+                working copy it can read, on an encrypted disk.
+              </p>
             </li>
             <li>
-              <strong>Import from CSV</strong>
-              <span
-                >Bank and card payments, and paid-expense history exported from
-                tools like QuickBooks or Zoho Books.</span
-              >
+              <h3>Signed change history</h3>
+              <p>
+                Every accepted change is signed and linked to the one before,
+                and checked each time your books load.
+              </p>
             </li>
             <li>
-              <strong>See where money goes</strong>
-              <span
-                >Spending by month and category, and balances for bank, card,
-                loan and owner accounts.</span
-              >
-            </li>
-            <li>
-              <strong>Work with your accountant</strong>
-              <span
-                >Invite them as a read-only viewer, or export expenses, the full
-                journal and balances as CSV.</span
-              >
-            </li>
-            <li>
-              <strong>Run more than one business</strong>
-              <span
-                >Each business keeps its own accounts, records, receipts and
-                members.</span
-              >
-            </li>
-            <li>
-              <strong>Read receipts with private AI</strong>
-              <span
-                >An optional receipt reader runs on your own computer. It needs
-                technical setup and a capable computer.</span
-              >
+              <h3>Recovery and sensitive-change protection</h3>
+              <p>
+                Every business has a second owner or an offline backup key.
+                Changes to owners or keys wait 48 hours and can be vetoed.
+              </p>
             </li>
           </ul>
-          <div class="limits">
-            <strong>Beta limitations</strong>
-            <ul>
-              <li>
-                Expenses only: no income, invoicing, payroll, sales tax or bank
-                reconciliation yet.
-              </li>
-              <li>No live bank connections: payments come in by CSV.</li>
-              <li>
-                Sign-in works in a desktop browser with a Nostr signer
-                extension. Phone sign-in isn't available yet.
-              </li>
-              <li>
-                Dollars, euros, pounds and bitcoin are each kept separately,
-                with no automatic conversion.
-              </li>
-              <li>
-                Bitcoin cost basis and gains aren't tracked yet, and there's no
-                Lightning import or income yet.
-              </li>
-              <li>
-                The hosted service is in private beta and isn't open for sign-up
-                yet.
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
 
-      <section id="roadmap" class="section dark">
-        <div class="wrap stack">
-          <div class="intro">
-            <span class="pill pill-zap">Planned · not available yet</span>
-            <h2>Coming next for bitcoin businesses</h2>
-            <p>
-              Books in sats are available now. Here is what we're building on
-              top of them. Order and timing may change, and beta members help
-              decide.
-            </p>
+          <div class="access">
+            <div class="access-text">
+              <h3>Who can read what</h3>
+              <dl>
+                <div>
+                  <dt>Members you add</dt>
+                  <dd>
+                    According to their role and the history you give them.
+                    Someone you remove can't read new records, but keeps
+                    anything they already saw.
+                  </dd>
+                </div>
+                <div>
+                  <dt>The Zap Books service</dt>
+                  <dd>
+                    Reads each change to check it against the accounting rules
+                    before signing it. The service keeps a working copy it can
+                    read, on an encrypted disk, so encryption doesn't hide your
+                    books from the service.
+                  </dd>
+                </div>
+                <div>
+                  <dt>The local receipt reader</dt>
+                  <dd>
+                    Only the receipt you send it, on your own computer. The
+                    details you accept become part of the expense, like anything
+                    you type.
+                  </dd>
+                </div>
+                <div>
+                  <dt>An AI assistant (coming next)</dt>
+                  <dd>
+                    Your books, within the history you choose, wherever that
+                    assistant runs.
+                  </dd>
+                </div>
+              </dl>
+            </div>
+            <figure class="chain">
+              <span class="pill pill-next">Illustration</span>
+              <ol class="chain-list">
+                <li>
+                  <strong>Expense approved</strong>
+                  <span
+                    >Requested by Sam, bookkeeper · signed by the service</span
+                  >
+                </li>
+                <li>
+                  <strong>Expense corrected</strong>
+                  <span
+                    >Original and reversal kept · linked to the change
+                    before</span
+                  >
+                </li>
+                <li>
+                  <strong>Viewer added</strong>
+                  <span
+                    >Requested by the owner · linked to the change before</span
+                  >
+                </li>
+              </ol>
+              <p class="chain-check">
+                History checked: every link and signature matches
+              </p>
+              <figcaption>
+                An illustration, not a live check. The app runs this check on
+                real books when it loads them; the demo has no service, so it
+                can't show it.
+              </figcaption>
+            </figure>
           </div>
-          <div class="roadmap-lead">
-            <h3>Cost basis and gains</h3>
-            <ul>
-              <li>
-                Every bitcoin you acquire tracked as a lot, with its date and
-                dollar cost, per wallet.
-              </li>
-              <li>
-                When you spend or sell bitcoin, the gain or loss recorded, first
-                in, first out or from the lots you choose.
-              </li>
-              <li>A gains report and export your accountant can work from.</li>
-            </ul>
-            <p class="roadmap-note">
-              How bitcoin is taxed depends on where you are. Zap Books will keep
-              the records; your accountant makes the call.
-            </p>
-          </div>
-          <ul class="cards cards-dark">
-            <li>
-              <strong>Lightning payments</strong>
-              <span
-                >Bring in Lightning payments from your wallet and match them to
-                receipts.</span
-              >
-            </li>
-            <li>
-              <strong>Income, including zaps</strong>
-              <span
-                >Record what comes in as well as what goes out, zaps received
-                included.</span
-              >
-            </li>
-            <li>
-              <strong>A copy on your own relay</strong>
-              <span
-                >Keep a verified, encrypted copy of your books on a relay you
-                run.</span
-              >
-            </li>
-            <li>
-              <strong>Sign in on your phone</strong>
-              <span
-                >Use a remote signer to sign in and snap receipts from your
-                phone.</span
-              >
-            </li>
-            <li>
-              <strong>An AI helper you choose</strong>
-              <span
-                >Connect your own AI to draft entries and suggestions. Only
-                people can approve.</span
-              >
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <section id="trust" class="section">
-        <div class="wrap trust-grid">
-          <div class="trust-intro">
-            <h2>Privacy, ownership and verification</h2>
-            <p>
-              What Zap Books does to protect your records, and where its limits
-              are.
-            </p>
-            <a href="https://github.com/spe1020/zap-books" class="strong-link"
-              >See the code on GitHub</a
-            >
-          </div>
-          <div class="trust-body">
-            <ul class="trust-points">
-              <li>
-                <strong
-                  >Sign in with your own key. No password required.</strong
-                >
-                <span
-                  >Your key stays in your signer app. Zap Books never asks for
-                  your secret key.</span
-                >
-              </li>
-              <li>
-                <strong>Changes leave a verifiable trail.</strong>
-                <span
-                  >Each accepted change is signed and linked to the one before.
-                  The app checks this trail when it loads your books.</span
-                >
-              </li>
-              <li>
-                <strong>Revoke access to future records.</strong>
-                <span
-                  >Removing someone changes the encryption keys for new records.
-                  Records they already saw or downloaded can't be
-                  recalled.</span
-                >
-              </li>
-              <li>
-                <strong
-                  >Review suggested details and check anything flagged as
-                  uncertain.</strong
-                >
-                <span
-                  >Suggestions show the receipt text they came from. Nothing is
-                  posted until a person approves it.</span
-                >
-              </li>
-            </ul>
+          <div class="panels">
             <details class="panel">
               <summary>What “verifiable” does and doesn't mean</summary>
               <div class="panel-body">
@@ -466,13 +845,6 @@
                   category or amount that someone approved is recorded
                   faithfully, and is fixed with a correction that keeps both
                   versions visible.
-                </p>
-                <p>
-                  The Zap Books service reads each change to check it against
-                  the accounting rules before signing it, so it can see your
-                  books. Receipt files and the signed history are stored
-                  encrypted. The service keeps a readable copy of your current
-                  books so it can check each change.
                 </p>
               </div>
             </details>
@@ -490,8 +862,8 @@
                   safe as your own key.
                 </p>
                 <p>
-                  Roles decide who can do what: owners, bookkeepers who record
-                  and approve, and viewers who can only read.
+                  Removing someone changes the encryption keys for new records.
+                  Records they already saw or downloaded can't be recalled.
                 </p>
               </div>
             </details>
@@ -520,7 +892,7 @@
                 with beta members before anyone is charged.</span
               >
             </div>
-            <a href="#beta" class="button button-light">Join the beta</a>
+            <a href="#beta" class="button button-light">Request beta access</a>
           </div>
           <div class="plans">
             <div class="plan">
@@ -565,7 +937,7 @@
 
       <section id="beta" class="section beta">
         <div class="wrap beta-wrap">
-          <h2>Join the beta</h2>
+          <h2>Request beta access</h2>
           <p class="beta-intro">
             We're inviting a small group of businesses to help shape Zap Books.
             New to Nostr? We'll help you get started.
@@ -651,10 +1023,30 @@
             <details>
               <summary>What can I do during the beta?</summary>
               <p>
-                Everything listed under What you can do today: expenses,
+                Everything listed as available under What's ready: expenses,
                 receipts, owner money, CSV imports, reports, exports and
                 inviting members. Beta members also help decide what comes next.
-                The limitations listed there apply.
+                The beta limitations listed there apply.
+              </p>
+            </details>
+            <details>
+              <summary>Do I have to use AI?</summary>
+              <p>
+                No. Every bookkeeping task works without it. The receipt reader
+                is optional and runs on your own computer once you set it up. If
+                it isn't running, you enter the details yourself, and saved
+                vendor rules can still suggest a category and purpose.
+              </p>
+            </details>
+            <details>
+              <summary>Does Zap Books send my books to an AI provider?</summary>
+              <p>
+                No. Zap Books has no cloud AI. The receipt reader runs on your
+                computer and sees only the receipt you send it. When bringing
+                your own AI arrives, you'll decide whether to connect an
+                assistant and where it runs. An assistant that uses an outside
+                provider sends that provider what it reads, so check that
+                provider's terms.
               </p>
             </details>
             <details>
@@ -684,7 +1076,7 @@
                 extension in a desktop browser to sign in. If you've never used
                 one, we'll help you set it up. You can keep books in sats today,
                 with the dollar value recorded at the time of each entry. Cost
-                basis and gains aren't tracked yet; they're next on the roadmap.
+                basis and gains aren't tracked yet; they're coming next.
               </p>
             </details>
             <details>
@@ -692,10 +1084,11 @@
               <p>
                 The members you add, according to their role, and the Zap Books
                 service, which reads each change to check it before recording
-                it. Receipt files and the signed history are stored encrypted;
-                the service keeps a readable copy of your current books so it
-                can check each change. Someone you remove can't read new
-                records, but keeps anything they already saw.
+                it. Receipt files are encrypted in your browser before upload.
+                Each change is encrypted for your members. The service keeps a
+                working copy it can read, on an encrypted disk. Someone you
+                remove can't read new records, but keeps anything they already
+                saw.
               </p>
             </details>
             <details>
@@ -740,15 +1133,15 @@
             height="30"
           />
           <span
-            >Bookkeeping you can verify. Built on Nostr. Open source
-            (MIT).</span
+            >Your books. Your keys. AI on your terms. Open source (MIT).</span
           >
         </div>
         <nav class="footer-links" aria-label="Footer">
-          <a href="https://github.com/spe1020/zap-books">GitHub</a>
-          <a href="#trust">Privacy</a>
+          <a href="/demo/">Demo</a>
+          <a href="#security">Security</a>
+          <a href="https://github.com/spe1020/zap-books">Source code</a>
           <a href="#pricing">Pricing</a>
-          <a href="#beta">Join the beta</a>
+          <a href="#beta">Request beta access</a>
         </nav>
       </div>
     </footer>
