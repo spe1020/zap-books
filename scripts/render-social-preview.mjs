@@ -39,8 +39,8 @@ const html = `<!doctype html>
   p { margin: 0; font-size: 30px; font-weight: 500; color: #92400e; }
 </style>
 <img src="data:image/svg+xml;base64,${logo}" alt="">
-<h1>Clear books.<br>Your business.<br>Your control.</h1>
-<p>Bookkeeping for independent and bitcoin-native businesses</p>`;
+<h1>Less bookkeeping.<br>More control.</h1>
+<p>Your books. Your keys. AI on your terms.</p>`;
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,

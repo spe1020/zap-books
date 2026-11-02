@@ -68,7 +68,7 @@ for (const { name, width, height } of widths) {
       await expect(
         page.getByRole("heading", {
           level: 1,
-          name: "Clear books. Your business. Your control.",
+          name: "Less bookkeeping. More control.",
         }),
       ).toBeVisible();
       await page.evaluate(() => document.fonts.ready);
@@ -101,6 +101,42 @@ for (const { name, width, height } of widths) {
     });
   });
 }
+
+test("planned AI is labeled as planned, wherever it's shown", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const ai = page.locator("#ai");
+  const local = ai.getByRole("article").filter({
+    has: page.getByRole("heading", { name: "Run AI locally" }),
+  });
+  await expect(local).toContainText("Available now");
+  await expect(local).toContainText("it isn't a chat assistant");
+  const own = ai.getByRole("article").filter({
+    has: page.getByRole("heading", { name: "Bring your own AI" }),
+  });
+  await expect(own).toContainText("Coming next · not available yet");
+  await expect(own).toContainText("An API key isn't the same as local.");
+  // The assistant preview is a concept, and says so before anything else.
+  const concept = page.locator(".job-concept");
+  await expect(concept).toContainText("Concept preview · coming next");
+  await expect(concept).toContainText("Not a working feature.");
+  // No provider's logo while no provider connection works: the only
+  // images are the brand's own.
+  const images = await page
+    .locator("img")
+    .evaluateAll((all) => all.map((i) => i.getAttribute("src")!));
+  for (const src of images) expect(src, src).toMatch(/^brand\//);
+  const text = await page.locator("main").innerText();
+  // Claims the page must never make.
+  for (const claim of [
+    /zero[- ]knowledge/i,
+    /unhackable/i,
+    /only you can read/i,
+    /never used for training/i,
+  ])
+    expect(text).not.toMatch(claim);
+});
 
 test("every link and anchor resolves", async ({ page, request }) => {
   await page.goto("/");
